@@ -2,14 +2,65 @@
   "ActorDefinitions": [
     {
       "ID": "Impact",
+      "DodgePoints": 10,
+      "OportunityAttacks": 8,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
       "NumberOfUnlimitedAttacks": 2,
       "UnlimitedAttacksData": ["TornadoInHands", "FastPunch", "JumpKick", "PhysicalCombat"],
-      "NumberOfPowers": 3,
-      "PowersData": ["FatalPush", "AbsurdSpeed", "Profiteer", "Fast", "Lightning", "WhiteFury"],
       "NumberOfPassives": 1,
       "PassivesData": ["SpeedOfSound", "WithoutTime", "DifficultTarget"],
+      "NumberOfPowers": 3,
+      "PowersData": ["FatalPush", "AbsurdSpeed", "Profiteer", "Fast", "Lightning", "WhiteFury"],
       "NumberOfSpecialAbilities": 1,
-      "SpecialAbilitiesData": ["SpeedOfLight", "RunAroundTheWorld", "StopTime"]
+      "SpecialAbilitiesData": ["SpeedOfLight", "RunAroundTheWorld", "StopTime"],
+      "Tecnique": {}
+    },
+    {
+      "ID": "Tecnology",
+      "DodgePoints": 5,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 2,
+      "UnlimitedAttacksData": ["ZLCannon", "Lazer", "Missile", "LazerCannon", "Expert"],
+      "NumberOfPassives": 1,
+      "PassivesData": ["Dueling", "Egoist", "Pressure", "Update"],
+      "NumberOfDevices": 2,
+      "DevicesData": ["Shield", "Fly", "Analysis", "Dash", "SecondAttack", "Absorption", "OutOfOrbit"],
+      "NumberOfSpecialAbilities": 1,
+      "SpecialAbilitiesData": ["Kamikaze", "DeathMachine"],
+      "Tecnique": { "Desert": "d20", "City": "d20", "Landfill": "d20", "Mountain": "d20" }
+    }
+  ],
+  "PassiveDefinitions": [
+    {
+      "ID": "SpeedOfSound",
+      "Description": "SpeedOfSound.Description"
+    },
+    {
+      "ID": "WithoutTime",
+      "Description": "WithoutTime.Description"
+    },
+    {
+      "ID": "DifficultTarget",
+      "Description": "DifficultTarget.Description"
+    },
+    {
+      "ID": "Dueling",
+      "Description": "Dueling.Description"
+    },
+    {
+      "ID": "Egoist",
+      "Description": "Egoist.Description"
+    },
+    {
+      "ID": "Pressure",
+      "Description": "Pressure.Description"
+    },
+    {
+      "ID": "Update",
+      "Description": "Update.Description"
     }
   ],
   "AttackDefinitions": [
@@ -51,6 +102,58 @@
       "LoadTime": 0,
       "Dices": 5,
       "SpecialDescription": "PhysicalCombat.SpecialDescription"
+    },
+    {
+      "ID": "ZlCannon",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 12,
+      "MinimumDistance": 3,
+      "MaximumDistance": 10,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": ["Earth", "Air"]
+    },
+    {
+      "ID": "Lazer",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 6,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": ["Earth", "Air"]
+    },
+    {
+      "ID": "Missile",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 20,
+      "MinimumDistance": 20,
+      "MaximumDistance": 20,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": ["Earth"],
+      "SpecialDescription": "NoPointOfConexion.SpecialDescription"
+    },
+    {
+      "ID": "LazerCannon",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 1,
+      "MinimumDistance": 20,
+      "MaximumDistance": 25,
+      "LoadTime": 0,
+      "Dices": 6,
+      "Ambient": ["Earth", "Air"],
+      "SpecialDescription": "NoPointOfConexion.SpecialDescription"
+    },
+    {
+      "ID": "Expert",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 3,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 5,
+      "Ambient": ["Earth"]
     }
   ],
   "ConsumableDefinitions": [
@@ -83,37 +186,69 @@
       "ID": "WhiteFury",
       "TriggerType": "BeforeAttack",
       "Description": "WhiteFury.Description"
-    }
-  ],
-  "PassiveDefinitions": [
-    {
-      "ID": "SpeedOfSound",
-      "Description": "SpeedOfSound.Description"
     },
     {
-      "ID": "WithoutTime",
-      "Description": "WithoutTime.Description"
+        "ID": "Shield",
+        "TriggerType": "BeforeAttack",
+        "Description": "Shield.Description"
     },
     {
-      "ID": "DifficultTarget",
-      "Description": "DifficultTarget.Description"
+        "ID": "Fly",
+        "TriggerType": "Passive",
+        "Description": "Fly.Description"
+    },
+    {
+        "ID": "Dash",
+        "TriggerType": "Passive",
+        "Description": "Dash.Description"
+    },
+    {
+        "ID": "Analysis",
+        "TriggerType": "BeforeAttack",
+        "Description": "Analysis.Description"
+    },
+    {
+        "ID": "SecondAttack",
+        "TriggerType": "BeforeAttack",
+        "Description": "SecondAttack.Description"
+    },
+    {
+        "ID": "Absorption",
+        "TriggerType": "BeforeAttack",
+        "Description": "Absorption.Description"
+    },
+    {
+        "ID": "OutOfOrbit",
+        "TriggerType": "Passive",
+        "Description": "OutOfOrbit.Description"
     }
   ],
-    "SpecialAbilityDefinitions": [
-        {
-        "ID": "SpeedOfLight",
-        "TriggerType": "Passive",
-        "Description": "SpeedOfLight.Description"
-        },
-        {
-        "ID": "RunAroundTheWorld",
-        "TriggerType": "Passive",
-        "Description": "RunAroundTheWorld.Description"
-        },
-        {
-        "ID": "StopTime",
-        "TriggerType": "Passive",
-        "Description": "StopTime.Description"
-        }
-    ]
+  
+  "SpecialAbilityDefinitions": [
+    {
+      "ID": "SpeedOfLight",
+      "TriggerType": "Passive",
+      "Description": "SpeedOfLight.Description"
+    },
+    {
+      "ID": "RunAroundTheWorld",
+      "TriggerType": "Passive",
+      "Description": "RunAroundTheWorld.Description"
+    },
+    {
+      "ID": "StopTime",
+      "TriggerType": "Passive",
+      "Description": "StopTime.Description"
+    },
+    {
+      "ID": "Kamikaze",
+      "TriggerType": "Passive",
+      "Description": "Kamikaze.Description"
+    },
+    {
+      "ID": "DeathMachine",
+      "TriggerType": "Passive",
+      "Description": "DeathMachine.Description"
+    }
+  ]
 }
