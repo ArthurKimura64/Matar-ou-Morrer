@@ -37,7 +37,7 @@ function renderCharacter(actor, gameData, localization) {
         <div class="col-12 col-md-6 border-end">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Pontos de Pulo/Esquiva: </b>${actor.DodgePoints}</li>
+            <li class="list-group-item"><b>Pontos de Pulo/Empurro: </b>${actor.DodgePoints}</li>
             <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
             <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
             <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
@@ -383,7 +383,7 @@ function renderCharacter(actor, gameData, localization) {
         <div class='col-12 col-md-3 mb-2 mb-md-0 d-flex justify-content-center'>
           <div class='card bg-dark text-white w-100' style='max-width:220px;'>
             <div class='card-body p-2 d-flex flex-column align-items-center'>
-              <div class='fw-bold mb-1' style='font-size:0.95em;'>Pulo/Esquiva Usados</div>
+              <div class='fw-bold mb-1' style='font-size:0.95em;'>Pulo/Empurro Usados</div>
               <div class='input-group flex-nowrap justify-content-center'>
                 <button class='btn btn-outline-danger btn-sm' type='button' id='esquiva-menos'>-</button>
                 <input type='number' class='form-control text-center mx-1' id='esquiva' value='0' min='0' max='10' style='width:60px; text-align:center; font-size:1em;'>
@@ -410,7 +410,7 @@ function renderCharacter(actor, gameData, localization) {
         <div class="col-12 col-md-6">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Pontos de Pulo/Esquiva: </b>${actor.DodgePoints}</li>
+            <li class="list-group-item"><b>Pontos de Pulo/Empurro: </b>${actor.DodgePoints}</li>
             <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
             <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
             <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
