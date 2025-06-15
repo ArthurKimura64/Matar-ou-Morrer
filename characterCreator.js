@@ -55,7 +55,7 @@ function renderCharacter(actor, gameData, localization) {
       </div>
       <div class='mb-4 mt-4 border-top pt-3'>
         <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
-        <h5 class='text-info mb-1'>${localization[`Character.Reivolk.${actor.ID}`] || ""}</h5>
+        <h5 class="mb-2 text-info text-center">${localization[`Character.Reivolk.${actor.ID}.Title`] || ''}</h5>
         <div class='text-light text-center"'>${localization[`Character.Reivolk.${actor.ID}.Description`] || ""}</div>
       </div>
     </div>
@@ -407,7 +407,7 @@ function renderCharacter(actor, gameData, localization) {
       </div>
       <div class="card col-sm-10 my-3 p-0">
       <div class="row g-0">
-        <div class="col-12 col-md-6 border-end">
+        <div class="col-12 col-md-6">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item"><b>Pontos de Esquiva: </b>${actor.DodgePoints}</li>
@@ -425,11 +425,6 @@ function renderCharacter(actor, gameData, localization) {
             <li class="list-group-item"><b>Montanha: </b>${actor.Tecnique.Mountain || "Não definido"}</li>
           </ul>
         </div>
-      </div>
-      <div class='mb-4 mt-4 border-top pt-3'>
-        <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
-        <h5 class='text-info mb-1'>${localization[`Character.Reivolk.${actor.ID}`] || ""}</h5>
-        <div class='text-light text-center"'>${localization[`Character.Reivolk.${actor.ID}.Description`] || ""}</div>
       </div>
     </div>
       ${
@@ -553,7 +548,7 @@ function renderCharacter(actor, gameData, localization) {
       }
       <div class='mb-4 mt-4 border-top pt-3'>
         <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
-        <h5 class='text-info mb-1'>${localization[`Character.Reivolk.${actor.ID}`] || ""}</h5>
+        <h5 class="mb-2 text-info text-center">${localization[`Character.Reivolk.${actor.ID}.Title`] || ''}</h5>
         <div class='text-light text-center"'>${localization[`Character.Reivolk.${actor.ID}.Description`] || ""}</div>
       </div>
       <div class='text-center mt-4'><button class='btn btn-secondary' onclick='location.reload()'>Reiniciar</button></div>
