@@ -36,11 +36,10 @@ function renderCharacter(actor, gameData, localization) {
     <div class="card col-sm-10 my-3">
       <div class="row">
         <ul class="list-group list-group-flush col-12 col-md-5">
-        <div class="card-header">Características</div>
-          <li class="list-group-item"><b>Pontos de Esquiva: </b>${actor.DodgePoints}</li>
-          <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
-          <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
-          <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
+          <li class="list-group-item"><b>Pontos de Esquiva: </b>10</li>
+          <li class="list-group-item"><b>Ataque de Oportunidade: </b>8</li>
+          <li class="list-group-item"><b>Itens de Exploração: </b>2</li>
+          <li class="list-group-item"><b>Dados de Defesa: </b>2</li>
         </ul>
         <div class="d-none d-md-flex col-md-1 justify-content-center align-items-center">
           <div class="vr" style="height: 100%; width:2px;"></div>
@@ -48,18 +47,11 @@ function renderCharacter(actor, gameData, localization) {
         <div class="d-flex d-md-none col-12 px-0 justify-content-center align-items-center my-2">
           <div style="height:2px; width:100%; background:var(--bs-border-color);"></div>
         </div>
-        <ul class="list-group list-group-flush col-12 col-md-5">
-          <div class="card-header">Técnica</div>
-          <li class="list-group-item"><b>Deserto: </b>${actor.Tecnique.Desert|| 'Não definido'}</li>
-          <li class="list-group-item"><b>Cidade: </b>${actor.Tecnique.City|| 'Não definido'}</li>
-          <li class="list-group-item"><b>Lixão: </b>${actor.Tecnique.Landfill|| 'Não definido'}</li>
-          <li class="list-group-item"><b>Montanha: </b>${actor.Tecnique.Mountain|| 'Não definido'}</li>
-        </ul>
-      </div>
-      <div class='mb-4 mt-4 border-top pt-3'>
-        <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
-        <h5 class='text-info mb-1'>${localization[`Character.Reivolk.${actor.ID}.Title`] || ''}</h5>
-        <div class='text-light text-center"'>${localization[`Character.Reivolk.${actor.ID}.Description`] || ''}</div>
+        <div class="col-12 col-md-6 d-flex flex-column align-items-center justify-content-center">
+          <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
+          <h5 class="mb-2 text-info text-center">${localization[`Character.Reivolk.${actor.ID}.Title`] || ''}</h5>
+          <p class="text-light px-2">${localization[`Character.Reivolk.${actor.ID}.Description`] || ''}</p>
+        </div>
       </div>
     </div>
   `;
@@ -143,7 +135,7 @@ function renderCharacter(actor, gameData, localization) {
             <b>Distância:</b> ${attack.MinimumDistance} - ${attack.MaximumDistance} <br>
             <b>Dados:</b> ${attack.Dices} <br>
             <b>Tempo de Recarga:</b> ${attack.LoadTime || 0} segundos <br>
-            ${attack.SpecialDescription ? `${localization[`Attack.${attack.SpecialDescription}`] || ''}` : ''}
+            ${attack.SpecialDescription ? `<i>${localization[`Attack.${attackId}.SpecialDescription`] || ''}</i>` : ''}
           </p>
           <button class=\"btn btn-outline-danger select-btn w-100 mt-2\">Selecionar</button>
         </div>
@@ -164,7 +156,7 @@ function renderCharacter(actor, gameData, localization) {
       const powerDef = (gameData.ConsumableDefinitions || []).find(p => p.ID === powerId) || {};
       const abbr = getTriggerAbbr(powerDef.TriggerType);
       const name = `${abbr} ${(localization[`Consumable.${powerId}`] || formatFallback(powerId)).trim()}`;
-      const desc = localization[`Consumable.${powerDef.Description}`] || '';
+      const desc = localization[`Consumable.${powerId}.Description`] || '';
       card.innerHTML = `
         <div class=\"card-body\">
           <h5 class=\"card-title text-primary\">${name}</h5>
@@ -188,7 +180,7 @@ function renderCharacter(actor, gameData, localization) {
       const passiveDef = (gameData.PassiveDefinitions || []).find(p => p.ID === passiveId) || {};
       const abbr = getTriggerAbbr(passiveDef.TriggerType);
       const name = `${abbr} ${(localization[`Passive.${passiveId}`] || formatFallback(passiveId)).trim()}`;
-      const desc = localization[`Passive.${passiveDef.Description}`] || 'Sem descrição.';
+      const desc = localization[`Passive.${passiveId}.Description`] || 'Sem descrição.';
       card.innerHTML = `
         <div class=\"card-body\">
           <h5 class=\"card-title text-success\">${name}</h5>
@@ -212,7 +204,7 @@ function renderCharacter(actor, gameData, localization) {
       const specialDef = (gameData.SpecialAbilityDefinitions || []).find(s => s.ID === specialId) || {};
       const abbr = getTriggerAbbr(specialDef.TriggerType);
       const name = `${abbr} ${(localization[`Special.${specialId}`] || formatFallback(specialId)).trim()}`;
-      const desc = localization[`Special.${specialDef.Description}`] || 'Sem descrição.';
+      const desc = localization[`Special.${specialId}.Description`] || 'Sem descrição.';
       card.innerHTML = `
         <div class=\"card-body\">
           <h5 class=\"card-title text-warning\">${name}</h5>
@@ -267,7 +259,7 @@ function renderCharacter(actor, gameData, localization) {
         Distância: ${attack.MinimumDistance} - ${attack.MaximumDistance}<br>
         Dados: ${attack.Dices}<br>
         Tempo de Recarga: ${attack.LoadTime || 0} segundos<br>
-        ${attack.SpecialDescription ? `<i>${localization[`Attack.${attack.SpecialDescription}`] || ''}</i><br>` : ''}`;
+        ${attack.SpecialDescription ? `<i>${localization[`Attack.${attack.ID}.SpecialDescription`] || ''}</i><br>` : ''}`;
     }
     function getPowerObj(card) {
       const title = card.querySelector('.card-title').textContent;
@@ -277,13 +269,13 @@ function renderCharacter(actor, gameData, localization) {
       return {
         id,
         name: `${abbr} ${(localization[`Consumable.${id}`] || id)}`,
-        desc: id ? (localization[`Consumable.${id.Description}`] || '') : '',
+        desc: id ? (localization[`Consumable.${id}.Description`] || '') : '',
       };
     }
     function getPassiveInfo(card) {
       const title = card.querySelector('.card-title').textContent;
       const id = (gameData.PassiveDefinitions || []).find(p => title.includes(localization[`Passive.${p.ID}`] || p.ID))?.ID;
-      return id ? `<b>${localization[`Passive.${id}`] || id}</b><br>${localization[`Passive.${id.Description}`] || 'Sem descrição.'}` : card.querySelector('.card-title').textContent;
+      return id ? `<b>${localization[`Passive.${id}`] || id}</b><br>${localization[`Passive.${id}.Description`] || 'Sem descrição.'}` : card.querySelector('.card-title').textContent;
     }
     function getSpecialObj(card) {
       const title = card.querySelector('.card-title').textContent;
@@ -293,7 +285,7 @@ function renderCharacter(actor, gameData, localization) {
       return {
         id,
         name: `${abbr} ${(localization[`Special.${id}`] || id)}`,
-        desc: id ? (localization[`Special.${id.Description}`] || 'Sem descrição.') : '',
+        desc: id ? (localization[`Special.${id}.Description`] || 'Sem descrição.') : '',
       };
     }
     // Seleções detalhadas
@@ -328,7 +320,7 @@ function renderCharacter(actor, gameData, localization) {
               <div class='fw-bold mb-1' style='font-size:0.95em;'>Pontos de Esquiva Usados</div>
               <div class='input-group flex-nowrap justify-content-center'>
                 <button class='btn btn-outline-danger btn-sm' type='button' id='esquiva-menos'>-</button>
-                <input type='number' class='form-control text-center mx-1' id='esquiva' value='0' min='0' max='${actor.DodgePoints}' style='width:60px; text-align:center; font-size:1em;'>
+                <input type='number' class='form-control text-center mx-1' id='esquiva' value='0' min='0' max='10' style='width:60px; text-align:center; font-size:1em;'>
                 <button class='btn btn-outline-success btn-sm' type='button' id='esquiva-mais'>+</button>
               </div>
             </div>
@@ -340,7 +332,7 @@ function renderCharacter(actor, gameData, localization) {
               <div class='fw-bold mb-1' style='font-size:0.95em;'>Itens de Exploração</div>
               <div class='input-group flex-nowrap justify-content-center'>
                 <button class='btn btn-outline-danger btn-sm' type='button' id='item-menos'>-</button>
-                <input type='number' class='form-control text-center mx-1' id='item' value='0' min='0' max='99' style='width:60px; text-align:center; font-size:1em;'>
+                <input type='number' class='form-control text-center mx-1' id='item' value='2' min='0' max='99' style='width:60px; text-align:center; font-size:1em;'>
                 <button class='btn btn-outline-success btn-sm' type='button' id='item-mais'>+</button>
               </div>
             </div>
@@ -348,10 +340,10 @@ function renderCharacter(actor, gameData, localization) {
         </div>
       </div>
       <div class='mb-3'>
-        <b>Pontos de Esquiva:</b> ${actor.DodgePoints}<br>
-        <b>Ataque de Oportunidade:</b> ${actor.OportunityAttacks}<br>
-        <b>Itens de Exploração:</b> ${actor.ExplorationItens}<br>
-        <b>Dados de Defesa:</b> ${actor.NumberOfDefenseDices}<br>
+        <b>Pontos de Esquiva:</b> 10<br>
+        <b>Ataque de Oportunidade:</b> 8<br>
+        <b>Itens de Exploração:</b> 2<br>
+        <b>Dados de Defesa:</b> 2<br>
       </div>
       <h4 class='text-danger'>Ataques Sem Limites:</h4>
       <ul>${ataques.map(a => `<li>${a}</li>`).join('')}</ul>
