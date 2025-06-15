@@ -37,7 +37,7 @@ function renderCharacter(actor, gameData, localization) {
         <div class="col-12 col-md-6 border-end">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Pontos de Esquiva: </b>${actor.DodgePoints}</li>
+            <li class="list-group-item"><b>Pontos de Pulo/Esquiva: </b>${actor.DodgePoints}</li>
             <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
             <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
             <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
@@ -260,7 +260,7 @@ function renderCharacter(actor, gameData, localization) {
   const createBtnRow = document.createElement("div")
   createBtnRow.className = "row justify-content-center my-4"
   const createBtn = document.createElement("button")
-  createBtn.className = "btn btn-lg btn-success"
+  createBtn.className = "btn btn-lg btn-success col-8"
   createBtn.textContent = "Criar Personagem"
   createBtn.disabled = true
   createBtnRow.appendChild(createBtn)
@@ -410,7 +410,7 @@ function renderCharacter(actor, gameData, localization) {
         <div class="col-12 col-md-6">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Pontos de Esquiva: </b>${actor.DodgePoints}</li>
+            <li class="list-group-item"><b>Pontos de Pulo/Esquiva: </b>${actor.DodgePoints}</li>
             <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
             <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
             <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
