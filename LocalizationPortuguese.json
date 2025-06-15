@@ -1,0 +1,42 @@
+{
+    "Character.Name.Impact": "Impacto",
+    "Character.Reivolk.Impact.Title": "Deus da Velocidade",
+    "Character.Reivolk.Impact.Description": "Não precisa mais jogar dado para se movimentar, sua movimentação padrão é de 1 a até 1 Sextilhão e ao empurrar um inimigo pode movê-lo 2 metros para a direção que você quiser.",
+    
+    
+
+    "Attack.TornadoInHands": "Furacão nas Mãos",
+    "Attack.FastPunch": "Soco Rápido",
+    "Attack.FastPunch.SpecialDescription": "Após o ataque, você fica nas costas do inimigo até o fim do combate.",
+    "Attack.JumpKick": "Voadora",    
+    "Attack.JumpKick.SpecialDescription": "Empurra o inimigo até 4 metros, e você se posiciona no seu antigo lugar.",
+    "Attack.PhysicalCombat": "Combate Físico",
+    "Attack.PhysicalCombat.SpecialDescription": "Se acertar todos os 5 dados, o inimigo não pode mais se defender até o fim do combate.",
+
+    "Consumable.FatalPush": "Empurro Fatal",
+    "Consumable.FatalPush.Description": "Quando empurrar um inimigo, o inimigo perderá 5 de vida automaticamente.",
+    "Consumable.AbsurdSpeed": "Velocidade Absurda",
+    "Consumable.AbsurdSpeed.Description": "Pode se locomover a até 2 Pontos de Conexão de distância.",
+    "Consumable.Profiteer": "Aproveitador",
+    "Consumable.Profiteer.Description": "Desvia automaticamente de um dado do ataque inimigo e ganha +1 ataque.",
+    "Consumable.Fast": "Veloz",
+    "Consumable.Fast.Description": "Pode se movimentar até 15 metros.",
+    "Consumable.Lightning": "Raio",
+    "Consumable.Lightning.Description": "Desvia automaticamente de um ataque do inimigo (gasta um Pulo).",
+    "Consumable.WhiteFury": "Fúria Branca",
+    "Consumable.WhiteFury.Description": "Durante um ataque, jogue 1 dado a menos, pois esse dado será um 6 automático.",
+
+    "Passive.SpeedOfSound": "Velocidade do Som",
+    "Passive.SpeedOfSound.Description": "Joga um d20 para se movimentar.",
+    "Passive.WithoutTime": "Sem Tempo",
+    "Passive.WithoutTime.Description": "Dá todos os seus ataques antes que o adversário revide.",
+    "Passive.DifficultTarget": "Alvo Difícil",
+    "Passive.DifficultTarget.Description": "Pode se mover antes de atacar ou revidar (movimentação é opcional).",
+
+    "Special.SpeedOfLight": "Velocidade da Luz",
+    "Special.SpeedOfLight.Description": "Transforma os ataques de revide do inimigo em seus próprios ataques.",
+    "Special.RunAroundTheWorld": "Volta ao mundo",
+    "Special.RunAroundTheWorld.Description": "Durante 3 rodadas, pode ir direto até qualquer ponto do mapa sem rolar dado.",
+    "Special.StopTime": "Parando o Tempo",
+    "Special.StopTime.Description": "Pode jogar 3 vezes seguidas em uma única rodada."
+}

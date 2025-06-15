@@ -1,0 +1,119 @@
+{
+  "ActorDefinitions": [
+    {
+      "ID": "Impact",
+      "NumberOfUnlimitedAttacks": 2,
+      "UnlimitedAttacksData": ["TornadoInHands", "FastPunch", "JumpKick", "PhysicalCombat"],
+      "NumberOfPowers": 3,
+      "PowersData": ["FatalPush", "AbsurdSpeed", "Profiteer", "Fast", "Lightning", "WhiteFury"],
+      "NumberOfPassives": 1,
+      "PassivesData": ["SpeedOfSound", "WithoutTime", "DifficultTarget"],
+      "NumberOfSpecialAbilities": 1,
+      "SpecialAbilitiesData": ["SpeedOfLight", "RunAroundTheWorld", "StopTime"]
+    }
+  ],
+  "AttackDefinitions": [
+    {
+      "ID": "TornadoInHands",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 4,
+      "MinimumDistance": 2,
+      "MaximumDistance": 6,
+      "LoadTime": 0,
+      "Dices": 3
+    },
+    {
+      "ID": "FastPunch",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 5,
+      "MinimumDistance": 4,
+      "MaximumDistance": 9,
+      "LoadTime": 0,
+      "Dices": 3,
+      "SpecialDescription": "FastPunch.SpecialDescription"
+    },
+    {
+      "ID": "JumpKick",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 10,
+      "MinimumDistance": 5,
+      "MaximumDistance": 10,
+      "LoadTime": 0,
+      "Dices": 1,
+      "SpecialDescription": "JumpKick.SpecialDescription"
+    },
+    {
+      "ID": "PhysicalCombat",
+      "TriggerType": "UnlimitedAttack",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 0,
+      "Dices": 5,
+      "SpecialDescription": "PhysicalCombat.SpecialDescription"
+    }
+  ],
+  "ConsumableDefinitions": [
+    {
+      "ID": "FatalPush",
+      "TriggerType": "Passive",
+      "Description": "FatalPush.Description"
+    },
+    {
+      "ID": "AbsurdSpeed",
+      "TriggerType": "Passive",
+      "Description": "AbsurdSpeed.Description"
+    },
+    {
+      "ID": "Profiteer",
+      "TriggerType": "AfterAttack",
+      "Description": "Profiteer.Description"
+    },
+    {
+      "ID": "Fast",
+      "TriggerType": "Passive",
+      "Description": "Fast.Description"
+    },
+    {
+      "ID": "Lightning",
+      "TriggerType": "AfterAttack",
+      "Description": "Lightning.Description"
+    },
+    {
+      "ID": "WhiteFury",
+      "TriggerType": "BeforeAttack",
+      "Description": "WhiteFury.Description"
+    }
+  ],
+  "PassiveDefinitions": [
+    {
+      "ID": "SpeedOfSound",
+      "Description": "SpeedOfSound.Description"
+    },
+    {
+      "ID": "WithoutTime",
+      "Description": "WithoutTime.Description"
+    },
+    {
+      "ID": "DifficultTarget",
+      "Description": "DifficultTarget.Description"
+    }
+  ],
+    "SpecialAbilityDefinitions": [
+        {
+        "ID": "SpeedOfLight",
+        "TriggerType": "Passive",
+        "Description": "SpeedOfLight.Description"
+        },
+        {
+        "ID": "RunAroundTheWorld",
+        "TriggerType": "Passive",
+        "Description": "RunAroundTheWorld.Description"
+        },
+        {
+        "ID": "StopTime",
+        "TriggerType": "Passive",
+        "Description": "StopTime.Description"
+        }
+    ]
+}
