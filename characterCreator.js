@@ -452,30 +452,6 @@ function renderCharacter(actor, gameData, localization) {
           : ""
       }
       ${
-        poderesObjs.length > 0
-          ? `
-        <h4 class='text-primary'>Poderes:</h4>
-        <div id='powers-list' class='row g-2 mb-2'>
-          ${poderesObjs
-            .map(
-              (p, i) => `
-            <div class='col-12 col-md-6'>
-              <div class='card border-primary h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
-                <div class='card-body p-2'>
-                  <div class='fw-bold text-primary mb-1'>${p.name}</div>
-                  <div class='small mb-2'>${p.desc}</div>
-                  <button class='btn btn-sm btn-outline-primary use-power-btn' data-idx='${i}'>Usar</button>
-                </div>
-              </div>
-            </div>`
-            )
-            .join("")}
-        </div>
-        <div class='text-center mb-4'><button id='recover-powers' class='btn btn-sm btn-primary'>Recuperar Poderes</button></div>
-      `
-          : ""
-      }
-      ${
         passivas.length > 0
           ? `
         <h4 class='text-success'>Passivas:</h4>
@@ -495,30 +471,6 @@ function renderCharacter(actor, gameData, localization) {
             </div>`
           }).join("")}
         </div>
-      `
-          : ""
-      }
-      ${
-        especiaisObjs.length > 0
-          ? `
-        <h4 class='text-warning'>Habilidades Especiais:</h4>
-        <div id='specials-list' class='row g-2 mb-2'>
-          ${especiaisObjs
-            .map(
-              (e, i) => `
-            <div class='col-12 col-md-6'>
-              <div class='card border-warning h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
-                <div class='card-body p-2'>
-                  <div class='fw-bold text-warning mb-1'>${e.name}</div>
-                  <div class='small mb-2'>${e.desc}</div>
-                  <button class='btn btn-sm btn-outline-warning use-special-btn' data-idx='${i}'>Usar</button>
-                </div>
-              </div>
-            </div>`
-            )
-            .join("")}
-        </div>
-        <div class='text-center mb-4'><button id='recover-specials' class='btn btn-sm btn-warning'>Recuperar Habilidades Especiais</button></div>
       `
           : ""
       }
@@ -543,6 +495,54 @@ function renderCharacter(actor, gameData, localization) {
             .join("")}
         </div>
         <div class='text-center mb-4'><button id='recover-devices' class='btn btn-sm btn-info'>Recuperar Dispositivos</button></div>
+      `
+          : ""
+      }
+      ${
+        poderesObjs.length > 0
+          ? `
+        <h4 class='text-primary'>Poderes:</h4>
+        <div id='powers-list' class='row g-2 mb-2'>
+          ${poderesObjs
+            .map(
+              (p, i) => `
+            <div class='col-12 col-md-6'>
+              <div class='card border-primary h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
+                <div class='card-body p-2'>
+                  <div class='fw-bold text-primary mb-1'>${p.name}</div>
+                  <div class='small mb-2'>${p.desc}</div>
+                  <button class='btn btn-sm btn-outline-primary use-power-btn' data-idx='${i}'>Usar</button>
+                </div>
+              </div>
+            </div>`
+            )
+            .join("")}
+        </div>
+        <div class='text-center mb-4'><button id='recover-powers' class='btn btn-sm btn-primary'>Recuperar Poderes</button></div>
+      `
+          : ""
+      }
+      ${
+        especiaisObjs.length > 0
+          ? `
+        <h4 class='text-warning'>Habilidades Especiais:</h4>
+        <div id='specials-list' class='row g-2 mb-2'>
+          ${especiaisObjs
+            .map(
+              (e, i) => `
+            <div class='col-12 col-md-6'>
+              <div class='card border-warning h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
+                <div class='card-body p-2'>
+                  <div class='fw-bold text-warning mb-1'>${e.name}</div>
+                  <div class='small mb-2'>${e.desc}</div>
+                  <button class='btn btn-sm btn-outline-warning use-special-btn' data-idx='${i}'>Usar</button>
+                </div>
+              </div>
+            </div>`
+            )
+            .join("")}
+        </div>
+        <div class='text-center mb-4'><button id='recover-specials' class='btn btn-sm btn-warning'>Recuperar Habilidades Especiais</button></div>
       `
           : ""
       }
