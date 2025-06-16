@@ -31,6 +31,23 @@
       "NumberOfSpecialAbilities": 1,
       "SpecialAbilitiesData": ["Kamikaze", "DeathMachine"],
       "Tecnique": { "Desert": "d20", "City": "d20", "Landfill": "d20", "Mountain": "d20" }
+    },
+    {
+      "ID": "Kader",
+      "SpecialDescription": "SpecialDescription.Kader",
+      "DodgePoints": 3,
+      "OportunityAttacks": 8,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfWeapons": 2,
+      "WeaponsData": ["SpiritualBlade", "AncestralSeal", "TemporalHands", "AncestralWeight"],
+      "NumberOfDevices": 3,
+      "DevicesData": ["AlteringOrb", "PendantOfDestiny", "NecklaceOfPower", "SpiritualCore", "DeathOrb"],
+      "NumberOfSpecialAbilities": 1,
+      "SpecialAbilitiesData": ["DefenseBlocked", "DrainedFate"],
+      "Tecnique": { "Desert": "d20", "City": "d20", "Landfill": "d20", "Mountain": "d20" },
+      "SpecialCharacteristics": [{"Type": "textbox", "Title": "Kader.SpecialTextbox"}]
+
     }
   ],
   "PassiveDefinitions": [
@@ -104,7 +121,7 @@
       "SpecialDescription": "PhysicalCombat.SpecialDescription"
     },
     {
-      "ID": "ZlCannon",
+      "ID": "ZLCannon",
       "TriggerType": "UnlimitedAttack",
       "Damage": 12,
       "MinimumDistance": 3,
@@ -154,101 +171,201 @@
       "LoadTime": 1,
       "Dices": 5,
       "Ambient": ["Earth"]
+    },
+    {
+      "ID": "SpiritualBlade",
+      "TriggerType": "Weapon",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": ["Earth"]
+    },
+    {
+      "ID": "AncestralSeal",
+      "TriggerType": "Weapon",
+      "Damage": 2,
+      "MinimumDistance": 3,
+      "MaximumDistance": 7,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": ["Earth"],
+      "SpecialDescription": "AncestralSeal.SpecialDescription"
+    },
+    {
+      "ID": "TemporalHands",
+      "TriggerType": "Weapon",
+      "Damage": 5,
+      "MinimumDistance": 6,
+      "MaximumDistance": 15,
+      "LoadTime": 0,
+      "Dices": 2,
+      "Ambient": ["Earth", "Air"],
+      "SpecialDescription": "NoPointOfConexion.SpecialDescription"
+    },
+    {
+        "ID": "AncestralWeight",
+        "TriggerType": "Weapon",
+        "Damage": 6,
+        "MinimumDistance": 0,
+        "MaximumDistance": 1,
+        "LoadTime": 0,
+        "Dices": 2,
+        "Ambient": ["Earth", "Air", "Space"]
     }
   ],
   "ConsumableDefinitions": [
     {
       "ID": "FatalPush",
       "TriggerType": "Passive",
+      "Type": "Power",
       "Description": "FatalPush.Description"
     },
     {
       "ID": "AbsurdSpeed",
       "TriggerType": "Passive",
+      "Type": "Power",
       "Description": "AbsurdSpeed.Description"
     },
     {
       "ID": "Profiteer",
       "TriggerType": "AfterAttack",
+      "Type": "Power",
       "Description": "Profiteer.Description"
     },
     {
       "ID": "Fast",
       "TriggerType": "Passive",
+      "Type": "Power",
       "Description": "Fast.Description"
     },
     {
       "ID": "Lightning",
       "TriggerType": "AfterAttack",
+      "Type": "Power",
       "Description": "Lightning.Description"
     },
     {
       "ID": "WhiteFury",
       "TriggerType": "BeforeAttack",
+      "Type": "Power",
       "Description": "WhiteFury.Description"
     },
     {
-        "ID": "Shield",
-        "TriggerType": "BeforeAttack",
-        "Description": "Shield.Description"
-    },
-    {
-        "ID": "Fly",
-        "TriggerType": "Passive",
-        "Description": "Fly.Description"
-    },
-    {
-        "ID": "Dash",
-        "TriggerType": "Passive",
-        "Description": "Dash.Description"
-    },
-    {
-        "ID": "Analysis",
-        "TriggerType": "BeforeAttack",
-        "Description": "Analysis.Description"
-    },
-    {
-        "ID": "SecondAttack",
-        "TriggerType": "BeforeAttack",
-        "Description": "SecondAttack.Description"
-    },
-    {
-        "ID": "Absorption",
-        "TriggerType": "BeforeAttack",
-        "Description": "Absorption.Description"
-    },
-    {
-        "ID": "OutOfOrbit",
-        "TriggerType": "Passive",
-        "Description": "OutOfOrbit.Description"
-    }
-  ],
-  
-  "SpecialAbilityDefinitions": [
-    {
       "ID": "SpeedOfLight",
       "TriggerType": "Passive",
+      "Type": "SpecialAbility",
       "Description": "SpeedOfLight.Description"
     },
     {
       "ID": "RunAroundTheWorld",
       "TriggerType": "Passive",
+      "Type": "SpecialAbility",
       "Description": "RunAroundTheWorld.Description"
     },
     {
       "ID": "StopTime",
       "TriggerType": "Passive",
+      "Type": "SpecialAbility",
       "Description": "StopTime.Description"
+    },
+    {
+        "ID": "Shield",
+        "TriggerType": "BeforeAttack",
+        "Type": "Device",
+        "Description": "Shield.Description"
+    },
+    {
+        "ID": "Fly",
+        "TriggerType": "Passive",
+        "Type": "Device",
+        "Description": "Fly.Description"
+    },
+    {
+        "ID": "Dash",
+        "TriggerType": "Passive",
+        "Type": "Device",
+        "Description": "Dash.Description"
+    },
+    {
+        "ID": "Analysis",
+        "TriggerType": "BeforeAttack",
+        "Type": "Device",
+        "Description": "Analysis.Description"
+    },
+    {
+        "ID": "SecondAttack",
+        "TriggerType": "BeforeAttack",
+        "Type": "Device",
+        "Description": "SecondAttack.Description"
+    },
+    {
+        "ID": "Absorption",
+        "TriggerType": "BeforeAttack",
+        "Type": "Device",
+        "Description": "Absorption.Description"
+    },
+    {
+        "ID": "OutOfOrbit",
+        "TriggerType": "Passive",
+        "Type": "Device",
+        "Description": "OutOfOrbit.Description"
     },
     {
       "ID": "Kamikaze",
       "TriggerType": "Passive",
+      "Type": "SpecialAbility",
       "Description": "Kamikaze.Description"
     },
     {
       "ID": "DeathMachine",
       "TriggerType": "Passive",
+      "Type": "SpecialAbility",
       "Description": "DeathMachine.Description"
+    },
+    {
+      "ID": "AlteringOrb",
+      "TriggerType": "Passive",
+      "Type": "Device",
+      "Description": "AlteringOrb.Description"
+    },
+    {
+      "ID": "PendantOfDestiny",
+      "TriggerType": "Passive",
+      "Type": "Device",
+      "Description": "PendantOfDestiny.Description"
+    },
+    {
+      "ID": "NecklaceOfPower",
+      "TriggerType": "BeforeAttack",
+      "Type": "Device",
+      "Description": "NecklaceOfPower.Description"
+    },
+    {
+      "ID": "SpiritualCore",
+      "TriggerType": "BeforeAttack",
+      "Type": "Device",
+      "Description": "SpiritualCore.Description"
+    },
+    {
+      "ID": "DeathOrb",
+      "TriggerType": "BeforeAttack",
+      "Type": "Device",
+      "Description": "DeathOrb.Description"
+    },
+    {
+      "ID": "DefenseBlocked",
+      "TriggerType": "BeforeAttack",
+      "Type": "SpecialAbility",
+      "Description": "DefenseBlocked.Description"
+    },
+    {
+      "ID": "DrainedFate",
+      "TriggerType": "BeforeAttack",
+      "Type": "SpecialAbility",
+      "Description": "DrainedFate.Description"
     }
+
   ]
 }

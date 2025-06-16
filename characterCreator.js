@@ -27,6 +27,7 @@ function renderCharacter(actor, gameData, localization) {
   rowTitle.innerHTML = `
   <div class="col-12"><h1>${localization[`Character.Name.${actor.ID}`] || actor.ID}</h1></div>
   <div class="col-12"><h3>${localization[`Character.Title.${actor.ID}`] || actor.ID}</h3></div>
+  ${actor.SpecialDescription ?`<div class="col-12">${localization[`Character.${actor.SpecialDescription}`]}</div>`: ""}
   `
   container.appendChild(rowTitle)
 
@@ -39,26 +40,26 @@ function renderCharacter(actor, gameData, localization) {
         <div class="col-12 col-md-6 border-end">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Pontos de Pulo/Empurro: </b>${actor.DodgePoints}</li>
-            <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
-            <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
-            <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.DodgePoints`]}: </b>${actor.DodgePoints}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.OportunityAttack`]}: </b>${actor.OportunityAttacks}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.ExplorationItens`]}: </b>${actor.ExplorationItens}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.DefenseDices`]}: </b>${actor.NumberOfDefenseDices}</li>
           </ul>
         </div>
         <div class="col-12 col-md-6">
           <div class="card-header">Técnica</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Deserto: </b>${actor.Tecnique.Desert || "Não definido"}</li>
-            <li class="list-group-item"><b>Cidade: </b>${actor.Tecnique.City || "Não definido"}</li>
-            <li class="list-group-item"><b>Lixão: </b>${actor.Tecnique.Landfill || "Não definido"}</li>
-            <li class="list-group-item"><b>Montanha: </b>${actor.Tecnique.Mountain || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.Dessert`]}: </b>${actor.Tecnique.Desert || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.City`]}: </b>${actor.Tecnique.City || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.Junkyard`]}: </b>${actor.Tecnique.Landfill || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.Mountain`]}: </b>${actor.Tecnique.Mountain || "Não definido"}</li>
           </ul>
         </div>
       </div>
       <div class='mb-4 mt-4 border-top pt-3'>
         <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
         <h5 class="mb-2 text-info text-center">${localization[`Character.Reivolk.${actor.ID}.Title`] || ''}</h5>
-        <div class='text-light text-center"'>${localization[`Character.Reivolk.${actor.ID}.Description`] || ""}</div>
+        <div class='text-light text-center"'>${localization[`Character.Reivolk.${actor.ID}.Description`] || ''}</div>
       </div>
     </div>
   `
@@ -127,136 +128,130 @@ function renderCharacter(actor, gameData, localization) {
     return ""
   }
 
-  // Cards de Ataques sem Limites
-  if (actor.UnlimitedAttacksData && actor.UnlimitedAttacksData.length) {
-    const rowAttacks = document.createElement("div")
-    rowAttacks.className = "row justify-content-center"
-    rowAttacks.innerHTML = `<h3 class='text-danger text-center my-3'>Ataques Sem Limites <span class="fs-6">(Escolha ${actor.NumberOfUnlimitedAttacks})</span></h3>`
-    actor.UnlimitedAttacksData.forEach((attackId) => {
-      const attack = gameData.AttackDefinitions.find((a) => a.ID === attackId)
-      if (!attack) return
+  // Função genérica para criar cards de seleção
+  function createSelectionCards({
+    dataArray, // Array de IDs
+    numberToSelect, // Quantos podem ser selecionados
+    defArray, // Array de definições (ex: gameData.AttackDefinitions)
+    defType, // 'Attack', 'Passive', 'Consumable', 'Special'
+    color, // 'danger', 'success', 'info', 'primary', 'warning'
+    title, // Título da seção
+    getName, // Função para obter nome
+    getDesc, // Função para obter descrição
+    getAbbr, // Função para obter abreviação
+    borderColor, // Cor da borda
+    setupSelection = true // Se deve aplicar seleção limitada
+  }) {
+    if (!dataArray || !dataArray.length) return null
+    const row = document.createElement("div")
+    row.className = "row justify-content-center"
+    row.innerHTML = `<h3 class='text-${color} text-center my-3'>${title} (Escolha ${numberToSelect})</h3>`
+    dataArray.forEach((id) => {
       const card = document.createElement("div")
       card.className = "card col-10 col-md-4 m-2"
-      const ambients = (attack.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")
+      const def = (defArray || []).find((d) => d.ID === id) || {}
+      const abbr = getAbbr ? getAbbr(def.TriggerType) : ""
+      const name = getName ? getName(id, def, abbr) : id
+      const desc = getDesc ? getDesc(def) : ""
       card.innerHTML = `
         <div class=\"card-body\">
-          <h5 class=\"card-title text-danger\">${localization[`Attack.${attackId}`] || attackId}</h5>
-          <p class=\"card-text\">
-            <b>Dano:</b> ${attack.Damage} <br>
-            <b>Distância:</b> ${attack.MinimumDistance} - ${attack.MaximumDistance} <br>
-            <b>Dados:</b> ${attack.Dices} <br>
-            <b>Tempo de Recarga:</b> ${attack.LoadTime || 0} segundos <br>
-            <b>Terreno:</b> ${ambients || 'N/A'} <br>
-            ${attack.SpecialDescription ? `<i>${localization[`Attack.${attack.SpecialDescription}`] || ""}</i>` : ""}
-          </p>
-          <button class=\"btn btn-outline-danger select-btn w-100 mt-2\">Selecionar</button>
+          <h5 class=\"card-title text-${color}\">${name}</h5>
+          <p class=\"card-text\">${desc}</p>
+          <button class=\"btn btn-outline-${color} select-btn w-100 mt-2\">Selecionar</button>
         </div>
       `
-      rowAttacks.appendChild(card)
+      row.appendChild(card)
     })
-    container.appendChild(rowAttacks)
-    setupLimitedSelection(rowAttacks, actor.NumberOfUnlimitedAttacks || 1, "border-danger")
+    container.appendChild(row)
+    if (setupSelection) setupLimitedSelection(row, numberToSelect || 1, borderColor || `border-${color}`)
+    return row
+  }
+
+  // Cards de Ataques sem Limites
+  createSelectionCards({
+    dataArray: actor.UnlimitedAttacksData,
+    numberToSelect: actor.NumberOfUnlimitedAttacks,
+    defArray: gameData.AttackDefinitions,
+    defType: 'Attack',
+    color: 'danger',
+    title: 'Ataques Sem Limites',
+    getName: (id) => localization[`Attack.${id}`] || id,
+    getDesc: (def) => `<b>${localization[`AttackBase.Damage`]}:</b> ${def.Damage} <br><b>${localization[`AttackBase.Distance`]}:</b> ${def.MinimumDistance == def.MaximumDistance ? def.MinimumDistance : `${def.MinimumDistance} - ${def.MaximumDistance}`}<br><b>${localization[`AttackBase.Dices`]}:</b> ${def.Dices} <br><b>${localization[`AttackBase.LoadTime`]}:</b> ${def.LoadTime || 0}<br><b>${localization[`AttackBase.Terrain`]}:</b> ${(def.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'N/A'} <br>${def.SpecialDescription ? `${localization[`Attack.${def.SpecialDescription}`] || ""}` : ""}`,
+    getAbbr: null,
+    borderColor: 'border-danger',
+  })
+
+  // Cards de Armas (Weapons)
+  if (actor.WeaponsData && actor.WeaponsData.length) {
+    createSelectionCards({
+      dataArray: actor.WeaponsData,
+      numberToSelect: actor.NumberOfWeapons,
+      defArray: gameData.AttackDefinitions.filter(a => a.TriggerType === 'Weapon'),
+      defType: 'Weapon',
+      color: 'light', // branco
+      title: 'Armas',
+      getName: (id) => localization[`Attack.${id}`] || id,
+      getDesc: (def) => `<b>${localization[`AttackBase.Damage`]}:</b> ${def.Damage} <br><b>${localization[`AttackBase.Distance`]}:</b> ${def.MinimumDistance == def.MaximumDistance ? def.MinimumDistance : `${def.MinimumDistance} - ${def.MaximumDistance}`}<br><b>${localization[`AttackBase.Dices`]}:</b> ${def.Dices} <br><b>${localization[`AttackBase.LoadTime`]}:</b> ${def.LoadTime || 0}<br><b>${localization[`AttackBase.Terrain`]}:</b> ${(def.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'N/A'} <br>${def.SpecialDescription ? `${localization[`Attack.${def.SpecialDescription}`] || ""}` : ""}`,
+      getAbbr: null,
+      borderColor: 'border-light',
+    })
   }
 
   // Cards de Passivas
-  if (actor.PassivesData && actor.PassivesData.length) {
-    const rowPassives = document.createElement("div")
-    rowPassives.className = "row justify-content-center"
-    rowPassives.innerHTML = `<h3 class='text-success text-center my-3'>Passivas <span class="fs-6">(Escolha ${actor.NumberOfPassives})</span></h3>`
-    actor.PassivesData.forEach((passiveId) => {
-      const card = document.createElement("div")
-      card.className = "card col-10 col-md-4 m-2"
-      const passiveDef = (gameData.PassiveDefinitions || []).find((p) => p.ID === passiveId) || {}
-      const abbr = getTriggerAbbr(passiveDef.TriggerType)
-      const name = `${abbr} ${(localization[`Passive.${passiveId}`] || formatFallback(passiveId)).trim()}`
-      const desc = localization[`Passive.${passiveDef.Description}`] || "Sem descrição."
-      card.innerHTML = `
-        <div class=\"card-body\">
-          <h5 class=\"card-title text-success\">${name}</h5>
-          <p class=\"card-text\">${desc}</p>
-          <button class=\"btn btn-outline-success select-btn w-100 mt-2\">Selecionar</button>
-        </div>
-      `
-      rowPassives.appendChild(card)
-    })
-    container.appendChild(rowPassives)
-    setupLimitedSelection(rowPassives, actor.NumberOfPassives || 1, "border-success")
-  }
+  createSelectionCards({
+    dataArray: actor.PassivesData,
+    numberToSelect: actor.NumberOfPassives,
+    defArray: gameData.PassiveDefinitions,
+    defType: 'Passive',
+    color: 'success',
+    title: 'Passivas',
+    getName: (id, def, abbr) => `${getTriggerAbbr(def.TriggerType)} ${(localization[`Passive.${id}`] || formatFallback(id)).trim()}`,
+    getDesc: (def) => localization[`Passive.${def.Description}`] || "Sem descrição.",
+    getAbbr: getTriggerAbbr,
+    borderColor: 'border-success',
+  })
 
   // Cards de Dispositivos
-  if (actor.DevicesData && actor.DevicesData.length) {
-    const rowDevices = document.createElement("div")
-    rowDevices.className = "row justify-content-center"
-    rowDevices.innerHTML = `<h3 class='text-info text-center my-3'>Dispositivos <span class="fs-6">(Escolha ${actor.NumberOfDevices})</span></h3>`
-    actor.DevicesData.forEach((deviceId) => {
-      const card = document.createElement("div")
-      card.className = "card col-10 col-md-4 m-2"
-      const deviceDef = (gameData.ConsumableDefinitions || []).find((d) => d.ID === deviceId) || {}
-      const abbr = getTriggerAbbr(deviceDef.TriggerType)
-      const name = `${abbr} ${(localization[`Consumable.${deviceId}`] || formatFallback(deviceId)).trim()}`
-      const desc = localization[`Consumable.${deviceDef.Description}`] || ""
-      card.innerHTML = `
-        <div class=\"card-body\">
-          <h5 class=\"card-title text-info\">${name}</h5>
-          <p class=\"card-text\">${desc}</p>
-          <button class=\"btn btn-outline-info select-btn w-100 mt-2\">Selecionar</button>
-        </div>
-      `
-      rowDevices.appendChild(card)
-    })
-    container.appendChild(rowDevices)
-    setupLimitedSelection(rowDevices, actor.NumberOfDevices || 1, "border-info")
-  }
+  createSelectionCards({
+    dataArray: actor.DevicesData,
+    numberToSelect: actor.NumberOfDevices,
+    defArray: gameData.ConsumableDefinitions,
+    defType: 'Consumable',
+    color: 'info',
+    title: 'Dispositivos',
+    getName: (id, def, abbr) => `${getTriggerAbbr(def.TriggerType)} ${(localization[`Consumable.${id}`] || formatFallback(id)).trim()}`,
+    getDesc: (def) => localization[`Consumable.${def.Description}`] || "",
+    getAbbr: getTriggerAbbr,
+    borderColor: 'border-info',
+  })
 
   // Cards de Poderes
-  if (actor.PowersData && actor.PowersData.length) {
-    const rowPowers = document.createElement("div")
-    rowPowers.className = "row justify-content-center"
-    rowPowers.innerHTML = `<h3 class='text-primary text-center my-3'>Poderes <span class="fs-6">(Escolha ${actor.NumberOfPowers})</span></h3>`
-    actor.PowersData.forEach((powerId) => {
-      const card = document.createElement("div")
-      card.className = "card col-10 col-md-4 m-2"
-      const powerDef = (gameData.ConsumableDefinitions || []).find((p) => p.ID === powerId) || {}
-      const abbr = getTriggerAbbr(powerDef.TriggerType)
-      const name = `${abbr} ${(localization[`Consumable.${powerId}`] || formatFallback(powerId)).trim()}`
-      const desc = localization[`Consumable.${powerDef.Description}`] || ""
-      card.innerHTML = `
-        <div class=\"card-body\">
-          <h5 class=\"card-title text-primary\">${name}</h5>
-          <p class=\"card-text\">${desc}</p>
-          <button class=\"btn btn-outline-primary select-btn w-100 mt-2\">Selecionar</button>
-        </div>
-      `
-      rowPowers.appendChild(card)
-    })
-    container.appendChild(rowPowers)
-    setupLimitedSelection(rowPowers, actor.NumberOfPowers || 1, "border-primary")
-  }
+  createSelectionCards({
+    dataArray: actor.PowersData,
+    numberToSelect: actor.NumberOfPowers,
+    defArray: gameData.ConsumableDefinitions,
+    defType: 'Consumable',
+    color: 'primary',
+    title: 'Poderes',
+    getName: (id, def, abbr) => `${getTriggerAbbr(def.TriggerType)} ${(localization[`Consumable.${id}`] || formatFallback(id)).trim()}`,
+    getDesc: (def) => localization[`Consumable.${def.Description}`] || "",
+    getAbbr: getTriggerAbbr,
+    borderColor: 'border-primary',
+  })
 
   // Cards de Habilidades Especiais
-  if (actor.SpecialAbilitiesData && actor.SpecialAbilitiesData.length) {
-    const rowSpecials = document.createElement("div")
-    rowSpecials.className = "row justify-content-center"
-    rowSpecials.innerHTML = `<h3 class='text-warning text-center my-3'>Habilidades Especiais <span class=\"fs-6\">(Escolha ${actor.NumberOfSpecialAbilities})</span></h3>`
-    actor.SpecialAbilitiesData.forEach((specialId) => {
-      const card = document.createElement("div")
-      card.className = "card col-10 col-md-4 m-2"
-      const specialDef = (gameData.SpecialAbilityDefinitions || []).find((s) => s.ID === specialId) || {}
-      const abbr = getTriggerAbbr(specialDef.TriggerType)
-      const name = `${abbr} ${(localization[`Special.${specialId}`] || formatFallback(specialId)).trim()}`
-      const desc = localization[`Special.${specialDef.Description}`] || "Sem descrição."
-      card.innerHTML = `
-        <div class=\"card-body\">
-          <h5 class=\"card-title text-warning\">${name}</h5>
-          <p class=\"card-text\">${desc}</p>
-          <button class=\"btn btn-outline-warning select-btn w-100 mt-2\">Selecionar</button>
-        </div>
-      `
-      rowSpecials.appendChild(card)
-    })
-    container.appendChild(rowSpecials)
-    setupLimitedSelection(rowSpecials, actor.NumberOfSpecialAbilities || 1, "border-warning")
-  }
+  createSelectionCards({
+    dataArray: actor.SpecialAbilitiesData,
+    numberToSelect: actor.NumberOfSpecialAbilities,
+    defArray: gameData.ConsumableDefinitions,
+    defType: 'Special',
+    color: 'warning',
+    title: 'Habilidades Especiais',
+    getName: (id, def, abbr) => `${getTriggerAbbr(def.TriggerType)} ${(localization[`Consumable.${id}`] || formatFallback(id)).trim()}`,
+    getDesc: (def) => localization[`Consumable.${def.Description}`] || "Sem descrição.",
+    getAbbr: getTriggerAbbr,
+    borderColor: 'border-warning',
+  })
 
   // Adiciona botão de criar personagem ao final
   const createBtnRow = document.createElement("div")
@@ -268,20 +263,26 @@ function renderCharacter(actor, gameData, localization) {
   createBtnRow.appendChild(createBtn)
   container.appendChild(createBtnRow)
 
+  // Função utilitária para checar se todos os limites de seleção foram atingidos
+  function allSelectionsOk(actor, container) {
+    const checks = [
+      { data: actor.UnlimitedAttacksData, num: actor.NumberOfUnlimitedAttacks, cls: '.btn-outline-danger.select-btn.active' },
+      { data: actor.PowersData, num: actor.NumberOfPowers, cls: '.btn-outline-primary.select-btn.active' },
+      { data: actor.PassivesData, num: actor.NumberOfPassives, cls: '.btn-outline-success.select-btn.active' },
+      { data: actor.SpecialAbilitiesData, num: actor.NumberOfSpecialAbilities, cls: '.btn-outline-warning.select-btn.active' },
+      { data: actor.DevicesData, num: actor.NumberOfDevices, cls: '.btn-outline-info.select-btn.active' },
+    ]
+    return checks.every(({ data, num, cls }) => {
+      if (data && num) {
+        return container.querySelectorAll(cls).length === num
+      }
+      return true
+    })
+  }
+
   // Função para checar se todos os limites foram atingidos
   function checkSelections() {
-    let ok = true
-    if (actor.UnlimitedAttacksData && actor.NumberOfUnlimitedAttacks)
-      ok = ok && container.querySelectorAll(".btn-outline-danger.select-btn.active").length === actor.NumberOfUnlimitedAttacks
-    if (actor.PowersData && actor.NumberOfPowers)
-      ok = ok && container.querySelectorAll(".btn-outline-primary.select-btn.active").length === actor.NumberOfPowers
-    if (actor.PassivesData && actor.NumberOfPassives)
-      ok = ok && container.querySelectorAll(".btn-outline-success.select-btn.active").length === actor.NumberOfPassives
-    if (actor.SpecialAbilitiesData && actor.NumberOfSpecialAbilities)
-      ok = ok && container.querySelectorAll(".btn-outline-warning.select-btn.active").length === actor.NumberOfSpecialAbilities
-    if (actor.DevicesData && actor.NumberOfDevices)
-      ok = ok && container.querySelectorAll(".btn-outline-info.select-btn.active").length === actor.NumberOfDevices
-    createBtn.disabled = !ok
+    createBtn.disabled = !allSelectionsOk(actor, container)
   }
 
   // Adiciona listeners para atualizar o botão
@@ -300,14 +301,14 @@ function renderCharacter(actor, gameData, localization) {
         return title === locName
       })
       if (!attack) return ""
-      const ambients = (attack.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")
+      const ambients = (attack.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ")
       return `<b>${localization[`Attack.${attack.ID}`] || attack.ID}</b><br>
-        Dano: ${attack.Damage}<br>
-        Distância: ${attack.MinimumDistance} - ${attack.MaximumDistance}<br>
-        Dados: ${attack.Dices}<br>
-        Tempo de Recarga: ${attack.LoadTime || 0} segundos<br>
-        Terreno: ${ambients || 'N/A'}<br>
-        ${attack.SpecialDescription ? `<i>${localization[`Attack.${attack.SpecialDescription}`] || ""}</i><br>` : ""}`
+        ${localization[`AttackBase.Damage`]}: ${attack.Damage}<br>
+        ${localization[`AttackBase.Distance`]}: ${attack.MinimumDistance == attack.MaximumDistance ? attack.MinimumDistance : `${attack.MinimumDistance} - ${attack.MaximumDistance}`}<br>
+        ${localization[`AttackBase.Dices`]}: ${attack.Dices}<br>
+        ${localization[`AttackBase.LoadTime`]}: ${attack.LoadTime || 0}<br>
+        ${localization[`AttackBase.Terrain`]}: ${ambients || 'N/A'}<br>
+        ${attack.SpecialDescription ? `${localization[`Attack.${attack.SpecialDescription}`] || ""}<br>` : ""}`
     }
     function getPowerObj(card) {
       const title = card.querySelector(".card-title").textContent.trim()
@@ -349,6 +350,10 @@ function renderCharacter(actor, gameData, localization) {
     const ataques = Array.from(document.querySelectorAll(".row .card .btn-outline-danger.select-btn.active")).map((btn) =>
       getAttackInfo(btn.closest(".card"))
     )
+    // Armas
+    const armas = Array.from(document.querySelectorAll(".row .card .btn-outline-light.select-btn.active")).map((btn) =>
+      getAttackInfo(btn.closest(".card"))
+    )
     const poderesObjs = Array.from(document.querySelectorAll(".row .card .btn-outline-primary.select-btn.active")).map((btn) =>
       getPowerObj(btn.closest(".card"))
     )
@@ -387,7 +392,7 @@ function renderCharacter(actor, gameData, localization) {
         <div class='col-12 col-md-3 mb-2 mb-md-0 d-flex justify-content-center'>
           <div class='card bg-dark text-white w-100' style='max-width:220px;'>
             <div class='card-body p-2 d-flex flex-column align-items-center'>
-              <div class='fw-bold mb-1' style='font-size:0.95em;'>Pulo/Empurro Usados</div>
+              <div class='fw-bold mb-1' style='font-size:0.95em;'>${localization[`Characteristic.DodgePoints`]}</div>
               <div class='input-group flex-nowrap justify-content-center'>
                 <button class='btn btn-outline-danger btn-sm' type='button' id='esquiva-menos'>-</button>
                 <input type='number' class='form-control text-center mx-1' id='esquiva' value='0' min='0' max='10' style='width:60px; text-align:center; font-size:1em;'>
@@ -399,7 +404,19 @@ function renderCharacter(actor, gameData, localization) {
         <div class='col-12 col-md-3 d-flex justify-content-center'>
           <div class='card bg-dark text-white w-100' style='max-width:220px;'>
             <div class='card-body p-2 d-flex flex-column align-items-center'>
-              <div class='fw-bold mb-1' style='font-size:0.95em;'>Itens de Exploração</div>
+              <div class='fw-bold mb-1' style='font-size:0.95em;'>${localization[`Characteristic.OportunityAttack`]}</div>
+              <div class='input-group flex-nowrap justify-content-center'>
+                <button class='btn btn-outline-danger btn-sm' type='button' id='oport-menos'>-</button>
+                <input type='number' class='form-control text-center mx-1' id='oport' value="0" min='0' max='10' style='width:60px; text-align:center; font-size:1em;'>
+                <button class='btn btn-outline-success btn-sm' type='button' id='oport-mais'>+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='col-12 col-md-3 d-flex justify-content-center'>
+          <div class='card bg-dark text-white w-100' style='max-width:220px;'>
+            <div class='card-body p-2 d-flex flex-column align-items-center'>
+              <div class='fw-bold mb-1' style='font-size:0.95em;'>${localization[`Characteristic.ExplorationItens`]}</div>
               <div class='input-group flex-nowrap justify-content-center'>
                 <button class='btn btn-outline-danger btn-sm' type='button' id='item-menos'>-</button>
                 <input type='number' class='form-control text-center mx-1' id='item' value='0' min='0' max='99' style='width:60px; text-align:center; font-size:1em;'>
@@ -414,19 +431,19 @@ function renderCharacter(actor, gameData, localization) {
         <div class="col-12 col-md-6 border-end">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Pontos de Pulo/Empurro: </b>${actor.DodgePoints}</li>
-            <li class="list-group-item"><b>Ataque de Oportunidade: </b>${actor.OportunityAttacks}</li>
-            <li class="list-group-item"><b>Itens de Exploração: </b>${actor.ExplorationItens}</li>
-            <li class="list-group-item"><b>Dados de Defesa: </b>${actor.NumberOfDefenseDices}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.DodgePoints`]}: </b>${actor.DodgePoints}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.OportunityAttack`]}: </b>${actor.OportunityAttacks}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.ExplorationItens`]}: </b>${actor.ExplorationItens}</li>
+            <li class="list-group-item"><b>${localization[`Characteristic.DefenseDices`]}: </b>${actor.NumberOfDefenseDices}</li>
           </ul>
         </div>
         <div class="col-12 col-md-6">
           <div class="card-header">Técnica</div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Deserto: </b>${actor.Tecnique.Desert || "Não definido"}</li>
-            <li class="list-group-item"><b>Cidade: </b>${actor.Tecnique.City || "Não definido"}</li>
-            <li class="list-group-item"><b>Lixão: </b>${actor.Tecnique.Landfill || "Não definido"}</li>
-            <li class="list-group-item"><b>Montanha: </b>${actor.Tecnique.Mountain || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.Dessert`]}: </b>${actor.Tecnique.Desert || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.City`]}: </b>${actor.Tecnique.City || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.Junkyard`]}: </b>${actor.Tecnique.Landfill || "Não definido"}</li>
+            <li class="list-group-item"><b>${localization[`Terrain.Mountain`]}: </b>${actor.Tecnique.Mountain || "Não definido"}</li>
           </ul>
         </div>
       </div>
@@ -446,6 +463,29 @@ function renderCharacter(actor, gameData, localization) {
               <div class='card border-danger h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
                 <div class='card-body p-2'>
                   <div class='fw-bold text-danger mb-1'>${title}</div>
+                  <div>${resto}</div>
+                </div>
+              </div>
+            </div>`
+          }).join("")}
+        </div>
+      `
+          : ""
+      }
+      ${
+        armas.length > 0
+          ? `
+        <h4 class='text-light'>Armas:</h4>
+        <div class='row g-2 mb-2 justify-content-center'>
+          ${armas.map((a, idx) => {
+            const match = a.match(/<b>(.*?)<\/b>/)
+            const title = match ? match[1] : ''
+            const resto = a.replace(/<b>.*?<\/b><br>/, '')
+            return `
+            <div class='col-12 col-md-3'>
+              <div class='card border-light h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
+                <div class='card-body p-2'>
+                  <div class='fw-bold text-light mb-1'>${title}</div>
                   <div>${resto}</div>
                 </div>
               </div>
@@ -550,6 +590,38 @@ function renderCharacter(actor, gameData, localization) {
       `
           : ""
       }
+      <!-- Special Customization Block -->
+    ${
+      actor.SpecialCharacteristics && Array.isArray(actor.SpecialCharacteristics)
+        ? actor.SpecialCharacteristics.map((spec, idx) => {
+            if (spec.Type === 'textbox') {
+              return `<div class='my-4 d-flex flex-column align-items-center justify-content-center'>
+    <label class='form-label fw-bold text-center w-100'>${localization[`Character.${spec.Title}`] || spec.Title}</label>
+    <textarea rows='8' class='form-control w-75 mb-2' placeholder='Digite sua customização...'></textarea>
+  </div>`;
+            }
+            if (spec.Type === 'counter') {
+              return `<div class='my-4 d-inline-block mx-2 align-top'>
+    <label class='form-label fw-bold text-center w-100'>${localization[`Character.${spec.Title}`] || spec.Title}</label>
+    <div class='d-flex align-items-center justify-content-center' style='width:220px;'>
+      <button class='btn btn-outline-secondary btn-sm me-2' type='button' onclick='this.nextElementSibling.stepDown()'>-</button>
+      <input type='number' class='form-control text-center mx-1' value='0' min='0' max='999' style='width:80px; font-size:1.2em;'>
+      <button class='btn btn-outline-secondary btn-sm ms-2' type='button' onclick='this.previousElementSibling.stepUp()'>+</button>
+    </div>
+  </div>`;
+            }
+            if (spec.Type === 'toggle') {
+              return `<div class='my-4 d-flex flex-column align-items-center justify-content-center'>
+    <div class='form-check form-switch mb-2'>
+      <input class='form-check-input' type='checkbox' id='custom-toggle'>
+      <label class='form-check-label' for='custom-toggle'>${localization[`Character.${spec.Title}`] || spec.Title}</label>
+    </div>
+  </div>`;
+            }
+            return '';
+          }).join('')
+        : ''
+    }
       <div class='mb-4 mt-4 border-top pt-3'>
         <h5 class="text-secondary mb-2 text-center">Modo Reivolk</h5>
         <h5 class="mb-2 text-info text-center">${localization[`Character.Reivolk.${actor.ID}.Title`] || ''}</h5>
@@ -558,84 +630,49 @@ function renderCharacter(actor, gameData, localization) {
       <div class='text-center mt-4'><button class='btn btn-secondary' onclick='location.reload()'>Reiniciar</button></div>
     `
     // Controladores de número
-    ficha.querySelector("#vida-menos").onclick = () => {
-      const input = ficha.querySelector("#vida")
-      input.value = Math.max(parseInt(input.value) - 1, parseInt(input.min))
-    }
-    ficha.querySelector("#vida-mais").onclick = () => {
-      const input = ficha.querySelector("#vida")
-      input.value = Math.min(parseInt(input.value) + 1, parseInt(input.max))
-    }
-    ficha.querySelector("#esquiva-menos").onclick = () => {
-      const input = ficha.querySelector("#esquiva")
-      input.value = Math.max(parseInt(input.value) - 1, parseInt(input.min))
-    }
-    ficha.querySelector("#esquiva-mais").onclick = () => {
-      const input = ficha.querySelector("#esquiva")
-      input.value = Math.min(parseInt(input.value) + 1, parseInt(input.max))
-    }
-    ficha.querySelector("#item-menos").onclick = () => {
-      const input = ficha.querySelector("#item")
-      input.value = Math.max(parseInt(input.value) - 1, parseInt(input.min))
-    }
-    ficha.querySelector("#item-mais").onclick = () => {
-      const input = ficha.querySelector("#item")
-      input.value = Math.min(parseInt(input.value) + 1, parseInt(input.max))
-    }
+    setupIncrementDecrement(ficha, "vida", 0, 999)
+    setupIncrementDecrement(ficha, "esquiva", 0, 10)
+    setupIncrementDecrement(ficha, "item", 0, 99)
+    setupIncrementDecrement(ficha, "oport", 0, 10)
     container.appendChild(ficha)
     // Lógica dos botões Usar/Recuperar
-    ficha.querySelectorAll(".use-power-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        btn.disabled = true
-        btn.textContent = "Usado"
-        btn.closest(".card").classList.add("bg-dark", "opacity-75")
-      })
-    })
-    const recoverPowersBtn = ficha.querySelector("#recover-powers")
-    if (recoverPowersBtn) {
-      recoverPowersBtn.addEventListener("click", function () {
-        ficha.querySelectorAll(".use-power-btn").forEach((btn) => {
-          btn.disabled = false
-          btn.textContent = "Usar"
-          btn.closest(".card").classList.remove("bg-dark", "opacity-75")
-        })
-      })
-    }
-    ficha.querySelectorAll(".use-special-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        btn.disabled = true
-        btn.textContent = "Usado"
-        btn.closest(".card").classList.add("bg-dark", "opacity-75")
-      })
-    })
-    const recoverSpecialsBtn = ficha.querySelector("#recover-specials")
-    if (recoverSpecialsBtn) {
-      recoverSpecialsBtn.addEventListener("click", function () {
-        ficha.querySelectorAll(".use-special-btn").forEach((btn) => {
-          btn.disabled = false
-          btn.textContent = "Usar"
-          btn.closest(".card").classList.remove("bg-dark", "opacity-75")
-        })
-      })
-    }
-    ficha.querySelectorAll(".use-device-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        btn.disabled = true
-        btn.textContent = "Usado"
-        btn.closest(".card").classList.add("bg-dark", "opacity-75")
-      })
-    })
-    const recoverDevicesBtn = ficha.querySelector("#recover-devices")
-    if (recoverDevicesBtn) {
-      recoverDevicesBtn.addEventListener("click", function () {
-        ficha.querySelectorAll(".use-device-btn").forEach((btn) => {
-          btn.disabled = false
-          btn.textContent = "Usar"
-          btn.closest(".card").classList.remove("bg-dark", "opacity-75")
-        })
-      })
-    }
+    setupUseRecoverButtons(ficha, ".use-power-btn", "#recover-powers")
+    setupUseRecoverButtons(ficha, ".use-special-btn", "#recover-specials")
+    setupUseRecoverButtons(ficha, ".use-device-btn", "#recover-devices")
   }
   createBtnRow.appendChild(createBtn)
   container.appendChild(createBtnRow)
+}
+
+// Função utilitária para criar controles de incremento/decremento
+function setupIncrementDecrement(ficha, id, min, max) {
+  ficha.querySelector(`#${id}-menos`).onclick = () => {
+    const input = ficha.querySelector(`#${id}`)
+    input.value = Math.max(parseInt(input.value) - 1, min)
+  }
+  ficha.querySelector(`#${id}-mais`).onclick = () => {
+    const input = ficha.querySelector(`#${id}`)
+    input.value = Math.min(parseInt(input.value) + 1, max)
+  }
+}
+
+// Função utilitária para criar botões de "Usar" e "Recuperar" para poderes, dispositivos e especiais
+function setupUseRecoverButtons(ficha, btnClass, recoverBtnId) {
+  ficha.querySelectorAll(btnClass).forEach((btn) => {
+    btn.addEventListener("click", function () {
+      btn.disabled = true
+      btn.textContent = "Usado"
+      btn.closest(".card").classList.add("bg-dark", "opacity-75")
+    })
+  })
+  const recoverBtn = ficha.querySelector(recoverBtnId)
+  if (recoverBtn) {
+    recoverBtn.addEventListener("click", function () {
+      ficha.querySelectorAll(btnClass).forEach((btn) => {
+        btn.disabled = false
+        btn.textContent = "Usar"
+        btn.closest(".card").classList.remove("bg-dark", "opacity-75")
+      })
+    })
+  }
 }
