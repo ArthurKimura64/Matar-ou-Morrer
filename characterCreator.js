@@ -10,8 +10,7 @@ Promise.all([fetch("GameEconomyData.json").then((r) => r.json()), fetch("Localiz
       btn.type = "button"
       btn.id = actor.ID
       btn.className = "btn btn-outline-light text-center col-6 col-sm-4 col-md-3 col-lg-2 my-2"
-      const locKey = `Character.Name.${actor.ID}`
-      btn.textContent = localization[locKey] || actor.ID
+      btn.textContent = `${localization[`Character.Name.${actor.ID}`]} (${localization[`Character.Title.${actor.ID}`]})` || actor.ID
       btn.addEventListener("click", () => renderCharacter(actor, gameData, localization))
       characterSelection.appendChild(btn)
     })
@@ -25,7 +24,10 @@ function renderCharacter(actor, gameData, localization) {
   // Título
   const rowTitle = document.createElement("div")
   rowTitle.className = "row justify-content-center text-center"
-  rowTitle.innerHTML = `<div class="col-12"><h1>${localization[`Character.Name.${actor.ID}`] || actor.ID}</h1></div>`
+  rowTitle.innerHTML = `
+  <div class="col-12"><h1>${localization[`Character.Name.${actor.ID}`] || actor.ID}</h1></div>
+  <div class="col-12"><h3>${localization[`Character.Title.${actor.ID}`] || actor.ID}</h3></div>
+  `
   container.appendChild(rowTitle)
 
   // Card principal
@@ -134,7 +136,7 @@ function renderCharacter(actor, gameData, localization) {
       const attack = gameData.AttackDefinitions.find((a) => a.ID === attackId)
       if (!attack) return
       const card = document.createElement("div")
-      card.className = "card col-10 col-md-5 m-2"
+      card.className = "card col-10 col-md-4 m-2"
       const ambients = (attack.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")
       card.innerHTML = `
         <div class=\"card-body\">
@@ -163,7 +165,7 @@ function renderCharacter(actor, gameData, localization) {
     rowPassives.innerHTML = `<h3 class='text-success text-center my-3'>Passivas <span class="fs-6">(Escolha ${actor.NumberOfPassives})</span></h3>`
     actor.PassivesData.forEach((passiveId) => {
       const card = document.createElement("div")
-      card.className = "card col-10 col-md-5 m-2"
+      card.className = "card col-10 col-md-4 m-2"
       const passiveDef = (gameData.PassiveDefinitions || []).find((p) => p.ID === passiveId) || {}
       const abbr = getTriggerAbbr(passiveDef.TriggerType)
       const name = `${abbr} ${(localization[`Passive.${passiveId}`] || formatFallback(passiveId)).trim()}`
@@ -188,7 +190,7 @@ function renderCharacter(actor, gameData, localization) {
     rowDevices.innerHTML = `<h3 class='text-info text-center my-3'>Dispositivos <span class="fs-6">(Escolha ${actor.NumberOfDevices})</span></h3>`
     actor.DevicesData.forEach((deviceId) => {
       const card = document.createElement("div")
-      card.className = "card col-10 col-md-5 m-2"
+      card.className = "card col-10 col-md-4 m-2"
       const deviceDef = (gameData.ConsumableDefinitions || []).find((d) => d.ID === deviceId) || {}
       const abbr = getTriggerAbbr(deviceDef.TriggerType)
       const name = `${abbr} ${(localization[`Consumable.${deviceId}`] || formatFallback(deviceId)).trim()}`
@@ -213,7 +215,7 @@ function renderCharacter(actor, gameData, localization) {
     rowPowers.innerHTML = `<h3 class='text-primary text-center my-3'>Poderes <span class="fs-6">(Escolha ${actor.NumberOfPowers})</span></h3>`
     actor.PowersData.forEach((powerId) => {
       const card = document.createElement("div")
-      card.className = "card col-10 col-md-5 m-2"
+      card.className = "card col-10 col-md-4 m-2"
       const powerDef = (gameData.ConsumableDefinitions || []).find((p) => p.ID === powerId) || {}
       const abbr = getTriggerAbbr(powerDef.TriggerType)
       const name = `${abbr} ${(localization[`Consumable.${powerId}`] || formatFallback(powerId)).trim()}`
@@ -238,7 +240,7 @@ function renderCharacter(actor, gameData, localization) {
     rowSpecials.innerHTML = `<h3 class='text-warning text-center my-3'>Habilidades Especiais <span class=\"fs-6\">(Escolha ${actor.NumberOfSpecialAbilities})</span></h3>`
     actor.SpecialAbilitiesData.forEach((specialId) => {
       const card = document.createElement("div")
-      card.className = "card col-10 col-md-5 m-2"
+      card.className = "card col-10 col-md-4 m-2"
       const specialDef = (gameData.SpecialAbilityDefinitions || []).find((s) => s.ID === specialId) || {}
       const abbr = getTriggerAbbr(specialDef.TriggerType)
       const name = `${abbr} ${(localization[`Special.${specialId}`] || formatFallback(specialId)).trim()}`
@@ -361,12 +363,14 @@ function renderCharacter(actor, gameData, localization) {
     )
     // Limpa container
     container.innerHTML = ""
+    // Rola para o topo da página ao criar personagem
+    window.scrollTo(0, 0)
     // Mostra ficha final
     const ficha = document.createElement("div")
-    ficha.className = "card col-10 col-md-10 mx-auto my-5 p-4"
+    ficha.className = "card col-12 col-md-12 mx-auto my-5 p-4"
     ficha.innerHTML = `
       <h2 class='text-center mb-4'>Ficha do Personagem</h2>
-      <h3 class='text-center mb-3'>${localization[`Character.Name.${actor.ID}`] || actor.ID}</h3>
+      <h3 class='text-center mb-3'>${`${localization[`Character.Name.${actor.ID}`]} (${localization[`Character.Title.${actor.ID}`]})` || actor.ID}</h3>
       <div class='mb-3 row justify-content-center text-center'>
         <div class='col-12 col-md-3 mb-2 mb-md-0 d-flex justify-content-center'>
           <div class='card bg-dark text-white w-100' style='max-width:220px;'>
@@ -405,9 +409,9 @@ function renderCharacter(actor, gameData, localization) {
           </div>
         </div>
       </div>
-      <div class="card col-sm-10 my-3 p-0">
+      <div class="card col-sm-7 mx-auto my-3 p-0">
       <div class="row g-0">
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-6 border-end">
           <div class="card-header">Características</div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item"><b>Pontos de Pulo/Empurro: </b>${actor.DodgePoints}</li>
@@ -431,14 +435,14 @@ function renderCharacter(actor, gameData, localization) {
         ataques.length > 0
           ? `
         <h4 class='text-danger'>Ataques Sem Limites:</h4>
-        <div class='row g-2 mb-2'>
+        <div class='row g-2 mb-2 justify-content-center'>
           ${ataques.map((a, idx) => {
             // Extrai o título do ataque (primeira linha em <b>...</b>)
             const match = a.match(/<b>(.*?)<\/b>/)
             const title = match ? match[1] : ''
             const resto = a.replace(/<b>.*?<\/b><br>/, '')
             return `
-            <div class='col-12 col-md-6'>
+            <div class='col-12 col-md-3'>
               <div class='card border-danger h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
                 <div class='card-body p-2'>
                   <div class='fw-bold text-danger mb-1'>${title}</div>
@@ -455,13 +459,13 @@ function renderCharacter(actor, gameData, localization) {
         passivas.length > 0
           ? `
         <h4 class='text-success'>Passivas:</h4>
-        <div class='row g-2 mb-2'>
+        <div class='row g-2 mb-2 justify-content-center'>
           ${passivas.map((pv) => {
             const match = pv.match(/<b>(.*?)<\/b>/)
             const title = match ? match[1] : ''
             const resto = pv.replace(/<b>.*?<\/b><br>/, '')
             return `
-            <div class='col-12 col-md-6'>
+            <div class='col-12 col-md-3'>
               <div class='card border-success h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
                 <div class='card-body p-2'>
                   <div class='fw-bold text-success mb-1'>${title}</div>
@@ -478,11 +482,11 @@ function renderCharacter(actor, gameData, localization) {
         dispositivosObjs.length > 0
           ? `
         <h4 class='text-info'>Dispositivos:</h4>
-        <div id='devices-list' class='row g-2 mb-2'>
+        <div id='devices-list' class='row g-2 mb-2 justify-content-center'>
           ${dispositivosObjs
             .map(
               (d, i) => `
-            <div class='col-12 col-md-6'>
+            <div class='col-12 col-md-3'>
               <div class='card border-info h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
                 <div class='card-body p-2'>
                   <div class='fw-bold text-info mb-1'>${d.name}</div>
@@ -502,11 +506,11 @@ function renderCharacter(actor, gameData, localization) {
         poderesObjs.length > 0
           ? `
         <h4 class='text-primary'>Poderes:</h4>
-        <div id='powers-list' class='row g-2 mb-2'>
+        <div id='powers-list' class='row g-2 mb-2 justify-content-center'>
           ${poderesObjs
             .map(
               (p, i) => `
-            <div class='col-12 col-md-6'>
+            <div class='col-12 col-md-3'>
               <div class='card border-primary h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
                 <div class='card-body p-2'>
                   <div class='fw-bold text-primary mb-1'>${p.name}</div>
@@ -526,11 +530,11 @@ function renderCharacter(actor, gameData, localization) {
         especiaisObjs.length > 0
           ? `
         <h4 class='text-warning'>Habilidades Especiais:</h4>
-        <div id='specials-list' class='row g-2 mb-2'>
+        <div id='specials-list' class='row g-2 mb-2 justify-content-center'>
           ${especiaisObjs
             .map(
               (e, i) => `
-            <div class='col-12 col-md-6'>
+            <div class='col-12 col-md-3'>
               <div class='card border-warning h-100' style='background: var(--bs-gray-800, #212529); color: #fff;'>
                 <div class='card-body p-2'>
                   <div class='fw-bold text-warning mb-1'>${e.name}</div>
