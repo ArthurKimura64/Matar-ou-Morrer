@@ -73,7 +73,7 @@ function renderCharacter(actor, gameData, localization) {
       const card = btn.closest(".card")
       card.classList.remove("border-3", "border-danger", "border-primary", "border-success", "border-warning")
       card.classList.add("border", "border-secondary")
-      btn.textContent = ${localization[`Characteristic.Select`]}
+      btn.textContent = localization[`Characteristic.Select`]
       btn.classList.remove("active")
       btn.disabled = false
       card.classList.remove("bg-dark", "opacity-75", "shadow")
@@ -85,13 +85,13 @@ function renderCharacter(actor, gameData, localization) {
           card.classList.add("border-3", borderColor, "shadow")
           card.style.background = "var(--bs-gray-800)" // Bootstrap gray-900
           card.style.color = "#fff"
-          btn.textContent = ${localization[`Characteristic.Selected`]}
+          btn.textContent = localization[`Characteristic.Selected`]
         } else {
           card.classList.remove("border-3", borderColor, "shadow")
           card.classList.add("border-secondary")
           card.style.background = ""
           card.style.color = ""
-          btn.textContent = ${localization[`Characteristic.Select`]}
+          btn.textContent = localization[`Characteristic.Select`]
         }
         const selected = row.querySelectorAll(".select-btn.active")
         if (selected.length >= maxSelectable) {
