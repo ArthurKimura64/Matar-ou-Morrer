@@ -453,11 +453,27 @@
         "Attack.Imortal4"
       ],
       "WeaponsData": [],
-      "PassivesData": [],
-      "PowersData": [],
+      "PassivesData": [
+        "Passive.Imortal1",
+        "Passive.Imortal2",
+        "Passive.Imortal3",
+        "Passive.Imortal4"
+      ],
+      "PowersData": [
+        "Power.Imortal1",
+        "Power.Imortal2",
+        "Power.Imortal3",
+        "Power.Imortal4",
+        "Power.Imortal5",
+        "Power.Imortal6"
+      ],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Imortal1",
+        "PassiveSpecialAbility.Imortal2",
+        "PassiveSpecialAbility.Imortal3"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -590,6 +606,22 @@
       "Description": "Passive.Protetor5.Description"
     },
     {
+      "ID": "Passive.Imortal1",
+      "Description": "Passive.Imortal1.Description"
+    },
+    {
+      "ID": "Passive.Imortal2",
+      "Description": "Passive.Imortal2.Description"
+    },
+    {
+      "ID": "Passive.Imortal3",
+      "Description": "Passive.Imortal3.Description"
+    },
+    {
+      "ID": "Passive.Imortal4",
+      "Description": "Passive.Imortal4.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -616,6 +648,18 @@
     {
       "ID": "PassiveSpecialAbility.Protetor2",
       "Description": "PassiveSpecialAbility.Protetor2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Imortal1",
+      "Description": "PassiveSpecialAbility.Imortal1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Imortal2",
+      "Description": "PassiveSpecialAbility.Imortal2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Imortal3",
+      "Description": "PassiveSpecialAbility.Imortal3.Description"
     }
   ],
   "AttackDefinitions": [
@@ -770,8 +814,8 @@
     {
       "ID": "Attack.Atomico2",
       "Damage": 6,
-      "MinimumDistance": "?rea 1",
-      "MaximumDistance": "?rea 1",
+      "MinimumDistance": "Área 1",
+      "MaximumDistance": "Área 1",
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
@@ -782,8 +826,8 @@
     {
       "ID": "Attack.Atomico3",
       "Damage": 5,
-      "MinimumDistance": "Regi?o",
-      "MaximumDistance": "Regi?o",
+      "MinimumDistance": "Região",
+      "MaximumDistance": "Região",
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [
@@ -1598,6 +1642,48 @@
         "Passive"
       ],
       "Description": "Power.Protetor8.Description"
+    },
+    {
+      "ID": "Power.Imortal1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Imortal1.Description"
+    },
+    {
+      "ID": "Power.Imortal2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Imortal2.Description"
+    },
+    {
+      "ID": "Power.Imortal3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Imortal3.Description"
+    },
+    {
+      "ID": "Power.Imortal4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Imortal4.Description"
+    },
+    {
+      "ID": "Power.Imortal5",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Imortal5.Description"
+    },
+    {
+      "ID": "Power.Imortal6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Imortal6.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
