@@ -416,7 +416,9 @@
         "Attack.Destroul7",
         "Attack.Destroul8",
         "Attack.Destroul9",
-        "Attack.Destroul10"
+        "Attack.Destroul10",
+        "Attack.Destroul11",
+        "Attack.Destroul12"
       ],
       "WeaponsData": [],
       "PassivesData": [],
@@ -994,6 +996,32 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Destroul10.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destroul11",
+      "Damage": 1,
+      "MinimumDistance": 40,
+      "MaximumDistance": 1000,
+      "LoadTime": 5,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Destroul11.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destroul12",
+      "Damage": 40,
+      "MinimumDistance": 27,
+      "MaximumDistance": 40,
+      "LoadTime": 0,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Destroul12.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
