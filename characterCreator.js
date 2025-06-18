@@ -572,14 +572,7 @@ function renderCharacter(actor, gameData, localization) {
   </div>`;
             }
             if (spec.Type === 'counter') {
-              return `<div class='my-4 d-inline-block mx-2 align-top'>
-    <label class='form-label fw-bold text-center w-100'>${localization[`Character.${spec.Title}`] || spec.Title}</label>
-    <div class='d-flex align-items-center justify-content-center' style='width:220px;'>
-      <button class='btn btn-outline-secondary btn-sm me-2' type='button' onclick='this.nextElementSibling.stepDown()'>-</button>
-      <input class='number' type='number' class='form-control text-center mx-1' value='0' min='0' max='999' style='width:80px; font-size:1.2em;'>
-      <button class='btn btn-outline-secondary btn-sm ms-2' type='button' onclick='this.previousElementSibling.stepUp()'>+</button>
-    </div>
-  </div>`;
+              return `TOBEADDED`;
             }
             if (spec.Type === 'toggle') {
               return `<div class='my-4 d-flex flex-column align-items-center justify-content-center'>
