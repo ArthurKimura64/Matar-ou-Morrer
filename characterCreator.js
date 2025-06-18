@@ -571,9 +571,6 @@ function renderCharacter(actor, gameData, localization) {
     <textarea rows='8' class='form-control w-75 mb-2' placeholder='Digite sua customização...'></textarea>
   </div>`;
             }
-            if (spec.Type === 'counter') {
-              return `TOBEADDED`;
-            }
             if (spec.Type === 'toggle') {
               return `<div class='my-4 d-flex flex-column align-items-center justify-content-center'>
     <div class='form-check form-switch mb-2'>
