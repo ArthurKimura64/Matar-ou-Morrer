@@ -1,1267 +1,349 @@
 {
-  "ActorDefinitions": [
-    {
-      "ID": "Impact",
-      "DodgePoints": 10,
-      "OportunityAttacks": 8,
-      "ExplorationItens": 2,
-      "NumberOfDefenseDices": 2,
-      "NumberOfUnlimitedAttacks": 2,
-      "NumberOfWeapons": 0,
-      "NumberOfPassives": 1,
-      "NumberOfPowers": 3,
-      "NumberOfDevices": 0,
-      "NumberOfSpecialAbilities": 1,
-      "NumberOfPassiveSpecialAbilities": 0,
-      "Tecnique": {
-        "Desert": "d6",
-        "City": "d20",
-        "Landfill": "d12",
-        "Mountain": "d12"
-      },
-      "UnlimitedAttacksData": [
-        "Attack.Impact1",
-        "Attack.Impact2",
-        "Attack.Impact3",
-        "Attack.Impact4"
-      ],
-      "WeaponsData": [],
-      "PassivesData": [
-        "Passive.Impact1",
-        "Passive.Impact2",
-        "Passive.Impact3"
-      ],
-      "PowersData": [
-        "Power.Impact1",
-        "Power.Impact2",
-        "Power.Impact3",
-        "Power.Impact4",
-        "Power.Impact5",
-        "Power.Impact6"
-      ],
-      "DevicesData": [],
-      "SpecialAbilitiesData": [
-        "SpecialAbility.Impact1",
-        "SpecialAbility.Impact2",
-        "SpecialAbility.Impact3"
-      ],
-      "PassiveSpecialAbilitiesData": []
-    },
-    {
-      "ID": "Tecnology",
-      "DodgePoints": 5,
-      "OportunityAttacks": 5,
-      "ExplorationItens": 3,
-      "NumberOfDefenseDices": 2,
-      "NumberOfUnlimitedAttacks": 2,
-      "NumberOfWeapons": 0,
-      "NumberOfPassives": 1,
-      "NumberOfPowers": 0,
-      "NumberOfDevices": 2,
-      "NumberOfSpecialAbilities": 1,
-      "NumberOfPassiveSpecialAbilities": 0,
-      "Tecnique": {
-        "Desert": "d20",
-        "City": "d20",
-        "Landfill": "d20",
-        "Mountain": "d20"
-      },
-      "UnlimitedAttacksData": [
-        "Attack.Tecnology1",
-        "Attack.Tecnology2",
-        "Attack.Tecnology3",
-        "Attack.Tecnology4",
-        "Attack.Tecnology5"
-      ],
-      "WeaponsData": [],
-      "PassivesData": [
-        "Passive.Tecnology1",
-        "Passive.Tecnology2",
-        "Passive.Tecnology3",
-        "Passive.Tecnology4"
-      ],
-      "PowersData": [],
-      "DevicesData": [
-        "Device.Tecnology1",
-        "Device.Tecnology2",
-        "Device.Tecnology3",
-        "Device.Tecnology4",
-        "Device.Tecnology5",
-        "Device.Tecnology6",
-        "Device.Tecnology7"
-      ],
-      "SpecialAbilitiesData": [
-        "SpecialAbility.Tecnology1",
-        "SpecialAbility.Tecnology2"
-      ],
-      "PassiveSpecialAbilitiesData": []
-    },
-    {
-      "ID": "Tai",
-      "DodgePoints": 5,
-      "OportunityAttacks": 4,
-      "ExplorationItens": 3,
-      "NumberOfDefenseDices": 1,
-      "NumberOfUnlimitedAttacks": 1,
-      "NumberOfWeapons": 0,
-      "NumberOfPassives": 0,
-      "NumberOfPowers": 3,
-      "NumberOfDevices": 3,
-      "NumberOfSpecialAbilities": 0,
-      "NumberOfPassiveSpecialAbilities": 0,
-      "Tecnique": {
-        "Desert": "d8",
-        "City": "d12",
-        "Landfill": "d10",
-        "Mountain": "d4"
-      },
-      "UnlimitedAttacksData": [
-        "Attack.Tai1",
-        "Attack.Tai2"
-      ],
-      "WeaponsData": [],
-      "PassivesData": [],
-      "PowersData": [
-        "Power.Tai1",
-        "Power.Tai2",
-        "Power.Tai3",
-        "Power.Tai4",
-        "Power.Tai5",
-        "Power.Tai6",
-        "Power.Tai7"
-      ],
-      "DevicesData": [
-        "Device.Tai1",
-        "Device.Tai2",
-        "Device.Tai3",
-        "Device.Tai4",
-        "Device.Tai5",
-        "Device.Tai6",
-        "Device.Tai7"
-      ],
-      "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
-    },
-    {
-      "ID": "Atomico",
-      "DodgePoints": 10,
-      "OportunityAttacks": 3,
-      "ExplorationItens": 2,
-      "NumberOfDefenseDices": 1,
-      "NumberOfUnlimitedAttacks": 1,
-      "NumberOfWeapons": 0,
-      "NumberOfPassives": 1,
-      "NumberOfPowers": 0,
-      "NumberOfDevices": 0,
-      "NumberOfSpecialAbilities": 1,
-      "NumberOfPassiveSpecialAbilities": 2,
-      "Tecnique": {
-        "Desert": "d20",
-        "City": "d20",
-        "Landfill": "d20",
-        "Mountain": "d20"
-      },
-      "UnlimitedAttacksData": [
-        "Attack.Atomico1",
-        "Attack.Atomico2",
-        "Attack.Atomico3",
-        "Attack.Atomico4"
-      ],
-      "WeaponsData": [],
-      "PassivesData": [
-        "Passive.Atomico1",
-        "Passive.Atomico2",
-        "Passive.Atomico3"
-      ],
-      "PowersData": [],
-      "DevicesData": [],
-      "SpecialAbilitiesData": [
-        "SpecialAbility.Atomico1",
-        "SpecialAbility.Atomico2",
-        "SpecialAbility.Atomico3"
-      ],
-      "PassiveSpecialAbilitiesData": [
-        "PassiveSpecialAbility.Atomico1",
-        "PassiveSpecialAbility.Atomico2",
-        "PassiveSpecialAbility.Atomico3",
-        "PassiveSpecialAbility.Atomico4",
-        "PassiveSpecialAbility.Atomico5"
-      ]
-    },
-    {
-      "ID": "Caos",
-      "DodgePoints": 8,
-      "OportunityAttacks": 8,
-      "ExplorationItens": 4,
-      "NumberOfDefenseDices": 2,
-      "NumberOfUnlimitedAttacks": 0,
-      "NumberOfWeapons": 1,
-      "NumberOfPassives": 1,
-      "NumberOfPowers": 3,
-      "NumberOfDevices": 0,
-      "NumberOfSpecialAbilities": 3,
-      "NumberOfPassiveSpecialAbilities": 0,
-      "Tecnique": {
-        "Desert": "d10",
-        "City": "d20",
-        "Landfill": "d12",
-        "Mountain": "d10"
-      },
-      "UnlimitedAttacksData": [],
-      "WeaponsData": [
-        "Weapon.Caos1",
-        "Weapon.Caos2",
-        "Weapon.Caos3"
-      ],
-      "PassivesData": [
-        "Passive.Caos1",
-        "Passive.Caos2"
-      ],
-      "PowersData": [
-        "Power.Caos1",
-        "Power.Caos2",
-        "Power.Caos3",
-        "Power.Caos4",
-        "Power.Caos5",
-        "Power.Caos6"
-      ],
-      "DevicesData": [],
-      "SpecialAbilitiesData": [
-        "SpecialAbility.Caos1",
-        "SpecialAbility.Caos2",
-        "SpecialAbility.Caos3",
-        "SpecialAbility.Caos4",
-        "SpecialAbility.Caos5"
-      ],
-      "PassiveSpecialAbilitiesData": []
-    },
-    {
-      "ID": "Ryan",
-      "DodgePoints": 10,
-      "OportunityAttacks": 6,
-      "ExplorationItens": 4,
-      "NumberOfDefenseDices": 1,
-      "NumberOfUnlimitedAttacks": 3,
-      "NumberOfWeapons": 0,
-      "NumberOfPassives": 2,
-      "NumberOfPowers": 4,
-      "NumberOfDevices": 0,
-      "NumberOfSpecialAbilities": 0,
-      "NumberOfPassiveSpecialAbilities": 0,
-      "Tecnique": {
-        "Desert": "d20",
-        "City": "d12",
-        "Landfill": "d4",
-        "Mountain": "d12"
-      },
-      "UnlimitedAttacksData": [
-        "Attack.Ryan1",
-        "Attack.Ryan2",
-        "Attack.Ryan3",
-        "Attack.Ryan4",
-        "Attack.Ryan5",
-        "Attack.Ryan6"
-      ],
-      "WeaponsData": [],
-      "PassivesData": [
-        "Passive.Ryan1",
-        "Passive.Ryan2",
-        "Passive.Ryan3",
-        "Passive.Ryan4",
-        "Passive.Ryan5",
-        "Passive.Ryan6",
-        "Passive.Ryan7",
-        "Passive.Ryan8",
-        "Passive.Ryan9"
-      ],
-      "PowersData": [
-        "Power.Ryan1",
-        "Power.Ryan2",
-        "Power.Ryan3",
-        "Power.Ryan4",
-        "Power.Ryan5",
-        "Power.Ryan6",
-        "Power.Ryan7",
-        "Power.Ryan8"
-      ],
-      "DevicesData": [],
-      "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
-    },
-    {
-      "ID": "Absoluto",
-      "DodgePoints": 7,
-      "OportunityAttacks": 6,
-      "ExplorationItens": 2,
-      "NumberOfDefenseDices": 2,
-      "NumberOfUnlimitedAttacks": "",
-      "NumberOfWeapons": 1,
-      "NumberOfPassives": 1,
-      "NumberOfPowers": 3,
-      "NumberOfDevices": 2,
-      "NumberOfSpecialAbilities": 0,
-      "NumberOfPassiveSpecialAbilities": 0,
-      "Tecnique": {
-        "Desert": "d12",
-        "City": "d10",
-        "Landfill": "d10",
-        "Mountain": "d12"
-      },
-      "UnlimitedAttacksData": [],
-      "WeaponsData": [
-        "Weapon.Absoluto1",
-        "Weapon.Absoluto2",
-        "Weapon.Absoluto3"
-      ],
-      "PassivesData": [
-        "Passive.Absoluto1",
-        "Passive.Absoluto2",
-        "Passive.Absoluto3",
-        "Passive.Absoluto4",
-        "Passive.Absoluto5",
-        "Passive.Absoluto6"
-      ],
-      "PowersData": [
-        "Power.Absoluto1",
-        "Power.Absoluto2",
-        "Power.Absoluto3",
-        "Power.Absoluto4",
-        "Power.Absoluto5",
-        "Power.Absoluto6",
-        "Power.Absoluto7"
-      ],
-      "DevicesData": [
-        "Device.Absoluto1",
-        "Device.Absoluto2",
-        "Device.Absoluto3",
-        "Device.Absoluto4"
-      ],
-      "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
-    }
-  ],
-  "PassiveDefinitions": [
-    {
-      "ID": "Passive.Impact1",
-      "Description": "Passive.Impact1.Description"
-    },
-    {
-      "ID": "Passive.Impact2",
-      "Description": "Passive.Impact2.Description"
-    },
-    {
-      "ID": "Passive.Impact3",
-      "Description": "Passive.Impact3.Description"
-    },
-    {
-      "ID": "Passive.Tecnology1",
-      "Description": "Passive.Tecnology1.Description"
-    },
-    {
-      "ID": "Passive.Tecnology2",
-      "Description": "Passive.Tecnology2.Description"
-    },
-    {
-      "ID": "Passive.Tecnology3",
-      "Description": "Passive.Tecnology3.Description"
-    },
-    {
-      "ID": "Passive.Tecnology4",
-      "Description": "Passive.Tecnology4.Description"
-    },
-    {
-      "ID": "Passive.Atomico1",
-      "Description": "Passive.Atomico1.Description"
-    },
-    {
-      "ID": "Passive.Atomico2",
-      "Description": "Passive.Atomico2.Description"
-    },
-    {
-      "ID": "Passive.Atomico3",
-      "Description": "Passive.Atomico3.Description"
-    },
-    {
-      "ID": "Passive.Caos1",
-      "Description": "Passive.Caos1.Description"
-    },
-    {
-      "ID": "Passive.Caos2",
-      "Description": "Passive.Caos2.Description"
-    },
-    {
-      "ID": "Passive.Ryan1",
-      "Description": "Passive.Ryan1.Description"
-    },
-    {
-      "ID": "Passive.Ryan2",
-      "Description": "Passive.Ryan2.Description"
-    },
-    {
-      "ID": "Passive.Ryan3",
-      "Description": "Passive.Ryan3.Description"
-    },
-    {
-      "ID": "Passive.Ryan4",
-      "Description": "Passive.Ryan4.Description"
-    },
-    {
-      "ID": "Passive.Ryan5",
-      "Description": "Passive.Ryan5.Description"
-    },
-    {
-      "ID": "Passive.Ryan6",
-      "Description": "Passive.Ryan6.Description"
-    },
-    {
-      "ID": "Passive.Ryan7",
-      "Description": "Passive.Ryan7.Description"
-    },
-    {
-      "ID": "Passive.Ryan8",
-      "Description": "Passive.Ryan8.Description"
-    },
-    {
-      "ID": "Passive.Ryan9",
-      "Description": "Passive.Ryan9.Description"
-    },
-    {
-      "ID": "Passive.Absoluto1",
-      "Description": "Passive.Absoluto1.Description"
-    },
-    {
-      "ID": "Passive.Absoluto2",
-      "Description": "Passive.Absoluto2.Description"
-    },
-    {
-      "ID": "Passive.Absoluto3",
-      "Description": "Passive.Absoluto3.Description"
-    },
-    {
-      "ID": "Passive.Absoluto4",
-      "Description": "Passive.Absoluto4.Description"
-    },
-    {
-      "ID": "Passive.Absoluto5",
-      "Description": "Passive.Absoluto5.Description"
-    },
-    {
-      "ID": "Passive.Absoluto6",
-      "Description": "Passive.Absoluto6.Description"
-    },
-    {
-      "ID": "PassiveSpecialAbility.Atomico1",
-      "Description": "PassiveSpecialAbility.Atomico1.Description"
-    },
-    {
-      "ID": "PassiveSpecialAbility.Atomico2",
-      "Description": "PassiveSpecialAbility.Atomico2.Description"
-    },
-    {
-      "ID": "PassiveSpecialAbility.Atomico3",
-      "Description": "PassiveSpecialAbility.Atomico3.Description"
-    },
-    {
-      "ID": "PassiveSpecialAbility.Atomico4",
-      "Description": "PassiveSpecialAbility.Atomico4.Description"
-    },
-    {
-      "ID": "PassiveSpecialAbility.Atomico5",
-      "Description": "PassiveSpecialAbility.Atomico5.Description"
-    }
-  ],
-  "AttackDefinitions": [
-    {
-      "ID": "Attack.Impact1",
-      "Damage": 4,
-      "MinimumDistance": 2,
-      "MaximumDistance": 6,
-      "LoadTime": 0,
-      "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
-    },
-    {
-      "ID": "Attack.Impact2",
-      "Damage": 5,
-      "MinimumDistance": 4,
-      "MaximumDistance": 9,
-      "LoadTime": 0,
-      "Dices": 3,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Impact2.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Impact3",
-      "Damage": 10,
-      "MinimumDistance": 5,
-      "MaximumDistance": 10,
-      "LoadTime": 0,
-      "Dices": 1,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Impact3.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Impact4",
-      "Damage": 1,
-      "MinimumDistance": 0,
-      "MaximumDistance": 1,
-      "LoadTime": 0,
-      "Dices": 5,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Impact4.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Tecnology1",
-      "Damage": 12,
-      "MinimumDistance": 3,
-      "MaximumDistance": 10,
-      "LoadTime": 3,
-      "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
-    },
-    {
-      "ID": "Attack.Tecnology2",
-      "Damage": 5,
-      "MinimumDistance": 2,
-      "MaximumDistance": 6,
-      "LoadTime": 2,
-      "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
-    },
-    {
-      "ID": "Attack.Tecnology3",
-      "Damage": 20,
-      "MinimumDistance": 20,
-      "MaximumDistance": 20,
-      "LoadTime": 3,
-      "Dices": 2,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Tecnology3.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Tecnology4",
-      "Damage": 1,
-      "MinimumDistance": 20,
-      "MaximumDistance": 25,
-      "LoadTime": 0,
-      "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
-      "SpecialDescription": "Attack.Tecnology4.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Tecnology5",
-      "Damage": 3,
-      "MinimumDistance": 0,
-      "MaximumDistance": 1,
-      "LoadTime": 1,
-      "Dices": 5,
-      "Ambient": [
-        "Earth"
-      ]
-    },
-    {
-      "ID": "Attack.Tai1",
-      "Damage": 1,
-      "MinimumDistance": 5,
-      "MaximumDistance": 12,
-      "LoadTime": 0,
-      "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
-      "SpecialDescription": "Attack.Tai1.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Tai2",
-      "Damage": 5,
-      "MinimumDistance": 2,
-      "MaximumDistance": 10,
-      "LoadTime": 0,
-      "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
-      "SpecialDescription": "Attack.Tai2.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Atomico1",
-      "Damage": 2,
-      "MinimumDistance": "??",
-      "MaximumDistance": "??",
-      "LoadTime": 1,
-      "Dices": 4,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Atomico1.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Atomico2",
-      "Damage": 6,
-      "MinimumDistance": "Área 1",
-      "MaximumDistance": "Área 1",
-      "LoadTime": 2,
-      "Dices": 2,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Atomico2.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Atomico3",
-      "Damage": 5,
-      "MinimumDistance": "Região",
-      "MaximumDistance": "Região",
-      "LoadTime": 5,
-      "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
-      "SpecialDescription": "Attack.Atomico3.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Atomico4",
-      "Damage": 1,
-      "MinimumDistance": 0,
-      "MaximumDistance": 30,
-      "LoadTime": 3,
-      "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
-      "SpecialDescription": "Attack.Atomico4.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Ryan1",
-      "Damage": 2,
-      "MinimumDistance": 0,
-      "MaximumDistance": 5,
-      "LoadTime": 1,
-      "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
-      "SpecialDescription": "Attack.Ryan1.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Ryan2",
-      "Damage": 1,
-      "MinimumDistance": 0,
-      "MaximumDistance": 2,
-      "LoadTime": 1,
-      "Dices": 3,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Ryan2.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Ryan3",
-      "Damage": 5,
-      "MinimumDistance": 0,
-      "MaximumDistance": 0,
-      "LoadTime": 1,
-      "Dices": 2,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Ryan3.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Ryan4",
-      "Damage": 1,
-      "MinimumDistance": 0,
-      "MaximumDistance": 0,
-      "LoadTime": 1,
-      "Dices": 2,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Ryan4.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Ryan5",
-      "Damage": 10,
-      "MinimumDistance": 6,
-      "MaximumDistance": 14,
-      "LoadTime": 1,
-      "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
-      "SpecialDescription": "Attack.Ryan5.SpecialDescription"
-    },
-    {
-      "ID": "Attack.Ryan6",
-      "Damage": 100,
-      "MinimumDistance": 0,
-      "MaximumDistance": 1,
-      "LoadTime": 0,
-      "Dices": 1,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Attack.Ryan6.SpecialDescription"
-    },
-    {
-      "ID": "Weapon.Caos1",
-      "Damage": 1,
-      "MinimumDistance": 2,
-      "MaximumDistance": 10,
-      "LoadTime": 1,
-      "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
-    },
-    {
-      "ID": "Weapon.Caos2",
-      "Damage": 1,
-      "MinimumDistance": 0,
-      "MaximumDistance": 1,
-      "LoadTime": 1,
-      "Dices": 6,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Weapon.Caos2.SpecialDescription"
-    },
-    {
-      "ID": "Weapon.Caos3",
-      "Damage": 1,
-      "MinimumDistance": 5,
-      "MaximumDistance": 20,
-      "LoadTime": 0,
-      "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
-    },
-    {
-      "ID": "Weapon.Absoluto1",
-      "Damage": 7,
-      "MinimumDistance": 2,
-      "MaximumDistance": 5,
-      "LoadTime": 1,
-      "Dices": 3,
-      "Ambient": [
-        "Earth"
-      ]
-    },
-    {
-      "ID": "Weapon.Absoluto2",
-      "Damage": 4,
-      "MinimumDistance": 2,
-      "MaximumDistance": 20,
-      "LoadTime": 1,
-      "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ]
-    },
-    {
-      "ID": "Weapon.Absoluto3",
-      "Damage": 10,
-      "MinimumDistance": 0,
-      "MaximumDistance": 1,
-      "LoadTime": 0,
-      "Dices": 2,
-      "Ambient": [
-        "Earth"
-      ]
-    }
-  ],
-  "ConsumableDefinitions": [
-    {
-      "ID": "Device.Tecnology1",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tecnology1.Description"
-    },
-    {
-      "ID": "Device.Tecnology2",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Tecnology2.Description"
-    },
-    {
-      "ID": "Device.Tecnology3",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tecnology3.Description"
-    },
-    {
-      "ID": "Device.Tecnology4",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tecnology4.Description"
-    },
-    {
-      "ID": "Device.Tecnology5",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tecnology5.Description"
-    },
-    {
-      "ID": "Device.Tecnology6",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tecnology6.Description"
-    },
-    {
-      "ID": "Device.Tecnology7",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Tecnology7.Description"
-    },
-    {
-      "ID": "Device.Tai1",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tai1.Description"
-    },
-    {
-      "ID": "Device.Tai2",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Device.Tai2.Description"
-    },
-    {
-      "ID": "Device.Tai3",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tai3.Description"
-    },
-    {
-      "ID": "Device.Tai4",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Device.Tai4.Description"
-    },
-    {
-      "ID": "Device.Tai5",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Tai5.Description"
-    },
-    {
-      "ID": "Device.Tai6",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tai6.Description"
-    },
-    {
-      "ID": "Device.Tai7",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Tai7.Description"
-    },
-    {
-      "ID": "Device.Absoluto1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Absoluto1.Description"
-    },
-    {
-      "ID": "Device.Absoluto2",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Absoluto2.Description"
-    },
-    {
-      "ID": "Device.Absoluto3",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Absoluto3.Description"
-    },
-    {
-      "ID": "Device.Absoluto4",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Absoluto4.Description"
-    },
-    {
-      "ID": "Power.Impact1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Impact1.Description"
-    },
-    {
-      "ID": "Power.Impact2",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Impact2.Description"
-    },
-    {
-      "ID": "Power.Impact3",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Power.Impact3.Description"
-    },
-    {
-      "ID": "Power.Impact4",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Impact4.Description"
-    },
-    {
-      "ID": "Power.Impact5",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Power.Impact5.Description"
-    },
-    {
-      "ID": "Power.Impact6",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Impact6.Description"
-    },
-    {
-      "ID": "Power.Tai1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Tai1.Description"
-    },
-    {
-      "ID": "Power.Tai2",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tai2.Description"
-    },
-    {
-      "ID": "Power.Tai3",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Tai3.Description"
-    },
-    {
-      "ID": "Power.Tai4",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Power.Tai4.Description"
-    },
-    {
-      "ID": "Power.Tai5",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tai5.Description"
-    },
-    {
-      "ID": "Power.Tai6",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Power.Tai6.Description"
-    },
-    {
-      "ID": "Power.Tai7",
-      "TriggerType": [
-        "BeforeAttack",
-        "AfterAttack"
-      ],
-      "Description": "Power.Tai7.Description"
-    },
-    {
-      "ID": "Power.Caos1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Caos1.Description"
-    },
-    {
-      "ID": "Power.Caos2",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Caos2.Description"
-    },
-    {
-      "ID": "Power.Caos3",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Caos3.Description"
-    },
-    {
-      "ID": "Power.Caos4",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Caos4.Description"
-    },
-    {
-      "ID": "Power.Caos5",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Caos5.Description"
-    },
-    {
-      "ID": "Power.Caos6",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Caos6.Description"
-    },
-    {
-      "ID": "Power.Ryan1",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Ryan1.Description"
-    },
-    {
-      "ID": "Power.Ryan2",
-      "TriggerType": [
-        "Passive",
-        "BeforeAttack"
-      ],
-      "Description": "Power.Ryan2.Description"
-    },
-    {
-      "ID": "Power.Ryan3",
-      "TriggerType": [
-        "Passive",
-        "BeforeAttack"
-      ],
-      "Description": "Power.Ryan3.Description"
-    },
-    {
-      "ID": "Power.Ryan4",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Ryan4.Description"
-    },
-    {
-      "ID": "Power.Ryan5",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Power.Ryan5.Description"
-    },
-    {
-      "ID": "Power.Ryan6",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Ryan6.Description"
-    },
-    {
-      "ID": "Power.Ryan7",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Ryan7.Description"
-    },
-    {
-      "ID": "Power.Ryan8",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Ryan8.Description"
-    },
-    {
-      "ID": "Power.Absoluto1",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Absoluto1.Description"
-    },
-    {
-      "ID": "Power.Absoluto2",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Absoluto2.Description"
-    },
-    {
-      "ID": "Power.Absoluto3",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Absoluto3.Description"
-    },
-    {
-      "ID": "Power.Absoluto4",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Absoluto4.Description"
-    },
-    {
-      "ID": "Power.Absoluto5",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Absoluto5.Description"
-    },
-    {
-      "ID": "Power.Absoluto6",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Absoluto6.Description"
-    },
-    {
-      "ID": "Power.Absoluto7",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Absoluto7.Description"
-    },
-    {
-      "ID": "SpecialAbility.Impact1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Impact1.Description"
-    },
-    {
-      "ID": "SpecialAbility.Impact2",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Impact2.Description"
-    },
-    {
-      "ID": "SpecialAbility.Impact3",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Impact3.Description"
-    },
-    {
-      "ID": "SpecialAbility.Tecnology1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Tecnology1.Description"
-    },
-    {
-      "ID": "SpecialAbility.Tecnology2",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "SpecialAbility.Tecnology2.Description"
-    },
-    {
-      "ID": "SpecialAbility.Atomico1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Atomico1.Description"
-    },
-    {
-      "ID": "SpecialAbility.Atomico2",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Atomico2.Description"
-    },
-    {
-      "ID": "SpecialAbility.Atomico3",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Atomico3.Description"
-    },
-    {
-      "ID": "SpecialAbility.Caos1",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Caos1.Description"
-    },
-    {
-      "ID": "SpecialAbility.Caos2",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "SpecialAbility.Caos2.Description"
-    },
-    {
-      "ID": "SpecialAbility.Caos3",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "SpecialAbility.Caos3.Description"
-    },
-    {
-      "ID": "SpecialAbility.Caos4",
-      "TriggerType": [
-        "Passive",
-        "BeforeAttack"
-      ],
-      "Description": "SpecialAbility.Caos4.Description"
-    },
-    {
-      "ID": "SpecialAbility.Caos5",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "SpecialAbility.Caos5.Description"
-    }
-  ]
+  "Chave": "Pt-br",
+  "Ambient.Earth": "Terra",
+  "Ambient.Air": "A?reo",
+  "Ambient.Space": "Espa?o",
+  "Characteristic.Title": "Caracter?sticas",
+  "Characteristic.Health": "Vida",
+  "Characteristic.DodgePoints": "Pontos de Pulo/Empurro",
+  "Characteristic.OportunityAttack": "Ataque de Oportunidade",
+  "Characteristic.ExplorationItens": "Itens de Explora??o",
+  "Characteristic.DefenseDices": "Dados de Defesa",
+  "Characteristic.Reivolk.Title": "Modo Reivolk",
+  "Characteristic.Tecnique": "T?cnicas",
+  "Terrain.Dessert": "Deserto",
+  "Terrain.City": "Cidade",
+  "Terrain.Junkyard": "Lix?o",
+  "Terrain.Mountain": "Montanha",
+  "AttackBase.Damage": "Dano",
+  "AttackBase.Distance": "Dist?ncia",
+  "AttackBase.Dices": "Dados",
+  "AttackBase.LoadTime": "Tempo de Recarga",
+  "AttackBase.Terrain": "Terreno",
+  "AttackBase.TriggerType.Passive": "(P)",
+  "AttackBase.TriggerType.BeforeAttack": "(A)",
+  "AttackBase.TriggerType.AfterAttack": "(D)",
+  "Characteristic.Attack.Title": "Ataques sem Limites",
+  "Characteristic.Weapon.Title": "Armas Prim?rias",
+  "Characteristic.Passive.Title": "Habilidades Passivas",
+  "Characteristic.Power.Title": "Poderes",
+  "Characteristic.Device.Title": "Dispositivos",
+  "Characteristic.SpecialAbility.Title": "Habilidades Especiais",
+  "Characteristic.PassiveSpecialAbility.Title": "Habilidades Especiais Passivas",
+  "Characteristic.Use": "Usar",
+  "Characteristic.Used": "Usado",
+  "Characteristic.Select": "Selecionar",
+  "Characteristic.Selected": "Selecionado",
+  "Characteristic.RecoverDevices": "Recuperar Dispositivos",
+  "Characteristic.RecoverPowers": "Recuperar Poderes",
+  "Characteristic.RecoverSpecials": "Recuperar Habilidades Especiais",
+  "Character.Name.Impact": "Impacto",
+  "Character.Title.Impact": "Movimenta??o",
+  "Character.SpecialDescription.Impact": "",
+  "Character.Reivolk.Impact.Title": "Deus da Velocidade",
+  "Character.Reivolk.Impact.Description": "N?o precisa mais jogar dado para se movimentar, sua movimenta??o padr?o ? de 1 a at? 1 Sextilh?o e ao empurrar um inimigo pode mov?-lo 2 metros para a dire??o que voc? quiser.",
+  "Character.Name.Tecnology": "Tecnologia",
+  "Character.Title.Tecnology": "Duelista",
+  "Character.SpecialDescription.Tecnology": "",
+  "Character.Reivolk.Tecnology.Title": "Cria??o Perfeita",
+  "Character.Reivolk.Tecnology.Description": "Sua vida se regenera e aumenta para 30, Ganha +2 dados de ataque em todos os seus ataques e pode usar mais de um pulo por combate, voc? recupera 1 pulo por rodada e seus ataques recebem +2 de dano e os seus dados de ataque ganham +1.",
+  "Character.Name.Tai": "Tai",
+  "Character.Title.Tai": "Rainha da Exist?ncia",
+  "Character.Reivolk.Tai.Title": "Dona da Exist?ncia",
+  "Character.Reivolk.Tai.Description": "Sua vida aumenta para 50, e sempre que terminar um combate com mais vida que seu inimigo voc? o apagar? da exist?ncia, retirando-o do jogo.",
+  "Character.Name.Atomico": "At?mico",
+  "Character.Title.Atomico": "Explos?o",
+  "Character.Reivolk.Atomico.Title": "Explos?o Perfeita",
+  "Character.Reivolk.Atomico.Description": "A cada in?cio de rodada sendo sua rodada ou n?o voc? se explode e ataca todos os inimigos do mapa com 1 dado dando 10.000 de dano.",
+  "Character.Name.Caos": "Caos",
+  "Character.Title.Caos": "O Devorador",
+  "Character.Reivolk.Caos.Title": "Devorador de Energias",
+  "Character.Reivolk.Caos.Description": "Sua aura se expande pelo mapa e universo todo, voc? ganha +3 em cada dado de ataque e defesa e sua vida regenera 10 a cada primeira rodada passiva.",
+  "Character.Name.Ryan": "Ryan",
+  "Character.Title.Ryan": "Ataque",
+  "Character.SpecialDescription.Ryan": "",
+  "Character.Reivolk.Ryan.Title": "Combatente Implac?vel",
+  "Character.Reivolk.Ryan.Description": "Recupera os poderes gastos e todos os seus poderes se tornam infinitos at? o fim da partida, O n?mero dos seus dados de ataque s?o 6 automaticamente e no in?cio de cada combate voc? cura 5 de vida.",
+  "Character.Name.Absoluto": "Absoluto",
+  "Character.Title.Absoluto": "Controlador",
+  "Character.SpecialDescription.Absoluto": "",
+  "Character.Reivolk.Absoluto.Title": "Teletransporte Absoluto",
+  "Character.Reivolk.Absoluto.Description": "Sempre que se iniciar sua primeira e segunda rodada passiva, atacar? todos os inimigos do mapa se teletransportando para as costas deles para atac?-los n?o dando chance de revidarem, atacar? os inimigos se teletransportando na dist?ncia necess?ria para executar o ataque ignorando pontos de conex?o e ap?s atacar todos, retorna para o local que estava.",
+  "Character.Name.Protetor": "Protetor",
+  "Character.Title.Protetor": "Proximidade",
+  "Character.SpecialDescription.Protetor": "",
+  "Character.Reivolk.Protetor.Title": "Defensor da Terra",
+  "Character.Reivolk.Protetor.Description": "A cada Turno do combate voc? ganha +1 dado de defesa e 2 de escudo tempor?rio, o escudo funciona da seguinte maneira, dano do inimigo menos o n?mero do escudo, se o dano do inimigo ultrapassar o n?mero do escudo ele ? destru?do e come?a do 0 novamente.",
+  "Attack.Impact1": "Furac?o nas M?os",
+  "Attack.Impact2": "Soco R?pido",
+  "Attack.Impact2.SpecialDescription": "Ap?s realizar o Ataque, Voc? fica nas costas do inimigo dentro da dist?ncia desse ataque, e vai assim at? o fim do combate",
+  "Attack.Impact3": "Voadora",
+  "Attack.Impact3.SpecialDescription": "Empurra o inimigo a 4 metros e voc? fica onde ele estava.",
+  "Attack.Impact4": "Combate F?sico",
+  "Attack.Impact4.SpecialDescription": "Se acertar os 5 dados, bota medo no inimigo e ele n?o pode mais se defender at? o fim do combate.",
+  "Attack.Tecnology1": "Canh?o ZL",
+  "Attack.Tecnology2": "Laser",
+  "Attack.Tecnology3": "Missil",
+  "Attack.Tecnology3.SpecialDescription": "N?o precisa estar entre pontos de conex?o para executar esse ataque.",
+  "Attack.Tecnology4": "Canh?o Laser",
+  "Attack.Tecnology4.SpecialDescription": "N?o precisa estar entre pontos de conex?o para executar esse ataque.",
+  "Attack.Tecnology5": "Perito",
+  "Attack.Tai1": "Deletar",
+  "Attack.Tai1.SpecialDescription": "Ao acertar tr?s dados de ataque de uma s? vez, deleta o inimigo que est? em combate com voc?, eliminando-o do jogo.",
+  "Attack.Tai2": "C?smica",
+  "Attack.Tai2.SpecialDescription": "durante um combate voc? ataca o inimigo nos seus turnos e tamb?m nos turnos dele, antes de ele dar o ataque.",
+  "Attack.Atomico1": "Explos?o Dupla",
+  "Attack.Atomico1.SpecialDescription": "Causa uma explos?o dupla que chega at? os pontos de conex?o adjacentes ? voc? e conectados ao caminho que voc? est? e atinge todos os inimigos dentro dessa dist?ncia.",
+  "Attack.Atomico2": "Chuva Explosiva",
+  "Attack.Atomico2.SpecialDescription": "Al?m da ?rea 1 ele atinge todos os outros inimigos que est?o em cima de um ponto de conex?o, mas ele inclui no combate apenas um inimigo em ?rea 1 de dist?ncia.",
+  "Attack.Atomico3": "Regi?o Explodida",
+  "Attack.Atomico3.SpecialDescription": "Atinge todos os inimigos que est?o na mesma regi?o do mapa que voc?.",
+  "Attack.Atomico4": "Destrui??o Direta",
+  "Attack.Atomico4.SpecialDescription": "A cada ataque ganha +1 de dano tempor?rio que dura at? o fim do combate.",
+  "Attack.Ryan1": "Soco Impulsionador",
+  "Attack.Ryan1.SpecialDescription": "Ao fim do combate o inimigo ser? impulsionado 1 metro para tr?s na dire??o que voc? escolher por cada dado de ataque que voc? acertou nele, e perder? 1 de vida por cada metro, se o inimigo for impulsionado e passar da distancia limite do seu ataque voc? pode se mover at? 15 metros para dar continuidade ao combate ganha +1 ataque.",
+  "Attack.Ryan2": "Punho Carregado",
+  "Attack.Ryan2.SpecialDescription": "Voc? ganha +3 de dano acumulativo em seus ataques por cada dado de ataque que o inimigo acertar em voc?(dura ate o fim do combate).",
+  "Attack.Ryan3": "Quebra Joelho",
+  "Attack.Ryan3.SpecialDescription": "Se at? o fim do combate acertar dois dados de ataque, voc? quebra os joelhos do inimigos e o deixa sem movimenta??o por 2 rodadas, se o inimigo pular para sair do alcance deste ataque voc? pode mudar de ataque e dar continuidade ao combate.",
+  "Attack.Ryan4": "Perfura??o Hemorragica",
+  "Attack.Ryan4.SpecialDescription": "Se acertar pelo menos 1 dado de ataque no inimigo, ele perder? 3 de vida por rodada at? morrer, s? poder? anular o efeito da perfura??o hemorr?gica se ele encher toda a vida dele ou te matar, se o inimigo pular para sair do alcance deste ataque voc? pode mudar de ataque e dar continuidade ao combate.",
+  "Attack.Ryan5": "M?ssil de Vento",
+  "Attack.Ryan5.SpecialDescription": "Se o inimigo gastar um pulo durante o combate, o combate se encerra ap?s aquele ataque, voc? pode mov?-lo para tr?s em qualquer dire??o at? 10 metros e ele perde 4 de vida automaticamente.",
+  "Attack.Ryan6": "?ltimo Golpe",
+  "Attack.Ryan6.SpecialDescription": "Seu dado de ataque ganha +2 e ap?s os ataques fica sem movimenta??o por 2 rodadas e em seguida morre.",
+  "Attack.Protetor1": "Corpo a Corpo",
+  "Attack.Protetor2": "Irritabilidade",
+  "Attack.Protetor2.SpecialDescription": "Se o advers?rio que est? em combate com voc? tirar 1 em um dos dados de defesa os seus dados d?o o triplo de dano durante aquele ataque.",
+  "Weapon.Caos1": "Luvas Anti luz",
+  "Weapon.Caos2": "Projetor de Trevas",
+  "Weapon.Caos2.SpecialDescription": "Aumenta +1 metro por cada dado com n?mero 6 que acertar no inimigo.",
+  "Weapon.Caos3": "Lentes Demon?aca",
+  "Weapon.Absoluto1": "Espada Dupla Energz",
+  "Weapon.Absoluto2": "Espada Laser",
+  "Weapon.Absoluto3": "Soco Energz",
+  "Passive.Impact1": "Velocidade do Som",
+  "Passive.Impact1.Description": "Joga um d20 para se movimentar.",
+  "Passive.Impact2": "Sem Tempo",
+  "Passive.Impact2.Description": "D? todos os seus ataques antes que o advers?rio revide.",
+  "Passive.Impact3": "Alvo Dif?cil",
+  "Passive.Impact3.Description": "Pode se mover antes de atacar ou revidar (movimenta??o ? opcional).",
+  "Passive.Tecnology1": "Duelista",
+  "Passive.Tecnology1.Description": "Faz com que os seus dados de defesa se tornem dados de ataque, o que significa que voc? atacar? o inimigo ao mesmo tempo que ele esta te atacando, e em caso de empate os dois tomam dano.",
+  "Passive.Tecnology2": "Ego?sta",
+  "Passive.Tecnology2.Description": "Ganha +1 ataque em cada combate.",
+  "Passive.Tecnology3": "Armas Refor?adas",
+  "Passive.Tecnology3.Description": "Fica com o dobro de dano no seu primeiro ataque no combate.",
+  "Passive.Tecnology4": "Atualiza??o",
+  "Passive.Tecnology4.Description": "Ao terminar um combate o jogador advers?rio jogar? um D6 e o n?mero que ele tirar ser? a quantidade de vida que voc? ir? ganhar e quando sua vida chegar no limite vai sendo acrescentado.",
+  "Passive.Atomico1": "Explos?o Concentrada",
+  "Passive.Atomico1.Description": "Pode gastar 4 pulos enquanto estiver em sua rodada passiva para dar 5 de dano automaticamente em todos os inimigos que estejam em ?rea 1 de dist?ncia(Pode usar uma vez por rodada).",
+  "Passive.Atomico2": "Explos?o Defensiva",
+  "Passive.Atomico2.Description": "Da 1 de dano no inimigo por cada dado de ataque que ele acertar em voc?.",
+  "Passive.Atomico3": "Bomba Ambulante",
+  "Passive.Atomico3.Description": "Enquanto estiver com 8 ou menos de vida, no in?cio de cada rodada sua jogar? 3 dados cada um dando 5 de dano para atacar todos os inimigos em ?rea 1 de dist?ncia.",
+  "Passive.Caos1": "Aura Perseguidora",
+  "Passive.Caos1.Description": "Sempre que um inimigo usar um pulo em um combate contra voc?, sua aura ganha +1 metro.",
+  "Passive.Caos2": "Aura Bloqueadora",
+  "Passive.Caos2.Description": "No inicio de sua rodada passiva pode gastar um pulo e impedir o inimigo de sair de dentro de sua Aura por 1 rodada.",
+  "Passive.Ryan1": "Vantagem de Movimento",
+  "Passive.Ryan1.Description": "Durante um combate contra um inimigo voc? pode gastar 1 pulo para se mover at? 5 metros, esse movimento se usa como op??o(A) e pode tamb?m gastar +1 pulo para desviar de um dado de ataque.",
+  "Passive.Ryan2": "Trava de Movimento",
+  "Passive.Ryan2.Description": "Quando um inimigo usar um pulo durante um combate com voc?, voc? pode jogar um d6, se tirar 5 ou mais voc? trava o pulo dele e ele recebe o dano do dado automaticamente, se tirar 4 ou menos ele desvia normalmente.",
+  "Passive.Ryan3": "Vantagem Secund?ria",
+  "Passive.Ryan3.Description": "Se durante um combate o inimigo desviar de um dado seu gastando gastando um pulo, seus outros dados daquele ataque ganham +5 de dano.",
+  "Passive.Ryan4": "Presen?a tenebrosa",
+  "Passive.Ryan4.Description": "Ao atacar ou ser atacado por um inimigo, ele n?o poder? ganhar ataques extras at? o fim do combate(Gasta 1 pulo).",
+  "Passive.Ryan5": "Impuls?o tempestuosa",
+  "Passive.Ryan5.Description": "Pode se impulsionar uma vez por rodada para iniciar um combate com algu?m, a impuls?o te leva a 7 metros exatos, ao iniciar um combate usando impuls?o, o inimigo perder? 3 de vida automaticamente e voc? fica a 0 de distancia dele.",
+  "Passive.Ryan6": "Corpo Travado",
+  "Passive.Ryan6.Description": "Pode transformar todo o dano recebido de um ataque do inimigo em apenas 5 de dano, pode usar mesmo se o dano recebido for te matar (Gasta 3 pulos).",
+  "Passive.Ryan7": "Corpo no Limite",
+  "Passive.Ryan7.Description": "Pode gastar 1 pulo durante o combate como op??o (A) para seus dados de ataque e defesa ganharem +1 at? o fim do combate.",
+  "Passive.Ryan8": "Combate Vantajoso",
+  "Passive.Ryan8.Description": "Enquanto estiver dentro de um local de explora??o, voc? ganha +3 em cada dado de ataque at? o fim do combate.",
+  "Passive.Ryan9": "Pequena Vantagem",
+  "Passive.Ryan9.Description": "Ao iniciar sua primeira rodada passiva pode se movimentar 5 metros antes de jogar o dado de movimenta??o.",
+  "Passive.Absoluto1": "Teletransporte",
+  "Passive.Absoluto1.Description": "Pode se teletransportar at? 6 metros, pode usar em uma rodada passiva ou durante um combate como op??o (A) (gasta 1 pulo).",
+  "Passive.Absoluto2": "Reflexo",
+  "Passive.Absoluto2.Description": "Joga 6 dados para se defender do primeiro ataque recebido em um combate.",
+  "Passive.Absoluto3": "Livramento",
+  "Passive.Absoluto3.Description": "A cada final de um combate que voc? iniciou ou recebeu, pode teletransportar o inimigo que estava em combate com voc? a at? 10 metros de dist?ncia.",
+  "Passive.Absoluto4": "Oportunista",
+  "Passive.Absoluto4.Description": "Sempre que um combate se inicia, pode se teletransportar para a posi??o exata e dar um ataque de oportunidade.",
+  "Passive.Absoluto5": "Olho Absoluto",
+  "Passive.Absoluto5.Description": "Em seu primeiro ataque no combate, cada dado de ataque seu recebe dano extra, dano extra ser? o dano do ataque que o inimigo est? usando.",
+  "Passive.Absoluto6": "Controlador Absoluto",
+  "Passive.Absoluto6.Description": "Pode se teletransportar para qualquer parte do mapa exceto dentro de locais de explora??o(Gasta 2 pulos) e pode ser usado em combate como (D).",
+  "Passive.Protetor1": "Prote??o Seletiva",
+  "Passive.Protetor1.Description": "Ap?s jogar os dados de defesa poder? jogar mais um D6 e se tirar 6 ou 1 n?o receber? dano daquele ataque.",
+  "Passive.Protetor2": "Protetor Corporal",
+  "Passive.Protetor2.Description": "os dados de ataque do inimigo recebem -1 mas caso ele tire 6 essa habilidade passiva n?o tem efeito.",
+  "Passive.Protetor3": "Prote??o Intimidadora",
+  "Passive.Protetor3.Description": "Enquanto estiver com 10 ou menos de vida os dados de ataque do inimigo recebem -2 mas essa habilidade passiva n?o ter? efeito nos dados que ele tirar o n?mero 6.",
+  "Passive.Protetor4": "Prote??o Evolutiva",
+  "Passive.Protetor4.Description": "Sempre que defender todos os dados de ataque do inimigo voc? ganha +3 de escudo que durar? at? o fim do combate o escudo funciona assim: dano recebido do ataque menos o n?mero do escudo(pular de um dado n?o conta como defesa).",
+  "Passive.Protetor5": "Prote??o de Vigor",
+  "Passive.Protetor5.Description": "Durante um combate pode gastar quantos pulos quiser, mas a partir do segundo pulo voc? n?o desviar? do dado e sim ir? retirar 5 do dano total dele.",
+  "Device.Tecnology1": "Escudo",
+  "Device.Tecnology1.Description": "Pode jogar +2 dados para se defender at? o fim do combate.",
+  "Device.Tecnology2": "Voo",
+  "Device.Tecnology2.Description": "Pode voar at? 30 Metros.",
+  "Device.Tecnology3": "An?lise",
+  "Device.Tecnology3.Description": "Pode ver a ficha de um jogador que voc? esteja atacando ou sendo atacado por ele e escolher? um poder, habilidade passiva ou dispositivo para se tornar imune ?quilo at? o fim do combate.",
+  "Device.Tecnology4": "Dash",
+  "Device.Tecnology4.Description": "Consegue pular 10 metros, seja para fugir, para continuar o combate ou pode usar para entrar em ambiente A?reo durante um turno(gasta um pulo).",
+  "Device.Tecnology5": "Segundo Ataque",
+  "Device.Tecnology5.Description": "A cada ataque que voc? acertar o inimigo perder? +1 de vida, dura at? o fim do combate.",
+  "Device.Tecnology6": "Absorvi??o",
+  "Device.Tecnology6.Description": "Durante um ataque recebe apenas metade do dano do ataque total do inimigo( se o n?mero for ?mpar recebe a minoria).",
+  "Device.Tecnology7": "Fora de ?rbita",
+  "Device.Tecnology7.Description": "Voa para fora do planeta(Ambiente Espa?o) e fica l? por 5 rodadas e ao retornar , poder? cair em qualquer parte do mapa( menos dentro de locais de explora??o e ao voltar pode jogar o dado de movimenta??o).",
+  "Device.Tai1": "Esfera da Vida",
+  "Device.Tai1.Description": "Enche toda a sua vida.",
+  "Device.Tai2": "N?cleo Concentrado",
+  "Device.Tai2.Description": "Sua vida se torna infinita por 1 rodada e ap?s isso, sua vida volta para a quantidade que estava. ",
+  "Device.Tai3": "Alterador",
+  "Device.Tai3.Description": "Joga +2 dados para atacar ou se defender durante um turno.",
+  "Device.Tai4": "Manto restaurador",
+  "Device.Tai4.Description": "Caso o inimigo te mate atacando com apenas 1 dado, voc? ressuscita ap?s 1 rodada onde voc? morreu, com 20 de vida.\r<br>",
+  "Device.Tai5": "Globo Terrestre",
+  "Device.Tai5.Description": "Pode se teletransportar a at? 10 metros de dist?ncia.",
+  "Device.Tai6": "Corrente Destruidora",
+  "Device.Tai6.Description": "Liga voc? ao seu inimigo, e se ele te matar durante o combate no qual voc? ativou a corrente destruidora, ap?s o combate ele ir? perder 2 de vida por rodada e se ele morrer por causa da sua corrente, voc? ir? ressuscitar com 40 de vida no local onde morreu.",
+  "Device.Tai7": "Parte do N?cleo",
+  "Device.Tai7.Description": "Se voc? estiver com apenas 1 de vida, pode usar a parte do n?cleo para apagar todos os inimigos da exist?ncia, fazendo com que voc? ven?a o jogo imediatamente.",
+  "Device.Absoluto1": "Luva Laser",
+  "Device.Absoluto1.Description": "Pode ser usado de 0/30 de dist?ncia para tirar 2 de vida automaticamente de um inimigo(n?o precisa estar em linha reta ou entre pontos de conex?o).",
+  "Device.Absoluto2": "Mini M?ssil",
+  "Device.Absoluto2.Description": "Acrescenta +5 de dano em todos os seus dados de ataque durante um ataque.",
+  "Device.Absoluto3": "Estimulante",
+  "Device.Absoluto3.Description": "Enche toda a sua vida",
+  "Device.Absoluto4": "Inje??o",
+  "Device.Absoluto4.Description": "Acrescenta +10 de vida a voc? at? o fim da rodada, e a vida com a qual terminar a rodada ser? o novo limite da sua vida.",
+  "Power.Impact1": "Empurro Fatal",
+  "Power.Impact1.Description": "Quando empurrar um inimigo ele perdera 5 de vida automaticamente.",
+  "Power.Impact2": "Velocidade Absurda",
+  "Power.Impact2.Description": "Pode se locomover a at? dois pontos de conex?o de dist?ncia(o primeiro ponto de conex?o precisa estar conectado ao caminho que voc? est? e o segundo ponto precisa estar conectado ao primeiro).",
+  "Power.Impact3": "Aproveitador",
+  "Power.Impact3.Description": "Desvia automaticamente de um dado do ataque inimigo e ganha +1 ataque.",
+  "Power.Impact4": "Veloz",
+  "Power.Impact4.Description": "Pode se movimentar at? 15 metros.",
+  "Power.Impact5": "Raio",
+  "Power.Impact5.Description": "Desvia automaticamente de um ataque do inimigo(gasta um pulo).",
+  "Power.Impact6": "F?ria Branca",
+  "Power.Impact6.Description": "Durante um ataque jogar? um dado a menos porque aquele um dado a menos ser? um 6 automaticamente.",
+  "Power.Tai1": "Aumento de Alcance",
+  "Power.Tai1.Description": "Voa para fora da terra, fica em ambiente espa?o por 4 rodadas.",
+  "Power.Tai2": "Esquecimento Tempor?rio",
+  "Power.Tai2.Description": "Elimina o inimigo que est? em combate com voc? da exist?ncia por 2 rodadas, e durante esse tempo ? como se ele n?o estivesse na partida, ap?s as duas rodadas o inimigo retorna para o lugar onde estava.",
+  "Power.Tai3": "Mundo Deletado",
+  "Power.Tai3.Description": "Elimina a terra da exist?ncia, fazendo com que todos os jogadores fiquem em ambiente Espa?o por 1 rodada e depois retornem a terra no local onde estavam.",
+  "Power.Tai4": "Ataque Inexistente",
+  "Power.Tai4.Description": "Anula o Ataque do Inimigo.",
+  "Power.Tai5": "Vantagem Adquirida",
+  "Power.Tai5.Description": "Elimina um turno de ataque do inimigo(pode escolher qual turno vai eliminar).",
+  "Power.Tai6": "Surpresa Perfeita",
+  "Power.Tai6.Description": "Ap?s o inimigo se defender, voc? pode jogar +1 dado de ataque para mudar o resultado e o dano do seu ataque.",
+  "Power.Tai7": "Raiva Eterna",
+  "Power.Tai7.Description": "Elimina o poder, dispositivo ou Habilidade Passiva que o inimigo acabou de usar no combate, fazendo com que ele n?o possa recuper?-lo at? o fim da partida.",
+  "Power.Caos1": "Evapora??o",
+  "Power.Caos1.Description": "Fica Intang?vel por 1 rodada n?o podendo ser atacado por ningu?m mas tamb?m n?o poder? atacar e ganha +10 metros de movimenta??o at? o fim da rodada.",
+  "Power.Caos2": "Expans?o Devoradora",
+  "Power.Caos2.Description": "Durante um combate, sempre que acertar pelo menos 3 dados de ataque no inimigo, Caos ganha +5 metros de Aura. (dura at? o fim do combate).",
+  "Power.Caos3": "Aura Perigosa",
+  "Power.Caos3.Description": "Drena 3 da vida do inimigo que est? em combate com voc? dentro de sua aura.",
+  "Power.Caos4": "Aura Restauradora",
+  "Power.Caos4.Description": "Recupera 1 de vida a cada in?cio de sua primeira rodada passiva(dura 5 rodadas).<br>",
+  "Power.Caos5": "Aura Reserva",
+  "Power.Caos5.Description": "Sua Aura ganha +10 metros por 1 rodada.",
+  "Power.Caos6": "Energia Conquistada",
+  "Power.Caos6.Description": "O dano de cada dado de ataque ? equivalente a quantidade de metros que sua Aura tem (dura??o de apenas um ataque), ap?s ativar este poder voc? perde 5 de vida.",
+  "Power.Ryan1": "Postura Alterada",
+  "Power.Ryan1.Description": "Pode se movimentar at? 10 metros e mudar de ataque para dar continuidade ao combate.",
+  "Power.Ryan2": "Impuls?o direcionada",
+  "Power.Ryan2.Description": "Pode empurrar um inimigo que esteja at? 3 metros de dist?ncia de voc? para at? 13 metros de dist?ncia.",
+  "Power.Ryan3": "Pux?o carregado",
+  "Power.Ryan3.Description": "Pode puxar um inimigo que esteja at? 15 metros de dist?ncia para 0 de dist?ncia de voc?.",
+  "Power.Ryan4": "Pulo Supremo",
+  "Power.Ryan4.Description": "Pula e se mant?m em Ambiente A?reo at? o fim do combate.",
+  "Power.Ryan5": "Cura Ativada",
+  "Power.Ryan5.Description": "Cura 6 de vida.",
+  "Power.Ryan6": "Rastros",
+  "Power.Ryan6.Description": "Encerra o combate e pode se posicionar em qualquer lugar em ?rea 1 de dist?ncia de onde voc? estava quando ativou rastros.",
+  "Power.Ryan7": "Imunidade Ancestral",
+  "Power.Ryan7.Description": "Nenhum poder, habilidade passiva, habilidade especial passiva, habilidade especial e dispositivos t?m efeito em voc? por 3 rodadas.",
+  "Power.Ryan8": "Tanque Humano",
+  "Power.Ryan8.Description": "Sua vida aumenta para 100 e voc? n?o joga dados para se defender at? o fim do combate e ap?s o combate sua vida volta para a quantidade que estava antes do combate.",
+  "Power.Absoluto1": "Paralisia",
+  "Power.Absoluto1.Description": "Paralisa o inimigo impedindo-o de se mover e usar pulos at? o fim do combate.",
+  "Power.Absoluto2": "Teletransporte preciso",
+  "Power.Absoluto2.Description": "Teletransporta voc? e o inimigo que acabou de iniciar um ataque contra voc? para qualquer parte do mapa mantendo a mesma dist?ncia entre voc?s.",
+  "Power.Absoluto3": "Sobrenatural",
+  "Power.Absoluto3.Description": "Troca de posi??o com qualquer inimigo no mapa(menos se ele estiver dentro de um local de explora??o).",
+  "Power.Absoluto4": "Olho drenador",
+  "Power.Absoluto4.Description": "Seu dado de T?cnica drena 3 de vida do inimigo quando der empate ou vit?ria.",
+  "Power.Absoluto5": "Perda de Tempo",
+  "Power.Absoluto5.Description": "Teletransporta um inimigo que esteja em combate com voc? a at? 15 metros de dist?ncia.",
+  "Power.Absoluto6": "Intoc?vel",
+  "Power.Absoluto6.Description": "Teletransporta um inimigo que esteja a at? 30 metros de voc? para qualquer ponto de queda do mapa.",
+  "Power.Absoluto7": "Luta Adaptada",
+  "Power.Absoluto7.Description": "Ao receber um ataque durante um combate, at? o fim do combate defender? aquele n?mero que te deu dano, Exemplo: Se o inimigo te atingir com um dado de n?mero 6, voc? defender? qualquer dado com n?mero automaticamente 6 at? o fim do combate.",
+  "Power.Protetor1": "Aumento de Estatura",
+  "Power.Protetor1.Description": "Ganha +1 dado de defesa at? o fim do combate.",
+  "Power.Protetor2": "Prote??o Surpresa",
+  "Power.Protetor2.Description": "Se defende de um ataque inimigo.",
+  "Power.Protetor3": "Prote??o Andante",
+  "Power.Protetor3.Description": "N?o pode ser atacado por inimigos que estejam a uma dist?ncia maior que 1 metro de voc? por 1 rodada.",
+  "Power.Protetor4": "Escudo de Ataque",
+  "Power.Protetor4.Description": "Tira 1 de vida do advers?rio por cada dado que voc? defender at? o fim do combate.",
+  "Power.Protetor5": "Tempo de Recupera??o",
+  "Power.Protetor5.Description": "Fica 3 rodadas parado e com um campo de for?a em volta de voc?, n?o podendo ser atacado por ningu?m e nem atacar e  fica regenerando 2 de vida por rodada.",
+  "Power.Protetor6": "Prote??o Local",
+  "Power.Protetor6.Description": "Impede todos os inimigos de usarem Poderes e Dispositivos no local onde voc? est? por 1 rodada.",
+  "Power.Protetor7": "Regenera??o Absoluta",
+  "Power.Protetor7.Description": "Ao receber dano de um ataque inimigo pode regenerar de vida a mesma quantidade de dano que recebeu do ataque(n?o pode regenerar se o ataque recebido te matou).",
+  "Power.Protetor8": "Prote??o Absoluta",
+  "Power.Protetor8.Description": "Se torna indestrut?vel por 2 rodadas n?o podendo receber nenhum tipo de dano e ap?s as duas rodadas ficar? inconsciente por 1 rodada sem se mover e s? podendo se defender.",
+  "SpecialAbility.Impact1": "Velocidade da Luz",
+  "SpecialAbility.Impact1.Description": "Ataca um inimigo fazendo com que os ataques que ele iria revidar se tornem seus ataques deixando-o sem chances de revidar. ",
+  "SpecialAbility.Impact2": "Volta ao mundo",
+  "SpecialAbility.Impact2.Description": "Durante 3 rodadas n?o precisa jogar o dado e sim ir direto at? o ponto do mapa que deseja.",
+  "SpecialAbility.Impact3": "Parando o Tempo",
+  "SpecialAbility.Impact3.Description": "Pode jogar 3 vezes seguidas em uma ?nica rodada.",
+  "SpecialAbility.Tecnology1": "Camikaze",
+  "SpecialAbility.Tecnology1.Description": "Se explode fazendo com que todos os jogadores at? 25 metros(n?o precisa estar entre pontos de conex?o) recebam sua explos?o e ap?s a explos?o voc? fica com 1 de vida e n?o pode se mover nem realizar a??es por 2 rodadas(Se usar a explos?o dentro de um local de explora??o voc? morrer?, se usar a explos?o do lado de fora ela n?o atingir? o inimigo dentro do local de explora??o).<br> Explos?o: <br>Dano 19 <br>Dist?ncia 0|25 <br>Dados 3 <br>Ambiente T/A<br>",
+  "SpecialAbility.Tecnology2": "M?quina da Morte",
+  "SpecialAbility.Tecnology2.Description": "Ganha +2 ataques por combate , d? o triplo de dano, joga +1 dado de defesa e a velocidade de todos os seus ataques ficam 0 segundos por 2 rodadas.",
+  "SpecialAbility.Atomico1": "Big Bang",
+  "SpecialAbility.Atomico1.Description": "Se explode atacando todos os inimigos do mapa e destruindo a terra, joga 5 dados dando 100 de dano cada um e ap?s a explos?o voc? fica com 1 de vida e morre ap?s 2 rodadas, todos ficam em ambiente espa?o e seus ataques podem ser utilizados em ambiente espa?o.",
+  "SpecialAbility.Atomico2": "Explos?o Ofensiva",
+  "SpecialAbility.Atomico2.Description": "Ao chegar no centro do mapa pode escolher uma regi?o para atacar todos os inimigos que est?o nela jogando 3 dados dando 20 de dano cada um.",
+  "SpecialAbility.Atomico3": "Sol Humano",
+  "SpecialAbility.Atomico3.Description": "Voa e fica em ambiente espa?o, e a cada rodada voc? ganha +500 de dano e ap?s 4 rodadas voc? retorna em qualquer lugar do mapa  com 2000 de dano em cada dado de ataque seu e a terra fica sem Sol o que faz com que os inimigos percam 1 de vida por rodada e voc? 2 de vida por rodada at? o fim da partida.",
+  "SpecialAbility.Caos1": "Dom?nio Inato",
+  "SpecialAbility.Caos1.Description": "Sua Aura se expande pelo mapa todo em ambiente (T,A e E) por 2 rodadas.",
+  "SpecialAbility.Caos2": "Aura Destruidora ",
+  "SpecialAbility.Caos2.Description": "Ganha +5 de dano em seus ataques ao lutar contra um inimigo que esteja dentro de sua Aura(dura 2 rodada).",
+  "SpecialAbility.Caos3": "Morte Sombria",
+  "SpecialAbility.Caos3.Description": "Se tiver iniciado um combate a 0 de dist?ncia de um inimigo voc? o matar? automaticamente.",
+  "SpecialAbility.Caos4": "Vulto Macabro",
+  "SpecialAbility.Caos4.Description": "Pode a cada turno do combate se teletransportar para qualquer dist?ncia dentro de sua Aura, n?o pode usar para fugir do combate(dura 5 rodadas).",
+  "SpecialAbility.Caos5": "Destinado a Vit?ria",
+  "SpecialAbility.Caos5.Description": "Sua Aura da +4 em cada dado de ataque e defesa por 2 rodadas.",
+  "PassiveSpecialAbility.Atomico1": "Bomba Nuclear",
+  "PassiveSpecialAbility.Atomico1.Description": "Ao ativar Bomba Nuclear voc? recupera 2 pulos por rodada e quando estiver com todos os pulos pode se explodir dentro da base central com uma explos?o nuclear que gasta todos os seus pulos e ataca todos os inimigos com 3 dados dando 20 de dano cada um, ap?s a primeira explos?o voc? recupera 1 pulo por rodada ? s? poder? se explodir novamente quando todos os pulos voltarem e assim vai indo.",
+  "PassiveSpecialAbility.Atomico2": "Aquecimento Interno",
+  "PassiveSpecialAbility.Atomico2.Description": "Joga +2 dados de defesa e ganha +1 em cada um deles.",
+  "PassiveSpecialAbility.Atomico3": "Impacto Explosivo",
+  "PassiveSpecialAbility.Atomico3.Description": "Seus ataques ganham +5 de dano.",
+  "PassiveSpecialAbility.Atomico4": "Voo Explosivo",
+  "PassiveSpecialAbility.Atomico4.Description": "Voa permanentemente e ganha +2 dados de ataque.",
+  "PassiveSpecialAbility.Atomico5": "Empurr?o Explosivo",
+  "PassiveSpecialAbility.Atomico5.Description": "A cada turno do combate voc? pode mover o inimigo 3 metros para a dire??o que voc? escolher.",
+  "PassiveSpecialAbility.Protetor1": "Prote??o Indestrut?vel",
+  "PassiveSpecialAbility.Protetor1.Description": "Ao ativar a Prote??o Indestrut?vel voc? ficar? indestrut?vel por 1 rodada e levar? 1 rodada para poder ficar indestrut?vel novamente.",
+  "PassiveSpecialAbility.Protetor2": "Defesa dos Deuses",
+  "PassiveSpecialAbility.Protetor2.Description": "S? receber? dano se o inimigo tirar 6 no dado de ataque dele e voc? n?o jogar? dados para se defender."
 }
