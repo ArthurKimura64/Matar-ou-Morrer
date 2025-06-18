@@ -426,6 +426,33 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": []
+    },
+    {
+      "ID": "Imortal",
+      "DodgePoints": 4,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": "",
+      "NumberOfWeapons": "",
+      "NumberOfPassives": "",
+      "NumberOfPowers": "",
+      "NumberOfDevices": "",
+      "NumberOfSpecialAbilities": "",
+      "NumberOfPassiveSpecialAbilities": "",
+      "Tecnique": {
+        "Desert": "",
+        "City": "",
+        "Landfill": "",
+        "Mountain": ""
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": []
     }
   ],
   "PassiveDefinitions": [
