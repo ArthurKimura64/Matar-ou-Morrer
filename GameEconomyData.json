@@ -474,6 +474,50 @@
         "PassiveSpecialAbility.Imortal2",
         "PassiveSpecialAbility.Imortal3"
       ]
+    },
+    {
+      "ID": "Gravidade",
+      "DodgePoints": 10,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 4,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 2,
+      "Tecnique": {
+        "Desert": "d12",
+        "City": "d10",
+        "Landfill": "d12",
+        "Mountain": "d6"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Gravidade1",
+        "Attack.Gravidade2"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Gravidade1",
+        "Passive.Gravidade2",
+        "Passive.Gravidade3",
+        "Passive.Gravidade4",
+        "Passive.Gravidade5",
+        "Passive.Gravidade6",
+        "Passive.Gravidade7",
+        "Passive.Gravidade8"
+      ],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Gravidade1",
+        "PassiveSpecialAbility.Gravidade2",
+        "PassiveSpecialAbility.Gravidade3",
+        "PassiveSpecialAbility.Gravidade4"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -622,6 +666,38 @@
       "Description": "Passive.Imortal4.Description"
     },
     {
+      "ID": "Passive.Gravidade1",
+      "Description": "Passive.Gravidade1.Description"
+    },
+    {
+      "ID": "Passive.Gravidade2",
+      "Description": "Passive.Gravidade2.Description"
+    },
+    {
+      "ID": "Passive.Gravidade3",
+      "Description": "Passive.Gravidade3.Description"
+    },
+    {
+      "ID": "Passive.Gravidade4",
+      "Description": "Passive.Gravidade4.Description"
+    },
+    {
+      "ID": "Passive.Gravidade5",
+      "Description": "Passive.Gravidade5.Description"
+    },
+    {
+      "ID": "Passive.Gravidade6",
+      "Description": "Passive.Gravidade6.Description"
+    },
+    {
+      "ID": "Passive.Gravidade7",
+      "Description": "Passive.Gravidade7.Description"
+    },
+    {
+      "ID": "Passive.Gravidade8",
+      "Description": "Passive.Gravidade8.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -660,6 +736,22 @@
     {
       "ID": "PassiveSpecialAbility.Imortal3",
       "Description": "PassiveSpecialAbility.Imortal3.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Gravidade1",
+      "Description": "PassiveSpecialAbility.Gravidade1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Gravidade2",
+      "Description": "PassiveSpecialAbility.Gravidade2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Gravidade3",
+      "Description": "PassiveSpecialAbility.Gravidade3.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Gravidade4",
+      "Description": "PassiveSpecialAbility.Gravidade4.Description"
     }
   ],
   "AttackDefinitions": [
@@ -814,8 +906,8 @@
     {
       "ID": "Attack.Atomico2",
       "Damage": 6,
-      "MinimumDistance": "Área 1",
-      "MaximumDistance": "Área 1",
+      "MinimumDistance": "?rea 1",
+      "MaximumDistance": "?rea 1",
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
@@ -826,8 +918,8 @@
     {
       "ID": "Attack.Atomico3",
       "Damage": 5,
-      "MinimumDistance": "Região",
-      "MaximumDistance": "Região",
+      "MinimumDistance": "Regi?o",
+      "MaximumDistance": "Regi?o",
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [
@@ -1146,6 +1238,33 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Imortal4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Gravidade1",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1000,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Attack.Gravidade2",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1000,
+      "LoadTime": 0,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Gravidade2.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
