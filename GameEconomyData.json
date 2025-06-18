@@ -518,6 +518,52 @@
         "PassiveSpecialAbility.Gravidade3",
         "PassiveSpecialAbility.Gravidade4"
       ]
+    },
+    {
+      "ID": "Radiacao",
+      "DodgePoints": 4,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 2,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d10",
+        "Landfill": "d20",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Radiacao1",
+        "Attack.Radiacao2",
+        "Attack.Radiacao3"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Radiacao1",
+        "Passive.Radiacao2",
+        "Passive.Radiacao3",
+        "Passive.Radiacao4"
+      ],
+      "PowersData": [
+        "Power.Radiacao1",
+        "Power.Radiacao2",
+        "Power.Radiacao3",
+        "Power.Radiacao4"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Radiacao1",
+        "SpecialAbility.Radiacao2",
+        "SpecialAbility.Radiacao3",
+        "SpecialAbility.Radiacao4"
+      ],
+      "PassiveSpecialAbilitiesData": []
     }
   ],
   "PassiveDefinitions": [
@@ -696,6 +742,22 @@
     {
       "ID": "Passive.Gravidade8",
       "Description": "Passive.Gravidade8.Description"
+    },
+    {
+      "ID": "Passive.Radiacao1",
+      "Description": "Passive.Radiacao1.Description"
+    },
+    {
+      "ID": "Passive.Radiacao2",
+      "Description": "Passive.Radiacao2.Description"
+    },
+    {
+      "ID": "Passive.Radiacao3",
+      "Description": "Passive.Radiacao3.Description"
+    },
+    {
+      "ID": "Passive.Radiacao4",
+      "Description": "Passive.Radiacao4.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -906,8 +968,8 @@
     {
       "ID": "Attack.Atomico2",
       "Damage": 6,
-      "MinimumDistance": "?rea 1",
-      "MaximumDistance": "?rea 1",
+      "MinimumDistance": "Área 1",
+      "MaximumDistance": "Área 1",
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
@@ -918,8 +980,8 @@
     {
       "ID": "Attack.Atomico3",
       "Damage": 5,
-      "MinimumDistance": "Regi?o",
-      "MaximumDistance": "Regi?o",
+      "MinimumDistance": "Região",
+      "MaximumDistance": "Região",
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [
@@ -1265,6 +1327,43 @@
         "Space"
       ],
       "SpecialDescription": "Attack.Gravidade2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Radiacao1",
+      "Damage": 3,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 0,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Radiacao1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Radiacao2",
+      "Damage": 9,
+      "MinimumDistance": 1,
+      "MaximumDistance": 8,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Radiacao3",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 25,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Radiacao3.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -1805,6 +1904,34 @@
       "Description": "Power.Imortal6.Description"
     },
     {
+      "ID": "Power.Radiacao1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Radiacao1.Description"
+    },
+    {
+      "ID": "Power.Radiacao2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Radiacao2.Description"
+    },
+    {
+      "ID": "Power.Radiacao3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Radiacao3.Description"
+    },
+    {
+      "ID": "Power.Radiacao4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Radiacao4.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -1895,6 +2022,34 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Caos5.Description"
+    },
+    {
+      "ID": "SpecialAbility.Radiacao1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Radiacao1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Radiacao2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "SpecialAbility.Radiacao2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Radiacao3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Radiacao3.Description"
+    },
+    {
+      "ID": "SpecialAbility.Radiacao4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Radiacao4.Description"
     }
   ]
 }
