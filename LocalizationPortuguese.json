@@ -270,7 +270,7 @@
   "Passive.Radiacao1": "Radioativo",
   "Passive.Radiacao1.Description": "Faz todos os inimigos em área 1 perderem 1 de vida sempre que chegar sua primeira rodada passiva enquanto estiverem em área 1 de distância de você e quanto estiver com 8 ou menos de vida o dano aumenta para 2 e a distância aumenta para área 2.",
   "Passive.Radiacao2": "Sangue Radioativo",
-  "Passive.Radiacao2.Description": "A cada inicio de turno do combate ganha 2 de vida e se chegar no limite começa a ser acrescentado temporariamente.",
+  "Passive.Radiacao2.Description": "A cada inicio de turno do combate você ganha 2 de vida e se chegar no limite começa a ser acrescentado temporariamente.",
   "Passive.Radiacao3": "Nuvem Verde",
   "Passive.Radiacao3.Description": "Inimigos a 0/6 de distância perdem 3 de vida por rodada(perdem vida assim que entram nessa distância e depois perdem por rodada enquanto permanecerem dentro dessa nuvem verde).",
   "Passive.Radiacao4": "Explosão Verde",
