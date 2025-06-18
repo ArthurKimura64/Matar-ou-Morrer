@@ -1065,31 +1065,6 @@
       "Ambient": [
         "Earth"
       ]
-    },
-    {
-      "ID": "Weapon.9",
-      "Damage": 15,
-      "MinimumDistance": 26,
-      "MaximumDistance": 28,
-      "LoadTime": 3,
-      "Dices": 1,
-      "Ambient": [
-        "Earth"
-      ],
-      "SpecialDescription": "Weapon.9.SpecialDescription"
-    },
-    {
-      "ID": "Weapon.10",
-      "Damage": 10,
-      "MinimumDistance": 18,
-      "MaximumDistance": 22,
-      "LoadTime": 2,
-      "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
-      "SpecialDescription": "Weapon.10.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
