@@ -202,10 +202,10 @@
       "NumberOfSpecialAbilities": 3,
       "NumberOfPassiveSpecialAbilities": 0,
       "Tecnique": {
-        "Desert": 10,
-        "City": 20,
-        "Landfill": 12,
-        "Mountain": 10
+        "Desert": "d10",
+        "City": "d20",
+        "Landfill": "d12",
+        "Mountain": "d10"
       },
       "UnlimitedAttacksData": [],
       "WeaponsData": [
@@ -233,6 +233,59 @@
         "SpecialAbility.Caos4",
         "SpecialAbility.Caos5"
       ],
+      "PassiveSpecialAbilitiesData": []
+    },
+    {
+      "ID": "Ryan",
+      "DodgePoints": 10,
+      "OportunityAttacks": 6,
+      "ExplorationItens": 4,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 2,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d12",
+        "Landfill": "d4",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Ryan1",
+        "Attack.Ryan2",
+        "Attack.Ryan3",
+        "Attack.Ryan4",
+        "Attack.Ryan5",
+        "Attack.Ryan6"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Ryan1",
+        "Passive.Ryan2",
+        "Passive.Ryan3",
+        "Passive.Ryan4",
+        "Passive.Ryan5",
+        "Passive.Ryan6",
+        "Passive.Ryan7",
+        "Passive.Ryan8",
+        "Passive.Ryan9"
+      ],
+      "PowersData": [
+        "Power.Ryan1",
+        "Power.Ryan2",
+        "Power.Ryan3",
+        "Power.Ryan4",
+        "Power.Ryan5",
+        "Power.Ryan6",
+        "Power.Ryan7",
+        "Power.Ryan8"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": []
     }
   ],
@@ -284,6 +337,42 @@
     {
       "ID": "Passive.Caos2",
       "Description": "Passive.Caos2.Description"
+    },
+    {
+      "ID": "Passive.Ryan1",
+      "Description": "Passive.Ryan1.Description"
+    },
+    {
+      "ID": "Passive.Ryan2",
+      "Description": "Passive.Ryan2.Description"
+    },
+    {
+      "ID": "Passive.Ryan3",
+      "Description": "Passive.Ryan3.Description"
+    },
+    {
+      "ID": "Passive.Ryan4",
+      "Description": "Passive.Ryan4.Description"
+    },
+    {
+      "ID": "Passive.Ryan5",
+      "Description": "Passive.Ryan5.Description"
+    },
+    {
+      "ID": "Passive.Ryan6",
+      "Description": "Passive.Ryan6.Description"
+    },
+    {
+      "ID": "Passive.Ryan7",
+      "Description": "Passive.Ryan7.Description"
+    },
+    {
+      "ID": "Passive.Ryan8",
+      "Description": "Passive.Ryan8.Description"
+    },
+    {
+      "ID": "Passive.Ryan9",
+      "Description": "Passive.Ryan9.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -458,8 +547,8 @@
     {
       "ID": "Attack.Atomico2",
       "Damage": 6,
-      "MinimumDistance": "Área 1",
-      "MaximumDistance": "Área 1",
+      "MinimumDistance": "?rea 1",
+      "MaximumDistance": "?rea 1",
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
@@ -470,8 +559,8 @@
     {
       "ID": "Attack.Atomico3",
       "Damage": 5,
-      "MinimumDistance": "Região",
-      "MaximumDistance": "Região",
+      "MinimumDistance": "Regi?o",
+      "MaximumDistance": "Regi?o",
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [
@@ -492,6 +581,80 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Atomico4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ryan1",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Ryan1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ryan2",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 2,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Ryan2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ryan3",
+      "Damage": 5,
+      "MinimumDistance": 0,
+      "MaximumDistance": 0,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Ryan3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ryan4",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 0,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Ryan4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ryan5",
+      "Damage": 10,
+      "MinimumDistance": 6,
+      "MaximumDistance": 14,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Ryan5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ryan6",
+      "Damage": 100,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 0,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Ryan6.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -762,6 +925,64 @@
         "BeforeAttack"
       ],
       "Description": "Power.Caos6.Description"
+    },
+    {
+      "ID": "Power.Ryan1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ryan1.Description"
+    },
+    {
+      "ID": "Power.Ryan2",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ryan2.Description"
+    },
+    {
+      "ID": "Power.Ryan3",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ryan3.Description"
+    },
+    {
+      "ID": "Power.Ryan4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ryan4.Description"
+    },
+    {
+      "ID": "Power.Ryan5",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Ryan5.Description"
+    },
+    {
+      "ID": "Power.Ryan6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ryan6.Description"
+    },
+    {
+      "ID": "Power.Ryan7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Ryan7.Description"
+    },
+    {
+      "ID": "Power.Ryan8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ryan8.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
