@@ -446,7 +446,12 @@
         "Landfill": "d12",
         "Mountain": "d10"
       },
-      "UnlimitedAttacksData": [],
+      "UnlimitedAttacksData": [
+        "Attack.Imortal1",
+        "Attack.Imortal2",
+        "Attack.Imortal3",
+        "Attack.Imortal4"
+      ],
       "WeaponsData": [],
       "PassivesData": [],
       "PowersData": [],
@@ -1049,6 +1054,54 @@
         "Earth"
       ],
       "SpecialDescription": "Attack.Destroul12.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Imortal1",
+      "Damage": 2,
+      "MinimumDistance": 2,
+      "MaximumDistance": 8,
+      "LoadTime": 0,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Imortal2",
+      "Damage": 6,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.Imortal3",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 2,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Imortal3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Imortal4",
+      "Damage": 4,
+      "MinimumDistance": 9,
+      "MaximumDistance": 11,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Imortal4.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
