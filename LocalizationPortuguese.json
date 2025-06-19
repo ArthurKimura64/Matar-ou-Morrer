@@ -537,5 +537,6 @@
   "PassiveSpecialAbility.Gravidade3.Description": "Enquanto estiver no meio do mapa pode mover todos os inimigos para um ponto de conexão do Local do mapa adjacente conectado diretamente ao que ele está seguindo o sentido horário(Gasta 1 pulo) pode mover todos os inimigos uma vez e tem que ser na sua primeira rodada passiva. ",
   "PassiveSpecialAbility.Gravidade4": "Carregado",
   "PassiveSpecialAbility.Gravidade4.Description": "Joga a terra em direção a um buraco negro, você jogara um d20 por rodada e irá somando os resultados e quanto mais a terra se aproxima do buraco negro mais forte você irá ficar mas se chegar ao buraco negro e você não vencer, os inimigos continuarão o jogo e você morrerá porque usara todo o seu poder para fazer a terra voltar aonde estava, evolução: 20: +1 de dano, 35: +1 de dano, 50: Vida limite sobe para 40, 70: Não precisa estar entre pontos de conexão para atacar, 90: Cura 10 de vida por turno passivo, 120: Morre. ",
-  "SpecialCustom.Kader1.Title": "Destinos"
+  "SpecialCustom.Kader1.Title": "Destinos",
+  "SpecialCustom.Destroul1.Title": "Ações Usadas"
 }
