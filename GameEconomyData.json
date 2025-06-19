@@ -46,7 +46,7 @@
         "SpecialAbility.Impact3"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Tecnology",
@@ -96,7 +96,7 @@
         "SpecialAbility.Tecnology2"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Tai",
@@ -143,7 +143,7 @@
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Atomico",
@@ -190,7 +190,7 @@
         "PassiveSpecialAbility.Atomico4",
         "PassiveSpecialAbility.Atomico5"
       ],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Caos",
@@ -238,7 +238,7 @@
         "SpecialAbility.Caos5"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Ryan",
@@ -292,7 +292,7 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Absoluto",
@@ -344,7 +344,7 @@
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Protetor",
@@ -393,7 +393,7 @@
         "PassiveSpecialAbility.Protetor1",
         "PassiveSpecialAbility.Protetor2"
       ],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Destroul",
@@ -434,7 +434,7 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Imortal",
@@ -483,7 +483,7 @@
         "PassiveSpecialAbility.Imortal2",
         "PassiveSpecialAbility.Imortal3"
       ],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Gravidade",
@@ -528,7 +528,7 @@
         "PassiveSpecialAbility.Gravidade3",
         "PassiveSpecialAbility.Gravidade4"
       ],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Radiacao",
@@ -575,7 +575,7 @@
         "SpecialAbility.Radiacao4"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "SextoSentido",
@@ -622,7 +622,7 @@
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Kader",
@@ -664,8 +664,8 @@
         "SpecialAbility.Kader2"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": [
-        "SpecialCustom.Kader2"
+      "SpecialCharacteristics": [
+        "SpecialCustom.Kader1"
       ]
     }
   ],
@@ -2386,7 +2386,7 @@
   ],
   "SpecialDefinitions": [
     {
-      "ID": "SpecialCustom.Kader2",
+      "ID": "SpecialCustom.Kader1",
       "Type": "checkbox",
       "Title": "SpecialCustom.Kader1.Title"
     }
