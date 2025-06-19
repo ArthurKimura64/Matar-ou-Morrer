@@ -434,7 +434,9 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Destroul1"
+      ]
     },
     {
       "ID": "Imortal",
@@ -2389,6 +2391,11 @@
       "ID": "SpecialCustom.Kader1",
       "Type": "textbox",
       "Title": "SpecialCustom.Kader1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Destroul1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Destroul1.Title"
     }
   ]
 }
