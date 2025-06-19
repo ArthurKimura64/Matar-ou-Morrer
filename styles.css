@@ -1,0 +1,9 @@
+/* Centraliza todos os textos do exemplo de personagem */
+.character-example-center {
+    text-align: center;
+}
+
+/* Aumenta o tamanho padrão dos textos */
+.character-example-text {
+    font-size: 1.5rem;
+}
