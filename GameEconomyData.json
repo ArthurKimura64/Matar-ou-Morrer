@@ -2387,7 +2387,7 @@
   "SpecialDefinitions": [
     {
       "ID": "SpecialCustom.Kader1",
-      "Type": "checkbox",
+      "Type": "textbox",
       "Title": "SpecialCustom.Kader1.Title"
     }
   ]
