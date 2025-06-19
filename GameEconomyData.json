@@ -664,7 +664,9 @@
         "SpecialAbility.Kader2"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristic": []
+      "SpecialCharacteristic": [
+        "SpecialCustom.Kader2"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -2384,9 +2386,9 @@
   ],
   "SpecialDefinitions": [
     {
-      "ID": "SpecialCustom.2",
+      "ID": "SpecialCustom.Kader2",
       "Type": "checkbox",
-      "Title": "SpecialInfo.SpecialCustom.1.Title"
+      "Title": "SpecialCustom.Kader1.Title"
     }
   ]
 }
