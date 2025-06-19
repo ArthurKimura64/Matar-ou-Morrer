@@ -45,7 +45,8 @@
         "SpecialAbility.Impact2",
         "SpecialAbility.Impact3"
       ],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Tecnology",
@@ -94,7 +95,8 @@
         "SpecialAbility.Tecnology1",
         "SpecialAbility.Tecnology2"
       ],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Tai",
@@ -140,7 +142,8 @@
         "Device.Tai7"
       ],
       "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Atomico",
@@ -186,7 +189,8 @@
         "PassiveSpecialAbility.Atomico3",
         "PassiveSpecialAbility.Atomico4",
         "PassiveSpecialAbility.Atomico5"
-      ]
+      ],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Caos",
@@ -233,7 +237,8 @@
         "SpecialAbility.Caos4",
         "SpecialAbility.Caos5"
       ],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Ryan",
@@ -286,7 +291,8 @@
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Absoluto",
@@ -337,7 +343,8 @@
         "Device.Absoluto4"
       ],
       "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Protetor",
@@ -385,7 +392,8 @@
       "PassiveSpecialAbilitiesData": [
         "PassiveSpecialAbility.Protetor1",
         "PassiveSpecialAbility.Protetor2"
-      ]
+      ],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Destroul",
@@ -425,7 +433,8 @@
       "PowersData": [],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Imortal",
@@ -473,7 +482,8 @@
         "PassiveSpecialAbility.Imortal1",
         "PassiveSpecialAbility.Imortal2",
         "PassiveSpecialAbility.Imortal3"
-      ]
+      ],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Gravidade",
@@ -517,7 +527,8 @@
         "PassiveSpecialAbility.Gravidade2",
         "PassiveSpecialAbility.Gravidade3",
         "PassiveSpecialAbility.Gravidade4"
-      ]
+      ],
+      "SpecialCharacteristic": []
     },
     {
       "ID": "Radiacao",
@@ -563,10 +574,11 @@
         "SpecialAbility.Radiacao3",
         "SpecialAbility.Radiacao4"
       ],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     },
     {
-      "ID": "Sexto Sentido",
+      "ID": "SextoSentido",
       "DodgePoints": 6,
       "OportunityAttacks": 6,
       "ExplorationItens": 2,
@@ -585,31 +597,74 @@
         "Mountain": "d4"
       },
       "UnlimitedAttacksData": [
-        "Attack.Sexto Sentido1",
-        "Attack.Sexto Sentido2",
-        "Attack.Sexto Sentido3",
-        "Attack.Sexto Sentido4"
+        "Attack.SextoSentido1",
+        "Attack.SextoSentido2",
+        "Attack.SextoSentido3",
+        "Attack.SextoSentido4"
       ],
       "WeaponsData": [],
       "PassivesData": [],
       "PowersData": [
-        "Power.Sexto Sentido1",
-        "Power.Sexto Sentido2",
-        "Power.Sexto Sentido3",
-        "Power.Sexto Sentido4",
-        "Power.Sexto Sentido5"
+        "Power.SextoSentido1",
+        "Power.SextoSentido2",
+        "Power.SextoSentido3",
+        "Power.SextoSentido4",
+        "Power.SextoSentido5"
       ],
       "DevicesData": [
-        "Device.Sexto Sentido1",
-        "Device.Sexto Sentido2",
-        "Device.Sexto Sentido3",
-        "Device.Sexto Sentido4",
-        "Device.Sexto Sentido5",
-        "Device.Sexto Sentido6",
-        "Device.Sexto Sentido7"
+        "Device.SextoSentido1",
+        "Device.SextoSentido2",
+        "Device.SextoSentido3",
+        "Device.SextoSentido4",
+        "Device.SextoSentido5",
+        "Device.SextoSentido6",
+        "Device.SextoSentido7"
       ],
       "SpecialAbilitiesData": [],
-      "PassiveSpecialAbilitiesData": []
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
+    },
+    {
+      "ID": "Kader",
+      "DodgePoints": 3,
+      "OportunityAttacks": 8,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 2,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 3,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d8",
+        "Landfill": "d4",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Kader1",
+        "Weapon.Kader2",
+        "Weapon.Kader3",
+        "Weapon.Kader4"
+      ],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Kader1",
+        "Device.Kader2",
+        "Device.Kader3",
+        "Device.Kader4",
+        "Device.Kader5"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Kader1",
+        "SpecialAbility.Kader2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristic": []
     }
   ],
   "PassiveDefinitions": [
@@ -1412,7 +1467,7 @@
       "SpecialDescription": "Attack.Radiacao3.SpecialDescription"
     },
     {
-      "ID": "Attack.Sexto Sentido1",
+      "ID": "Attack.SextoSentido1",
       "Damage": 2,
       "MinimumDistance": 0,
       "MaximumDistance": 2,
@@ -1421,10 +1476,10 @@
       "Ambient": [
         "Earth"
       ],
-      "SpecialDescription": "Attack.Sexto Sentido1.SpecialDescription"
+      "SpecialDescription": "Attack.SextoSentido1.SpecialDescription"
     },
     {
-      "ID": "Attack.Sexto Sentido2",
+      "ID": "Attack.SextoSentido2",
       "Damage": 4,
       "MinimumDistance": 6,
       "MaximumDistance": 10,
@@ -1435,7 +1490,7 @@
       ]
     },
     {
-      "ID": "Attack.Sexto Sentido3",
+      "ID": "Attack.SextoSentido3",
       "Damage": 3,
       "MinimumDistance": 3,
       "MaximumDistance": 8,
@@ -1444,10 +1499,10 @@
       "Ambient": [
         "Earth"
       ],
-      "SpecialDescription": "Attack.Sexto Sentido3.SpecialDescription"
+      "SpecialDescription": "Attack.SextoSentido3.SpecialDescription"
     },
     {
-      "ID": "Attack.Sexto Sentido4",
+      "ID": "Attack.SextoSentido4",
       "Damage": 5,
       "MinimumDistance": 1,
       "MaximumDistance": 4,
@@ -1456,7 +1511,7 @@
       "Ambient": [
         "Earth"
       ],
-      "SpecialDescription": "Attack.Sexto Sentido4.SpecialDescription"
+      "SpecialDescription": "Attack.SextoSentido4.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -1527,6 +1582,55 @@
       "Dices": 2,
       "Ambient": [
         "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Kader1",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Kader2",
+      "Damage": 2,
+      "MinimumDistance": 3,
+      "MaximumDistance": 7,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Kader2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Kader3",
+      "Damage": 5,
+      "MinimumDistance": 6,
+      "MaximumDistance": 14,
+      "LoadTime": 0,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Weapon.Kader3.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Kader4",
+      "Damage": 1,
+      "MinimumDistance": 4,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
       ]
     }
   ],
@@ -1658,53 +1762,88 @@
       "Description": "Device.Absoluto4.Description"
     },
     {
-      "ID": "Device.Sexto Sentido1",
+      "ID": "Device.SextoSentido1",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Device.Sexto Sentido1.Description"
+      "Description": "Device.SextoSentido1.Description"
     },
     {
-      "ID": "Device.Sexto Sentido2",
+      "ID": "Device.SextoSentido2",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Device.Sexto Sentido2.Description"
+      "Description": "Device.SextoSentido2.Description"
     },
     {
-      "ID": "Device.Sexto Sentido3",
+      "ID": "Device.SextoSentido3",
       "TriggerType": [
         "Passive"
       ],
-      "Description": "Device.Sexto Sentido3.Description"
+      "Description": "Device.SextoSentido3.Description"
     },
     {
-      "ID": "Device.Sexto Sentido4",
+      "ID": "Device.SextoSentido4",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Device.Sexto Sentido4.Description"
+      "Description": "Device.SextoSentido4.Description"
     },
     {
-      "ID": "Device.Sexto Sentido5",
+      "ID": "Device.SextoSentido5",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Device.Sexto Sentido5.Description"
+      "Description": "Device.SextoSentido5.Description"
     },
     {
-      "ID": "Device.Sexto Sentido6",
+      "ID": "Device.SextoSentido6",
       "TriggerType": [
         "AfterAttack"
       ],
-      "Description": "Device.Sexto Sentido6.Description"
+      "Description": "Device.SextoSentido6.Description"
     },
     {
-      "ID": "Device.Sexto Sentido7",
+      "ID": "Device.SextoSentido7",
       "TriggerType": [
         "AfterAttack"
       ],
-      "Description": "Device.Sexto Sentido7.Description"
+      "Description": "Device.SextoSentido7.Description"
+    },
+    {
+      "ID": "Device.Kader1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Kader1.Description"
+    },
+    {
+      "ID": "Device.Kader2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Kader2.Description"
+    },
+    {
+      "ID": "Device.Kader3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Kader3.Description"
+    },
+    {
+      "ID": "Device.Kader4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Kader4.Description"
+    },
+    {
+      "ID": "Device.Kader5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Kader5.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -2074,39 +2213,39 @@
       "Description": "Power.Radiacao4.Description"
     },
     {
-      "ID": "Power.Sexto Sentido1",
+      "ID": "Power.SextoSentido1",
       "TriggerType": [
         "Passive"
       ],
-      "Description": "Power.Sexto Sentido1.Description"
+      "Description": "Power.SextoSentido1.Description"
     },
     {
-      "ID": "Power.Sexto Sentido2",
+      "ID": "Power.SextoSentido2",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Power.Sexto Sentido2.Description"
+      "Description": "Power.SextoSentido2.Description"
     },
     {
-      "ID": "Power.Sexto Sentido3",
+      "ID": "Power.SextoSentido3",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Power.Sexto Sentido3.Description"
+      "Description": "Power.SextoSentido3.Description"
     },
     {
-      "ID": "Power.Sexto Sentido4",
+      "ID": "Power.SextoSentido4",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Power.Sexto Sentido4.Description"
+      "Description": "Power.SextoSentido4.Description"
     },
     {
-      "ID": "Power.Sexto Sentido5",
+      "ID": "Power.SextoSentido5",
       "TriggerType": [
         "AfterAttack"
       ],
-      "Description": "Power.Sexto Sentido5.Description"
+      "Description": "Power.SextoSentido5.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
@@ -2227,6 +2366,27 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Radiacao4.Description"
+    },
+    {
+      "ID": "SpecialAbility.Kader1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Kader1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Kader2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Kader2.Description"
+    }
+  ],
+  "SpecialDefinitions": [
+    {
+      "ID": "SpecialCustom.2",
+      "Type": "checkbox",
+      "Title": "SpecialInfo.SpecialCustom.1.Title"
     }
   ]
 }
