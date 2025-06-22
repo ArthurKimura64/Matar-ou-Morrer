@@ -238,7 +238,9 @@
         "SpecialAbility.Caos5"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Caos1"
+      ]
     },
     {
       "ID": "Ryan",
@@ -669,6 +671,41 @@
       "SpecialCharacteristics": [
         "SpecialCustom.Kader1"
       ]
+    },
+    {
+      "ID": "PortadorDasEntidades",
+      "DodgePoints": 4,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 6,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d10",
+        "Landfill": "d8",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.PortadorDasEntidades1",
+        "Attack.PortadorDasEntidades2",
+        "Attack.PortadorDasEntidades3",
+        "Attack.PortadorDasEntidades4",
+        "Attack.PortadorDasEntidades5",
+        "Attack.PortadorDasEntidades6"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1516,6 +1553,80 @@
         "Earth"
       ],
       "SpecialDescription": "Attack.SextoSentido4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.PortadorDasEntidades1",
+      "Damage": 15,
+      "MinimumDistance": 4,
+      "MaximumDistance": 7,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.PortadorDasEntidades1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.PortadorDasEntidades2",
+      "Damage": 4,
+      "MinimumDistance": 0,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.PortadorDasEntidades2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.PortadorDasEntidades3",
+      "Damage": 3,
+      "MinimumDistance": "Infinita",
+      "MaximumDistance": "Infinita",
+      "LoadTime": 0,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.PortadorDasEntidades3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.PortadorDasEntidades4",
+      "Damage": 10,
+      "MinimumDistance": 10,
+      "MaximumDistance": 15,
+      "LoadTime": 5,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.PortadorDasEntidades4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.PortadorDasEntidades5",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.PortadorDasEntidades5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.PortadorDasEntidades6",
+      "Damage": "",
+      "MinimumDistance": "",
+      "MaximumDistance": "",
+      "LoadTime": "",
+      "Dices": "",
+      "Ambient": [
+        null
+      ]
     },
     {
       "ID": "Weapon.Caos1",
@@ -2387,6 +2498,11 @@
     }
   ],
   "SpecialDefinitions": [
+    {
+      "ID": "SpecialCustom.Caos1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Caos1.Title"
+    },
     {
       "ID": "SpecialCustom.Kader1",
       "Type": "textbox",
