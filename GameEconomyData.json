@@ -682,7 +682,7 @@
       "NumberOfWeapons": 0,
       "NumberOfPassives": 1,
       "NumberOfPowers": 1,
-      "NumberOfDevices": 0,
+      "NumberOfDevices": 1,
       "NumberOfSpecialAbilities": 0,
       "NumberOfPassiveSpecialAbilities": 0,
       "Tecnique": {
@@ -700,9 +700,18 @@
         "Attack.PortadorDasEntidades6"
       ],
       "WeaponsData": [],
-      "PassivesData": [],
-      "PowersData": [],
-      "DevicesData": [],
+      "PassivesData": [
+        "Passive.PortadorDasEntidades1",
+        "Passive.PortadorDasEntidades2"
+      ],
+      "PowersData": [
+        "Power.PortadorDasEntidades1",
+        "Power.PortadorDasEntidades2"
+      ],
+      "DevicesData": [
+        "Device.PortadorDasEntidades1",
+        "Device.PortadorDasEntidades2"
+      ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
@@ -900,6 +909,14 @@
     {
       "ID": "Passive.Radiacao4",
       "Description": "Passive.Radiacao4.Description"
+    },
+    {
+      "ID": "Passive.PortadorDasEntidades1",
+      "Description": "Passive.PortadorDasEntidades1.Description"
+    },
+    {
+      "ID": "Passive.PortadorDasEntidades2",
+      "Description": "Passive.PortadorDasEntidades2.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -1619,14 +1636,17 @@
     },
     {
       "ID": "Attack.PortadorDasEntidades6",
-      "Damage": "",
-      "MinimumDistance": "",
-      "MaximumDistance": "",
-      "LoadTime": "",
-      "Dices": "",
+      "Damage": 20,
+      "MinimumDistance": 3,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 2,
       "Ambient": [
-        null
-      ]
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.PortadorDasEntidades6.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -1959,6 +1979,22 @@
         "BeforeAttack"
       ],
       "Description": "Device.Kader5.Description"
+    },
+    {
+      "ID": "Device.PortadorDasEntidades1",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack"
+      ],
+      "Description": "Device.PortadorDasEntidades1.Description"
+    },
+    {
+      "ID": "Device.PortadorDasEntidades2",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Device.PortadorDasEntidades2.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -2361,6 +2397,20 @@
         "AfterAttack"
       ],
       "Description": "Power.SextoSentido5.Description"
+    },
+    {
+      "ID": "Power.PortadorDasEntidades1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.PortadorDasEntidades1.Description"
+    },
+    {
+      "ID": "Power.PortadorDasEntidades2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.PortadorDasEntidades2.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
