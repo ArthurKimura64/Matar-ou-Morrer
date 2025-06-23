@@ -715,6 +715,56 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "amaldicoada",
+      "DodgePoints": 5,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 3,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 2,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d8",
+        "Landfill": "d8",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.amaldicoada1",
+        "Attack.amaldicoada2",
+        "Attack.amaldicoada3",
+        "Attack.amaldicoada4",
+        "Attack.amaldicoada5"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.amaldicoada1",
+        "Passive.amaldicoada2",
+        "Passive.amaldicoada3",
+        "Passive.amaldicoada4",
+        "Passive.amaldicoada5",
+        "Passive.amaldicoada6"
+      ],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.amaldicoada1",
+        "Device.amaldicoada2",
+        "Device.amaldicoada3",
+        "Device.amaldicoada4",
+        "Device.amaldicoada5"
+      ],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.amaldicoada1",
+        "PassiveSpecialAbility.amaldicoada2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -919,6 +969,30 @@
       "Description": "Passive.PortadorDasEntidades2.Description"
     },
     {
+      "ID": "Passive.amaldicoada1",
+      "Description": "Passive.amaldicoada1.Description"
+    },
+    {
+      "ID": "Passive.amaldicoada2",
+      "Description": "Passive.amaldicoada2.Description"
+    },
+    {
+      "ID": "Passive.amaldicoada3",
+      "Description": "Passive.amaldicoada3.Description"
+    },
+    {
+      "ID": "Passive.amaldicoada4",
+      "Description": "Passive.amaldicoada4.Description"
+    },
+    {
+      "ID": "Passive.amaldicoada5",
+      "Description": "Passive.amaldicoada5.Description"
+    },
+    {
+      "ID": "Passive.amaldicoada6",
+      "Description": "Passive.amaldicoada6.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -973,6 +1047,14 @@
     {
       "ID": "PassiveSpecialAbility.Gravidade4",
       "Description": "PassiveSpecialAbility.Gravidade4.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.amaldicoada1",
+      "Description": "PassiveSpecialAbility.amaldicoada1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.amaldicoada2",
+      "Description": "PassiveSpecialAbility.amaldicoada2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -1649,6 +1731,68 @@
       "SpecialDescription": "Attack.PortadorDasEntidades6.SpecialDescription"
     },
     {
+      "ID": "Attack.amaldicoada1",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 9,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.amaldicoada1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.amaldicoada2",
+      "Damage": 1,
+      "MinimumDistance": 4,
+      "MaximumDistance": 12,
+      "LoadTime": 2,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.amaldicoada2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.amaldicoada3",
+      "Damage": 1,
+      "MinimumDistance": 0,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.amaldicoada3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.amaldicoada4",
+      "Damage": 20,
+      "MinimumDistance": 4,
+      "MaximumDistance": 7,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.amaldicoada4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.amaldicoada5",
+      "Damage": 3,
+      "MinimumDistance": 1,
+      "MaximumDistance": 3,
+      "LoadTime": 0,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.amaldicoada5.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -1995,6 +2139,41 @@
         "AfterAttack"
       ],
       "Description": "Device.PortadorDasEntidades2.Description"
+    },
+    {
+      "ID": "Device.amaldicoada1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.amaldicoada1.Description"
+    },
+    {
+      "ID": "Device.amaldicoada2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.amaldicoada2.Description"
+    },
+    {
+      "ID": "Device.amaldicoada3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.amaldicoada3.Description"
+    },
+    {
+      "ID": "Device.amaldicoada4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.amaldicoada4.Description"
+    },
+    {
+      "ID": "Device.amaldicoada5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.amaldicoada5.Description"
     },
     {
       "ID": "Power.Impact1",
