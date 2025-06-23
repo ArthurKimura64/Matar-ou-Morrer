@@ -89,7 +89,9 @@
         "Device.Tecnology4",
         "Device.Tecnology5",
         "Device.Tecnology6",
-        "Device.Tecnology7"
+        "Device.Tecnology7",
+        "Device.Tecnology11",
+        "Device.Tecnology12"
       ],
       "SpecialAbilitiesData": [
         "SpecialAbility.Tecnology1",
@@ -139,7 +141,9 @@
         "Device.Tai4",
         "Device.Tai5",
         "Device.Tai6",
-        "Device.Tai7"
+        "Device.Tai7",
+        "Device.Tai11",
+        "Device.Tai12"
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
@@ -624,7 +628,9 @@
         "Device.SextoSentido4",
         "Device.SextoSentido5",
         "Device.SextoSentido6",
-        "Device.SextoSentido7"
+        "Device.SextoSentido7",
+        "Device.SextoSentido11",
+        "Device.SextoSentido12"
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
@@ -810,6 +816,57 @@
         "SpecialAbility.Destruidor2",
         "SpecialAbility.Destruidor3",
         "SpecialAbility.Destruidor4"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
+    },
+    {
+      "ID": "LuaNegra",
+      "DodgePoints": 10,
+      "OportunityAttacks": 10,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 5,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d10"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.LuaNegra1",
+        "Weapon.LuaNegra2",
+        "Weapon.LuaNegra3"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.LuaNegra1",
+        "Power.LuaNegra2",
+        "Power.LuaNegra3"
+      ],
+      "DevicesData": [
+        "Device.LuaNegra1",
+        "Device.LuaNegra2",
+        "Device.LuaNegra3",
+        "Device.LuaNegra4",
+        "Device.LuaNegra5",
+        "Device.LuaNegra6",
+        "Device.LuaNegra7",
+        "Device.LuaNegra8",
+        "Device.LuaNegra9",
+        "Device.LuaNegra10",
+        "Device.LuaNegra11"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.LuaNegra1",
+        "SpecialAbility.LuaNegra2"
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
@@ -2048,6 +2105,43 @@
         "Air",
         "Space"
       ]
+    },
+    {
+      "ID": "Weapon.LuaNegra1",
+      "Damage": 10,
+      "MinimumDistance": 5,
+      "MaximumDistance": 12,
+      "LoadTime": 0,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Weapon.LuaNegra2",
+      "Damage": 9,
+      "MinimumDistance": 1,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Weapon.LuaNegra3",
+      "Damage": 19,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 0,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -2101,6 +2195,20 @@
       "Description": "Device.Tecnology7.Description"
     },
     {
+      "ID": "Device.Tecnology11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tecnology11.Description"
+    },
+    {
+      "ID": "Device.Tecnology12",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Tecnology12.Description"
+    },
+    {
       "ID": "Device.Tai1",
       "TriggerType": [
         "BeforeAttack"
@@ -2148,6 +2256,20 @@
         "Passive"
       ],
       "Description": "Device.Tai7.Description"
+    },
+    {
+      "ID": "Device.Tai11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tai11.Description"
+    },
+    {
+      "ID": "Device.Tai12",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Tai12.Description"
     },
     {
       "ID": "Device.Absoluto1",
@@ -2225,6 +2347,20 @@
         "AfterAttack"
       ],
       "Description": "Device.SextoSentido7.Description"
+    },
+    {
+      "ID": "Device.SextoSentido11",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.SextoSentido11.Description"
+    },
+    {
+      "ID": "Device.SextoSentido12",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.SextoSentido12.Description"
     },
     {
       "ID": "Device.Kader1",
@@ -2311,6 +2447,83 @@
         "Passive"
       ],
       "Description": "Device.amaldicoada5.Description"
+    },
+    {
+      "ID": "Device.LuaNegra1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.LuaNegra1.Description"
+    },
+    {
+      "ID": "Device.LuaNegra2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.LuaNegra2.Description"
+    },
+    {
+      "ID": "Device.LuaNegra3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.LuaNegra3.Description"
+    },
+    {
+      "ID": "Device.LuaNegra4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.LuaNegra4.Description"
+    },
+    {
+      "ID": "Device.LuaNegra5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.LuaNegra5.Description"
+    },
+    {
+      "ID": "Device.LuaNegra6",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.LuaNegra6.Description"
+    },
+    {
+      "ID": "Device.LuaNegra7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.LuaNegra7.Description"
+    },
+    {
+      "ID": "Device.LuaNegra8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.LuaNegra8.Description"
+    },
+    {
+      "ID": "Device.LuaNegra9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.LuaNegra9.Description"
+    },
+    {
+      "ID": "Device.LuaNegra10",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.LuaNegra10.Description"
+    },
+    {
+      "ID": "Device.LuaNegra11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.LuaNegra11.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -2729,6 +2942,27 @@
       "Description": "Power.PortadorDasEntidades2.Description"
     },
     {
+      "ID": "Power.LuaNegra1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.LuaNegra1.Description"
+    },
+    {
+      "ID": "Power.LuaNegra2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.LuaNegra2.Description"
+    },
+    {
+      "ID": "Power.LuaNegra3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.LuaNegra3.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -2893,6 +3127,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Destruidor4.Description"
+    },
+    {
+      "ID": "SpecialAbility.LuaNegra1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.LuaNegra1.Description"
+    },
+    {
+      "ID": "SpecialAbility.LuaNegra2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.LuaNegra2.Description"
     }
   ],
   "SpecialDefinitions": [
