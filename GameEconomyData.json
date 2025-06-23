@@ -882,7 +882,7 @@
       "NumberOfPassives": 1,
       "NumberOfPowers": 0,
       "NumberOfDevices": 6,
-      "NumberOfSpecialAbilities": 1,
+      "NumberOfSpecialAbilities": 0,
       "NumberOfPassiveSpecialAbilities": 0,
       "Tecnique": {
         "Desert": "d20",
