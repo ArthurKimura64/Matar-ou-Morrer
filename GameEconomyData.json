@@ -395,7 +395,9 @@
         "PassiveSpecialAbility.Protetor1",
         "PassiveSpecialAbility.Protetor2"
       ],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Protetor1"
+      ]
     },
     {
       "ID": "Destroul",
@@ -714,7 +716,9 @@
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.PortadorDasEntidades1"
+      ]
     },
     {
       "ID": "amaldicoada",
@@ -764,6 +768,50 @@
         "PassiveSpecialAbility.amaldicoada1",
         "PassiveSpecialAbility.amaldicoada2"
       ],
+      "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Destruidor",
+      "DodgePoints": 8,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 4,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 2,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d10",
+        "Landfill": "d10",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Destruidor1",
+        "Attack.Destruidor2",
+        "Attack.Destruidor3",
+        "Attack.Destruidor4",
+        "Attack.Destruidor5",
+        "Attack.Destruidor6"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Destruidor1",
+        "Passive.Destruidor2",
+        "Passive.Destruidor3"
+      ],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Destruidor1",
+        "SpecialAbility.Destruidor2",
+        "SpecialAbility.Destruidor3",
+        "SpecialAbility.Destruidor4"
+      ],
+      "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
     }
   ],
@@ -991,6 +1039,18 @@
     {
       "ID": "Passive.amaldicoada6",
       "Description": "Passive.amaldicoada6.Description"
+    },
+    {
+      "ID": "Passive.Destruidor1",
+      "Description": "Passive.Destruidor1.Description"
+    },
+    {
+      "ID": "Passive.Destruidor2",
+      "Description": "Passive.Destruidor2.Description"
+    },
+    {
+      "ID": "Passive.Destruidor3",
+      "Description": "Passive.Destruidor3.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -1791,6 +1851,83 @@
         "Earth"
       ],
       "SpecialDescription": "Attack.amaldicoada5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destruidor1",
+      "Damage": "??",
+      "MinimumDistance": 4,
+      "MaximumDistance": 12,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Destruidor1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destruidor2",
+      "Damage": 10,
+      "MinimumDistance": 0,
+      "MaximumDistance": 120000,
+      "LoadTime": 3,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Destruidor2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destruidor3",
+      "Damage": 5,
+      "MinimumDistance": 0,
+      "MaximumDistance": 1,
+      "LoadTime": 0,
+      "Dices": 0,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Destruidor3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destruidor4",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 5,
+      "LoadTime": 0,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Destruidor4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destruidor5",
+      "Damage": 5,
+      "MinimumDistance": 5,
+      "MaximumDistance": 12,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Destruidor5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Destruidor6",
+      "Damage": 2,
+      "MinimumDistance": 2,
+      "MaximumDistance": 6,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Destruidor6.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -2724,6 +2861,38 @@
         "BeforeAttack"
       ],
       "Description": "SpecialAbility.Kader2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Destruidor1",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "SpecialAbility.Destruidor1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Destruidor2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Destruidor2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Destruidor3",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "SpecialAbility.Destruidor3.Description"
+    },
+    {
+      "ID": "SpecialAbility.Destruidor4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Destruidor4.Description"
     }
   ],
   "SpecialDefinitions": [
@@ -2741,6 +2910,16 @@
       "ID": "SpecialCustom.Destroul1",
       "Type": "counter",
       "Title": "SpecialCustom.Destroul1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Protetor1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Protetor1.Title"
+    },
+    {
+      "ID": "SpecialCustom.PortadorDasEntidades1",
+      "Type": "counter",
+      "Title": "SpecialCustom.PortadorDasEntidades1.Title"
     }
   ]
 }
