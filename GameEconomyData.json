@@ -870,6 +870,55 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Bruce",
+      "DodgePoints": 3,
+      "OportunityAttacks": 8,
+      "ExplorationItens": 6,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 6,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d6",
+        "Landfill": "d4",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Bruce1",
+        "Weapon.Bruce2",
+        "Weapon.Bruce3"
+      ],
+      "PassivesData": [
+        "Passive.Bruce1",
+        "Passive.Bruce2",
+        "Passive.Bruce3"
+      ],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Bruce1",
+        "Device.Bruce2",
+        "Device.Bruce3",
+        "Device.Bruce4",
+        "Device.Bruce5",
+        "Device.Bruce6",
+        "Device.Bruce7",
+        "Device.Bruce8",
+        "Device.Bruce9",
+        "Device.Bruce10",
+        "Device.Bruce11",
+        "Device.Bruce12"
+      ],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1108,6 +1157,18 @@
     {
       "ID": "Passive.Destruidor3",
       "Description": "Passive.Destruidor3.Description"
+    },
+    {
+      "ID": "Passive.Bruce1",
+      "Description": "Passive.Bruce1.Description"
+    },
+    {
+      "ID": "Passive.Bruce2",
+      "Description": "Passive.Bruce2.Description"
+    },
+    {
+      "ID": "Passive.Bruce3",
+      "Description": "Passive.Bruce3.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -2142,6 +2203,42 @@
       "Ambient": [
         "Earth"
       ]
+    },
+    {
+      "ID": "Weapon.Bruce1",
+      "Damage": 19,
+      "MinimumDistance": 8,
+      "MaximumDistance": 20,
+      "LoadTime": 3,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Bruce2",
+      "Damage": 9,
+      "MinimumDistance": 2,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Bruce3",
+      "Damage": 4,
+      "MinimumDistance": 1,
+      "MaximumDistance": 6,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -2524,6 +2621,90 @@
         "BeforeAttack"
       ],
       "Description": "Device.LuaNegra11.Description"
+    },
+    {
+      "ID": "Device.Bruce1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Bruce1.Description"
+    },
+    {
+      "ID": "Device.Bruce2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce2.Description"
+    },
+    {
+      "ID": "Device.Bruce3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce3.Description"
+    },
+    {
+      "ID": "Device.Bruce4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce4.Description"
+    },
+    {
+      "ID": "Device.Bruce5",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Bruce5.Description"
+    },
+    {
+      "ID": "Device.Bruce6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Bruce6.Description"
+    },
+    {
+      "ID": "Device.Bruce7",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Bruce7.Description"
+    },
+    {
+      "ID": "Device.Bruce8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce8.Description"
+    },
+    {
+      "ID": "Device.Bruce9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce9.Description"
+    },
+    {
+      "ID": "Device.Bruce10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Bruce10.Description"
+    },
+    {
+      "ID": "Device.Bruce11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce11.Description"
+    },
+    {
+      "ID": "Device.Bruce12",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Bruce12.Description"
     },
     {
       "ID": "Power.Impact1",
