@@ -82,6 +82,7 @@ function renderCharacter(actor, gameData, localization) {
   rowTitle.innerHTML = `
   <div class="col-12"><h1>${Utils.getLocalized(localization, `Character.Name.${actor.ID}`, actor.ID)}</h1></div>
   <div class="col-12"><h3>${Utils.getLocalized(localization, `Character.Title.${actor.ID}`, actor.ID)}</h3></div>
+  ${Utils.getLocalized(localization, `Character.Description.${actor.ID}`) ? `<div class="col-10 mb-3 px-3">${Utils.getLocalized(localization, `Character.Description.${actor.ID}`)}</div>` : ""}
   ${actor.SpecialDescription ? `<div class="col-12">${Utils.getLocalized(localization, `Character.${actor.SpecialDescription}`)}</div>` : ""}
   `
   container.appendChild(rowTitle)
@@ -333,12 +334,12 @@ function createCharacterSheet(actor, selections, localization, gameData, contain
   ficha.innerHTML = `
     <h2 class='text-center mb-4'>Ficha do Personagem</h2>
     <h3 class='text-center mb-3'>${Utils.getLocalized(localization, `Character.Name.${actor.ID}`)} (${Utils.getLocalized(localization, `Character.Title.${actor.ID}`)})</h3>
+    ${Utils.getLocalized(localization, `Character.Description.${actor.ID}`) ? `<div class=' col-10 mb-4 px-3'>${Utils.getLocalized(localization, `Character.Description.${actor.ID}`)}</div>` : ""}
     
     <div class='mb-3 row justify-content-center text-center'>
       ${counters.map(c => createCounter(c).html).join('')}
     </div>
-    
-    ${createCharacteristicCard(actor, localization)}
+    <div class="row justify-content-center">${createCharacteristicCard(actor, localization)}</div>
     
     ${itemSections.map(section => 
       createItemSection(selections[section.key], section.title, section.color, section.type, section.useButton)
