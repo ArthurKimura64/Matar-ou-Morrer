@@ -1320,7 +1320,7 @@
       "Damage": 4,
       "MinimumDistance": 2,
       "MaximumDistance": 6,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "modes": {
         "mode1": {
@@ -1340,7 +1340,7 @@
       "Damage": 5,
       "MinimumDistance": 4,
       "MaximumDistance": 9,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 3,
       "Ambient": [
         "Earth"
@@ -1352,7 +1352,7 @@
       "Damage": 10,
       "MinimumDistance": 5,
       "MaximumDistance": 10,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "Ambient": [
         "Earth"
@@ -1362,9 +1362,9 @@
     {
       "ID": "Attack.Impact4",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 5,
       "Ambient": [
         "Earth"
@@ -1428,7 +1428,7 @@
       "Damage": 1,
       "MinimumDistance": 20,
       "MaximumDistance": 25,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 6,
       "modes": {
         "mode1": {
@@ -1447,7 +1447,7 @@
     {
       "ID": "Attack.Tecnology5",
       "Damage": 3,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 1,
       "Dices": 5,
@@ -1460,7 +1460,7 @@
       "Damage": 1,
       "MinimumDistance": 5,
       "MaximumDistance": 12,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 4,
       "modes": {
         "mode1": {
@@ -1481,7 +1481,7 @@
       "Damage": 5,
       "MinimumDistance": 2,
       "MaximumDistance": 10,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "modes": {
         "mode1": {
@@ -1545,7 +1545,7 @@
     {
       "ID": "Attack.Atomico4",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 30,
       "LoadTime": 3,
       "Dices": 6,
@@ -1566,7 +1566,7 @@
     {
       "ID": "Attack.Ryan1",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 5,
       "LoadTime": 1,
       "Dices": 4,
@@ -1587,7 +1587,7 @@
     {
       "ID": "Attack.Ryan2",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 2,
       "LoadTime": 1,
       "Dices": 3,
@@ -1599,8 +1599,8 @@
     {
       "ID": "Attack.Ryan3",
       "Damage": 5,
-      "MinimumDistance": 0,
-      "MaximumDistance": 0,
+      "MinimumDistance": "0",
+      "MaximumDistance": "0",
       "LoadTime": 1,
       "Dices": 2,
       "Ambient": [
@@ -1611,8 +1611,8 @@
     {
       "ID": "Attack.Ryan4",
       "Damage": 1,
-      "MinimumDistance": 0,
-      "MaximumDistance": 0,
+      "MinimumDistance": "0",
+      "MaximumDistance": "0",
       "LoadTime": 1,
       "Dices": 2,
       "Ambient": [
@@ -1644,9 +1644,9 @@
     {
       "ID": "Attack.Ryan6",
       "Damage": 100,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "Ambient": [
         "Earth"
@@ -1656,9 +1656,9 @@
     {
       "ID": "Attack.Protetor1",
       "Damage": 3,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 3,
       "Ambient": [
         "Earth"
@@ -1667,7 +1667,7 @@
     {
       "ID": "Attack.Protetor2",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 2,
       "Dices": 6,
@@ -1679,9 +1679,9 @@
     {
       "ID": "Attack.Destroul1",
       "Damage": 1000,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "modes": {
         "mode1": {
@@ -1700,7 +1700,7 @@
     {
       "ID": "Attack.Destroul2",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 1,
       "Dices": 4,
@@ -1776,7 +1776,7 @@
       "Damage": 5,
       "MinimumDistance": 10,
       "MaximumDistance": 15,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "Ambient": [
         "Earth"
@@ -1884,7 +1884,7 @@
       "Damage": 40,
       "MinimumDistance": 27,
       "MaximumDistance": 40,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "Ambient": [
         "Earth"
@@ -1896,7 +1896,7 @@
       "Damage": 2,
       "MinimumDistance": 2,
       "MaximumDistance": 8,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 2,
       "modes": {
         "mode1": {
@@ -1914,7 +1914,7 @@
     {
       "ID": "Attack.Imortal2",
       "Damage": 6,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 1,
       "Dices": 3,
@@ -1925,7 +1925,7 @@
     {
       "ID": "Attack.Imortal3",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 2,
       "Dices": 1,
@@ -1958,7 +1958,7 @@
     {
       "ID": "Attack.Gravidade1",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1000,
       "LoadTime": 1,
       "Dices": 4,
@@ -1978,9 +1978,9 @@
     {
       "ID": "Attack.Gravidade2",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1000,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "modes": {
         "mode1": {
@@ -1999,10 +1999,10 @@
     {
       "ID": "Attack.Radiacao1",
       "Damage": 3,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 1,
-      "Dices": 0,
+      "Dices": "0",
       "Ambient": [
         "Earth"
       ],
@@ -2031,7 +2031,7 @@
     {
       "ID": "Attack.Radiacao3",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 25,
       "LoadTime": 1,
       "Dices": 3,
@@ -2052,7 +2052,7 @@
     {
       "ID": "Attack.SextoSentido1",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 2,
       "LoadTime": 1,
       "Dices": 3,
@@ -2089,7 +2089,7 @@
       "Damage": 5,
       "MinimumDistance": 1,
       "MaximumDistance": 4,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 2,
       "Ambient": [
         "Earth"
@@ -2111,7 +2111,7 @@
     {
       "ID": "Attack.PortadorDasEntidades2",
       "Damage": 4,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 5,
       "LoadTime": 1,
       "Dices": 3,
@@ -2125,7 +2125,7 @@
       "Damage": 3,
       "MinimumDistance": "Infinita",
       "MaximumDistance": "Infinita",
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 3,
       "modes": {
         "mode1": {
@@ -2165,7 +2165,7 @@
     {
       "ID": "Attack.PortadorDasEntidades5",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 10,
       "LoadTime": 1,
       "Dices": 2,
@@ -2249,7 +2249,7 @@
     {
       "ID": "Attack.amaldicoada3",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 5,
       "LoadTime": 1,
       "Dices": 3,
@@ -2275,7 +2275,7 @@
       "Damage": 3,
       "MinimumDistance": 1,
       "MaximumDistance": 3,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 4,
       "Ambient": [
         "Earth"
@@ -2306,8 +2306,8 @@
     {
       "ID": "Attack.Destruidor2",
       "Damage": 10,
-      "MinimumDistance": 0,
-      "MaximumDistance": 120000,
+      "MinimumDistance": "0",
+      "MaximumDistance": 120,
       "LoadTime": 3,
       "Dices": 3,
       "modes": {
@@ -2327,10 +2327,10 @@
     {
       "ID": "Attack.Destruidor3",
       "Damage": 5,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
-      "Dices": 0,
+      "LoadTime": "0",
+      "Dices": "0",
       "Ambient": [
         "Earth"
       ],
@@ -2339,9 +2339,9 @@
     {
       "ID": "Attack.Destruidor4",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 5,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 3,
       "modes": {
         "mode1": {
@@ -2413,7 +2413,7 @@
     {
       "ID": "Weapon.Caos2",
       "Damage": 1,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 1,
       "Dices": 6,
@@ -2427,7 +2427,7 @@
       "Damage": 1,
       "MinimumDistance": 5,
       "MaximumDistance": 20,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 6,
       "modes": {
         "mode1": {
@@ -2476,9 +2476,9 @@
     {
       "ID": "Weapon.Absoluto3",
       "Damage": 10,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 2,
       "Ambient": [
         "Earth"
@@ -2487,7 +2487,7 @@
     {
       "ID": "Weapon.Kader1",
       "Damage": 2,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 3,
       "LoadTime": 1,
       "Dices": 4,
@@ -2512,7 +2512,7 @@
       "Damage": 5,
       "MinimumDistance": 6,
       "MaximumDistance": 14,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 2,
       "modes": {
         "mode1": {
@@ -2553,7 +2553,7 @@
       "Damage": 10,
       "MinimumDistance": 5,
       "MaximumDistance": 12,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 2,
       "modes": {
         "mode1": {
@@ -2591,9 +2591,9 @@
     {
       "ID": "Weapon.LuaNegra3",
       "Damage": 19,
-      "MinimumDistance": 0,
+      "MinimumDistance": "0",
       "MaximumDistance": 1,
-      "LoadTime": 0,
+      "LoadTime": "0",
       "Dices": 1,
       "Ambient": [
         "Earth"
@@ -2667,7 +2667,8 @@
           "MinimumDistance": "0",
           "MaximumDistance": 1,
           "LoadTime": 1,
-          "Ambient2": [
+          "Dices": 2,
+          "Ambient": [
             "Earth"
           ]
         },
@@ -2676,12 +2677,12 @@
           "MinimumDistance": "Infinito",
           "MaximumDistance": "Infinito",
           "LoadTime": "0",
-          "Ambient2": [
+          "Dices": 1,
+          "Ambient": [
             "Air"
           ]
         }
       },
-      "Dices": "2025-01-02T03:00:00.000Z",
       "Ambient": [
         "Earth"
       ],
@@ -2689,75 +2690,77 @@
     },
     {
       "ID": "Weapon.EclipseKnight2",
-      "Damage": "2025-08-06T03:00:00.000Z",
-      "MinimumDistance": "2025-09-09T03:00:00.000Z",
       "modes": {
         "mode1": {
+          "Damage": 6,
+          "MinimumDistance": 9,
           "MaximumDistance": 15,
+          "LoadTime": 2,
+          "Dices": 3,
           "Ambient": [
-            "Earth"
-          ],
-          "Ambient2": [
             "Earth"
           ]
         },
         "mode2": {
+          "Damage": 8,
+          "MinimumDistance": 9,
           "MaximumDistance": 15,
+          "LoadTime": 1,
+          "Dices": 3,
           "Ambient": [
-            "Air"
-          ],
-          "Ambient2": [
             "Air"
           ]
         }
       },
-      "LoadTime": "2025-01-02T03:00:00.000Z",
-      "Dices": "2025-03-03T03:00:00.000Z",
       "SpecialDescription": "Weapon.EclipseKnight2.SpecialDescription"
     },
     {
       "ID": "Weapon.EclipseKnight3",
-      "Damage": "2025-02-02T03:00:00.000Z",
       "modes": {
         "mode1": {
+          "Damage": 2,
           "MinimumDistance": "0",
-          "LoadTime": 1
+          "MaximumDistance": 1,
+          "LoadTime": 1,
+          "Dices": 3
         },
         "mode2": {
+          "Damage": 2,
           "MinimumDistance": "0",
-          "LoadTime": "0"
+          "MaximumDistance": 2,
+          "LoadTime": "0",
+          "Dices": 4
         }
       },
-      "MaximumDistance": "2025-02-01T03:00:00.000Z",
-      "Dices": "2025-04-03T03:00:00.000Z",
       "Ambient": [
-        "Earth"
-      ],
-      "Ambient2": [
         "Earth"
       ],
       "SpecialDescription": "Weapon.EclipseKnight3.SpecialDescription"
     },
     {
       "ID": "Weapon.EclipseKnight4",
-      "Damage": "2025-05-05T03:00:00.000Z",
-      "MinimumDistance": "2025-02-03T03:00:00.000Z",
-      "MaximumDistance": "2025-12-10T03:00:00.000Z",
       "modes": {
         "mode1": {
+          "Damage": 5,
+          "MinimumDistance": 3,
+          "MaximumDistance": 10,
           "LoadTime": 1,
-          "Ambient2": [
+          "Dices": 2,
+          "Ambient": [
             "Earth"
           ]
         },
         "mode2": {
+          "Damage": 5,
+          "MinimumDistance": 2,
+          "MaximumDistance": 12,
           "LoadTime": -1,
-          "Ambient2": [
+          "Dices": 3,
+          "Ambient": [
             "Air"
           ]
         }
       },
-      "Dices": "2025-03-02T03:00:00.000Z",
       "Ambient": [
         "Earth"
       ],
