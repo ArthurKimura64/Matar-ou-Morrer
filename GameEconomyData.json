@@ -1252,6 +1252,26 @@
       "Description": "Passive.EclipseKnight6.Description"
     },
     {
+      "ID": "Passive.Invicto1",
+      "Description": "Passive.Invicto1.Description"
+    },
+    {
+      "ID": "Passive.Invicto2",
+      "Description": "Passive.Invicto2.Description"
+    },
+    {
+      "ID": "Passive.Invicto3",
+      "Description": "Passive.Invicto3.Description"
+    },
+    {
+      "ID": "Passive.Invicto4",
+      "Description": "Passive.Invicto4.Description"
+    },
+    {
+      "ID": "Passive.Invicto5",
+      "Description": "Passive.Invicto5.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -2127,6 +2147,55 @@
         "Earth"
       ],
       "SpecialDescription": "Attack.Destruidor6.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Invicto1",
+      "Damage": 10,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Invicto1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Invicto2",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Invicto2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Invicto3",
+      "Damage": 20,
+      "MinimumDistance": 11,
+      "MaximumDistance": 13,
+      "LoadTime": 5,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Invicto3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Invicto4",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 15,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
     },
     {
       "ID": "Weapon.Caos1",
@@ -3381,6 +3450,43 @@
         "Passive"
       ],
       "Description": "Power.EclipseKnight6.Description"
+    },
+    {
+      "ID": "Power.Invicto1",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack"
+      ],
+      "Description": "Power.Invicto1.Description"
+    },
+    {
+      "ID": "Power.Invicto2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Invicto2.Description"
+    },
+    {
+      "ID": "Power.Invicto3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Invicto3.Description"
+    },
+    {
+      "ID": "Power.Invicto4",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack"
+      ],
+      "Description": "Power.Invicto4.Description"
+    },
+    {
+      "ID": "Power.Invicto5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Invicto5.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
