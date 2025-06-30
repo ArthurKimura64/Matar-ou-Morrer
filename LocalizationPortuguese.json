@@ -6,6 +6,7 @@
   "Ambient.Air": "Aéreo",
   "Ambient.Space": "Espaço",
   "Characteristic.Title": "Características",
+  "Characteristic.Only": "Apenas",
   "Characteristic.Health": "Vida",
   "Characteristic.DodgePoints": "Pontos de Pulo/Empurro",
   "Characteristic.OportunityAttack": "Ataque de Oportunidade",
@@ -766,5 +767,6 @@
   "SpecialCustom.Kader1.Title": "Destinos",
   "SpecialCustom.Destroul1.Title": "Força Telecinética",
   "SpecialCustom.Protetor1.Title": "Escudo",
-  "SpecialCustom.PortadorDasEntidades1.Title": "Escudo"
+  "SpecialCustom.PortadorDasEntidades1.Title": "Escudo",
+  "SpecialCustom.EclipseKnight1.Title": "Pontos de Transformação"
 }
