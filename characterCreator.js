@@ -648,7 +648,7 @@ function createCounter({ id, initial = 20, min = 0, max = 999, title = 'Básico'
     html: `
       <div class='col-12 col-md-3 mb-2 mb-md-0 d-flex justify-content-center'>
         <div class='card-body p-2 d-flex flex-column align-items-center'>
-          <div class='fw-bold mb-1' style='font-size:0.95em;'>${title}</div>
+          <div class='fw-bold mb-1' style='font-size:0.95em;'>${localization[title]}</div>
           <div class='input-group flex-nowrap justify-content-center'>
             <button class='btn btn-outline-danger btn-sm' type='button' id='${id}-menos'>-</button>
             <input type='number' class='form-control text-center mx-1' id='${id}' value='${initial}' min='${min}' max='${max}' style='width:60px; text-align:center; font-size:1em;'>
