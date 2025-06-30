@@ -919,6 +919,57 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "EclipseKnight",
+      "modes": [
+        "Normal",
+        "Eclipse"
+      ],
+      "DodgePoints": 8,
+      "OportunityAttacks": 2,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 2,
+      "NumberOfPassives": 3,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d8",
+        "City": "d4",
+        "Landfill": "d6",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.EclipseKnight1",
+        "Weapon.EclipseKnight2",
+        "Weapon.EclipseKnight3",
+        "Weapon.EclipseKnight4"
+      ],
+      "PassivesData": [
+        "Passive.EclipseKnight1",
+        "Passive.EclipseKnight2",
+        "Passive.EclipseKnight3",
+        "Passive.EclipseKnight4",
+        "Passive.EclipseKnight5",
+        "Passive.EclipseKnight6"
+      ],
+      "PowersData": [
+        "Power.EclipseKnight1",
+        "Power.EclipseKnight2",
+        "Power.EclipseKnight3",
+        "Power.EclipseKnight4",
+        "Power.EclipseKnight5",
+        "Power.EclipseKnight6"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1171,6 +1222,36 @@
       "Description": "Passive.Bruce3.Description"
     },
     {
+      "ID": "Passive.EclipseKnight1",
+      "modeRestriction": "mode2",
+      "Description": "Passive.EclipseKnight1.Description"
+    },
+    {
+      "ID": "Passive.EclipseKnight2",
+      "modeRestriction": "mode2",
+      "Description": "Passive.EclipseKnight2.Description"
+    },
+    {
+      "ID": "Passive.EclipseKnight3",
+      "modeRestriction": "mode2",
+      "Description": "Passive.EclipseKnight3.Description"
+    },
+    {
+      "ID": "Passive.EclipseKnight4",
+      "modeRestriction": "mode1",
+      "Description": "Passive.EclipseKnight4.Description"
+    },
+    {
+      "ID": "Passive.EclipseKnight5",
+      "modeRestriction": "mode1",
+      "Description": "Passive.EclipseKnight5.Description"
+    },
+    {
+      "ID": "Passive.EclipseKnight6",
+      "modeRestriction": "mode1",
+      "Description": "Passive.EclipseKnight6.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -1243,10 +1324,18 @@
       "MaximumDistance": 6,
       "LoadTime": 0,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Impact2",
@@ -1291,10 +1380,18 @@
       "MaximumDistance": 10,
       "LoadTime": 3,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Tecnology2",
@@ -1303,10 +1400,18 @@
       "MaximumDistance": 6,
       "LoadTime": 2,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Tecnology3",
@@ -1327,10 +1432,18 @@
       "MaximumDistance": 25,
       "LoadTime": 0,
       "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Tecnology4.SpecialDescription"
     },
     {
@@ -1351,11 +1464,18 @@
       "MaximumDistance": 12,
       "LoadTime": 0,
       "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Tai1.SpecialDescription"
     },
     {
@@ -1365,11 +1485,18 @@
       "MaximumDistance": 10,
       "LoadTime": 0,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Tai2.SpecialDescription"
     },
     {
@@ -1403,10 +1530,18 @@
       "MaximumDistance": "Região",
       "LoadTime": 5,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Atomico3.SpecialDescription"
     },
     {
@@ -1416,10 +1551,18 @@
       "MaximumDistance": 30,
       "LoadTime": 3,
       "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Atomico4.SpecialDescription"
     },
     {
@@ -1429,10 +1572,18 @@
       "MaximumDistance": 5,
       "LoadTime": 1,
       "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Ryan1.SpecialDescription"
     },
     {
@@ -1478,10 +1629,18 @@
       "MaximumDistance": 14,
       "LoadTime": 1,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Ryan5.SpecialDescription"
     },
     {
@@ -1526,11 +1685,18 @@
       "MaximumDistance": 1,
       "LoadTime": 0,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul1.SpecialDescription"
     },
     {
@@ -1552,10 +1718,18 @@
       "MaximumDistance": 6,
       "LoadTime": 1,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul3.SpecialDescription"
     },
     {
@@ -1565,10 +1739,18 @@
       "MaximumDistance": 10,
       "LoadTime": 2,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Destroul5",
@@ -1577,10 +1759,18 @@
       "MaximumDistance": 13,
       "LoadTime": 2,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul5.SpecialDescription"
     },
     {
@@ -1602,10 +1792,18 @@
       "MaximumDistance": 17,
       "LoadTime": 3,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul7.SpecialDescription"
     },
     {
@@ -1615,10 +1813,18 @@
       "MaximumDistance": 25,
       "LoadTime": 3,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul8.SpecialDescription"
     },
     {
@@ -1640,10 +1846,18 @@
       "MaximumDistance": 22,
       "LoadTime": 2,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul10.SpecialDescription"
     },
     {
@@ -1653,11 +1867,18 @@
       "MaximumDistance": 1000,
       "LoadTime": 5,
       "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destroul11.SpecialDescription"
     },
     {
@@ -1679,10 +1900,18 @@
       "MaximumDistance": 8,
       "LoadTime": 0,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Imortal2",
@@ -1714,10 +1943,18 @@
       "MaximumDistance": 11,
       "LoadTime": 2,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Imortal4.SpecialDescription"
     },
     {
@@ -1727,11 +1964,18 @@
       "MaximumDistance": 1000,
       "LoadTime": 1,
       "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Gravidade2",
@@ -1740,11 +1984,18 @@
       "MaximumDistance": 1000,
       "LoadTime": 0,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Gravidade2.SpecialDescription"
     },
     {
@@ -1766,10 +2017,18 @@
       "MaximumDistance": 8,
       "LoadTime": 1,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Attack.Radiacao3",
@@ -1778,10 +2037,18 @@
       "MaximumDistance": 25,
       "LoadTime": 1,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Radiacao3.SpecialDescription"
     },
     {
@@ -1862,10 +2129,18 @@
       "MaximumDistance": "Infinita",
       "LoadTime": 0,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.PortadorDasEntidades3.SpecialDescription"
     },
     {
@@ -1875,10 +2150,18 @@
       "MaximumDistance": 15,
       "LoadTime": 5,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.PortadorDasEntidades4.SpecialDescription"
     },
     {
@@ -1888,10 +2171,18 @@
       "MaximumDistance": 10,
       "LoadTime": 1,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.PortadorDasEntidades5.SpecialDescription"
     },
     {
@@ -1901,11 +2192,18 @@
       "MaximumDistance": 10,
       "LoadTime": 2,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.PortadorDasEntidades6.SpecialDescription"
     },
     {
@@ -1915,10 +2213,18 @@
       "MaximumDistance": 9,
       "LoadTime": 1,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.amaldicoada1.SpecialDescription"
     },
     {
@@ -1928,10 +2234,18 @@
       "MaximumDistance": 12,
       "LoadTime": 2,
       "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.amaldicoada2.SpecialDescription"
     },
     {
@@ -1977,10 +2291,18 @@
       "MaximumDistance": 12,
       "LoadTime": 2,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destruidor1.SpecialDescription"
     },
     {
@@ -1990,10 +2312,18 @@
       "MaximumDistance": 120000,
       "LoadTime": 3,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destruidor2.SpecialDescription"
     },
     {
@@ -2015,10 +2345,18 @@
       "MaximumDistance": 5,
       "LoadTime": 0,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destruidor4.SpecialDescription"
     },
     {
@@ -2028,11 +2366,18 @@
       "MaximumDistance": 12,
       "LoadTime": 1,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Attack.Destruidor5.SpecialDescription"
     },
     {
@@ -2054,10 +2399,18 @@
       "MaximumDistance": 10,
       "LoadTime": 1,
       "Dices": 4,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.Caos2",
@@ -2078,10 +2431,18 @@
       "MaximumDistance": 20,
       "LoadTime": 0,
       "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.Absoluto1",
@@ -2101,11 +2462,18 @@
       "MaximumDistance": 20,
       "LoadTime": 1,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.Absoluto3",
@@ -2148,10 +2516,18 @@
       "MaximumDistance": 14,
       "LoadTime": 0,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ],
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      },
       "SpecialDescription": "Weapon.Kader3.SpecialDescription"
     },
     {
@@ -2161,11 +2537,18 @@
       "MaximumDistance": 10,
       "LoadTime": 1,
       "Dices": 6,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.LuaNegra1",
@@ -2174,11 +2557,18 @@
       "MaximumDistance": 12,
       "LoadTime": 0,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.LuaNegra2",
@@ -2187,11 +2577,18 @@
       "MaximumDistance": 5,
       "LoadTime": 1,
       "Dices": 3,
-      "Ambient": [
-        "Earth",
-        "Air",
-        "Space"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.LuaNegra3",
@@ -2211,10 +2608,18 @@
       "MaximumDistance": 20,
       "LoadTime": 3,
       "Dices": 1,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.Bruce2",
@@ -2223,10 +2628,18 @@
       "MaximumDistance": 10,
       "LoadTime": 2,
       "Dices": 2,
-      "Ambient": [
-        "Earth",
-        "Air"
-      ]
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
     },
     {
       "ID": "Weapon.Bruce3",
@@ -2235,10 +2648,122 @@
       "MaximumDistance": 6,
       "LoadTime": 1,
       "Dices": 3,
+      "modes": {
+        "mode1": {
+          "Ambient": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Ambient": [
+            "Air"
+          ]
+        }
+      }
+    },
+    {
+      "ID": "Weapon.EclipseKnight1",
+      "modes": {
+        "mode1": {
+          "Damage": 8,
+          "MinimumDistance": "0",
+          "MaximumDistance": 1,
+          "LoadTime": 1,
+          "Ambient2": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "Damage": "Infinito",
+          "MinimumDistance": "Infinito",
+          "MaximumDistance": "Infinito",
+          "LoadTime": "0",
+          "Ambient2": [
+            "Air"
+          ]
+        }
+      },
+      "Dices": "2025-01-02T03:00:00.000Z",
       "Ambient": [
-        "Earth",
-        "Air"
-      ]
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.EclipseKnight1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.EclipseKnight2",
+      "Damage": "2025-08-06T03:00:00.000Z",
+      "MinimumDistance": "2025-09-09T03:00:00.000Z",
+      "modes": {
+        "mode1": {
+          "MaximumDistance": 15,
+          "Ambient": [
+            "Earth"
+          ],
+          "Ambient2": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "MaximumDistance": 15,
+          "Ambient": [
+            "Air"
+          ],
+          "Ambient2": [
+            "Air"
+          ]
+        }
+      },
+      "LoadTime": "2025-01-02T03:00:00.000Z",
+      "Dices": "2025-03-03T03:00:00.000Z",
+      "SpecialDescription": "Weapon.EclipseKnight2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.EclipseKnight3",
+      "Damage": "2025-02-02T03:00:00.000Z",
+      "modes": {
+        "mode1": {
+          "MinimumDistance": "0",
+          "LoadTime": 1
+        },
+        "mode2": {
+          "MinimumDistance": "0",
+          "LoadTime": "0"
+        }
+      },
+      "MaximumDistance": "2025-02-01T03:00:00.000Z",
+      "Dices": "2025-04-03T03:00:00.000Z",
+      "Ambient": [
+        "Earth"
+      ],
+      "Ambient2": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.EclipseKnight3.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.EclipseKnight4",
+      "Damage": "2025-05-05T03:00:00.000Z",
+      "MinimumDistance": "2025-02-03T03:00:00.000Z",
+      "MaximumDistance": "2025-12-10T03:00:00.000Z",
+      "modes": {
+        "mode1": {
+          "LoadTime": 1,
+          "Ambient2": [
+            "Earth"
+          ]
+        },
+        "mode2": {
+          "LoadTime": -1,
+          "Ambient2": [
+            "Air"
+          ]
+        }
+      },
+      "Dices": "2025-03-02T03:00:00.000Z",
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.EclipseKnight4.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -3142,6 +3667,54 @@
         "AfterAttack"
       ],
       "Description": "Power.LuaNegra3.Description"
+    },
+    {
+      "ID": "Power.EclipseKnight1",
+      "modeRestriction": "mode2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.EclipseKnight1.Description"
+    },
+    {
+      "ID": "Power.EclipseKnight2",
+      "modeRestriction": "mode2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.EclipseKnight2.Description"
+    },
+    {
+      "ID": "Power.EclipseKnight3",
+      "modeRestriction": "mode2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.EclipseKnight3.Description"
+    },
+    {
+      "ID": "Power.EclipseKnight4",
+      "modeRestriction": "mode2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.EclipseKnight4.Description"
+    },
+    {
+      "ID": "Power.EclipseKnight5",
+      "modeRestriction": "mode2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.EclipseKnight5.Description"
+    },
+    {
+      "ID": "Power.EclipseKnight6",
+      "modeRestriction": "mode2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.EclipseKnight6.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
