@@ -1272,6 +1272,50 @@
       "Description": "Passive.Invicto5.Description"
     },
     {
+      "ID": "Passive.Vinteum1",
+      "Description": "Passive.Vinteum1.Description"
+    },
+    {
+      "ID": "Passive.Vinteum2",
+      "Description": "Passive.Vinteum2.Description"
+    },
+    {
+      "ID": "Passive.Vinteum3",
+      "Description": "Passive.Vinteum3.Description"
+    },
+    {
+      "ID": "Passive.Vinteum4",
+      "Description": "Passive.Vinteum4.Description"
+    },
+    {
+      "ID": "Passive.Vinteum5",
+      "Description": "Passive.Vinteum5.Description"
+    },
+    {
+      "ID": "Passive.Vinteum6",
+      "Description": "Passive.Vinteum6.Description"
+    },
+    {
+      "ID": "Passive.Vinteum7",
+      "Description": "Passive.Vinteum7.Description"
+    },
+    {
+      "ID": "Passive.Vinteum8",
+      "Description": "Passive.Vinteum8.Description"
+    },
+    {
+      "ID": "Passive.Vinteum9",
+      "Description": "Passive.Vinteum9.Description"
+    },
+    {
+      "ID": "Passive.Vinteum10",
+      "Description": "Passive.Vinteum10.Description"
+    },
+    {
+      "ID": "Passive.Vinteum11",
+      "Description": "Passive.Vinteum11.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -2191,6 +2235,30 @@
       "MinimumDistance": 2,
       "MaximumDistance": 15,
       "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Vinteum1",
+      "Damage": 9,
+      "MinimumDistance": 4,
+      "MaximumDistance": 6,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Vinteum2",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 5,
+      "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
         "Earth",
@@ -3489,6 +3557,76 @@
       "Description": "Power.Invicto5.Description"
     },
     {
+      "ID": "Power.Vinteum1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum1.Description"
+    },
+    {
+      "ID": "Power.Vinteum2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum2.Description"
+    },
+    {
+      "ID": "Power.Vinteum3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum3.Description"
+    },
+    {
+      "ID": "Power.Vinteum4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum4.Description"
+    },
+    {
+      "ID": "Power.Vinteum5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum5.Description"
+    },
+    {
+      "ID": "Power.Vinteum6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum6.Description"
+    },
+    {
+      "ID": "Power.Vinteum7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum7.Description"
+    },
+    {
+      "ID": "Power.Vinteum8",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Vinteum8.Description"
+    },
+    {
+      "ID": "Power.Vinteum9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum9.Description"
+    },
+    {
+      "ID": "Power.Vinteum10",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vinteum10.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -3699,6 +3837,11 @@
       "ID": "SpecialCustom.EclipseKnight1",
       "Type": "counter",
       "Title": "SpecialCustom.EclipseKnight1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Vinteum1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Vinteum1.Title"
     }
   ]
 }
