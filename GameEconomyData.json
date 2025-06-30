@@ -1071,6 +1071,48 @@
       "SpecialCharacteristics": [
         "SpecialCustom.Vinteum1"
       ]
+    },
+    {
+      "ID": "Pax",
+      "DodgePoints": 6,
+      "OportunityAttacks": 10,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Pax1",
+        "Attack.Pax2",
+        "Attack.Pax3",
+        "Attack.Pax4",
+        "Attack.Pax5"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Pax1",
+        "Power.Pax2",
+        "Power.Pax3",
+        "Power.Pax4",
+        "Power.Pax5",
+        "Power.Pax6",
+        "Power.Pax7"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2365,6 +2407,67 @@
         "Earth",
         "Air"
       ]
+    },
+    {
+      "ID": "Attack.Pax1",
+      "Damage": "??",
+      "MinimumDistance": 3,
+      "MaximumDistance": 3,
+      "LoadTime": "0",
+      "Dices": "0",
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pax1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pax2",
+      "Damage": 8,
+      "MinimumDistance": 1,
+      "MaximumDistance": 40,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pax2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pax3",
+      "Damage": 1,
+      "MinimumDistance": 1,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Pax3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pax4",
+      "Damage": 2,
+      "MinimumDistance": 8,
+      "MaximumDistance": 12,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pax4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pax5",
+      "Damage": "??",
+      "MinimumDistance": "0",
+      "MaximumDistance": 15,
+      "LoadTime": 3,
+      "Dices": "??",
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pax5.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -3726,6 +3829,55 @@
         "BeforeAttack"
       ],
       "Description": "Power.Vinteum10.Description"
+    },
+    {
+      "ID": "Power.Pax1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pax1.Description"
+    },
+    {
+      "ID": "Power.Pax2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pax2.Description"
+    },
+    {
+      "ID": "Power.Pax3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Pax3.Description"
+    },
+    {
+      "ID": "Power.Pax4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pax4.Description"
+    },
+    {
+      "ID": "Power.Pax5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pax5.Description"
+    },
+    {
+      "ID": "Power.Pax6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pax6.Description"
+    },
+    {
+      "ID": "Power.Pax7",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Pax7.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
