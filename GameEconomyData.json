@@ -1250,6 +1250,53 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Alpha",
+      "DodgePoints": 5,
+      "OportunityAttacks": 2,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 2,
+      "NumberOfDevices": 1,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d12",
+        "City": "d10",
+        "Landfill": "d10",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Alpha1",
+        "Attack.Alpha2",
+        "Attack.Alpha3"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Alpha1",
+        "Passive.Alpha2",
+        "Passive.Alpha3"
+      ],
+      "PowersData": [
+        "Power.Alpha1",
+        "Power.Alpha2",
+        "Power.Alpha3"
+      ],
+      "DevicesData": [
+        "Device.Alpha1",
+        "Device.Alpha2",
+        "Device.Alpha3"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Alpha1",
+        "SpecialAbility.Alpha2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1610,6 +1657,18 @@
     {
       "ID": "Passive.Ilusao4",
       "Description": "Passive.Ilusao4.Description"
+    },
+    {
+      "ID": "Passive.Alpha1",
+      "Description": "Passive.Alpha1.Description"
+    },
+    {
+      "ID": "Passive.Alpha2",
+      "Description": "Passive.Alpha2.Description"
+    },
+    {
+      "ID": "Passive.Alpha3",
+      "Description": "Passive.Alpha3.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -2718,6 +2777,44 @@
       ]
     },
     {
+      "ID": "Attack.Alpha1",
+      "Damage": 4,
+      "MinimumDistance": 2,
+      "MaximumDistance": 14,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Alpha1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Alpha2",
+      "Damage": 2,
+      "MinimumDistance": "0",
+      "MaximumDistance": 8,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Alpha2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Alpha3",
+      "Damage": 4,
+      "MinimumDistance": "0",
+      "MaximumDistance": 500,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Alpha3.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -3656,6 +3753,27 @@
       "Description": "Device.Observadora10.Description"
     },
     {
+      "ID": "Device.Alpha1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Alpha1.Description"
+    },
+    {
+      "ID": "Device.Alpha2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Alpha2.Description"
+    },
+    {
+      "ID": "Device.Alpha3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Alpha3.Description"
+    },
+    {
       "ID": "Power.Impact1",
       "TriggerType": [
         "Passive"
@@ -4362,6 +4480,27 @@
       "Description": "Power.Ilusao5.Description"
     },
     {
+      "ID": "Power.Alpha1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Alpha1.Description"
+    },
+    {
+      "ID": "Power.Alpha2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Alpha2.Description"
+    },
+    {
+      "ID": "Power.Alpha3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Alpha3.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -4568,6 +4707,20 @@
         "AfterAttack"
       ],
       "Description": "SpecialAbility.Ilusao2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Alpha1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Alpha1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Alpha2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Alpha2.Description"
     }
   ],
   "SpecialDefinitions": [
