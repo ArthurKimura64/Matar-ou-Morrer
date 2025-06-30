@@ -1297,6 +1297,55 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Tecnologia",
+      "DodgePoints": 5,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 2,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Tecnologia1",
+        "Attack.Tecnologia2",
+        "Attack.Tecnologia3",
+        "Attack.Tecnologia4",
+        "Attack.Tecnologia5"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Tecnologia1",
+        "Passive.Tecnologia2",
+        "Passive.Tecnologia3"
+      ],
+      "PowersData": [
+        "Power.Tecnologia1",
+        "Power.Tecnologia2",
+        "Power.Tecnologia3",
+        "Power.Tecnologia4",
+        "Power.Tecnologia5",
+        "Power.Tecnologia6",
+        "Power.Tecnologia7"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Tecnologia1",
+        "SpecialAbility.Tecnologia2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1669,6 +1718,18 @@
     {
       "ID": "Passive.Alpha3",
       "Description": "Passive.Alpha3.Description"
+    },
+    {
+      "ID": "Passive.Tecnologia1",
+      "Description": "Passive.Tecnologia1.Description"
+    },
+    {
+      "ID": "Passive.Tecnologia2",
+      "Description": "Passive.Tecnologia2.Description"
+    },
+    {
+      "ID": "Passive.Tecnologia3",
+      "Description": "Passive.Tecnologia3.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -2813,6 +2874,66 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Alpha3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Tecnologia1",
+      "Damage": 12,
+      "MinimumDistance": 3,
+      "MaximumDistance": 10,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Tecnologia2",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 6,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Tecnologia3",
+      "Damage": 20,
+      "MinimumDistance": 20,
+      "MaximumDistance": 20,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Tecnologia3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Tecnologia4",
+      "Damage": 1,
+      "MinimumDistance": 20,
+      "MaximumDistance": 25,
+      "LoadTime": "0",
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Tecnologia4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Tecnologia5",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 5,
+      "Ambient": [
+        "Earth"
+      ]
     },
     {
       "ID": "Weapon.Caos1",
@@ -4501,6 +4622,55 @@
       "Description": "Power.Alpha3.Description"
     },
     {
+      "ID": "Power.Tecnologia1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Tecnologia1.Description"
+    },
+    {
+      "ID": "Power.Tecnologia2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Tecnologia2.Description"
+    },
+    {
+      "ID": "Power.Tecnologia3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Tecnologia3.Description"
+    },
+    {
+      "ID": "Power.Tecnologia4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Tecnologia4.Description"
+    },
+    {
+      "ID": "Power.Tecnologia5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Tecnologia5.Description"
+    },
+    {
+      "ID": "Power.Tecnologia6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Tecnologia6.Description"
+    },
+    {
+      "ID": "Power.Tecnologia7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Tecnologia7.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -4721,6 +4891,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Alpha2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Tecnologia1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Tecnologia1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Tecnologia2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Tecnologia2.Description"
     }
   ],
   "SpecialDefinitions": [
