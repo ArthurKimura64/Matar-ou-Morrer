@@ -967,7 +967,9 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.EclipseKnight1"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -3586,6 +3588,11 @@
       "ID": "SpecialCustom.PortadorDasEntidades1",
       "Type": "counter",
       "Title": "SpecialCustom.PortadorDasEntidades1.Title"
+    },
+    {
+      "ID": "SpecialCustom.EclipseKnight1",
+      "Type": "counter",
+      "Title": "SpecialCustom.EclipseKnight1.Title"
     }
   ]
 }
