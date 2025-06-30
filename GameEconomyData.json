@@ -1203,6 +1203,53 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Ilusao",
+      "DodgePoints": 6,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 2,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Ilusao1",
+        "Attack.Ilusao2",
+        "Attack.Ilusao3",
+        "Attack.Ilusao4"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Ilusao1",
+        "Passive.Ilusao2",
+        "Passive.Ilusao3",
+        "Passive.Ilusao4"
+      ],
+      "PowersData": [
+        "Power.Ilusao1",
+        "Power.Ilusao2",
+        "Power.Ilusao3",
+        "Power.Ilusao4",
+        "Power.Ilusao5"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Ilusao1",
+        "SpecialAbility.Ilusao2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1547,6 +1594,22 @@
     {
       "ID": "Passive.Vinteum11",
       "Description": "Passive.Vinteum11.Description"
+    },
+    {
+      "ID": "Passive.Ilusao1",
+      "Description": "Passive.Ilusao1.Description"
+    },
+    {
+      "ID": "Passive.Ilusao2",
+      "Description": "Passive.Ilusao2.Description"
+    },
+    {
+      "ID": "Passive.Ilusao3",
+      "Description": "Passive.Ilusao3.Description"
+    },
+    {
+      "ID": "Passive.Ilusao4",
+      "Description": "Passive.Ilusao4.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -2607,6 +2670,52 @@
         "Air"
       ],
       "SpecialDescription": "Attack.MulherTitanium4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ilusao1",
+      "Damage": 8,
+      "MinimumDistance": 3,
+      "MaximumDistance": 8,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.Ilusao2",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 2,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Ilusao2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Ilusao3",
+      "Damage": 12,
+      "MinimumDistance": 8,
+      "MaximumDistance": 13,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Ilusao4",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
     },
     {
       "ID": "Weapon.Caos1",
@@ -4216,6 +4325,43 @@
       "Description": "Power.MulherTitanium4.Description"
     },
     {
+      "ID": "Power.Ilusao1",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Power.Ilusao1.Description"
+    },
+    {
+      "ID": "Power.Ilusao2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ilusao2.Description"
+    },
+    {
+      "ID": "Power.Ilusao3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Ilusao3.Description"
+    },
+    {
+      "ID": "Power.Ilusao4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ilusao4.Description"
+    },
+    {
+      "ID": "Power.Ilusao5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Ilusao5.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -4408,6 +4554,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Observadora2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Ilusao1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Ilusao1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Ilusao2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "SpecialAbility.Ilusao2.Description"
     }
   ],
   "SpecialDefinitions": [
