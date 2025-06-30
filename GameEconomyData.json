@@ -970,6 +970,107 @@
       "SpecialCharacteristics": [
         "SpecialCustom.EclipseKnight1"
       ]
+    },
+    {
+      "ID": "Invicto",
+      "DodgePoints": 3,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 2,
+      "NumberOfPowers": 2,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d20",
+        "Landfill": "d12",
+        "Mountain": "d10"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Invicto1",
+        "Attack.Invicto2",
+        "Attack.Invicto3",
+        "Attack.Invicto4"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Invicto1",
+        "Passive.Invicto2",
+        "Passive.Invicto3",
+        "Passive.Invicto4",
+        "Passive.Invicto5"
+      ],
+      "PowersData": [
+        "Power.Invicto1",
+        "Power.Invicto2",
+        "Power.Invicto3",
+        "Power.Invicto4",
+        "Power.Invicto5"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Vinteum",
+      "DodgePoints": 15,
+      "OportunityAttacks": 10,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 6,
+      "NumberOfPowers": 6,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d6",
+        "City": "d8",
+        "Landfill": "d8",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Vinteum1",
+        "Attack.Vinteum2"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Vinteum1",
+        "Passive.Vinteum2",
+        "Passive.Vinteum3",
+        "Passive.Vinteum4",
+        "Passive.Vinteum5",
+        "Passive.Vinteum6",
+        "Passive.Vinteum7",
+        "Passive.Vinteum8",
+        "Passive.Vinteum9",
+        "Passive.Vinteum10",
+        "Passive.Vinteum11"
+      ],
+      "PowersData": [
+        "Power.Vinteum1",
+        "Power.Vinteum2",
+        "Power.Vinteum3",
+        "Power.Vinteum4",
+        "Power.Vinteum5",
+        "Power.Vinteum6",
+        "Power.Vinteum7",
+        "Power.Vinteum8",
+        "Power.Vinteum9",
+        "Power.Vinteum10"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": [
+        "SpecialCustom.Vinteum1"
+      ]
     }
   ],
   "PassiveDefinitions": [
