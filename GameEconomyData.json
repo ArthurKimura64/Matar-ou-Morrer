@@ -1113,6 +1113,53 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Observadora",
+      "DodgePoints": 7,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 6,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 6,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d10",
+        "Landfill": "d4",
+        "Mountain": "d8"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Observadora1",
+        "Weapon.Observadora2",
+        "Weapon.Observadora3",
+        "Weapon.Observadora4"
+      ],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Observadora1",
+        "Device.Observadora2",
+        "Device.Observadora3",
+        "Device.Observadora4",
+        "Device.Observadora5",
+        "Device.Observadora6",
+        "Device.Observadora7",
+        "Device.Observadora8",
+        "Device.Observadora9",
+        "Device.Observadora10"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Observadora1",
+        "SpecialAbility.Observadora2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2771,6 +2818,58 @@
         }
       },
       "SpecialDescription": "Weapon.EclipseKnight4.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Observadora1",
+      "Damage": 10,
+      "MinimumDistance": 11,
+      "MaximumDistance": 13,
+      "LoadTime": 4,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Weapon.Observadora1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Observadora2",
+      "Damage": 15,
+      "MinimumDistance": 6,
+      "MaximumDistance": 10,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Observadora3",
+      "Damage": 4,
+      "MinimumDistance": 8,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Weapon.Observadora3.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Observadora4",
+      "Damage": 10,
+      "MinimumDistance": 25,
+      "MaximumDistance": 27,
+      "LoadTime": 5,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Weapon.Observadora4.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -3237,6 +3336,76 @@
         "BeforeAttack"
       ],
       "Description": "Device.Bruce12.Description"
+    },
+    {
+      "ID": "Device.Observadora1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Observadora1.Description"
+    },
+    {
+      "ID": "Device.Observadora2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Observadora2.Description"
+    },
+    {
+      "ID": "Device.Observadora3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Observadora3.Description"
+    },
+    {
+      "ID": "Device.Observadora4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Observadora4.Description"
+    },
+    {
+      "ID": "Device.Observadora5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Observadora5.Description"
+    },
+    {
+      "ID": "Device.Observadora6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Observadora6.Description"
+    },
+    {
+      "ID": "Device.Observadora7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Observadora7.Description"
+    },
+    {
+      "ID": "Device.Observadora8",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Observadora8.Description"
+    },
+    {
+      "ID": "Device.Observadora9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Observadora9.Description"
+    },
+    {
+      "ID": "Device.Observadora10",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Observadora10.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -4058,6 +4227,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.LuaNegra2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Observadora1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Observadora1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Observadora2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Observadora2.Description"
     }
   ],
   "SpecialDefinitions": [
