@@ -922,8 +922,8 @@
     },
     {
       "ID": "EclipseKnight",
-      "mode1": "Normal",
-      "mode2": "Eclipse",
+      "mode1": "Character.Mode.EclipseKnight.mode1",
+      "mode2": "Character.Mode.EclipseKnight.mode2",
       "DodgePoints": 8,
       "OportunityAttacks": 2,
       "ExplorationItens": 2,
