@@ -1160,6 +1160,49 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "MulherTitanium",
+      "DodgePoints": 2,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 2,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 2,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d12",
+        "City": "d10",
+        "Landfill": "d8",
+        "Mountain": "d6"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.MulherTitanium1",
+        "Attack.MulherTitanium2",
+        "Attack.MulherTitanium3",
+        "Attack.MulherTitanium4"
+      ],
+      "WeaponsData": [
+        "Weapon.MulherTitanium1",
+        "Weapon.MulherTitanium2",
+        "Weapon.MulherTitanium3",
+        "Weapon.MulherTitanium4"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.MulherTitanium1",
+        "Power.MulherTitanium2",
+        "Power.MulherTitanium3",
+        "Power.MulherTitanium4"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2517,6 +2560,55 @@
       "SpecialDescription": "Attack.Pax5.SpecialDescription"
     },
     {
+      "ID": "Attack.MulherTitanium1",
+      "Damage": 20,
+      "MinimumDistance": "0",
+      "MaximumDistance": "0",
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.MulherTitanium2",
+      "Damage": 7,
+      "MinimumDistance": 5,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.MulherTitanium3",
+      "Damage": 5,
+      "MinimumDistance": 4,
+      "MaximumDistance": 15,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.MulherTitanium3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.MulherTitanium4",
+      "Damage": 10,
+      "MinimumDistance": 18,
+      "MaximumDistance": 20,
+      "LoadTime": 3,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.MulherTitanium4.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -2870,6 +2962,53 @@
         "Space"
       ],
       "SpecialDescription": "Weapon.Observadora4.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.MulherTitanium1",
+      "Damage": 8,
+      "MinimumDistance": 1,
+      "MaximumDistance": 3,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.MulherTitanium1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.MulherTitanium2",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 4,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.MulherTitanium2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.MulherTitanium3",
+      "Damage": 10,
+      "MinimumDistance": 8,
+      "MaximumDistance": 10,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.MulherTitanium4",
+      "Damage": 8,
+      "MinimumDistance": "0",
+      "MaximumDistance": "0",
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -4047,6 +4186,34 @@
         "AfterAttack"
       ],
       "Description": "Power.Pax7.Description"
+    },
+    {
+      "ID": "Power.MulherTitanium1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.MulherTitanium1.Description"
+    },
+    {
+      "ID": "Power.MulherTitanium2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.MulherTitanium2.Description"
+    },
+    {
+      "ID": "Power.MulherTitanium3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.MulherTitanium3.Description"
+    },
+    {
+      "ID": "Power.MulherTitanium4",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.MulherTitanium4.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
