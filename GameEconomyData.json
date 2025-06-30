@@ -1330,16 +1330,16 @@
         "Passive.Tecnologia2",
         "Passive.Tecnologia3"
       ],
-      "PowersData": [
-        "Power.Tecnologia1",
-        "Power.Tecnologia2",
-        "Power.Tecnologia3",
-        "Power.Tecnologia4",
-        "Power.Tecnologia5",
-        "Power.Tecnologia6",
-        "Power.Tecnologia7"
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Tecnologia1",
+        "Device.Tecnologia2",
+        "Device.Tecnologia3",
+        "Device.Tecnologia4",
+        "Device.Tecnologia5",
+        "Device.Tecnologia6",
+        "Device.Tecnologia7"
       ],
-      "DevicesData": [],
       "SpecialAbilitiesData": [
         "SpecialAbility.Tecnologia1",
         "SpecialAbility.Tecnologia2"
@@ -3895,6 +3895,55 @@
       "Description": "Device.Alpha3.Description"
     },
     {
+      "ID": "Device.Tecnologia1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tecnologia1.Description"
+    },
+    {
+      "ID": "Device.Tecnologia2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Tecnologia2.Description"
+    },
+    {
+      "ID": "Device.Tecnologia3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tecnologia3.Description"
+    },
+    {
+      "ID": "Device.Tecnologia4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tecnologia4.Description"
+    },
+    {
+      "ID": "Device.Tecnologia5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tecnologia5.Description"
+    },
+    {
+      "ID": "Device.Tecnologia6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Tecnologia6.Description"
+    },
+    {
+      "ID": "Device.Tecnologia7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Tecnologia7.Description"
+    },
+    {
       "ID": "Power.Impact1",
       "TriggerType": [
         "Passive"
@@ -4620,55 +4669,6 @@
         "Passive"
       ],
       "Description": "Power.Alpha3.Description"
-    },
-    {
-      "ID": "Power.Tecnologia1",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tecnologia1.Description"
-    },
-    {
-      "ID": "Power.Tecnologia2",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Tecnologia2.Description"
-    },
-    {
-      "ID": "Power.Tecnologia3",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tecnologia3.Description"
-    },
-    {
-      "ID": "Power.Tecnologia4",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tecnologia4.Description"
-    },
-    {
-      "ID": "Power.Tecnologia5",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tecnologia5.Description"
-    },
-    {
-      "ID": "Power.Tecnologia6",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Power.Tecnologia6.Description"
-    },
-    {
-      "ID": "Power.Tecnologia7",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Power.Tecnologia7.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
