@@ -1346,6 +1346,52 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "ArcoNegro",
+      "DodgePoints": 3,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d20",
+        "Landfill": "d6",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.ArcoNegro1",
+        "Weapon.ArcoNegro2",
+        "Weapon.ArcoNegro3"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.ArcoNegro1",
+        "Power.ArcoNegro2",
+        "Power.ArcoNegro3",
+        "Power.ArcoNegro4",
+        "Power.ArcoNegro5",
+        "Power.ArcoNegro6",
+        "Power.ArcoNegro7",
+        "Power.ArcoNegro8",
+        "Power.ArcoNegro9"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.ArcoNegro1",
+        "PassiveSpecialAbility.ArcoNegro2",
+        "PassiveSpecialAbility.ArcoNegro3"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1794,6 +1840,18 @@
     {
       "ID": "PassiveSpecialAbility.amaldicoada2",
       "Description": "PassiveSpecialAbility.amaldicoada2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.ArcoNegro1",
+      "Description": "PassiveSpecialAbility.ArcoNegro1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.ArcoNegro2",
+      "Description": "PassiveSpecialAbility.ArcoNegro2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.ArcoNegro3",
+      "Description": "PassiveSpecialAbility.ArcoNegro3.Description"
     }
   ],
   "AttackDefinitions": [
@@ -3336,6 +3394,42 @@
       "Ambient": [
         "Earth"
       ]
+    },
+    {
+      "ID": "Weapon.ArcoNegro1",
+      "Damage": 10,
+      "MinimumDistance": 3,
+      "MaximumDistance": 28,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.ArcoNegro2",
+      "Damage": 5,
+      "MinimumDistance": 4,
+      "MaximumDistance": 8,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.ArcoNegro3",
+      "Damage": 20,
+      "MinimumDistance": 2,
+      "MaximumDistance": 15,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -4669,6 +4763,69 @@
         "Passive"
       ],
       "Description": "Power.Alpha3.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro1.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro2.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro3.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro4.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.ArcoNegro5.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro6.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.ArcoNegro7.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro8.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro9.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
