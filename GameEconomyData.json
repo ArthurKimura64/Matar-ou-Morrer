@@ -1325,14 +1325,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -1381,14 +1378,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -1401,14 +1395,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -1433,14 +1424,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Tecnology4.SpecialDescription"
     },
@@ -1465,14 +1453,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Tai1.SpecialDescription"
     },
@@ -1486,14 +1472,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Tai2.SpecialDescription"
     },
@@ -1531,14 +1515,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Atomico3.SpecialDescription"
     },
@@ -1552,14 +1533,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Atomico4.SpecialDescription"
     },
@@ -1573,14 +1551,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Ryan1.SpecialDescription"
     },
@@ -1630,14 +1605,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Ryan5.SpecialDescription"
     },
@@ -1686,14 +1658,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul1.SpecialDescription"
     },
@@ -1719,14 +1689,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul3.SpecialDescription"
     },
@@ -1740,14 +1707,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -1760,14 +1724,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul5.SpecialDescription"
     },
@@ -1793,14 +1754,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul7.SpecialDescription"
     },
@@ -1814,14 +1772,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul8.SpecialDescription"
     },
@@ -1847,14 +1802,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul10.SpecialDescription"
     },
@@ -1868,14 +1820,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destroul11.SpecialDescription"
     },
@@ -1901,14 +1851,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -1944,14 +1891,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Imortal4.SpecialDescription"
     },
@@ -1965,14 +1909,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       }
     },
     {
@@ -1985,14 +1927,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Gravidade2.SpecialDescription"
     },
@@ -2018,14 +1958,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -2038,14 +1975,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Radiacao3.SpecialDescription"
     },
@@ -2130,14 +2064,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.PortadorDasEntidades3.SpecialDescription"
     },
@@ -2151,14 +2082,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.PortadorDasEntidades4.SpecialDescription"
     },
@@ -2172,14 +2100,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.PortadorDasEntidades5.SpecialDescription"
     },
@@ -2193,14 +2118,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.PortadorDasEntidades6.SpecialDescription"
     },
@@ -2214,14 +2137,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.amaldicoada1.SpecialDescription"
     },
@@ -2235,14 +2155,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.amaldicoada2.SpecialDescription"
     },
@@ -2292,14 +2209,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destruidor1.SpecialDescription"
     },
@@ -2313,14 +2227,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destruidor2.SpecialDescription"
     },
@@ -2346,14 +2257,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destruidor4.SpecialDescription"
     },
@@ -2367,14 +2275,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       },
       "SpecialDescription": "Attack.Destruidor5.SpecialDescription"
     },
@@ -2400,14 +2306,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -2432,14 +2335,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -2463,14 +2363,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       }
     },
     {
@@ -2517,14 +2415,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       },
       "SpecialDescription": "Weapon.Kader3.SpecialDescription"
     },
@@ -2538,14 +2433,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       }
     },
     {
@@ -2558,14 +2451,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       }
     },
     {
@@ -2578,14 +2469,12 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air",
+            "Space"
           ]
         },
-        "mode2": {
-          "Ambient": [
-            "Air"
-          ]
-        }
+        "mode2": {}
       }
     },
     {
@@ -2609,14 +2498,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -2629,14 +2515,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -2649,14 +2532,11 @@
       "modes": {
         "mode1": {
           "Ambient": [
-            "Earth"
-          ]
-        },
-        "mode2": {
-          "Ambient": [
+            "Earth",
             "Air"
           ]
-        }
+        },
+        "mode2": {}
       }
     },
     {
@@ -2667,10 +2547,7 @@
           "MinimumDistance": "0",
           "MaximumDistance": 1,
           "LoadTime": 1,
-          "Dices": 2,
-          "Ambient": [
-            "Earth"
-          ]
+          "Dices": 2
         },
         "mode2": {
           "Damage": "Infinito",
@@ -2679,7 +2556,9 @@
           "LoadTime": "0",
           "Dices": 1,
           "Ambient": [
-            "Air"
+            "Earth",
+            "Air",
+            "Space"
           ]
         }
       },
@@ -2698,7 +2577,8 @@
           "LoadTime": 2,
           "Dices": 3,
           "Ambient": [
-            "Earth"
+            "Earth",
+            "Air"
           ]
         },
         "mode2": {
@@ -2708,7 +2588,9 @@
           "LoadTime": 1,
           "Dices": 3,
           "Ambient": [
-            "Air"
+            "Earth",
+            "Air",
+            "Space"
           ]
         }
       },
@@ -2745,10 +2627,7 @@
           "MinimumDistance": 3,
           "MaximumDistance": 10,
           "LoadTime": 1,
-          "Dices": 2,
-          "Ambient": [
-            "Earth"
-          ]
+          "Dices": 2
         },
         "mode2": {
           "Damage": 5,
@@ -2757,6 +2636,7 @@
           "LoadTime": -1,
           "Dices": 3,
           "Ambient": [
+            "Earth",
             "Air"
           ]
         }
