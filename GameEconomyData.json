@@ -1489,6 +1489,47 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Absinto",
+      "DodgePoints": 1,
+      "OportunityAttacks": 2,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 4,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 2,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d8",
+        "Landfill": "d12",
+        "Mountain": "d6"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Absinto1",
+        "Attack.Absinto2"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Absinto1",
+        "Power.Absinto2",
+        "Power.Absinto3",
+        "Power.Absinto4",
+        "Power.Absinto5"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Absinto1",
+        "PassiveSpecialAbility.Absinto2",
+        "PassiveSpecialAbility.Absinto3"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1981,6 +2022,18 @@
     {
       "ID": "PassiveSpecialAbility.Vazio2",
       "Description": "PassiveSpecialAbility.Vazio2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Absinto1",
+      "Description": "PassiveSpecialAbility.Absinto1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Absinto2",
+      "Description": "PassiveSpecialAbility.Absinto2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Absinto3",
+      "Description": "PassiveSpecialAbility.Absinto3.Description"
     }
   ],
   "AttackDefinitions": [
@@ -3211,6 +3264,32 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Energz5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Absinto1",
+      "Damage": 10,
+      "MinimumDistance": 1,
+      "MaximumDistance": 500,
+      "LoadTime": 3,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Absinto1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Absinto2",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 8,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Absinto2.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -5172,6 +5251,41 @@
         "BeforeAttack"
       ],
       "Description": "Power.Energz9.Description"
+    },
+    {
+      "ID": "Power.Absinto1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Absinto1.Description"
+    },
+    {
+      "ID": "Power.Absinto2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Absinto2.Description"
+    },
+    {
+      "ID": "Power.Absinto3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Absinto3.Description"
+    },
+    {
+      "ID": "Power.Absinto4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Absinto4.Description"
+    },
+    {
+      "ID": "Power.Absinto5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Absinto5.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
