@@ -1574,6 +1574,48 @@
         "PassiveSpecialAbility.Pressao2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Manipulador",
+      "DodgePoints": 6,
+      "OportunityAttacks": 7,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d8",
+        "City": "d8",
+        "Landfill": "d8",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Manipulador1",
+        "Attack.Manipulador2"
+      ],
+      "WeaponsData": [
+        "Weapon.Manipulador1",
+        "Weapon.Manipulador2"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Manipulador1",
+        "Power.Manipulador2",
+        "Power.Manipulador3",
+        "Power.Manipulador4",
+        "Power.Manipulador5",
+        "Power.Manipulador6",
+        "Power.Manipulador7"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -3406,6 +3448,32 @@
       "SpecialDescription": "Attack.Pressao5.SpecialDescription"
     },
     {
+      "ID": "Attack.Manipulador1",
+      "Damage": 1,
+      "MinimumDistance": 3,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Manipulador1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Manipulador2",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Manipulador2.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -3842,6 +3910,30 @@
         "Earth",
         "Air"
       ]
+    },
+    {
+      "ID": "Weapon.Manipulador1",
+      "Damage": 5,
+      "MinimumDistance": 3,
+      "MaximumDistance": 8,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Manipulador1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Manipulador2",
+      "Damage": 2,
+      "MinimumDistance": 1,
+      "MaximumDistance": 6,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Manipulador2.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -5442,6 +5534,55 @@
         "BeforeAttack"
       ],
       "Description": "Power.Pressao6.Description"
+    },
+    {
+      "ID": "Power.Manipulador1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Manipulador1.Description"
+    },
+    {
+      "ID": "Power.Manipulador2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Manipulador2.Description"
+    },
+    {
+      "ID": "Power.Manipulador3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Manipulador3.Description"
+    },
+    {
+      "ID": "Power.Manipulador4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Manipulador4.Description"
+    },
+    {
+      "ID": "Power.Manipulador5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Manipulador5.Description"
+    },
+    {
+      "ID": "Power.Manipulador6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Manipulador6.Description"
+    },
+    {
+      "ID": "Power.Manipulador7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Manipulador7.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
