@@ -975,7 +975,7 @@
   "Power.ArcoNegro9": "Sem Dó",
   "Power.ArcoNegro9.Description": "Ataca com o dobro de dano ao realizar um ataque de oportunidade.",
   "Power.Vazio1": "Cópia",
-  "Power.Vazio1.Description": "Cópia o ataque s. limite ou arma primária do inimigo que iniciou o combate contra você(dura até o fim do seu ataque).",
+  "Power.Vazio1.Description": "Cópia o ataque s. limite ou arma primária do inimigo que iniciou o combate contra você(dura até o fim do turno).",
   "Power.Vazio2": "Supremo",
   "Power.Vazio2.Description": "Pode usar um dos poderes que o inimigo usou durante o combate.",
   "Power.Vazio3": "Energia Obscura",
