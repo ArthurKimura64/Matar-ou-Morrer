@@ -1442,6 +1442,53 @@
         "PassiveSpecialAbility.Vazio2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Energz",
+      "DodgePoints": 12,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": "Não joga dados para se defender , o jogador só irá atingi-lo se tirar 5 ou 6 no dado de ataque dele.",
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 5,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d6",
+        "Landfill": "d12",
+        "Mountain": "d8"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Energz1",
+        "Attack.Energz2",
+        "Attack.Energz3",
+        "Attack.Energz4",
+        "Attack.Energz5"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Energz1",
+        "Passive.Energz2"
+      ],
+      "PowersData": [
+        "Power.Energz1",
+        "Power.Energz2",
+        "Power.Energz3",
+        "Power.Energz4",
+        "Power.Energz5",
+        "Power.Energz6",
+        "Power.Energz7",
+        "Power.Energz8",
+        "Power.Energz9"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1842,6 +1889,14 @@
     {
       "ID": "Passive.Vazio4",
       "Description": "Passive.Vazio4.Description"
+    },
+    {
+      "ID": "Passive.Energz1",
+      "Description": "Passive.Energz1.Description"
+    },
+    {
+      "ID": "Passive.Energz2",
+      "Description": "Passive.Energz2.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -3091,6 +3146,71 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Vazio2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Energz1",
+      "Damage": "0",
+      "MinimumDistance": "0",
+      "MaximumDistance": 30,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Energz1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Energz2",
+      "Damage": 5,
+      "MinimumDistance": 2,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Energz3",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 50,
+      "LoadTime": "0",
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Attack.Energz4",
+      "Damage": 14,
+      "MinimumDistance": 28,
+      "MaximumDistance": 30,
+      "LoadTime": 4,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Energz4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Energz5",
+      "Damage": 3,
+      "MinimumDistance": 3,
+      "MaximumDistance": 13,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Energz5.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -4989,6 +5109,69 @@
         "BeforeAttack"
       ],
       "Description": "Power.Vazio8.Description"
+    },
+    {
+      "ID": "Power.Energz1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Energz1.Description"
+    },
+    {
+      "ID": "Power.Energz2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Energz2.Description"
+    },
+    {
+      "ID": "Power.Energz3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Energz3.Description"
+    },
+    {
+      "ID": "Power.Energz4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Energz4.Description"
+    },
+    {
+      "ID": "Power.Energz5",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Energz5.Description"
+    },
+    {
+      "ID": "Power.Energz6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Energz6.Description"
+    },
+    {
+      "ID": "Power.Energz7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Energz7.Description"
+    },
+    {
+      "ID": "Power.Energz8",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Energz8.Description"
+    },
+    {
+      "ID": "Power.Energz9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Energz9.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
