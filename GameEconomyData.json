@@ -243,6 +243,7 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": [
+        "SpecialCustom.Caos1",
         "SpecialCustom.Caos1"
       ]
     },
@@ -5099,6 +5100,11 @@
       "ID": "SpecialCustom.Vinteum1",
       "Type": "counter",
       "Title": "SpecialCustom.Vinteum1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Caos1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Caos1.Title"
     }
   ]
 }
