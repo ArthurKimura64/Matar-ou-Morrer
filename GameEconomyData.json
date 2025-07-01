@@ -241,7 +241,6 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": [
-        "SpecialCustom.Caos1",
         "SpecialCustom.Caos1"
       ]
     },
@@ -1391,6 +1390,58 @@
         "PassiveSpecialAbility.ArcoNegro3"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Vazio",
+      "DodgePoints": 7,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 4,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 2,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 1,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d6",
+        "City": "d4",
+        "Landfill": "d4",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Vazio1",
+        "Attack.Vazio2"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Vazio1",
+        "Passive.Vazio2",
+        "Passive.Vazio3",
+        "Passive.Vazio4"
+      ],
+      "PowersData": [
+        "Power.Vazio1",
+        "Power.Vazio2",
+        "Power.Vazio3",
+        "Power.Vazio4",
+        "Power.Vazio5",
+        "Power.Vazio6",
+        "Power.Vazio7",
+        "Power.Vazio8"
+      ],
+      "DevicesData": [
+        "Device.Vazio1",
+        "Device.Vazio2",
+        "Device.Vazio3"
+      ],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Vazio1",
+        "PassiveSpecialAbility.Vazio2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -1777,6 +1828,22 @@
       "Description": "Passive.Tecnologia3.Description"
     },
     {
+      "ID": "Passive.Vazio1",
+      "Description": "Passive.Vazio1.Description"
+    },
+    {
+      "ID": "Passive.Vazio2",
+      "Description": "Passive.Vazio2.Description"
+    },
+    {
+      "ID": "Passive.Vazio3",
+      "Description": "Passive.Vazio3.Description"
+    },
+    {
+      "ID": "Passive.Vazio4",
+      "Description": "Passive.Vazio4.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -1851,6 +1918,14 @@
     {
       "ID": "PassiveSpecialAbility.ArcoNegro3",
       "Description": "PassiveSpecialAbility.ArcoNegro3.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Vazio1",
+      "Description": "PassiveSpecialAbility.Vazio1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Vazio2",
+      "Description": "PassiveSpecialAbility.Vazio2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -2993,6 +3068,31 @@
       ]
     },
     {
+      "ID": "Attack.Vazio1",
+      "Damage": 2,
+      "MinimumDistance": "0",
+      "MaximumDistance": 7,
+      "LoadTime": "0",
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Vazio1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Vazio2",
+      "Damage": "??",
+      "MinimumDistance": 2,
+      "MaximumDistance": 15,
+      "LoadTime": 1,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Vazio2.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -4023,6 +4123,27 @@
       "Description": "Device.Tecnologia7.Description"
     },
     {
+      "ID": "Device.Vazio1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Vazio1.Description"
+    },
+    {
+      "ID": "Device.Vazio2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Vazio2.Description"
+    },
+    {
+      "ID": "Device.Vazio3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Vazio3.Description"
+    },
+    {
       "ID": "Power.Impact1",
       "TriggerType": [
         "Passive"
@@ -4813,6 +4934,63 @@
       "Description": "Power.ArcoNegro9.Description"
     },
     {
+      "ID": "Power.Vazio1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vazio1.Description"
+    },
+    {
+      "ID": "Power.Vazio2",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Power.Vazio2.Description"
+    },
+    {
+      "ID": "Power.Vazio3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vazio3.Description"
+    },
+    {
+      "ID": "Power.Vazio4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vazio4.Description"
+    },
+    {
+      "ID": "Power.Vazio5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Vazio5.Description"
+    },
+    {
+      "ID": "Power.Vazio6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Vazio6.Description"
+    },
+    {
+      "ID": "Power.Vazio7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Vazio7.Description"
+    },
+    {
+      "ID": "Power.Vazio8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vazio8.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -5084,11 +5262,6 @@
       "ID": "SpecialCustom.Vinteum1",
       "Type": "counter",
       "Title": "SpecialCustom.Vinteum1.Title"
-    },
-    {
-      "ID": "SpecialCustom.Caos1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Caos1.Title"
     }
   ]
 }
