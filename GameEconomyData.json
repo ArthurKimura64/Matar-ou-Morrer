@@ -141,9 +141,7 @@
         "Device.Tai4",
         "Device.Tai5",
         "Device.Tai6",
-        "Device.Tai7",
-        "Device.Tai11",
-        "Device.Tai12"
+        "Device.Tai7"
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
@@ -3545,20 +3543,6 @@
         "Passive"
       ],
       "Description": "Device.Tai7.Description"
-    },
-    {
-      "ID": "Device.Tai11",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tai11.Description"
-    },
-    {
-      "ID": "Device.Tai12",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Tai12.Description"
     },
     {
       "ID": "Device.Absoluto1",
