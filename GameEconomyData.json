@@ -1530,6 +1530,50 @@
         "PassiveSpecialAbility.Absinto3"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Pressao",
+      "DodgePoints": 4,
+      "OportunityAttacks": 2,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d8",
+        "City": "d12",
+        "Landfill": "d8",
+        "Mountain": "d8"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Pressao1",
+        "Attack.Pressao2",
+        "Attack.Pressao3",
+        "Attack.Pressao4",
+        "Attack.Pressao5"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Pressao1",
+        "Power.Pressao2",
+        "Power.Pressao3",
+        "Power.Pressao4",
+        "Power.Pressao5",
+        "Power.Pressao6"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Pressao1",
+        "PassiveSpecialAbility.Pressao2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2034,6 +2078,14 @@
     {
       "ID": "PassiveSpecialAbility.Absinto3",
       "Description": "PassiveSpecialAbility.Absinto3.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Pressao1",
+      "Description": "PassiveSpecialAbility.Pressao1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Pressao2",
+      "Description": "PassiveSpecialAbility.Pressao2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -3290,6 +3342,68 @@
         "Earth"
       ],
       "SpecialDescription": "Attack.Absinto2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pressao1",
+      "Damage": 3,
+      "MinimumDistance": 3,
+      "MaximumDistance": 5,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pressao1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pressao2",
+      "Damage": 5,
+      "MinimumDistance": 1,
+      "MaximumDistance": 5,
+      "LoadTime": 2,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pressao2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pressao3",
+      "Damage": 3,
+      "MinimumDistance": 4,
+      "MaximumDistance": 8,
+      "LoadTime": "0",
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Pressao3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pressao4",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 6,
+      "LoadTime": 2,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Pressao4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Pressao5",
+      "Damage": 8,
+      "MinimumDistance": 3,
+      "MaximumDistance": 6,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Pressao5.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -5286,6 +5400,48 @@
         "Passive"
       ],
       "Description": "Power.Absinto5.Description"
+    },
+    {
+      "ID": "Power.Pressao1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pressao1.Description"
+    },
+    {
+      "ID": "Power.Pressao2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pressao2.Description"
+    },
+    {
+      "ID": "Power.Pressao3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pressao3.Description"
+    },
+    {
+      "ID": "Power.Pressao4",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Pressao4.Description"
+    },
+    {
+      "ID": "Power.Pressao5",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Pressao5.Description"
+    },
+    {
+      "ID": "Power.Pressao6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Pressao6.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
