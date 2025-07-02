@@ -1795,6 +1795,60 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Sistema",
+      "DodgePoints": 10,
+      "OportunityAttacks": 10,
+      "ExplorationItens": 8,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 2,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 6,
+      "NumberOfSpecialAbilities": 3,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Sistema1",
+        "Weapon.Sistema2",
+        "Weapon.Sistema3",
+        "Weapon.Sistema4"
+      ],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Sistema1",
+        "Device.Sistema2",
+        "Device.Sistema3",
+        "Device.Sistema4",
+        "Device.Sistema5",
+        "Device.Sistema6",
+        "Device.Sistema7",
+        "Device.Sistema8",
+        "Device.Sistema9",
+        "Device.Sistema10",
+        "Device.Sistema11",
+        "Device.Sistema12",
+        "Device.Sistema13"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Sistema1",
+        "SpecialAbility.Sistema2",
+        "SpecialAbility.Sistema3",
+        "SpecialAbility.Sistema4",
+        "SpecialAbility.Sistema5",
+        "SpecialAbility.Sistema6"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -4347,6 +4401,54 @@
         "Earth"
       ],
       "SpecialDescription": "Weapon.Programador6.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Sistema1",
+      "Damage": 10,
+      "MinimumDistance": 10,
+      "MaximumDistance": 12,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Sistema2",
+      "Damage": 2,
+      "MinimumDistance": 8,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Weapon.Sistema2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Sistema3",
+      "Damage": 1,
+      "MinimumDistance": 3,
+      "MaximumDistance": 7,
+      "LoadTime": 1,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Sistema4",
+      "Damage": 8,
+      "MinimumDistance": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -5030,6 +5132,99 @@
         "Passive"
       ],
       "Description": "Device.Programador10.Description"
+    },
+    {
+      "ID": "Device.Sistema1",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Device.Sistema1.Description"
+    },
+    {
+      "ID": "Device.Sistema2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Sistema2.Description"
+    },
+    {
+      "ID": "Device.Sistema3",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Device.Sistema3.Description"
+    },
+    {
+      "ID": "Device.Sistema4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Sistema4.Description"
+    },
+    {
+      "ID": "Device.Sistema5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema5.Description"
+    },
+    {
+      "ID": "Device.Sistema6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema6.Description"
+    },
+    {
+      "ID": "Device.Sistema7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema7.Description"
+    },
+    {
+      "ID": "Device.Sistema8",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema8.Description"
+    },
+    {
+      "ID": "Device.Sistema9",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema9.Description"
+    },
+    {
+      "ID": "Device.Sistema10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema10.Description"
+    },
+    {
+      "ID": "Device.Sistema11",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema11.Description"
+    },
+    {
+      "ID": "Device.Sistema12",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Sistema12.Description"
+    },
+    {
+      "ID": "Device.Sistema13",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Sistema13.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -6460,6 +6655,48 @@
         "BeforeAttack"
       ],
       "Description": "SpecialAbility.Tecnologia2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Sistema1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Sistema1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Sistema2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Sistema2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Sistema3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Sistema3.Description"
+    },
+    {
+      "ID": "SpecialAbility.Sistema4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Sistema4.Description"
+    },
+    {
+      "ID": "SpecialAbility.Sistema5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Sistema5.Description"
+    },
+    {
+      "ID": "SpecialAbility.Sistema6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Sistema6.Description"
     }
   ],
   "SpecialDefinitions": [
