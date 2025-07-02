@@ -1,4 +1,0 @@
-/*
-git fetch Arthur
-git pull Arthur main
-*/
