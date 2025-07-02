@@ -9,7 +9,7 @@ export const Utils = {
     const modeData = Utils.modeSystem.getActiveMode(def, mode);
     return `
     <b>${localization['AttackBase.Damage'] || 'Dano'}:</b> ${modeData.Damage}
-    <br><b>${localization['AttackBase.Distance'] || 'Distância'}:</b> ${modeData.MinimumDistance == modeData.MaximumDistance ? modeData.MinimumDistance : `${modeData.MinimumDistance} - ${modeData.MaximumDistance}`}
+    <br><b>${localization['AttackBase.Distance'] || 'Distância'}:</b> ${modeData.MinimumDistance === modeData.MaximumDistance ? modeData.MinimumDistance : `${modeData.MinimumDistance} - ${modeData.MaximumDistance}`}
     <br><b>${localization['AttackBase.Dices'] || 'Dados'}:</b> ${modeData.Dices}
     <br><b>${localization['AttackBase.LoadTime'] || 'Tempo de Recarga'}:</b> ${modeData.LoadTime || 0}
     <br><b>${localization['AttackBase.Terrain'] || 'Terreno'}:</b> ${(modeData.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'N/A'}

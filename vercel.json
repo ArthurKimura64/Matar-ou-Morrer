@@ -1,7 +1,7 @@
 {
   "version": 2,
   "builds": [
-    { "src": "matar-ou-morrer/package.json", "use": "@vercel/static-build", "config": { "distDir": "matar-ou-morrer/build" } }
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
