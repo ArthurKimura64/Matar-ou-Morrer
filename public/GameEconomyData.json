@@ -1657,6 +1657,48 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Dimensao",
+      "DodgePoints": 10,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 8,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d8",
+        "Landfill": "d10",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Dimensao1",
+        "Attack.Dimensao2",
+        "Attack.Dimensao3",
+        "Attack.Dimensao4"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Dimensao1",
+        "Passive.Dimensao2",
+        "Passive.Dimensao3",
+        "Passive.Dimensao4"
+      ],
+      "PowersData": [
+        "Power.Dimensao1",
+        "Power.Dimensao2",
+        "Power.Dimensao3"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2077,6 +2119,22 @@
     {
       "ID": "Passive.SenhordaLuz3",
       "Description": "Passive.SenhordaLuz3.Description"
+    },
+    {
+      "ID": "Passive.Dimensao1",
+      "Description": "Passive.Dimensao1.Description"
+    },
+    {
+      "ID": "Passive.Dimensao2",
+      "Description": "Passive.Dimensao2.Description"
+    },
+    {
+      "ID": "Passive.Dimensao3",
+      "Description": "Passive.Dimensao3.Description"
+    },
+    {
+      "ID": "Passive.Dimensao4",
+      "Description": "Passive.Dimensao4.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -3564,6 +3622,54 @@
         "Air"
       ],
       "SpecialDescription": "Attack.SenhordaLuz3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Dimensao1",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 5,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Dimensao1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Dimensao2",
+      "Damage": 4,
+      "MinimumDistance": 2,
+      "MaximumDistance": 6,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Dimensao2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Dimensao3",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 2,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Dimensao3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Dimensao4",
+      "Damage": 6,
+      "MinimumDistance": 5,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Dimensao4.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -5703,6 +5809,27 @@
         "Passive"
       ],
       "Description": "Power.SenhordaLuz4.Description"
+    },
+    {
+      "ID": "Power.Dimensao1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Dimensao1.Description"
+    },
+    {
+      "ID": "Power.Dimensao2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Dimensao2.Description"
+    },
+    {
+      "ID": "Power.Dimensao3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Dimensao3.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
