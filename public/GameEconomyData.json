@@ -1745,6 +1745,56 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "NyanjaVlast",
+      "DodgePoints": 10,
+      "OportunityAttacks": 7,
+      "ExplorationItens": 5,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 8,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d8",
+        "City": "d10",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.NyanjaVlast1",
+        "Attack.NyanjaVlast2",
+        "Attack.NyanjaVlast3",
+        "Attack.NyanjaVlast4"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.NyanjaVlast1",
+        "Power.NyanjaVlast2",
+        "Power.NyanjaVlast3",
+        "Power.NyanjaVlast4",
+        "Power.NyanjaVlast5",
+        "Power.NyanjaVlast6",
+        "Power.NyanjaVlast7",
+        "Power.NyanjaVlast8",
+        "Power.NyanjaVlast9",
+        "Power.NyanjaVlast10",
+        "Power.NyanjaVlast11",
+        "Power.NyanjaVlast12",
+        "Power.NyanjaVlast13",
+        "Power.NyanjaVlast14",
+        "Power.NyanjaVlast15",
+        "Power.NyanjaVlast16"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -3716,6 +3766,56 @@
         "Earth"
       ],
       "SpecialDescription": "Attack.Dimensao4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.NyanjaVlast1",
+      "Damage": 14,
+      "MinimumDistance": 6,
+      "MaximumDistance": 12,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.NyanjaVlast2",
+      "Damage": 19,
+      "MinimumDistance": 10,
+      "MaximumDistance": 12,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Attack.NyanjaVlast3",
+      "Damage": 2,
+      "MinimumDistance": "0",
+      "MaximumDistance": 3,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.NyanjaVlast3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.NyanjaVlast4",
+      "Damage": 3,
+      "MinimumDistance": 2,
+      "MaximumDistance": 9,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.NyanjaVlast4.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -6015,6 +6115,115 @@
         "AfterAttack"
       ],
       "Description": "Power.Dimensao3.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast1.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast2.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast3.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast4.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast5.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast6.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast7.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast8",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast8.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast9",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast9.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast10.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast11",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast11.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast12",
+      "Description": "Power.NyanjaVlast12.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast13",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast13.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast14",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast14.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast15",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast15.Description"
+    },
+    {
+      "ID": "Power.NyanjaVlast16",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.NyanjaVlast16.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
