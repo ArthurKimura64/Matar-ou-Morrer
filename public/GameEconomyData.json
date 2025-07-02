@@ -1699,6 +1699,52 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Programador",
+      "DodgePoints": 5,
+      "OportunityAttacks": 2,
+      "ExplorationItens": 5,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 3,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 7,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d10",
+        "City": "d12",
+        "Landfill": "d12",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Programador1",
+        "Weapon.Programador2",
+        "Weapon.Programador3",
+        "Weapon.Programador4",
+        "Weapon.Programador5",
+        "Weapon.Programador6"
+      ],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Programador1",
+        "Device.Programador2",
+        "Device.Programador3",
+        "Device.Programador4",
+        "Device.Programador5",
+        "Device.Programador6",
+        "Device.Programador7",
+        "Device.Programador8",
+        "Device.Programador9",
+        "Device.Programador10"
+      ],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -4132,6 +4178,75 @@
         "Earth"
       ],
       "SpecialDescription": "Weapon.Manipulador2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Programador1",
+      "Damage": 3,
+      "MinimumDistance": 3,
+      "MaximumDistance": 12,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Programador2",
+      "Damage": 7,
+      "MinimumDistance": 6,
+      "MaximumDistance": 8,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Programador3",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 2,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Programador4",
+      "Damage": 10,
+      "MinimumDistance": 1,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Programador5",
+      "Damage": 13,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": -1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Programador6",
+      "Damage": 20,
+      "MinimumDistance": 20,
+      "MaximumDistance": 20,
+      "LoadTime": 5,
+      "Dices": 6,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Programador6.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -4745,6 +4860,76 @@
         "BeforeAttack"
       ],
       "Description": "Device.Vazio3.Description"
+    },
+    {
+      "ID": "Device.Programador1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Programador1.Description"
+    },
+    {
+      "ID": "Device.Programador2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Programador2.Description"
+    },
+    {
+      "ID": "Device.Programador3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Programador3.Description"
+    },
+    {
+      "ID": "Device.Programador4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Programador4.Description"
+    },
+    {
+      "ID": "Device.Programador5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Programador5.Description"
+    },
+    {
+      "ID": "Device.Programador6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Programador6.Description"
+    },
+    {
+      "ID": "Device.Programador7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Programador7.Description"
+    },
+    {
+      "ID": "Device.Programador8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Programador8.Description"
+    },
+    {
+      "ID": "Device.Programador9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Programador9.Description"
+    },
+    {
+      "ID": "Device.Programador10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Programador10.Description"
     },
     {
       "ID": "Power.Impact1",
