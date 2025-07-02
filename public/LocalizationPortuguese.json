@@ -1325,7 +1325,7 @@
   "SpecialAbility.Sistema1": "Passe VIP",
   "SpecialAbility.Sistema1.Description": "Todos os locais de exploração ficam trancados para os inimigos por 5 rodadas, mas não para você.",
   "SpecialAbility.Sistema2": "Cartão de Acesso",
-  "SpecialAbility.Sistema2.Description": "Pode realizar qualquer ação de interação do mapa sem jogar dados 3 vezes.",
+  "SpecialAbility.Sistema2.Description": "Durante 3 rodadas não precisa jogar dados para interagir com o mapa.",
   "SpecialAbility.Sistema3": "Contagem Regressiva",
   "SpecialAbility.Sistema3.Description": "Escolhe um local de exploração, após 3 rodadas ele será trancado e depois de 2 rodadas explodirá, matando todos os jogadores que estiverem lá dentro, os jogadores dentro do local vão jogar um d20 no início de cada rodada após o local ser trancado, se cair 18, 19 ou 20, eles conseguem escapar e ficar na entrada do local.",
   "SpecialAbility.Sistema4": "Céu de Fogo",
