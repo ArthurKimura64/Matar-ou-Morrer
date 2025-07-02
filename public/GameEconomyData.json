@@ -1849,6 +1849,55 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Onisciente",
+      "DodgePoints": 4,
+      "OportunityAttacks": 2,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 4,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d12",
+        "City": "d12",
+        "Landfill": "d12",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Onisciente1",
+        "Attack.Onisciente2",
+        "Attack.Onisciente3",
+        "Attack.Onisciente4",
+        "Attack.Onisciente5",
+        "Attack.Onisciente6",
+        "Attack.Onisciente7",
+        "Attack.Onisciente8"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Onisciente1",
+        "Power.Onisciente2",
+        "Power.Onisciente3",
+        "Power.Onisciente4",
+        "Power.Onisciente5",
+        "Power.Onisciente6",
+        "Power.Onisciente7",
+        "Power.Onisciente8"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Onisciente1",
+        "SpecialAbility.Onisciente2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -3870,6 +3919,114 @@
         "Air"
       ],
       "SpecialDescription": "Attack.NyanjaVlast4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente1",
+      "Damage": 18,
+      "MinimumDistance": 13,
+      "MaximumDistance": 15,
+      "LoadTime": 5,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Onisciente1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente2",
+      "Damage": 10,
+      "MinimumDistance": 9,
+      "MaximumDistance": 11,
+      "LoadTime": 4,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Onisciente2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente3",
+      "Damage": 4,
+      "MinimumDistance": 4,
+      "MaximumDistance": 7,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Onisciente3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente4",
+      "Damage": 3,
+      "MinimumDistance": 3,
+      "MaximumDistance": 5,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Onisciente4.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente5",
+      "Damage": 1,
+      "MinimumDistance": 2,
+      "MaximumDistance": 5,
+      "LoadTime": 2,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Onisciente5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente6",
+      "Damage": 9,
+      "MinimumDistance": 12,
+      "MaximumDistance": 14,
+      "LoadTime": 4,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Onisciente7",
+      "Damage": 10,
+      "MinimumDistance": 15,
+      "MaximumDistance": 17,
+      "LoadTime": 5,
+      "Dices": 5,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Onisciente7.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Onisciente8",
+      "Damage": 20,
+      "MinimumDistance": 18,
+      "MaximumDistance": 20,
+      "LoadTime": 5,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Onisciente8.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -6421,6 +6578,62 @@
       "Description": "Power.NyanjaVlast16.Description"
     },
     {
+      "ID": "Power.Onisciente1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Onisciente1.Description"
+    },
+    {
+      "ID": "Power.Onisciente2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Onisciente2.Description"
+    },
+    {
+      "ID": "Power.Onisciente3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Onisciente3.Description"
+    },
+    {
+      "ID": "Power.Onisciente4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Onisciente4.Description"
+    },
+    {
+      "ID": "Power.Onisciente5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Onisciente5.Description"
+    },
+    {
+      "ID": "Power.Onisciente6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Onisciente6.Description"
+    },
+    {
+      "ID": "Power.Onisciente7",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Onisciente7.Description"
+    },
+    {
+      "ID": "Power.Onisciente8",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Onisciente8.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -6697,6 +6910,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Sistema6.Description"
+    },
+    {
+      "ID": "SpecialAbility.Onisciente1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Onisciente1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Onisciente2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Onisciente2.Description"
     }
   ],
   "SpecialDefinitions": [
