@@ -206,7 +206,7 @@
   "Character.Reivolk.Programador.Description": "Os dados de ataque e defesa dos inimigos que estiverem em combate com você recebem -1, uma vez no combate antes do inimigo te atacar pode ativar um escudo de proteção que fará o inimigo te atacar com apenas 1 dado durante 1 ataque, sempre que defender um dado de ataque, seus ataque ganham +1 de dano permanentemente, seus dispositivos voltam automaticamente após você usar todos.",
   "Character.Name.NyanjaVlast": "Nyanja Vlast",
   "Character.Title.NyanjaVlast": "Evolução Constante",
-  "Character.Description.NyanjaVlast": "Os poderes que você usar não poderão ser recuperados, pois se tornarão Habilidades passivas, não pode iniciar o jogo e já ativar um poder no ponto de conexão que você apareceu.",
+  "Character.Description.NyanjaVlast": "Os poderes que você usar não poderão ser recuperados, pois se tornarão Habilidades passivas, não pode iniciar o jogo e já ativar um poder no ponto de conexão que você apareceu, se Nyanja se movimentar por vontade própria ou a força enquanto estiver parada usando um poder, ele não gasta.",
   "Character.Reivolk.NyanjaVlast.Title": "Evolução dos Deuses",
   "Character.Reivolk.NyanjaVlast.Description": "Todos os seus poderes que ainda não foram ativados, se transformam em passivas automaticamente.",
   "Attack.Impact1": "Furacão nas Mãos",
