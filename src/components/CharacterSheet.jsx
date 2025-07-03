@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import Counter from './Counter';
 import CharacteristicCard from './CharacteristicCard';
+import SpecialCharacteristics from './SpecialCharacteristics';
 import { Utils } from '../utils/Utils';
 
 const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) => {
   const [counters, setCounters] = useState({
     vida: 20,
-    esquiva: 0,
-    oport: 0,
-    item: 0
+    esquiva: actor.DodgePoints || 0,
+    oport: actor.OportunityAttacks || 0,
+    item: actor.ExplorationItens || 0
   });
   
   const [currentMode, setCurrentMode] = useState('mode1');
@@ -132,9 +133,10 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
       </h3>
       
       {localization[`Character.Description.${actor.ID}`] && (
-        <div className="col-10 mb-4 px-3">
-          {localization[`Character.Description.${actor.ID}`]}
-        </div>
+        <div 
+          className="col-10 mb-4 px-3"
+          dangerouslySetInnerHTML={{ __html: localization[`Character.Description.${actor.ID}`] }}
+        />
       )}
 
       {Utils.transformationSystem.hasTransformation(actor) && (
@@ -234,6 +236,12 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
       <div id="character-items">
         {itemSections.map(renderItemSection)}
       </div>
+
+      <SpecialCharacteristics 
+        actor={actor} 
+        gameData={gameData} 
+        localization={localization} 
+      />
 
       <div className="text-center mt-4">
         <button className="btn btn-secondary" onClick={onReset}>

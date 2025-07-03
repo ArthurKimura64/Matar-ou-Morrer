@@ -54,9 +54,10 @@ const CharacteristicCard = ({ actor, localization }) => {
         <h5 className="mb-2 text-info text-center">
           {localization[`Character.Reivolk.${actor.ID}.Title`]}
         </h5>
-        <div className="col-12 text-light text-center">
-          {localization[`Character.Reivolk.${actor.ID}.Description`]}
-        </div>
+        <div 
+          className="col-12 text-light text-center"
+          dangerouslySetInnerHTML={{ __html: localization[`Character.Reivolk.${actor.ID}.Description`] }}
+        />
       </div>
     </div>
   );

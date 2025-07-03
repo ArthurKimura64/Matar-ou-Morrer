@@ -146,9 +146,10 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
           </h3>
         </div>
         {localization[`Character.Description.${actor.ID}`] && (
-          <div className="col-10 mb-3 px-3 text-light">
-            {localization[`Character.Description.${actor.ID}`]}
-          </div>
+          <div 
+            className="col-10 mb-3 px-3 text-light"
+            dangerouslySetInnerHTML={{ __html: localization[`Character.Description.${actor.ID}`] }}
+          />
         )}
       </div>
 
