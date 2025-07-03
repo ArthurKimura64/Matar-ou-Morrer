@@ -1898,6 +1898,61 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Capuz",
+      "DodgePoints": 6,
+      "OportunityAttacks": 9,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 6,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d8",
+        "City": "d10",
+        "Landfill": "d6",
+        "Mountain": "d8"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Capuz1",
+        "Attack.Capuz2",
+        "Attack.Capuz3",
+        "Attack.Capuz4",
+        "Attack.Capuz5",
+        "Attack.Capuz6"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.Capuz1",
+        "Device.Capuz2",
+        "Device.Capuz3",
+        "Device.Capuz4",
+        "Device.Capuz5",
+        "Device.Capuz6",
+        "Device.Capuz7",
+        "Device.Capuz8",
+        "Device.Capuz9",
+        "Device.Capuz10",
+        "Device.Capuz11",
+        "Device.Capuz12",
+        "Device.Capuz13",
+        "Device.Capuz14"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Capuz1",
+        "SpecialAbility.Capuz2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": [
+        "SpecialCustom.Capuz1"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -4029,6 +4084,77 @@
       "SpecialDescription": "Attack.Onisciente8.SpecialDescription"
     },
     {
+      "ID": "Attack.Capuz1",
+      "Damage": 7,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": "0",
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.Capuz2",
+      "Damage": 5,
+      "MinimumDistance": 1,
+      "MaximumDistance": 4,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.Capuz3",
+      "Damage": 9,
+      "MinimumDistance": 5,
+      "MaximumDistance": 11,
+      "LoadTime": 3,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Capuz4",
+      "Damage": 12,
+      "MinimumDistance": 8,
+      "MaximumDistance": 16,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Capuz5",
+      "Damage": 6,
+      "MinimumDistance": 3,
+      "MaximumDistance": 7,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Capuz5.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Capuz6",
+      "Damage": 18,
+      "MinimumDistance": 12,
+      "MaximumDistance": 14,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Capuz6.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -5382,6 +5508,104 @@
         "BeforeAttack"
       ],
       "Description": "Device.Sistema13.Description"
+    },
+    {
+      "ID": "Device.Capuz1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz1.Description"
+    },
+    {
+      "ID": "Device.Capuz2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Capuz2.Description"
+    },
+    {
+      "ID": "Device.Capuz3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Capuz3.Description"
+    },
+    {
+      "ID": "Device.Capuz4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz4.Description"
+    },
+    {
+      "ID": "Device.Capuz5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz5.Description"
+    },
+    {
+      "ID": "Device.Capuz6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz6.Description"
+    },
+    {
+      "ID": "Device.Capuz7",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz7.Description"
+    },
+    {
+      "ID": "Device.Capuz8",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Capuz8.Description"
+    },
+    {
+      "ID": "Device.Capuz9",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Capuz9.Description"
+    },
+    {
+      "ID": "Device.Capuz10",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Capuz10.Description"
+    },
+    {
+      "ID": "Device.Capuz11",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Capuz11.Description"
+    },
+    {
+      "ID": "Device.Capuz12",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz12.Description"
+    },
+    {
+      "ID": "Device.Capuz13",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz13.Description"
+    },
+    {
+      "ID": "Device.Capuz14",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Capuz14.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -6924,6 +7148,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Onisciente2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Capuz1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Capuz1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Capuz2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Capuz2.Description"
     }
   ],
   "SpecialDefinitions": [
@@ -6961,6 +7199,11 @@
       "ID": "SpecialCustom.Vinteum1",
       "Type": "counter",
       "Title": "SpecialCustom.Vinteum1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Capuz1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Capuz1.Title"
     }
   ]
 }
