@@ -2000,6 +2000,49 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Raioroxo",
+      "DodgePoints": 5,
+      "OportunityAttacks": 10,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 3,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d6",
+        "City": "d4",
+        "Landfill": "d8",
+        "Mountain": "d8"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Raioroxo1",
+        "Attack.Raioroxo2",
+        "Attack.Raioroxo3",
+        "Attack.Raioroxo4"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Raioroxo1",
+        "Passive.Raioroxo2",
+        "Passive.Raioroxo3",
+        "Passive.Raioroxo4",
+        "Passive.Raioroxo5",
+        "Passive.Raioroxo6"
+      ],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Raioroxo1",
+        "SpecialAbility.Raioroxo2"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2468,6 +2511,30 @@
     {
       "ID": "Passive.adaptado8",
       "Description": "Passive.adaptado8.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo1",
+      "Description": "Passive.Raioroxo1.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo2",
+      "Description": "Passive.Raioroxo2.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo3",
+      "Description": "Passive.Raioroxo3.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo4",
+      "Description": "Passive.Raioroxo4.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo5",
+      "Description": "Passive.Raioroxo5.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo6",
+      "Description": "Passive.Raioroxo6.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -4232,6 +4299,59 @@
         "Air"
       ],
       "SpecialDescription": "Attack.Capuz6.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Raioroxo1",
+      "Damage": 15,
+      "MinimumDistance": 2,
+      "MaximumDistance": 15,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Attack.Raioroxo2",
+      "Damage": 6,
+      "MinimumDistance": 4,
+      "MaximumDistance": 15,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Attack.Raioroxo3",
+      "Damage": 20,
+      "MinimumDistance": 5,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Attack.Raioroxo4",
+      "Damage": 5,
+      "MinimumDistance": 1,
+      "MaximumDistance": 20,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Raioroxo4.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -7317,6 +7437,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Capuz2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Raioroxo1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Raioroxo1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Raioroxo2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Raioroxo2.Description"
     }
   ],
   "SpecialDefinitions": [
