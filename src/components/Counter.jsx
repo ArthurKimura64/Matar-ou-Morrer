@@ -6,12 +6,20 @@ const Counter = ({ id, title, value, min, max, onChange }) => {
   };
 
   const handleIncrement = () => {
-    onChange(Math.min(value + 1, max));
+    if (max === null || max === undefined) {
+      onChange(value + 1);
+    } else {
+      onChange(Math.min(value + 1, max));
+    }
   };
 
   const handleChange = (e) => {
     const newValue = parseInt(e.target.value) || min;
-    onChange(Math.max(Math.min(newValue, max), min));
+    if (max === null || max === undefined) {
+      onChange(Math.max(newValue, min));
+    } else {
+      onChange(Math.max(Math.min(newValue, max), min));
+    }
   };
 
   return (
@@ -33,7 +41,7 @@ const Counter = ({ id, title, value, min, max, onChange }) => {
             className="form-control text-center mx-1" 
             value={value}
             min={min}
-            max={max}
+            max={max !== null && max !== undefined ? max : undefined}
             onChange={handleChange}
             style={{width: '60px', textAlign: 'center', fontSize: '1em'}}
           />

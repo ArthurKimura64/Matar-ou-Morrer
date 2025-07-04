@@ -1,19 +1,160 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Counter from './Counter';
 import CharacteristicCard from './CharacteristicCard';
 import SpecialCharacteristics from './SpecialCharacteristics';
+import AdditionalCounters from './AdditionalCounters';
 import { Utils } from '../utils/Utils';
+import { RoomService } from '../services/roomService';
+import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
 
-const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) => {
+const CharacterSheet = ({ actor, selections, gameData, localization, onReset, currentPlayer }) => {
   const [counters, setCounters] = useState({
     vida: 20,
-    esquiva: actor.DodgePoints || 0,
-    oport: actor.OportunityAttacks || 0,
-    item: actor.ExplorationItens || 0
+    vida_max: 20,
+    esquiva: 0, // Começar em 0
+    esquiva_max: 0,
+    oport: 0, // Começar em 0
+    oport_max: 0,
+    item: 0, // Começar em 0
+    item_max: 0
   });
   
   const [currentMode, setCurrentMode] = useState('mode1');
   const [usedItems, setUsedItems] = useState(new Set());
+  const [additionalCounters, setAdditionalCounters] = useState({});
+
+  // Inicializar itens usados a partir dos dados do jogador
+  useEffect(() => {
+    if (currentPlayer?.used_items) {
+      setUsedItems(new Set(currentPlayer.used_items));
+    }
+  }, [currentPlayer?.used_items]);
+
+  // Calcular características do personagem criado
+  useEffect(() => {
+    if (actor && selections && currentPlayer?.id) {
+      const newCharacteristics = {
+        attacks: 0, weapons: 0, passives: 0,
+        devices: 0, powers: 0, specials: 0, passiveSpecials: 0,
+        consumables: 0, equipment: 0, modifications: 0
+      };
+
+      // Contar características selecionadas
+      Object.entries(selections).forEach(([key, selectedItems]) => {
+        if (Array.isArray(selectedItems)) {
+          selectedItems.forEach(item => {
+            if (item.Type === 'Attack') newCharacteristics.attacks++;
+            else if (item.Type === 'Weapon') newCharacteristics.weapons++;
+            else if (item.Type === 'Passive') newCharacteristics.passives++;
+            else if (item.Type === 'Device') newCharacteristics.devices++;
+            else if (item.Type === 'Power') newCharacteristics.powers++;
+            else if (item.Type === 'SpecialAbility') newCharacteristics.specials++;
+            else if (item.Type === 'PassiveSpecialAbility') newCharacteristics.passiveSpecials++;
+            else if (item.Type === 'Consumable') newCharacteristics.consumables++;
+            else if (item.Type === 'Equipment') newCharacteristics.equipment++;
+            else if (item.Type === 'Modification') newCharacteristics.modifications++;
+          });
+        }
+      });
+
+      console.log('🎮 DEBUG - Características calculadas:', newCharacteristics);
+      console.log('🎮 DEBUG - Seleções a serem salvas:', selections);
+
+      // Definir valores dos contadores baseados no personagem (valores iniciais corretos)
+      setCounters(prev => ({
+        ...prev,
+        vida: 20, // Vida sempre começa em 20
+        vida_max: 20, // Vida máxima é sempre 20 (valor fixo do jogo)
+        esquiva: 0, // Esquiva começa em 0, não no valor máximo
+        esquiva_max: actor.DodgePoints || 0, // Valor fixo baseado no personagem
+        oport: 0, // Oportunidade começa em 0, não no valor máximo  
+        oport_max: actor.OportunityAttacks || 0, // Valor fixo baseado no personagem
+        item: 0, // Itens começa em 0, não no valor máximo
+        item_max: actor.ExplorationItens || 0 // Valor fixo baseado no personagem
+      }));
+
+      // Sincronizar com o banco de dados
+      RoomService.updatePlayerCharacteristics(currentPlayer.id, newCharacteristics);
+      
+      // Sincronizar seleções
+      RoomService.updatePlayerSelections(currentPlayer.id, selections).then(result => {
+        if (!result.success) {
+          console.error('❌ Falha ao salvar seleções:', result.error);
+        }
+      });
+
+      // Sincronizar contadores principais com o banco
+      const initialCounters = {
+        vida: 20,
+        vida_max: 20,
+        esquiva: 0,
+        esquiva_max: actor.DodgePoints || 0,
+        oport: 0,
+        oport_max: actor.OportunityAttacks || 0,
+        item: 0,
+        item_max: actor.ExplorationItens || 0
+      };
+      RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
+      
+      // Configurar contadores adicionais baseados nas SpecialCharacteristics reais
+      console.log('🎮 DEBUG - Configurando contadores adicionais para:', actor.ID);
+      console.log('🎮 DEBUG - SpecialCharacteristics do ator:', actor.SpecialCharacteristics);
+      const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
+      const additionalCountersData = getCharacterAdditionalCounters(characterName, { 
+        actor, 
+        selections, 
+        gameData, 
+        localization 
+      });
+      
+      console.log('🎮 DEBUG - Contadores recebidos:', Object.keys(additionalCountersData), additionalCountersData);
+      
+      // Verificar se já existem contadores adicionais no estado para evitar sobreposição
+      console.log('🎮 DEBUG - Contadores atuais no estado:', Object.keys(additionalCounters), additionalCounters);
+      
+      // Na ficha, os contadores especiais devem começar em 0, não no máximo
+      const resetCountersData = {};
+      Object.entries(additionalCountersData).forEach(([key, counter]) => {
+        resetCountersData[key] = {
+          ...counter,
+          current: 0 // Começar sempre em 0 na ficha
+        };
+      });
+      
+      console.log('🎮 DEBUG - Contadores resetados:', resetCountersData);
+      
+      setAdditionalCounters(resetCountersData);
+      
+      // Sincronizar contadores adicionais
+      RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actor, selections, currentPlayer?.id, localization, gameData]);
+
+  const handleCounterChange = async (id, value) => {
+    const newCounters = {
+      ...counters,
+      [id]: value
+      // IMPORTANTE: NÃO alterar o valor máximo automaticamente!
+      // O valor máximo deve ser fixo baseado nas características do personagem
+    };
+    
+    setCounters(newCounters);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerCounters(currentPlayer.id, newCounters);
+    }
+  };
+
+  const handleAdditionalCounterChange = async (newAdditionalCounters) => {
+    setAdditionalCounters(newAdditionalCounters);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, newAdditionalCounters);
+    }
+  };
 
   const itemSections = [
     { key: 'attacks', title: localization['Characteristic.Attack.Title'], color: 'danger', type: 'attack' },
@@ -25,28 +166,31 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
     { key: 'passiveSpecials', title: localization['Characteristic.PassiveSpecialAbility.Title'], color: 'warning', type: 'passiveSpecial' }
   ];
 
-  const handleCounterChange = (id, value) => {
-    setCounters(prev => ({
-      ...prev,
-      [id]: value
-    }));
-  };
-
   const handleModeChange = (mode) => {
     setCurrentMode(mode);
   };
 
-  const handleUseItem = (itemId) => {
-    setUsedItems(prev => new Set([...prev, itemId]));
+  const handleUseItem = async (itemId) => {
+    const newUsedItems = new Set([...usedItems, itemId]);
+    setUsedItems(newUsedItems);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerUsedItems(currentPlayer.id, Array.from(newUsedItems));
+    }
   };
 
-  const handleRecoverItems = (type) => {
+  const handleRecoverItems = async (type) => {
     const itemsToRecover = selections[type] || [];
-    setUsedItems(prev => {
-      const newSet = new Set(prev);
-      itemsToRecover.forEach(item => newSet.delete(item.ID));
-      return newSet;
-    });
+    const newUsedItems = new Set(usedItems);
+    itemsToRecover.forEach(item => newUsedItems.delete(item.ID));
+    
+    setUsedItems(newUsedItems);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerUsedItems(currentPlayer.id, Array.from(newUsedItems));
+    }
   };
 
   const renderItemCard = ({ item, section, isBlocked }) => {
@@ -78,7 +222,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
               {title}{isBlocked ? ' (Bloqueado neste modo)' : ''}
             </div>
             <div 
-              className="small mb-2" 
+              className="mb-2" 
               dangerouslySetInnerHTML={{ __html: desc }}
             />
             {section.useButton && !isBlocked && (
@@ -200,7 +344,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
           title={localization['Characteristic.Health'] || 'Vida'}
           value={counters.vida}
           min={0}
-          max={999}
+          max={null}
           onChange={(value) => handleCounterChange('vida', value)}
         />
         <Counter
@@ -208,7 +352,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
           title={localization['Characteristic.DodgePoints'] || 'Esquiva'}
           value={counters.esquiva}
           min={0}
-          max={10}
+          max={null}
           onChange={(value) => handleCounterChange('esquiva', value)}
         />
         <Counter
@@ -216,7 +360,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
           title={localization['Characteristic.OportunityAttack'] || 'Oportunidade'}
           value={counters.oport}
           min={0}
-          max={10}
+          max={null}
           onChange={(value) => handleCounterChange('oport', value)}
         />
         <Counter
@@ -224,7 +368,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
           title={localization['Characteristic.ExplorationItens'] || 'Itens'}
           value={counters.item}
           min={0}
-          max={99}
+          max={null}
           onChange={(value) => handleCounterChange('item', value)}
         />
       </div>
@@ -241,6 +385,13 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset }) 
         actor={actor} 
         gameData={gameData} 
         localization={localization} 
+      />
+
+      {/* Contadores Adicionais no final da ficha */}
+      <AdditionalCounters
+        additionalCounters={additionalCounters}
+        onCounterChange={handleAdditionalCounterChange}
+        playerId={currentPlayer?.id}
       />
 
       <div className="text-center mt-4">
