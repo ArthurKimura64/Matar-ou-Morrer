@@ -2043,6 +2043,63 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "AgentedoVazio",
+      "DodgePoints": 10,
+      "OportunityAttacks": 10,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 5,
+      "NumberOfPassives": 3,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d10",
+        "City": "d8",
+        "Landfill": "d10",
+        "Mountain": "d10"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.AgentedoVazio1",
+        "Weapon.AgentedoVazio2",
+        "Weapon.AgentedoVazio3",
+        "Weapon.AgentedoVazio4",
+        "Weapon.AgentedoVazio5",
+        "Weapon.AgentedoVazio6",
+        "Weapon.AgentedoVazio7",
+        "Weapon.AgentedoVazio8",
+        "Weapon.AgentedoVazio9",
+        "Weapon.AgentedoVazio10"
+      ],
+      "PassivesData": [
+        "Passive.AgentedoVazio1",
+        "Passive.AgentedoVazio2",
+        "Passive.AgentedoVazio3",
+        "Passive.AgentedoVazio4",
+        "Passive.AgentedoVazio5",
+        "Passive.AgentedoVazio6"
+      ],
+      "PowersData": [
+        "Power.AgentedoVazio1",
+        "Power.AgentedoVazio2"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.AgentedoVazio1",
+        "SpecialAbility.AgentedoVazio2"
+      ],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.AgentedoVazio1",
+        "PassiveSpecialAbility.AgentedoVazio2"
+      ],
+      "SpecialCharacteristics": [
+        "SpecialCustom.AgentedoVazio1"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -2537,6 +2594,30 @@
       "Description": "Passive.Raioroxo6.Description"
     },
     {
+      "ID": "Passive.AgentedoVazio1",
+      "Description": "Passive.AgentedoVazio1.Description"
+    },
+    {
+      "ID": "Passive.AgentedoVazio2",
+      "Description": "Passive.AgentedoVazio2.Description"
+    },
+    {
+      "ID": "Passive.AgentedoVazio3",
+      "Description": "Passive.AgentedoVazio3.Description"
+    },
+    {
+      "ID": "Passive.AgentedoVazio4",
+      "Description": "Passive.AgentedoVazio4.Description"
+    },
+    {
+      "ID": "Passive.AgentedoVazio5",
+      "Description": "Passive.AgentedoVazio5.Description"
+    },
+    {
+      "ID": "Passive.AgentedoVazio6",
+      "Description": "Passive.AgentedoVazio6.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -2639,6 +2720,14 @@
     {
       "ID": "PassiveSpecialAbility.Pressao2",
       "Description": "PassiveSpecialAbility.Pressao2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.AgentedoVazio1",
+      "Description": "PassiveSpecialAbility.AgentedoVazio1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.AgentedoVazio2",
+      "Description": "PassiveSpecialAbility.AgentedoVazio2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -4979,6 +5068,124 @@
         "Air",
         "Space"
       ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio1",
+      "Damage": "??",
+      "MinimumDistance": 2,
+      "MaximumDistance": 10,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Weapon.AgentedoVazio1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.AgentedoVazio2",
+      "Damage": 6,
+      "MinimumDistance": 3,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio3",
+      "Damage": 40,
+      "MinimumDistance": "0",
+      "MaximumDistance": "0",
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio4",
+      "Damage": 2,
+      "MinimumDistance": 4,
+      "MaximumDistance": 8,
+      "LoadTime": 2,
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio5",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 2,
+      "Dices": 5,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio6",
+      "Damage": 4,
+      "MinimumDistance": 10,
+      "MaximumDistance": 12,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio7",
+      "Damage": 18,
+      "MinimumDistance": 8,
+      "MaximumDistance": 8,
+      "LoadTime": "0",
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio8",
+      "Damage": 13,
+      "MinimumDistance": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio9",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 6,
+      "LoadTime": "0",
+      "Dices": 6,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.AgentedoVazio10",
+      "Damage": 6,
+      "MinimumDistance": 6,
+      "MaximumDistance": 8,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -7133,6 +7340,20 @@
       "Description": "Power.Onisciente8.Description"
     },
     {
+      "ID": "Power.AgentedoVazio1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.AgentedoVazio1.Description"
+    },
+    {
+      "ID": "Power.AgentedoVazio2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.AgentedoVazio2.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -7451,6 +7672,20 @@
         "BeforeAttack"
       ],
       "Description": "SpecialAbility.Raioroxo2.Description"
+    },
+    {
+      "ID": "SpecialAbility.AgentedoVazio1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.AgentedoVazio1.Description"
+    },
+    {
+      "ID": "SpecialAbility.AgentedoVazio2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.AgentedoVazio2.Description"
     }
   ],
   "SpecialDefinitions": [
@@ -7493,6 +7728,11 @@
       "ID": "SpecialCustom.Capuz1",
       "Type": "counter",
       "Title": "SpecialCustom.Capuz1.Title"
+    },
+    {
+      "ID": "SpecialCustom.AgentedoVazio1",
+      "Type": "counter",
+      "Title": "SpecialCustom.AgentedoVazio1.Title"
     }
   ]
 }
