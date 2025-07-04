@@ -1953,6 +1953,53 @@
       "SpecialCharacteristics": [
         "SpecialCustom.Capuz1"
       ]
+    },
+    {
+      "ID": "adaptado",
+      "DodgePoints": 6,
+      "OportunityAttacks": 1,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 2,
+      "NumberOfPassives": 4,
+      "NumberOfPowers": 0,
+      "NumberOfDevices": 2,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d10",
+        "Landfill": "d10",
+        "Mountain": "d6"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.adaptado1",
+        "Weapon.adaptado2",
+        "Weapon.adaptado3",
+        "Weapon.adaptado4"
+      ],
+      "PassivesData": [
+        "Passive.adaptado1",
+        "Passive.adaptado2",
+        "Passive.adaptado3",
+        "Passive.adaptado4",
+        "Passive.adaptado5",
+        "Passive.adaptado6",
+        "Passive.adaptado7",
+        "Passive.adaptado8"
+      ],
+      "PowersData": [],
+      "DevicesData": [
+        "Device.adaptado1",
+        "Device.adaptado2",
+        "Device.adaptado3",
+        "Device.adaptado4"
+      ],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2389,6 +2436,38 @@
     {
       "ID": "Passive.Dimensao4",
       "Description": "Passive.Dimensao4.Description"
+    },
+    {
+      "ID": "Passive.adaptado1",
+      "Description": "Passive.adaptado1.Description"
+    },
+    {
+      "ID": "Passive.adaptado2",
+      "Description": "Passive.adaptado2.Description"
+    },
+    {
+      "ID": "Passive.adaptado3",
+      "Description": "Passive.adaptado3.Description"
+    },
+    {
+      "ID": "Passive.adaptado4",
+      "Description": "Passive.adaptado4.Description"
+    },
+    {
+      "ID": "Passive.adaptado5",
+      "Description": "Passive.adaptado5.Description"
+    },
+    {
+      "ID": "Passive.adaptado6",
+      "Description": "Passive.adaptado6.Description"
+    },
+    {
+      "ID": "Passive.adaptado7",
+      "Description": "Passive.adaptado7.Description"
+    },
+    {
+      "ID": "Passive.adaptado8",
+      "Description": "Passive.adaptado8.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Atomico1",
@@ -4732,6 +4811,54 @@
       "Ambient": [
         "Earth"
       ]
+    },
+    {
+      "ID": "Weapon.adaptado1",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 4,
+      "LoadTime": "0",
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.adaptado2",
+      "Damage": 17,
+      "MinimumDistance": 8,
+      "MaximumDistance": 30,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.adaptado3",
+      "Damage": 19,
+      "MinimumDistance": 10,
+      "MaximumDistance": 10,
+      "LoadTime": 5,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.adaptado4",
+      "Damage": 13,
+      "MinimumDistance": 2,
+      "MaximumDistance": 8,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -5606,6 +5733,34 @@
         "BeforeAttack"
       ],
       "Description": "Device.Capuz14.Description"
+    },
+    {
+      "ID": "Device.adaptado1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.adaptado1.Description"
+    },
+    {
+      "ID": "Device.adaptado2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.adaptado2.Description"
+    },
+    {
+      "ID": "Device.adaptado3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.adaptado3.Description"
+    },
+    {
+      "ID": "Device.adaptado4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.adaptado4.Description"
     },
     {
       "ID": "Power.Impact1",
