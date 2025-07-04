@@ -2145,6 +2145,47 @@
         "PassiveSpecialAbility.MulherFantasma2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Zyua",
+      "DodgePoints": 10,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 1,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 4,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d8",
+        "City": "d10",
+        "Landfill": "d20",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Zyua1",
+        "Attack.Zyua2"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Zyua1",
+        "Power.Zyua2",
+        "Power.Zyua3",
+        "Power.Zyua4",
+        "Power.Zyua5",
+        "Power.Zyua6"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Zyua1",
+        "PassiveSpecialAbility.Zyua2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2797,6 +2838,14 @@
     {
       "ID": "PassiveSpecialAbility.MulherFantasma2",
       "Description": "PassiveSpecialAbility.MulherFantasma2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Zyua1",
+      "Description": "PassiveSpecialAbility.Zyua1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Zyua2",
+      "Description": "PassiveSpecialAbility.Zyua2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -4532,6 +4581,30 @@
       "Ambient": [
         "Earth"
       ]
+    },
+    {
+      "ID": "Attack.Zyua1",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Zyua1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Zyua2",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": "0",
+      "Dices": 6,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Zyua2.SpecialDescription"
     },
     {
       "ID": "Weapon.Caos1",
@@ -7480,6 +7553,48 @@
         "BeforeAttack"
       ],
       "Description": "Power.MulherFantasma2.Description"
+    },
+    {
+      "ID": "Power.Zyua1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Zyua1.Description"
+    },
+    {
+      "ID": "Power.Zyua2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Zyua2.Description"
+    },
+    {
+      "ID": "Power.Zyua3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Zyua3.Description"
+    },
+    {
+      "ID": "Power.Zyua4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Zyua4.Description"
+    },
+    {
+      "ID": "Power.Zyua5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Zyua5.Description"
+    },
+    {
+      "ID": "Power.Zyua6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Zyua6.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
