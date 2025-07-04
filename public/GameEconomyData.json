@@ -2100,6 +2100,51 @@
       "SpecialCharacteristics": [
         "SpecialCustom.AgentedoVazio1"
       ]
+    },
+    {
+      "ID": "MulherFantasma",
+      "DodgePoints": 15,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 2,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.MulherFantasma1",
+        "Attack.MulherFantasma2"
+      ],
+      "WeaponsData": [
+        "Weapon.MulherFantasma1",
+        "Weapon.MulherFantasma2"
+      ],
+      "PassivesData": [
+        "Passive.MulherFantasma1",
+        "Passive.MulherFantasma2",
+        "Passive.MulherFantasma3",
+        "Passive.MulherFantasma4"
+      ],
+      "PowersData": [
+        "Power.MulherFantasma1",
+        "Power.MulherFantasma2"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.MulherFantasma1",
+        "PassiveSpecialAbility.MulherFantasma2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2618,6 +2663,22 @@
       "Description": "Passive.AgentedoVazio6.Description"
     },
     {
+      "ID": "Passive.MulherFantasma1",
+      "Description": "Passive.MulherFantasma1.Description"
+    },
+    {
+      "ID": "Passive.MulherFantasma2",
+      "Description": "Passive.MulherFantasma2.Description"
+    },
+    {
+      "ID": "Passive.MulherFantasma3",
+      "Description": "Passive.MulherFantasma3.Description"
+    },
+    {
+      "ID": "Passive.MulherFantasma4",
+      "Description": "Passive.MulherFantasma4.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -2728,6 +2789,14 @@
     {
       "ID": "PassiveSpecialAbility.AgentedoVazio2",
       "Description": "PassiveSpecialAbility.AgentedoVazio2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.MulherFantasma1",
+      "Description": "PassiveSpecialAbility.MulherFantasma1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.MulherFantasma2",
+      "Description": "PassiveSpecialAbility.MulherFantasma2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -4443,6 +4512,28 @@
       "SpecialDescription": "Attack.Raioroxo4.SpecialDescription"
     },
     {
+      "ID": "Attack.MulherFantasma1",
+      "Damage": 4,
+      "MinimumDistance": 2,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.MulherFantasma2",
+      "Damage": 2,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 5,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -5185,6 +5276,29 @@
       "Ambient": [
         "Earth",
         "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.MulherFantasma1",
+      "Damage": 15,
+      "MinimumDistance": 3,
+      "MaximumDistance": 8,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.MulherFantasma2",
+      "Damage": 7,
+      "MinimumDistance": 1,
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
       ]
     }
   ],
@@ -7352,6 +7466,20 @@
         "BeforeAttack"
       ],
       "Description": "Power.AgentedoVazio2.Description"
+    },
+    {
+      "ID": "Power.MulherFantasma1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.MulherFantasma1.Description"
+    },
+    {
+      "ID": "Power.MulherFantasma2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.MulherFantasma2.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
