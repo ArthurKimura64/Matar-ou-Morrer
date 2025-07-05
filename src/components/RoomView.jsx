@@ -85,6 +85,19 @@ const RoomView = ({
       }
     }, 60000); // Verificar a cada minuto
 
+    // Limpeza automática de dados antigos a cada 10 minutos
+    const cleanupInterval = setInterval(async () => {
+      console.log('🧹 Executando limpeza automática...');
+      try {
+        const result = await RoomService.cleanupOldData();
+        if (result.success) {
+          console.log('✅ Limpeza automática concluída');
+        }
+      } catch (error) {
+        console.error('❌ Erro na limpeza automática:', error);
+      }
+    }, 10 * 60 * 1000); // 10 minutos
+
     // Listener para quando a página fica visível novamente
     const handleVisibilityChange = () => {
       if (!document.hidden) {
@@ -107,6 +120,7 @@ const RoomView = ({
         RoomService.unsubscribeFromRoom(sub);
       }
       clearInterval(connectionCheckInterval);
+      clearInterval(cleanupInterval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [room.id]);

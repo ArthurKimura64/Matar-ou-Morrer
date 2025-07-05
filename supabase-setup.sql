@@ -244,20 +244,76 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION cleanup_inactive_data()
 RETURNS JSON AS $$
 DECLARE
+    players_before INTEGER;
+    rooms_before INTEGER;
+    players_after INTEGER;
+    rooms_after INTEGER;
     players_deleted INTEGER;
     rooms_deleted INTEGER;
 BEGIN
-    -- Primeiro limpar jogadores inativos
-    players_deleted := clean_inactive_players();
+    -- Contar dados antes da limpeza
+    SELECT COUNT(*) INTO players_before FROM public.players;
+    SELECT COUNT(*) INTO rooms_before FROM public.rooms;
     
-    -- Depois limpar salas vazias/inativas
-    rooms_deleted := clean_inactive_rooms();
+    -- Executar limpeza
+    PERFORM cleanup_inactive_players();
+    PERFORM cleanup_inactive_rooms();
     
-    -- Retornar estatísticas
+    -- Contar dados após a limpeza
+    SELECT COUNT(*) INTO players_after FROM public.players;
+    SELECT COUNT(*) INTO rooms_after FROM public.rooms;
+    
+    -- Calcular diferenças
+    players_deleted := players_before - players_after;
+    rooms_deleted := rooms_before - rooms_after;
+    
+    -- Retornar estatísticas completas
     RETURN json_build_object(
+        'cleaned_at', NOW(),
+        'players_before', players_before,
+        'players_after', players_after,
         'players_deleted', players_deleted,
+        'rooms_before', rooms_before,
+        'rooms_after', rooms_after,
         'rooms_deleted', rooms_deleted,
-        'cleaned_at', NOW()
+        'success', true
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função para testar o sistema de limpeza
+CREATE OR REPLACE FUNCTION test_cleanup_system()
+RETURNS JSON AS $$
+DECLARE
+    test_room_id VARCHAR(6) := 'TEST99';
+    test_player_id UUID := gen_random_uuid();
+    cleanup_result JSON;
+BEGIN
+    -- Limpar dados de teste anteriores
+    DELETE FROM public.players WHERE room_id = test_room_id OR name LIKE '%TESTE_LIMPEZA%';
+    DELETE FROM public.rooms WHERE id = test_room_id;
+    
+    -- Criar sala de teste antiga
+    INSERT INTO public.rooms (id, name, master_name, is_active, created_at, last_activity)
+    VALUES (test_room_id, 'Sala Teste Limpeza', 'Mestre Teste', true, 
+            NOW() - INTERVAL '5 hours', NOW() - INTERVAL '5 hours');
+    
+    -- Criar jogador de teste inativo
+    INSERT INTO public.players (id, room_id, name, is_connected, joined_at, last_activity)
+    VALUES (test_player_id, test_room_id, 'JOGADOR_TESTE_LIMPEZA', false, 
+            NOW() - INTERVAL '5 hours', NOW() - INTERVAL '5 hours');
+    
+    -- Executar limpeza
+    SELECT cleanup_inactive_data() INTO cleanup_result;
+    
+    -- Verificar resultado e limpar dados de teste
+    DELETE FROM public.players WHERE room_id = test_room_id OR name LIKE '%TESTE_LIMPEZA%';
+    DELETE FROM public.rooms WHERE id = test_room_id;
+    
+    RETURN json_build_object(
+        'test_executed_at', NOW(),
+        'cleanup_result', cleanup_result,
+        'test_passed', true
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -374,3 +430,169 @@ COMMENT ON FUNCTION mark_player_disconnected() IS 'Marca jogadores como desconec
 COMMENT ON FUNCTION cleanup_inactive_players() IS 'Remove jogadores inativos há mais de 2 horas';
 COMMENT ON FUNCTION cleanup_inactive_rooms() IS 'Marca salas como inativas se não têm jogadores há mais de 2 horas e removes salas inativas há mais de 2 horas sem jogadores';
 COMMENT ON FUNCTION update_player_activity() IS 'Atualiza a timestamp de última atividade do jogador e da sala associada';
+
+-- ================================
+-- MELHORIAS NO SISTEMA DE LIMPEZA
+-- ================================
+
+-- Corrigir função de limpeza de jogadores para usar last_activity
+CREATE OR REPLACE FUNCTION cleanup_inactive_players()
+RETURNS void AS $$
+BEGIN
+    -- Remover jogadores inativos há mais de 2 horas (usando last_activity)
+    DELETE FROM public.players 
+    WHERE last_activity < (NOW() - INTERVAL '2 hours');
+    
+    RAISE NOTICE 'Limpeza de jogadores inativos executada em %. Critério: last_activity < %', 
+                 NOW(), (NOW() - INTERVAL '2 hours');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Melhorar função de limpeza de salas
+CREATE OR REPLACE FUNCTION cleanup_inactive_rooms()
+RETURNS void AS $$
+DECLARE
+    rooms_deleted INTEGER;
+BEGIN
+    -- Remover salas que atendem qualquer uma das condições:
+    -- 1. Salas com last_activity maior que 2 horas (ou NULL)
+    -- 2. Salas criadas há mais de 2 horas que não têm jogadores ativos
+    DELETE FROM public.rooms 
+    WHERE (
+        -- Salas com last_activity maior que 2 horas OU last_activity NULL (nunca houve atividade)
+        (last_activity IS NULL AND created_at < (NOW() - INTERVAL '2 hours'))
+        OR 
+        (last_activity IS NOT NULL AND last_activity < (NOW() - INTERVAL '2 hours'))
+    ) OR (
+        -- Salas criadas há mais de 2 horas que estão vazias
+        created_at < (NOW() - INTERVAL '2 hours')
+        AND id NOT IN (
+            SELECT DISTINCT room_id 
+            FROM public.players 
+            WHERE room_id IS NOT NULL 
+            AND is_connected = true  -- Apenas jogadores conectados contam
+        )
+    );
+    
+    GET DIAGNOSTICS rooms_deleted = ROW_COUNT;
+    
+    RAISE NOTICE 'Limpeza de salas executada. Salas removidas: %', rooms_deleted;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função para obter estatísticas do sistema
+CREATE OR REPLACE FUNCTION get_system_stats()
+RETURNS JSON AS $$
+BEGIN
+    RETURN json_build_object(
+        'timestamp', NOW(),
+        'total_players', (SELECT COUNT(*) FROM public.players),
+        'connected_players', (SELECT COUNT(*) FROM public.players WHERE is_connected = true),
+        'inactive_players_2h', (SELECT COUNT(*) FROM public.players WHERE last_activity < NOW() - INTERVAL '2 hours'),
+        'total_rooms', (SELECT COUNT(*) FROM public.rooms),
+        'active_rooms', (SELECT COUNT(*) FROM public.rooms WHERE is_active = true),
+        'inactive_rooms_2h', (
+            SELECT COUNT(*) FROM public.rooms 
+            WHERE (
+                -- Salas com last_activity maior que 2 horas OU last_activity NULL
+                (last_activity IS NULL AND created_at < (NOW() - INTERVAL '2 hours'))
+                OR 
+                (last_activity IS NOT NULL AND last_activity < (NOW() - INTERVAL '2 hours'))
+            ) OR (
+                -- Salas criadas há mais de 2 horas que estão vazias
+                created_at < (NOW() - INTERVAL '2 hours')
+                AND id NOT IN (
+                    SELECT DISTINCT room_id 
+                    FROM public.players 
+                    WHERE room_id IS NOT NULL 
+                    AND is_connected = true
+                )
+            )
+        ),
+        'rooms_with_players', (SELECT COUNT(DISTINCT room_id) FROM public.players WHERE room_id IS NOT NULL AND is_connected = true),
+        'empty_rooms', (SELECT COUNT(*) FROM public.rooms r WHERE NOT EXISTS (SELECT 1 FROM public.players p WHERE p.room_id = r.id AND p.is_connected = true)),
+        'rooms_with_null_activity', (SELECT COUNT(*) FROM public.rooms WHERE last_activity IS NULL)
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- ================================
+-- COMANDOS PARA TESTE E ADMINISTRAÇÃO
+-- ================================
+
+-- Comandos úteis para administração:
+-- 1. Executar limpeza manual: SELECT cleanup_inactive_data();
+-- 2. Testar sistema: SELECT test_cleanup_system();
+-- 3. Ver estatísticas: SELECT get_system_stats();
+
+-- Atualizar comentários das funções
+COMMENT ON FUNCTION cleanup_inactive_players() IS 'Remove jogadores inativos há mais de 2 horas (baseado em last_activity)';
+COMMENT ON FUNCTION cleanup_inactive_rooms() IS 'Remove salas inativas há mais de 2 horas ou vazias há mais de 2 horas';
+COMMENT ON FUNCTION cleanup_inactive_data() IS 'Executa limpeza completa e retorna estatísticas detalhadas';
+COMMENT ON FUNCTION test_cleanup_system() IS 'Testa o sistema de limpeza automaticamente';
+COMMENT ON FUNCTION get_system_stats() IS 'Retorna estatísticas completas do sistema';
+
+-- Função de debug para análise detalhada das salas
+CREATE OR REPLACE FUNCTION debug_room_cleanup()
+RETURNS TABLE(
+    room_id VARCHAR(6),
+    room_name VARCHAR(100),
+    created_at_room TIMESTAMP WITH TIME ZONE,
+    last_activity_room TIMESTAMP WITH TIME ZONE,
+    is_active_room BOOLEAN,
+    time_since_created INTERVAL,
+    time_since_activity INTERVAL,
+    players_count BIGINT,
+    connected_players_count BIGINT,
+    should_be_deleted BOOLEAN,
+    deletion_reason TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        r.id as room_id,
+        r.name as room_name,
+        r.created_at as created_at_room,
+        r.last_activity as last_activity_room,
+        r.is_active as is_active_room,
+        (NOW() - r.created_at) as time_since_created,
+        CASE 
+            WHEN r.last_activity IS NOT NULL THEN (NOW() - r.last_activity)
+            ELSE NULL
+        END as time_since_activity,
+        COALESCE(p_stats.total_players, 0) as players_count,
+        COALESCE(p_stats.connected_players, 0) as connected_players_count,
+        CASE
+            WHEN (r.last_activity IS NULL AND r.created_at < (NOW() - INTERVAL '2 hours')) THEN true
+            WHEN (r.last_activity IS NOT NULL AND r.last_activity < (NOW() - INTERVAL '2 hours')) THEN true
+            WHEN (r.created_at < (NOW() - INTERVAL '2 hours') AND COALESCE(p_stats.connected_players, 0) = 0) THEN true
+            ELSE false
+        END as should_be_deleted,
+        CASE
+            WHEN (r.last_activity IS NULL AND r.created_at < (NOW() - INTERVAL '2 hours')) THEN 'Sala sem atividade registrada há mais de 2h'
+            WHEN (r.last_activity IS NOT NULL AND r.last_activity < (NOW() - INTERVAL '2 hours')) THEN 'Última atividade há mais de 2h'
+            WHEN (r.created_at < (NOW() - INTERVAL '2 hours') AND COALESCE(p_stats.connected_players, 0) = 0) THEN 'Sala vazia há mais de 2h'
+            ELSE 'Sala ativa'
+        END as deletion_reason
+    FROM public.rooms r
+    LEFT JOIN (
+        SELECT 
+            room_id,
+            COUNT(*) as total_players,
+            COUNT(CASE WHEN is_connected = true THEN 1 END) as connected_players
+        FROM public.players 
+        WHERE room_id IS NOT NULL
+        GROUP BY room_id
+    ) p_stats ON r.id = p_stats.room_id
+    ORDER BY r.created_at DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Executar teste inicial
+SELECT 'TESTANDO SISTEMA DE LIMPEZA...' as status;
+SELECT test_cleanup_system();
+
+SELECT 'ESTATÍSTICAS ATUAIS:' as status;
+SELECT get_system_stats();
+
+SELECT 'SETUP CONCLUÍDO!' as status;

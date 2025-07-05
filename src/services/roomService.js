@@ -1,4 +1,4 @@
-import { supabase, connectionMonitor } from './supabaseClient';
+import { supabase } from './supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 
 export class RoomService {
@@ -53,8 +53,20 @@ export class RoomService {
   // Entrar em uma sala
   static async joinRoom(roomId, playerName, character = null) {
     try {
+      console.log('🚪 Tentando entrar na sala:', roomId, 'como jogador:', playerName);
+      
+      // Primeiro, verificar se o jogador já existe na sala
+      const existingResult = await this.findExistingPlayer(roomId, playerName);
+      
+      if (existingResult.success && existingResult.player) {
+        console.log('🔄 Jogador existente encontrado, reconectando:', existingResult.player.id);
+        // Reconectar jogador existente
+        return await this.reconnectPlayer(existingResult.player.id);
+      }
+      
+      // Se não existe, criar novo jogador
+      console.log('🆕 Criando novo jogador na sala');
       const playerId = uuidv4();
-      console.log('Tentando entrar na sala:', roomId, 'como jogador:', playerName);
       
       const { data, error } = await supabase
         .from('players')
@@ -67,7 +79,8 @@ export class RoomService {
             status: 'selecting',
             character_name: null,
             is_connected: true,
-            joined_at: new Date().toISOString()
+            joined_at: new Date().toISOString(),
+            last_activity: new Date().toISOString()
           }
         ])
         .select()
@@ -75,10 +88,10 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('Jogador adicionado com sucesso:', data);
+      console.log('✅ Novo jogador criado com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
-      console.error('Erro ao entrar na sala:', error);
+      console.error('❌ Erro ao entrar na sala:', error);
       return { success: false, error: error.message };
     }
   }
@@ -494,6 +507,62 @@ export class RoomService {
       return { success: true };
     } catch (error) {
       console.error('Erro ao atualizar atividade do jogador:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Verificar se jogador já existe na sala
+  static async findExistingPlayer(roomId, playerName) {
+    try {
+      console.log('🔍 Verificando jogador existente:', playerName, 'na sala:', roomId);
+      
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('room_id', roomId)
+        .eq('name', playerName)
+        .order('joined_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        throw error;
+      }
+
+      if (data) {
+        console.log('✅ Jogador existente encontrado:', data.id);
+      } else {
+        console.log('🆕 Nenhum jogador existente encontrado');
+      }
+
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('❌ Erro ao verificar jogador existente:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Reconectar jogador existente
+  static async reconnectPlayer(playerId) {
+    try {
+      console.log('🔄 Reconectando jogador:', playerId);
+      
+      const { data, error } = await supabase
+        .from('players')
+        .update({ 
+          is_connected: true,
+          last_activity: new Date().toISOString()
+        })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('✅ Jogador reconectado com sucesso:', data);
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('❌ Erro ao reconectar jogador:', error);
       return { success: false, error: error.message };
     }
   }

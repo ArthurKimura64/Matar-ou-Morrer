@@ -4,7 +4,9 @@ import CharacterBuilder from './components/CharacterBuilder';
 import CharacterSheet from './components/CharacterSheet';
 import RoomLobby from './components/RoomLobby';
 import RoomView from './components/RoomView';
+import AdminPanel from './components/AdminPanel';
 import { RoomService } from './services/roomService';
+import { PlayerPersistence } from './utils/playerPersistence';
 import './App.css';
 
 function App() {
@@ -18,6 +20,26 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Verificar se a URL contém "admin" para mostrar o painel escondido
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'true' || window.location.pathname.includes('admin')) {
+      setCurrentView('admin');
+      return;
+    }
+    
+    // Verificar se há dados de jogador salvos para reconexão
+    const savedData = PlayerPersistence.getPlayerData();
+    if (savedData && PlayerPersistence.validateSavedData()) {
+      console.log('🔄 Dados salvos encontrados, tentando reconectar...');
+      handleReconnectPlayer(savedData);
+    }
+    
+    // Salvar configurações do Supabase no localStorage para o painel de admin
+    if (process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY) {
+      localStorage.setItem('supabase_url', process.env.REACT_APP_SUPABASE_URL);
+      localStorage.setItem('supabase_key', process.env.REACT_APP_SUPABASE_ANON_KEY);
+    }
+    
     Promise.all([
       fetch("GameEconomyData.json").then(r => r.json()),
       fetch("LocalizationPortuguese.json").then(r => r.json())
@@ -58,6 +80,9 @@ function App() {
         setCurrentRoom(result.room);
         setCurrentPlayer(playerResult.player);
         setCurrentView('room');
+        
+        // Salvar dados para persistência
+        PlayerPersistence.savePlayerData(playerResult.player, result.room);
       }
     } else {
       alert('Erro ao criar sala: ' + result.error);
@@ -78,6 +103,9 @@ function App() {
           setCurrentRoom(room);
           setCurrentPlayer(result.player);
           setCurrentView('room');
+          
+          // Salvar dados para persistência
+          PlayerPersistence.savePlayerData(result.player, room);
         } else {
           alert('Sala não encontrada ou inativa');
         }
@@ -89,6 +117,9 @@ function App() {
   };
 
   const handleLeaveRoom = () => {
+    // Limpar dados salvos quando sair definitivamente da sala
+    PlayerPersistence.clearPlayerData();
+    
     setCurrentRoom(null);
     setCurrentPlayer(null);
     setCurrentView('lobby');
@@ -96,6 +127,49 @@ function App() {
 
   const handleSoloPlay = () => {
     setCurrentView('selection');
+  };
+
+  // Função para tentar reconectar jogador salvo
+  const handleReconnectPlayer = async (savedData) => {
+    try {
+      setLoading(true);
+      console.log('🔄 Tentando reconectar jogador:', savedData.player.name, 'na sala:', savedData.room.id);
+      
+      // Verificar se a sala ainda existe e está ativa
+      const roomsResult = await RoomService.getActiveRooms();
+      if (!roomsResult.success) {
+        console.log('❌ Erro ao verificar salas, limpando dados salvos');
+        PlayerPersistence.clearPlayerData();
+        return;
+      }
+      
+      const room = roomsResult.rooms.find(r => r.id === savedData.room.id);
+      if (!room) {
+        console.log('🗑️ Sala não encontrada, limpando dados salvos');
+        PlayerPersistence.clearPlayerData();
+        return;
+      }
+      
+      // Tentar reconectar o jogador
+      const reconnectResult = await RoomService.reconnectPlayer(savedData.player.id);
+      if (reconnectResult.success) {
+        console.log('✅ Jogador reconectado com sucesso');
+        setCurrentRoom(room);
+        setCurrentPlayer(reconnectResult.player);
+        setCurrentView('room');
+        
+        // Atualizar dados salvos com informações mais recentes
+        PlayerPersistence.updatePlayerData(reconnectResult.player);
+      } else {
+        console.log('❌ Falha ao reconectar, limpando dados salvos');
+        PlayerPersistence.clearPlayerData();
+      }
+    } catch (error) {
+      console.error('❌ Erro na reconexão:', error);
+      PlayerPersistence.clearPlayerData();
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!gameData || !localization) {
@@ -232,6 +306,54 @@ function App() {
           onReset={handleReset}
         />
       )}
+
+      {/* Painel de Administração Escondido */}
+      {currentView === 'admin' && (
+        <>
+          <div className="row">
+            <div className="col-12 text-center mb-4">
+              <img 
+                src="KillOrDieLogo.png"
+                alt="Matar ou Morrer" 
+                className="img-fluid rounded mx-auto d-block my-3"
+                style={{maxHeight: '200px'}} 
+              />
+              <h2 className="text-white">🛠️ Painel de Administração</h2>
+              <p className="text-light">Sistema de monitoramento e limpeza automática</p>
+            </div>
+          </div>
+          
+          <div className="row">
+            <div className="col-12">
+              <AdminPanel />
+            </div>
+          </div>
+          
+          <div className="row mt-4">
+            <div className="col-12 text-center">
+              <button 
+                className="btn btn-outline-light btn-lg"
+                onClick={() => {
+                  setCurrentView('menu');
+                  window.history.pushState({}, '', '/');
+                }}
+              >
+                ← Voltar ao Jogo Principal
+              </button>
+            </div>
+          </div>
+          
+          <div className="row mt-4">
+            <div className="col-12">
+              <div className="alert alert-warning" role="alert">
+                <strong>⚠️ Página Restrita:</strong> Esta página é destinada apenas para administradores do sistema.
+                Use com cuidado ao executar limpezas manuais.
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
     </div>
   );
 }

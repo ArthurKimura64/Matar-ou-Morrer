@@ -21,7 +21,16 @@ O sistema de salas permite que múltiplos jogadores se conectem para criar perso
 
 1. No painel do Supabase, vá em **SQL Editor**
 2. Copie e execute o conteúdo do arquivo `supabase-setup.sql`
-3. Isso criará as tabelas `rooms` e `players` com as políticas necessárias
+3. Isso criará as tabelas `rooms` e `players` com:
+   - Políticas de segurança necessárias
+   - Sistema de limpeza automática integrado
+   - Funções de teste e monitoramento
+   - Triggers para atualização automática de atividade
+
+**✅ Após executar o SQL, você verá:**
+- Tabelas criadas com sucesso
+- Teste automático do sistema de limpeza
+- Estatísticas iniciais do sistema
 
 **⚠️ Se receber erro de "policy already exists":**
 - Use o arquivo `supabase-fix-policies.sql` primeiro
@@ -90,6 +99,44 @@ O Vercel fará o deploy automaticamente a cada push no repositório.
 - ✅ Interface responsiva
 - ✅ Código de sala simples (6 dígitos)
 - ✅ Desconexão automática ao sair
+- ✅ **Sistema de limpeza automática integrado**
+- ✅ **Painel de administração com estatísticas**
+- ✅ **Monitoramento de atividade dos jogadores**
+
+## 🧹 Sistema de Limpeza Automática
+
+O sistema inclui limpeza automática para manter o banco organizado:
+
+### Como funciona:
+- **Jogadores inativos**: Removidos automaticamente após 2 horas de inatividade
+- **Salas vazias**: Marcadas como inativas e removidas se ficarem vazias por 2+ horas
+- **Execução automática**: A cada 10 minutos em salas ativas
+- **Monitoramento**: Painel de administração com estatísticas em tempo real
+
+### Comandos para teste (SQL Editor do Supabase):
+```sql
+-- Ver estatísticas do sistema
+SELECT get_system_stats();
+
+-- Executar limpeza manual
+SELECT cleanup_inactive_data();
+
+-- Testar sistema de limpeza
+SELECT test_cleanup_system();
+```
+
+### Painel de Administração:
+1. **Via React**: Acesse `http://localhost:3000?admin=true`
+2. **Via HTML**: Acesse `http://localhost:3000/admin.html`
+3. Veja estatísticas em tempo real
+4. Execute limpeza manual quando necessário
+5. Monitore jogadores e salas inativos
+
+### Configuração das Credenciais:
+- **Automática**: As credenciais são herdadas do `.env.local` da aplicação React
+- **Manual**: Crie `public/env-config.json` com suas credenciais (use `env-config.json.example` como modelo)
+
+**⚠️ Nota:** O painel de administração está disponível em páginas separadas para manter a interface principal limpa.
 
 ### 🚀 Possíveis melhorias futuras:
 
