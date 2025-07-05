@@ -2282,6 +2282,59 @@
         "PassiveSpecialAbility.Eterno 2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Stratton",
+      "DodgePoints": 3,
+      "OportunityAttacks": 3,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 4,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d20",
+        "Landfill": "d10",
+        "Mountain": "d12"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Stratton1",
+        "Attack.Stratton2",
+        "Attack.Stratton3",
+        "Attack.Stratton4",
+        "Attack.Stratton5",
+        "Attack.Stratton6",
+        "Attack.Stratton7",
+        "Attack.Stratton8"
+      ],
+      "WeaponsData": [
+        "Weapon.Stratton1",
+        "Weapon.Stratton2"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Stratton1",
+        "Power.Stratton2",
+        "Power.Stratton3",
+        "Power.Stratton4",
+        "Power.Stratton5",
+        "Power.Stratton6"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Stratton1",
+        "SpecialAbility.Stratton2"
+      ],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Stratton1",
+        "PassiveSpecialAbility.Stratton2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2950,6 +3003,14 @@
     {
       "ID": "PassiveSpecialAbility.Eterno 2",
       "Description": "PassiveSpecialAbility.Eterno 2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Stratton1",
+      "Description": "PassiveSpecialAbility.Stratton1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Stratton2",
+      "Description": "PassiveSpecialAbility.Stratton2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -4751,6 +4812,101 @@
       ]
     },
     {
+      "ID": "Attack.Stratton1",
+      "Damage": 10,
+      "MinimumDistance": 4,
+      "MaximumDistance": 10,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Stratton2",
+      "Damage": "??",
+      "MinimumDistance": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Stratton2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Stratton3",
+      "Damage": 13,
+      "MinimumDistance": 6,
+      "MaximumDistance": 12,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.Stratton4",
+      "Damage": 10,
+      "MinimumDistance": 9,
+      "MaximumDistance": 20,
+      "LoadTime": 3,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Stratton5",
+      "Damage": 18,
+      "MinimumDistance": 12,
+      "MaximumDistance": 30,
+      "LoadTime": 4,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Attack.Stratton6",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Stratton6.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Stratton7",
+      "Damage": 4,
+      "MinimumDistance": 7,
+      "MaximumDistance": 15,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Stratton7.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Stratton8",
+      "Damage": 8,
+      "MinimumDistance": 8,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -5599,6 +5755,28 @@
         "Space"
       ],
       "SpecialDescription": "Weapon.Eterno 2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Stratton1",
+      "Damage": 4,
+      "MinimumDistance": 3,
+      "MaximumDistance": 6,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Stratton2",
+      "Damage": 2,
+      "MinimumDistance": 2,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 6,
+      "Ambient": [
+        "Earth"
+      ]
     }
   ],
   "ConsumableDefinitions": [
@@ -7928,6 +8106,48 @@
       "Description": "Power.Eterno 2.Description"
     },
     {
+      "ID": "Power.Stratton1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Stratton1.Description"
+    },
+    {
+      "ID": "Power.Stratton2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Stratton2.Description"
+    },
+    {
+      "ID": "Power.Stratton3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Stratton3.Description"
+    },
+    {
+      "ID": "Power.Stratton4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Stratton4.Description"
+    },
+    {
+      "ID": "Power.Stratton5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Stratton5.Description"
+    },
+    {
+      "ID": "Power.Stratton6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Stratton6.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -8302,6 +8522,20 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Eterno 2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Stratton1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Stratton1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Stratton2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Stratton2.Description"
     }
   ],
   "SpecialDefinitions": [
