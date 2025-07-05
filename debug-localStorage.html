@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug localStorage</title>
+</head>
+<body>
+    <h1>Debug localStorage - Kill or Die</h1>
+    
+    <h2>Dados Salvos:</h2>
+    <div id="dados"></div>
+    
+    <h2>Ações:</h2>
+    <button onclick="mostrarDados()">Mostrar Dados</button>
+    <button onclick="limparDados()">Limpar Dados</button>
+    <button onclick="testarReconexao()">Testar Reconexão</button>
+    
+    <pre id="output" style="background: #f0f0f0; padding: 10px; margin-top: 20px;"></pre>
+
+    <script>
+        function log(msg) {
+            document.getElementById('output').innerHTML += msg + '\n';
+        }
+        
+        function mostrarDados() {
+            log('=== DADOS DO LOCALSTORAGE ===');
+            
+            const player = localStorage.getItem('killOrDie_currentPlayer');
+            const room = localStorage.getItem('killOrDie_currentRoom');
+            const appState = localStorage.getItem('killOrDie_appState');
+            const sessionId = localStorage.getItem('killOrDie_sessionId');
+            
+            log('Player: ' + (player || 'null'));
+            log('Room: ' + (room || 'null'));
+            log('AppState: ' + (appState || 'null'));
+            log('SessionId: ' + (sessionId || 'null'));
+            
+            if (player) {
+                try {
+                    const playerData = JSON.parse(player);
+                    log('Player ID: ' + playerData.id);
+                    log('Player Name: ' + playerData.name);
+                } catch (e) {
+                    log('Erro ao parsear player: ' + e.message);
+                }
+            }
+            
+            if (appState) {
+                try {
+                    const stateData = JSON.parse(appState);
+                    log('Current View: ' + stateData.currentView);
+                    log('Selected Actor: ' + (stateData.selectedActor ? stateData.selectedActor.name : 'null'));
+                    log('Has Selections: ' + !!stateData.characterSelections);
+                } catch (e) {
+                    log('Erro ao parsear appState: ' + e.message);
+                }
+            }
+            
+            log('=========================\n');
+        }
+        
+        function limparDados() {
+            localStorage.removeItem('killOrDie_currentPlayer');
+            localStorage.removeItem('killOrDie_currentRoom');
+            localStorage.removeItem('killOrDie_appState');
+            localStorage.removeItem('killOrDie_sessionId');
+            log('Dados limpos!\n');
+        }
+        
+        function testarReconexao() {
+            // Simular dados de teste
+            const testPlayer = {
+                id: 'test-player-id',
+                name: 'TestPlayer',
+                room_id: 'test-room-id'
+            };
+            
+            const testRoom = {
+                id: 'test-room-id',
+                name: 'Test Room'
+            };
+            
+            const testAppState = {
+                currentView: 'builder',
+                selectedActor: { name: 'TestActor' },
+                characterSelections: { test: 'data' },
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('killOrDie_currentPlayer', JSON.stringify(testPlayer));
+            localStorage.setItem('killOrDie_currentRoom', JSON.stringify(testRoom));
+            localStorage.setItem('killOrDie_appState', JSON.stringify(testAppState));
+            
+            log('Dados de teste criados! Recarregue a página principal.\n');
+        }
+        
+        // Mostrar dados automaticamente ao carregar
+        window.onload = mostrarDados;
+    </script>
+</body>
+</html>

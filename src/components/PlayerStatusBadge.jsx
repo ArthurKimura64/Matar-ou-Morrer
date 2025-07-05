@@ -1,11 +1,11 @@
 import React from 'react';
 
-const PlayerStatusBadge = ({ player, isCurrentPlayer = false }) => {
+const PlayerStatusBadge = ({ player, isCurrentPlayer = false, localization = {} }) => {
   const getStatusInfo = () => {
     switch (player.status) {
       case 'selecting':
         return {
-          text: 'Selecionando Personagem',
+          text: localization['UI.PlayerStatus.WaitingSelection'] || 'UI.PlayerStatus.WaitingSelection',
           bgColor: 'bg-secondary',
           textColor: 'text-white',
           icon: '🔍'
@@ -13,22 +13,22 @@ const PlayerStatusBadge = ({ player, isCurrentPlayer = false }) => {
       case 'creating':
         return {
           text: player.character_name 
-            ? `Criando personagem (${player.character_name})`
-            : 'Criando personagem',
+            ? `${localization['UI.PlayerStatus.CreatingCharacter'] || 'UI.PlayerStatus.CreatingCharacter'} (${player.character_name})`
+            : (localization['UI.PlayerStatus.CreatingCharacter'] || 'UI.PlayerStatus.CreatingCharacter'),
           bgColor: 'bg-warning',
           textColor: 'text-dark',
           icon: '⚙️'
         };
       case 'ready':
         return {
-          text: player.character_name || 'Pronto',
+          text: player.character_name || (localization['UI.PlayerStatus.Ready'] || 'UI.PlayerStatus.Ready'),
           bgColor: 'bg-success',
           textColor: 'text-white',
           icon: '✅'
         };
       default:
         return {
-          text: 'Desconhecido',
+          text: localization['UI.PlayerStatus.Unknown'] || 'UI.PlayerStatus.Unknown',
           bgColor: 'bg-dark',
           textColor: 'text-white',
           icon: '❓'
@@ -43,7 +43,7 @@ const PlayerStatusBadge = ({ player, isCurrentPlayer = false }) => {
       <span>{statusInfo.icon}</span>
       <span className="">{statusInfo.text}</span>
       {isCurrentPlayer && (
-        <span className="badge bg-primary ms-1">Você</span>
+        <span className="badge bg-primary ms-1">{localization['UI.You'] || 'UI.You'}</span>
       )}
     </div>
   );

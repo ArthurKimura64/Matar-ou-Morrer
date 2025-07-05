@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CharacterSelection from './components/CharacterSelection';
 import CharacterBuilder from './components/CharacterBuilder';
 import CharacterSheet from './components/CharacterSheet';
@@ -18,6 +18,144 @@ function App() {
   const [currentRoom, setCurrentRoom] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [loading, setLoading] = useState(false);
+  // Estado para controlar a view interna do RoomView
+  const [roomInternalView, setRoomInternalView] = useState('lobby');
+  const [isRestoringState, setIsRestoringState] = useState(false);
+
+  // Função para salvar estado completo no banco
+  const saveCompleteState = useCallback(async () => {
+    if (currentRoom && currentPlayer) {
+      const completeState = {
+        currentView: currentView,
+        roomInternalView: roomInternalView,
+        selectedActor: selectedActor,
+        characterSelections: characterSelections,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log('💾 SALVANDO ESTADO NO BANCO:', {
+        playerId: currentPlayer.id,
+        view: completeState.currentView,
+        internalView: completeState.roomInternalView,
+        actor: completeState.selectedActor?.name || 'null',
+        hasSelections: !!completeState.characterSelections
+      });
+      
+      // Salvar no banco E no localStorage como backup
+      const result = await RoomService.updatePlayerAppState(currentPlayer.id, completeState);
+      if (result.success) {
+        console.log('✅ Estado salvo no banco com sucesso');
+        // Também salvar no localStorage como backup
+        PlayerPersistence.saveAppState(completeState);
+      } else {
+        console.error('❌ Erro ao salvar no banco, salvando apenas no localStorage');
+        PlayerPersistence.saveAppState(completeState);
+      }
+    } else {
+      console.log('⚠️ Não salvando estado - falta room ou player');
+    }
+  }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer]);
+
+  // Função para tentar reconectar jogador salvo
+  const handleReconnectPlayer = async (savedData, savedAppState) => {
+    try {
+      setLoading(true);
+      setIsRestoringState(true);
+      console.log('🔄 INICIANDO RECONEXÃO:', savedData.player.name, 'na sala:', savedData.room.id);
+      
+      // Verificar se a sala ainda existe e está ativa
+      const roomsResult = await RoomService.getActiveRooms();
+      if (!roomsResult.success) {
+        console.log('❌ Erro ao verificar salas, limpando dados salvos');
+        PlayerPersistence.clearPlayerData();
+        return;
+      }
+      
+      const room = roomsResult.rooms.find(r => r.id === savedData.room.id);
+      if (!room) {
+        console.log('🗑️ Sala não encontrada, limpando dados salvos');
+        PlayerPersistence.clearPlayerData();
+        return;
+      }
+      
+      // Tentar reconectar o jogador
+      const reconnectResult = await RoomService.reconnectPlayer(savedData.player.id);
+      if (reconnectResult.success) {
+        console.log('✅ JOGADOR RECONECTADO, dados do banco:', reconnectResult.player);
+        
+        // Definir sala e jogador primeiro
+        setCurrentRoom(room);
+        setCurrentPlayer(reconnectResult.player);
+        
+        // PRIORIDADE: Estado do banco (app_state) > localStorage
+        let stateToRestore = null;
+        
+        if (reconnectResult.player.app_state && 
+            reconnectResult.player.app_state.timestamp) {
+          console.log('🎯 USANDO ESTADO DO BANCO:', reconnectResult.player.app_state);
+          stateToRestore = reconnectResult.player.app_state;
+        } else if (savedAppState) {
+          console.log('� USANDO ESTADO DO LOCALSTORAGE:', savedAppState);
+          stateToRestore = savedAppState;
+        }
+        
+        if (stateToRestore) {
+          console.log('🔄 RESTAURANDO ESTADO:', stateToRestore);
+          
+          // Restaurar tudo de uma vez
+          if (stateToRestore.selectedActor) {
+            console.log('📖 DEFININDO ACTOR:', stateToRestore.selectedActor.name);
+            setSelectedActor(stateToRestore.selectedActor);
+          }
+          
+          if (stateToRestore.characterSelections) {
+            console.log('📖 DEFININDO SELECTIONS');
+            setCharacterSelections(stateToRestore.characterSelections);
+          }
+          
+          // Definir views
+          if (stateToRestore.roomInternalView) {
+            console.log('📖 DEFININDO INTERNAL VIEW:', stateToRestore.roomInternalView);
+            setRoomInternalView(stateToRestore.roomInternalView);
+          }
+          
+          // Sempre ir para 'room' no App, o RoomView controla internamente
+          console.log('📖 DEFININDO CURRENT VIEW: room');
+          setCurrentView('room');
+          
+          console.log('✅ ESTADO RESTAURADO:', {
+            view: 'room',
+            internalView: stateToRestore.roomInternalView,
+            actor: stateToRestore.selectedActor?.name,
+            hasSelections: !!stateToRestore.characterSelections
+          });
+        } else {
+          console.log('📭 NENHUM ESTADO ENCONTRADO - indo para lobby');
+          setRoomInternalView('lobby');
+          setCurrentView('room');
+        }
+        
+        // Atualizar dados salvos com informações mais recentes
+        PlayerPersistence.updatePlayerData(reconnectResult.player);
+      } else {
+        console.log('❌ Falha ao reconectar, limpando dados salvos');
+        PlayerPersistence.clearPlayerData();
+      }
+    } catch (error) {
+      console.error('❌ Erro na reconexão:', error);
+      PlayerPersistence.clearPlayerData();
+    } finally {
+      setLoading(false);
+      setIsRestoringState(false);
+    }
+  };
+
+  // useEffect para salvar estado sempre que mudanças importantes acontecerem
+  useEffect(() => {
+    if (!isRestoringState && currentRoom && currentPlayer) {
+      saveCompleteState();
+    }
+  }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer, isRestoringState, saveCompleteState]);
 
   useEffect(() => {
     // Verificar se a URL contém "admin" para mostrar o painel escondido
@@ -27,11 +165,18 @@ function App() {
       return;
     }
     
+    // Gerar ID de sessão para controlar múltiplas abas
+    if (!PlayerPersistence.isSameSession()) {
+      PlayerPersistence.generateSessionId();
+    }
+    
     // Verificar se há dados de jogador salvos para reconexão
     const savedData = PlayerPersistence.getPlayerData();
+    const savedAppState = PlayerPersistence.getAppState();
+    
     if (savedData && PlayerPersistence.validateSavedData()) {
       console.log('🔄 Dados salvos encontrados, tentando reconectar...');
-      handleReconnectPlayer(savedData);
+      handleReconnectPlayer(savedData, savedAppState);
     }
     
     // Salvar configurações do Supabase no localStorage para o painel de admin
@@ -54,11 +199,17 @@ function App() {
   const handleCharacterSelect = (actor) => {
     setSelectedActor(actor);
     setCurrentView('builder');
+    
+    // Salvar estado completo com timeout para garantir que foi atualizado
+    setTimeout(saveCompleteState, 100);
   };
 
   const handleCharacterCreate = (selections) => {
     setCharacterSelections(selections);
     setCurrentView('sheet');
+    
+    // Salvar estado completo com timeout para garantir que foi atualizado
+    setTimeout(saveCompleteState, 100);
   };
 
   const handleReset = () => {
@@ -80,6 +231,7 @@ function App() {
         setCurrentRoom(result.room);
         setCurrentPlayer(playerResult.player);
         setCurrentView('room');
+        setRoomInternalView('lobby'); // Inicializar view interna
         
         // Salvar dados para persistência
         PlayerPersistence.savePlayerData(playerResult.player, result.room);
@@ -92,7 +244,8 @@ function App() {
 
   const handleJoinRoom = async (roomId, playerName) => {
     setLoading(true);
-    const result = await RoomService.joinRoom(roomId, playerName);
+    // Forçar criação de novo jogador sempre que entrar manualmente na sala
+    const result = await RoomService.joinRoom(roomId, playerName, null, true);
     
     if (result.success) {
       // Buscar dados da sala
@@ -103,9 +256,11 @@ function App() {
           setCurrentRoom(room);
           setCurrentPlayer(result.player);
           setCurrentView('room');
+          setRoomInternalView('lobby'); // Inicializar view interna
           
           // Salvar dados para persistência
           PlayerPersistence.savePlayerData(result.player, room);
+          setTimeout(saveCompleteState, 100);
         } else {
           alert('Sala não encontrada ou inativa');
         }
@@ -116,12 +271,21 @@ function App() {
     setLoading(false);
   };
 
-  const handleLeaveRoom = () => {
+  const handleLeaveRoom = async () => {
+    // Remover jogador do banco de dados quando sair definitivamente
+    if (currentPlayer) {
+      console.log('🚪 Jogador saindo da sala:', currentPlayer.id);
+      await RoomService.leaveRoom(currentPlayer.id);
+    }
+    
     // Limpar dados salvos quando sair definitivamente da sala
     PlayerPersistence.clearPlayerData();
     
     setCurrentRoom(null);
     setCurrentPlayer(null);
+    setSelectedActor(null);
+    setCharacterSelections(null);
+    setRoomInternalView('lobby');
     setCurrentView('lobby');
   };
 
@@ -129,57 +293,14 @@ function App() {
     setCurrentView('selection');
   };
 
-  // Função para tentar reconectar jogador salvo
-  const handleReconnectPlayer = async (savedData) => {
-    try {
-      setLoading(true);
-      console.log('🔄 Tentando reconectar jogador:', savedData.player.name, 'na sala:', savedData.room.id);
-      
-      // Verificar se a sala ainda existe e está ativa
-      const roomsResult = await RoomService.getActiveRooms();
-      if (!roomsResult.success) {
-        console.log('❌ Erro ao verificar salas, limpando dados salvos');
-        PlayerPersistence.clearPlayerData();
-        return;
-      }
-      
-      const room = roomsResult.rooms.find(r => r.id === savedData.room.id);
-      if (!room) {
-        console.log('🗑️ Sala não encontrada, limpando dados salvos');
-        PlayerPersistence.clearPlayerData();
-        return;
-      }
-      
-      // Tentar reconectar o jogador
-      const reconnectResult = await RoomService.reconnectPlayer(savedData.player.id);
-      if (reconnectResult.success) {
-        console.log('✅ Jogador reconectado com sucesso');
-        setCurrentRoom(room);
-        setCurrentPlayer(reconnectResult.player);
-        setCurrentView('room');
-        
-        // Atualizar dados salvos com informações mais recentes
-        PlayerPersistence.updatePlayerData(reconnectResult.player);
-      } else {
-        console.log('❌ Falha ao reconectar, limpando dados salvos');
-        PlayerPersistence.clearPlayerData();
-      }
-    } catch (error) {
-      console.error('❌ Erro na reconexão:', error);
-      PlayerPersistence.clearPlayerData();
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (!gameData || !localization) {
     return (
       <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">{localization?.['UI.Loading'] || 'UI.Loading'}</span>
           </div>
-          <p className="mt-2">Carregando dados do jogo...</p>
+          <p className="mt-2">{localization?.['UI.Loading.Game'] || 'UI.Loading.Game'}</p>
         </div>
       </div>
     );
@@ -242,6 +363,7 @@ function App() {
           onCreateRoom={handleCreateRoom}
           onJoinRoom={handleJoinRoom}
           onBack={() => setCurrentView('menu')}
+          localization={localization}
         />
       )}
 
@@ -253,6 +375,28 @@ function App() {
           gameData={gameData}
           localization={localization}
           onLeaveRoom={handleLeaveRoom}
+          // Passar estados do App para o RoomView
+          initialView={roomInternalView}
+          initialSelectedActor={selectedActor}
+          initialCharacterSelections={characterSelections}
+          onViewChange={(view) => {
+            console.log('🔄 View mudou no RoomView:', view);
+            setRoomInternalView(view);
+            // Salvar estado completo quando view muda
+            setTimeout(saveCompleteState, 100);
+          }}
+          onActorChange={(actor) => {
+            console.log('🔄 Actor mudou no RoomView:', actor?.name);
+            setSelectedActor(actor);
+            // Salvar estado completo quando actor muda
+            setTimeout(saveCompleteState, 100);
+          }}
+          onSelectionsChange={(selections) => {
+            console.log('🔄 Selections mudaram no RoomView');
+            setCharacterSelections(selections);
+            // Salvar estado completo quando selections mudam
+            setTimeout(saveCompleteState, 100);
+          }}
         />
       )}
 

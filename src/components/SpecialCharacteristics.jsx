@@ -25,7 +25,7 @@ const SpecialCharacteristics = ({ actor, gameData, localization }) => {
     const spec = gameData.SpecialDefinitions?.find(s => s.ID === specialId);
     if (!spec) return null;
 
-    const title = localization[spec.Title] || spec.Title || 'Característica Especial';
+    const title = localization[spec.Title] || spec.Title || (localization['UI.SpecialCharacteristics.Default'] || 'UI.SpecialCharacteristics.Default');
 
     // Apenas renderizar tipos que NÃO são 'counter' (contadores são gerenciados pelo AdditionalCounters)
     if (spec.Type === 'textbox') {
@@ -41,7 +41,7 @@ const SpecialCharacteristics = ({ actor, gameData, localization }) => {
                 <textarea
                   rows="4"
                   className="form-control w-75 mb-2 rounded shadow-sm"
-                  placeholder={spec.Placeholder || 'Digite aqui...'}
+                  placeholder={spec.Placeholder || (localization['UI.SpecialCharacteristics.Placeholder'] || 'UI.SpecialCharacteristics.Placeholder')}
                   value={textboxValues[specialId] || ''}
                   onChange={(e) => handleTextboxChange(specialId, e.target.value)}
                 />

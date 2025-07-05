@@ -207,7 +207,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           : Utils.createAttackDescription(item, localization, currentMode))
       : (Utils.modeSystem.hasModes(actor) && ['power', 'passive', 'special', 'passiveSpecial'].includes(section.type)
           ? Utils.createModeRestrictedDescription(item, localization, actor)
-          : localization[item.Description] || "");
+          : localization[item.Description] || item.Description || "");
 
     const isUsed = usedItems.has(item.ID);
 
@@ -219,7 +219,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         >
           <div className="card-body p-2">
             <div className={`fw-bold text-${section.color} mb-1`}>
-              {title}{isBlocked ? ' (Bloqueado neste modo)' : ''}
+              {title}{isBlocked ? ` (${localization['UI.CharacterSheet.ModeRestricted'] || 'UI.CharacterSheet.ModeRestricted'})` : ''}
             </div>
             <div 
               className="mb-2" 
@@ -231,7 +231,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                 disabled={isUsed}
                 onClick={() => handleUseItem(item.ID)}
               >
-                {isUsed ? 'Usado' : localization['Characteristic.Use'] || 'Usar'}
+                {isUsed ? (localization['UI.CharacterSheet.Used'] || 'UI.CharacterSheet.Used') : (localization['UI.CharacterSheet.Use'] || 'UI.CharacterSheet.Use')}
               </button>
             )}
           </div>
@@ -271,7 +271,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
 
   return (
     <div className="card col-12 col-md-12 mx-auto my-5 p-4">
-      <h2 className="text-center mb-4">Ficha do Personagem</h2>
+      <h2 className="text-center mb-4">{localization['UI.CharacterSheet.Title'] || 'UI.CharacterSheet.Title'}</h2>
       <h3 className="text-center mb-3">
         {localization[`Character.Name.${actor.ID}`]} ({localization[`Character.Title.${actor.ID}`]})
       </h3>
@@ -316,7 +316,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                   onChange={() => handleModeChange('mode1')}
                 />
                 <label className="btn btn-outline-warning" htmlFor="mode-mode1">
-                  Modo Normal
+                  {localization['UI.CharacterSheet.ModeNormal'] || 'UI.CharacterSheet.ModeNormal'}
                 </label>
                 <input 
                   type="radio" 
@@ -327,7 +327,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                   onChange={() => handleModeChange('mode2')}
                 />
                 <label className="btn btn-outline-danger" htmlFor="mode-mode2">
-                  Modo Transformado
+                  {localization['UI.CharacterSheet.ModeTransformed'] || 'UI.CharacterSheet.ModeTransformed'}
                 </label>
               </>
             )}
@@ -341,7 +341,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       <div className="mb-3 row justify-content-center text-center">
         <Counter
           id="vida"
-          title={localization['Characteristic.Health'] || 'Vida'}
+          title={localization['Characteristic.Health'] || 'Characteristic.Health'}
           value={counters.vida}
           min={0}
           max={null}
@@ -349,7 +349,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         />
         <Counter
           id="esquiva"
-          title={localization['Characteristic.DodgePoints'] || 'Esquiva'}
+          title={localization['Characteristic.DodgePoints'] || 'Characteristic.DodgePoints'}
           value={counters.esquiva}
           min={0}
           max={null}
@@ -357,7 +357,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         />
         <Counter
           id="oport"
-          title={localization['Characteristic.OportunityAttack'] || 'Oportunidade'}
+          title={localization['Characteristic.OportunityAttack'] || 'Characteristic.OportunityAttack'}
           value={counters.oport}
           min={0}
           max={null}
@@ -365,7 +365,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         />
         <Counter
           id="item"
-          title={localization['Characteristic.ExplorationItens'] || 'Itens'}
+          title={localization['Characteristic.ExplorationItens'] || 'Characteristic.ExplorationItens'}
           value={counters.item}
           min={0}
           max={null}
@@ -392,6 +392,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         additionalCounters={additionalCounters}
         onCounterChange={handleAdditionalCounterChange}
         playerId={currentPlayer?.id}
+        localization={localization}
       />
 
       <div className="text-center mt-4">

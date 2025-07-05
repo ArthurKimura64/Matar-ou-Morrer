@@ -30,19 +30,19 @@ const CharacteristicCard = ({ actor, localization }) => {
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
               <b>{localization['Terrain.Dessert']}: </b>
-              {actor.Tecnique.Desert || localization['Characteristic.NotDefined'] || 'Não definido'}
+              {actor.Tecnique.Desert || localization['Characteristic.NotDefined'] || 'Characteristic.NotDefined'}
             </li>
             <li className="list-group-item">
               <b>{localization['Terrain.City']}: </b>
-              {actor.Tecnique.City || localization['Characteristic.NotDefined'] || 'Não definido'}
+              {actor.Tecnique.City || localization['Characteristic.NotDefined'] || 'Characteristic.NotDefined'}
             </li>
             <li className="list-group-item">
               <b>{localization['Terrain.Junkyard']}: </b>
-              {actor.Tecnique.Landfill || localization['Characteristic.NotDefined'] || 'Não definido'}
+              {actor.Tecnique.Landfill || localization['Characteristic.NotDefined'] || 'Characteristic.NotDefined'}
             </li>
             <li className="list-group-item">
               <b>{localization['Terrain.Mountain']}: </b>
-              {actor.Tecnique.Mountain || localization['Characteristic.NotDefined'] || 'Não definido'}
+              {actor.Tecnique.Mountain || localization['Characteristic.NotDefined'] || 'Characteristic.NotDefined'}
             </li>
           </ul>
         </div>

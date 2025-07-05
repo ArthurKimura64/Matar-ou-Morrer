@@ -51,20 +51,22 @@ export class RoomService {
   }
 
   // Entrar em uma sala
-  static async joinRoom(roomId, playerName, character = null) {
+  static async joinRoom(roomId, playerName, character = null, forceNewPlayer = false) {
     try {
       console.log('🚪 Tentando entrar na sala:', roomId, 'como jogador:', playerName);
       
-      // Primeiro, verificar se o jogador já existe na sala
-      const existingResult = await this.findExistingPlayer(roomId, playerName);
-      
-      if (existingResult.success && existingResult.player) {
-        console.log('🔄 Jogador existente encontrado, reconectando:', existingResult.player.id);
-        // Reconectar jogador existente
-        return await this.reconnectPlayer(existingResult.player.id);
+      // Se não forçar novo jogador, verificar se o jogador já existe (apenas para reconexão automática)
+      if (!forceNewPlayer) {
+        const existingResult = await this.findExistingPlayer(roomId, playerName);
+        
+        if (existingResult.success && existingResult.player) {
+          console.log('🔄 Jogador existente encontrado, reconectando:', existingResult.player.id);
+          // Reconectar jogador existente
+          return await this.reconnectPlayer(existingResult.player.id);
+        }
       }
       
-      // Se não existe, criar novo jogador
+      // Se não existe ou está forçando novo jogador, criar novo jogador
       console.log('🆕 Criando novo jogador na sala');
       const playerId = uuidv4();
       
@@ -197,15 +199,20 @@ export class RoomService {
   // Sair da sala
   static async leaveRoom(playerId) {
     try {
+      console.log('🚪 Jogador saindo da sala:', playerId);
+      
+      // Remover completamente o jogador quando sair definitivamente
       const { error } = await supabase
         .from('players')
-        .update({ is_connected: false })
+        .delete()
         .eq('id', playerId);
 
       if (error) throw error;
+      
+      console.log('✅ Jogador removido da sala com sucesso');
       return { success: true };
     } catch (error) {
-      console.error('Erro ao sair da sala:', error);
+      console.error('❌ Erro ao sair da sala:', error);
       return { success: false, error: error.message };
     }
   }
@@ -563,6 +570,31 @@ export class RoomService {
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao reconectar jogador:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Atualizar estado da aplicação de um jogador
+  static async updatePlayerAppState(playerId, appState) {
+    try {
+      console.log('💾 Atualizando app_state no banco:', { playerId, appState });
+      
+      const { data, error } = await supabase
+        .from('players')
+        .update({ 
+          app_state: appState,
+          last_seen: new Date().toISOString()
+        })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('✅ App state atualizado no banco com sucesso');
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('❌ Erro ao atualizar app state:', error);
       return { success: false, error: error.message };
     }
   }

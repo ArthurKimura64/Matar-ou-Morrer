@@ -93,13 +93,13 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
 
   const getCharacteristicLabel = (key) => {
     const labels = {
-      attacks: 'Ataques',
-      weapons: 'Armas',
-      passives: 'Passivas',
-      devices: 'Dispositivos',
-      powers: 'Poderes',
-      specials: 'Especiais',
-      passiveSpecials: 'Esp. Passivas'
+      attacks: localization['UI.Characteristics.Attacks'] || 'UI.Characteristics.Attacks',
+      weapons: localization['UI.Characteristics.Weapons'] || 'UI.Characteristics.Weapons',
+      passives: localization['UI.Characteristics.Passives'] || 'UI.Characteristics.Passives',
+      devices: localization['UI.Characteristics.Devices'] || 'UI.Characteristics.Devices',
+      powers: localization['UI.Characteristics.Powers'] || 'UI.Characteristics.Powers',
+      specials: localization['UI.Characteristics.Specials'] || 'UI.Characteristics.Specials',
+      passiveSpecials: localization['UI.Characteristics.PassiveSpecials'] || 'UI.Characteristics.PassiveSpecials'
     };
     return labels[key] || key;
   };
@@ -148,7 +148,7 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
             {player.name}
           </h6>
           {isCurrentPlayer && (
-            <span className="badge bg-primary">Você</span>
+            <span className="badge bg-primary">{localization['UI.You'] || 'UI.You'}</span>
           )}
         </div>
         
@@ -157,6 +157,7 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
           <PlayerStatusBadge 
             player={player} 
             isCurrentPlayer={isCurrentPlayer}
+            localization={localization}
           />
         </div>
 
@@ -164,29 +165,29 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
         {player.status === 'ready' && (
           <>
             <div className="mb-3">
-              <h6 className="text-light small mb-2 fw-bold">📊 Contadores:</h6>
+              <h6 className="text-light small mb-2 fw-bold">{localization['UI.Counters.Special'] || 'UI.Counters.Special'}</h6>
               <div className="row g-1">
                 <div className="col-6">
                   <div className="text-center p-1 bg-success bg-opacity-10 rounded border border-success border-opacity-25">
-                    <div className="small text-success fw-bold">❤️ Vida</div>
+                    <div className="small text-success fw-bold">{localization['Characteristic.Health'] || 'Characteristic.Health'}</div>
                     <div className="text-white fw-bold">{formatCounter(counters.vida, counters.vida_max)}</div>
                   </div>
                 </div>
                 <div className="col-6">
                   <div className="text-center p-1 bg-info bg-opacity-10 rounded border border-info border-opacity-25">
-                    <div className="small text-info fw-bold">🔵 Esquiva</div>
+                    <div className="small text-info fw-bold">{localization['Characteristic.DodgePoints'] || 'Characteristic.DodgePoints'}</div>
                     <div className="text-white fw-bold">{formatCounter(counters.esquiva, counters.esquiva_max)}</div>
                   </div>
                 </div>
                 <div className="col-6">
                   <div className="text-center p-1 bg-warning bg-opacity-10 rounded border border-warning border-opacity-25">
-                    <div className="small text-warning fw-bold">⚡ Oport.</div>
+                    <div className="small text-warning fw-bold">{localization['Characteristic.OportunityAttack'] || 'Characteristic.OportunityAttack'}</div>
                     <div className="text-white fw-bold">{formatCounter(counters.oport, counters.oport_max)}</div>
                   </div>
                 </div>
                 <div className="col-6">
                   <div className="text-center p-1 bg-secondary bg-opacity-10 rounded border border-secondary border-opacity-25">
-                    <div className="small text-secondary fw-bold">📦 Itens</div>
+                    <div className="small text-secondary fw-bold">{localization['Characteristic.ExplorationItens'] || 'Characteristic.ExplorationItens'}</div>
                     <div className="text-white fw-bold">{formatCounter(counters.item, counters.item_max)}</div>
                   </div>
                 </div>
@@ -196,7 +197,7 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
             {/* Contadores Adicionais */}
             {Object.keys(additionalCounters).length > 0 && (
               <div className="mb-3">
-                <h6 className="text-light small mb-2 fw-bold">🔧 Contadores Especiais:</h6>
+                <h6 className="text-light small mb-2 fw-bold">{localization['UI.CharacterSheet.AdditionalCounters'] || 'UI.CharacterSheet.AdditionalCounters'}</h6>
                 <div className="row g-1">
                   {Object.entries(additionalCounters).map(([key, data]) => (
                     <div key={key} className="col-6">
@@ -216,7 +217,7 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
 
             {/* Características */}
             <div className="mb-2">
-              <h6 className="text-light small mb-2 fw-bold">🎯 Características:</h6>
+              <h6 className="text-light small mb-2 fw-bold">{localization['UI.Counters.Characteristics'] || 'UI.Counters.Characteristics'}</h6>
               <div className="row g-1">
                 {Object.entries(characteristicsData).map(([key, data]) => {
                   // Mostrar apenas características que têm valor total > 0
@@ -239,9 +240,9 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
                 <div className="text-muted small text-center">
                   {player.status === 'ready' ? 
                     (player.selections && Object.keys(player.selections).length > 0 ? 
-                      'Nenhuma característica disponível' : 
-                      'Dados de características não encontrados') :
-                    'Aguardando criação do personagem'
+                      (localization['UI.PlayerStatus.NoCharacteristics'] || 'UI.PlayerStatus.NoCharacteristics') : 
+                      (localization['UI.PlayerStatus.NoCharacteristicData'] || 'UI.PlayerStatus.NoCharacteristicData')) :
+                    (localization['UI.PlayerStatus.WaitingCreation'] || 'UI.PlayerStatus.WaitingCreation')
                   }
                 </div>
               )}
@@ -250,9 +251,9 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
             {/* Itens Usados */}
             {usedItems.length > 0 && (
               <div className="mb-2">
-                <h6 className="text-light small mb-1 fw-bold">🔴 Itens Usados:</h6>
+                <h6 className="text-light small mb-1 fw-bold">{localization['UI.PlayerStatus.UsedItems'] || 'UI.PlayerStatus.UsedItems'}</h6>
                 <div className="text-danger small">
-                  {usedItems.length} item(ns) usado(s)
+                  {usedItems.length} {localization['UI.PlayerStatus.ItemsUsed'] || 'UI.PlayerStatus.ItemsUsed'}
                 </div>
               </div>
             )}
@@ -262,7 +263,10 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization })
         {/* Placeholder para outros status */}
         {player.status !== 'ready' && (
           <div className="text-muted small text-center py-2">
-            {player.status === 'creating' ? 'Criando personagem...' : 'Aguardando seleção'}
+            {player.status === 'creating' ? 
+              (localization['UI.PlayerStatus.CreatingCharacter'] || 'UI.PlayerStatus.CreatingCharacter') : 
+              (localization['UI.PlayerStatus.WaitingSelection'] || 'UI.PlayerStatus.WaitingSelection')
+            }
           </div>
         )}
       </div>

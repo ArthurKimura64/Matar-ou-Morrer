@@ -1,7 +1,7 @@
 import React from 'react';
 import { useConnectionStatus } from '../hooks/useConnectionStatus';
 
-const ConnectionStatusIndicator = ({ showDetails = false }) => {
+const ConnectionStatusIndicator = ({ showDetails = false, localization = {} }) => {
   const { connectionStatus, forceCheck } = useConnectionStatus();
 
   if (!showDetails && connectionStatus.isConnected) {
@@ -16,12 +16,12 @@ const ConnectionStatusIndicator = ({ showDetails = false }) => {
   };
 
   const getStatusText = () => {
-    if (connectionStatus.isChecking) return 'Verificando...';
+    if (connectionStatus.isChecking) return localization['UI.Connection.Checking'] || 'UI.Connection.Checking';
     if (connectionStatus.isConnected) {
       const latencyText = connectionStatus.latency ? ` (${connectionStatus.latency}ms)` : '';
-      return `Conectado${latencyText}`;
+      return `${localization['UI.Connection.Connected'] || 'UI.Connection.Connected'}${latencyText}`;
     }
-    return 'Desconectado';
+    return localization['UI.Connection.Disconnected'] || 'UI.Connection.Disconnected';
   };
 
   const getStatusColor = () => {
@@ -45,8 +45,8 @@ const ConnectionStatusIndicator = ({ showDetails = false }) => {
       }}
       onClick={handleClick}
       title={connectionStatus.isConnected ? 
-        `Última verificação: ${new Date(connectionStatus.lastCheck).toLocaleTimeString()}` : 
-        connectionStatus.error || 'Clique para verificar conexão'
+        `${localization['UI.Connection.LastCheck'] || 'UI.Connection.LastCheck'} ${new Date(connectionStatus.lastCheck).toLocaleTimeString()}` : 
+        connectionStatus.error || (localization['UI.Connection.ClickToCheck'] || 'UI.Connection.ClickToCheck')
       }
     >
       <span className={connectionStatus.isChecking ? 'spin' : ''}>{getStatusIcon()}</span>

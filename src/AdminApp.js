@@ -4,10 +4,23 @@ import './App.css';
 
 function AdminApp() {
   const [loading, setLoading] = useState(true);
+  const [localization, setLocalization] = useState({});
 
   useEffect(() => {
-    // Simular carregamento
-    setTimeout(() => setLoading(false), 500);
+    // Carregar localização
+    const loadLocalization = async () => {
+      try {
+        const response = await fetch('/LocalizationPortuguese.json');
+        const data = await response.json();
+        setLocalization(data);
+      } catch (error) {
+        console.error('Erro ao carregar localização:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLocalization();
   }, []);
 
   if (loading) {
@@ -15,9 +28,9 @@ function AdminApp() {
       <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
         <div className="text-center text-white">
           <div className="spinner-border" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">{localization['UI.Loading'] || 'UI.Loading'}</span>
           </div>
-          <p className="mt-3">Carregando painel de administração...</p>
+          <p className="mt-3">{localization['UI.Loading.AdminPanel'] || 'UI.Loading.AdminPanel'}</p>
         </div>
       </div>
     );
@@ -33,14 +46,14 @@ function AdminApp() {
             className="img-fluid rounded mx-auto d-block my-3"
             style={{maxHeight: '200px'}} 
           />
-          <h2 className="text-white">Painel de Administração</h2>
-          <p className="text-light">Sistema de monitoramento e limpeza</p>
+          <h2 className="text-white">{localization['UI.Admin.Title'] || 'UI.Admin.Title'}</h2>
+          <p className="text-light">{localization['UI.Admin.Description'] || 'UI.Admin.Description'}</p>
         </div>
       </div>
       
       <div className="row">
         <div className="col-12">
-          <AdminPanel />
+          <AdminPanel localization={localization} />
         </div>
       </div>
       
@@ -50,7 +63,7 @@ function AdminApp() {
             href="/" 
             className="btn btn-outline-light"
           >
-            ← Voltar ao Jogo Principal
+            {localization['UI.Admin.BackToGame'] || 'UI.Admin.BackToGame'}
           </a>
         </div>
       </div>
@@ -58,8 +71,7 @@ function AdminApp() {
       <div className="row mt-4">
         <div className="col-12">
           <div className="alert alert-warning" role="alert">
-            <strong>⚠️ Página Restrita:</strong> Esta página é destinada apenas para administradores do sistema.
-            Use com cuidado ao executar limpezas manuais.
+            <strong>{localization['UI.Admin.RestrictedPage'] || 'UI.Admin.RestrictedPage'}</strong>
           </div>
         </div>
       </div>

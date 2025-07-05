@@ -88,7 +88,7 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
           if (actor.mode1 && actor.mode2 && def.modeRestriction && ['passive', 'passiveSpecial'].includes(type)) {
             return Utils.createModeRestrictedDescription(def, localization, actor);
           }
-          return localization[def.Description] || "Sem descrição.";
+          return localization[def.Description] || (localization['Utils.NoDescription'] || 'Utils.NoDescription');
         };
       }
     });
@@ -174,7 +174,7 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
           disabled={!isComplete}
           onClick={handleCreateCharacter}
         >
-          Criar Personagem
+          {localization['UI.CharacterBuilder.CreateCharacter'] || 'UI.CharacterBuilder.CreateCharacter'}
         </button>
       </div>
     </div>

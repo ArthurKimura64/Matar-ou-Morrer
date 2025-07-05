@@ -52,7 +52,7 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
                 disabled={!itemSelected && maxSelected}
                 onClick={() => handleItemToggle(def, !itemSelected)}
               >
-                {itemSelected ? localization['Characteristic.Selected'] : localization['Characteristic.Select']}
+                {itemSelected ? localization['Characteristic.Selected'] || 'Characteristic.Selected' : localization['Characteristic.Select'] || 'Characteristic.Select'}
               </button>
             </div>
           </div>

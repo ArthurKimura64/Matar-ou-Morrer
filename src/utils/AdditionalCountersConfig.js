@@ -39,7 +39,7 @@ export const getCharacterAdditionalCounters = (characterName, characterData) => 
         const initialValue = spec.InitialValue !== undefined ? spec.InitialValue : maxValue; // Começar no máximo se não especificado
         
         // Usar a localização para obter o nome
-        const label = localization?.[spec.Title] || spec.Title || specialId.replace('SpecialCustom.', '').replace(/\d+$/, '');
+        const label = (localization && spec.Title ? localization[spec.Title] || spec.Title : spec.Title) || specialId.replace('SpecialCustom.', '').replace(/\d+$/, '');
         
         // Ícone geral para todos os contadores especiais
         const icon = '📊';

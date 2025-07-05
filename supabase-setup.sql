@@ -62,6 +62,10 @@ ADD COLUMN IF NOT EXISTS last_activity TIMESTAMP WITH TIME ZONE DEFAULT timezone
 ALTER TABLE public.players 
 ADD COLUMN IF NOT EXISTS additional_counters JSONB DEFAULT '{}';
 
+-- Adicionar coluna para estado da aplicação (view, seleções, etc.)
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS app_state JSONB DEFAULT '{"currentView": "lobby", "selectedActor": null, "characterSelections": null}';
+
 -- Habilitar Row Level Security (RLS)
 ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
@@ -126,6 +130,7 @@ CREATE INDEX IF NOT EXISTS idx_players_status ON public.players(status);
 CREATE INDEX IF NOT EXISTS idx_players_counters ON public.players USING GIN (counters);
 CREATE INDEX IF NOT EXISTS idx_players_characteristics ON public.players USING GIN (characteristics);
 CREATE INDEX IF NOT EXISTS idx_players_selections ON public.players USING GIN (selections);
+CREATE INDEX IF NOT EXISTS idx_players_app_state ON public.players USING GIN (app_state);
 
 -- Comentários para documentação
 COMMENT ON TABLE public.rooms IS 'Tabela que armazena as salas de jogo';
@@ -149,6 +154,7 @@ COMMENT ON COLUMN public.players.additional_counters IS 'Contadores adicionais e
 COMMENT ON COLUMN public.players.selections IS 'Seleções do personagem organizadas por tipo (attacks, weapons, passives, devices, powers, specials, passiveSpecials)';
 COMMENT ON COLUMN public.players.last_activity IS 'Timestamp da última atividade do jogador para limpeza automática';
 COMMENT ON COLUMN public.players.is_connected IS 'Se o jogador está conectado';
+COMMENT ON COLUMN public.players.app_state IS 'Estado da aplicação para o jogador (view atual, seleções, etc.)';
 
 COMMENT ON COLUMN public.rooms.last_activity IS 'Timestamp da última atividade da sala para limpeza automática';
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RoomService } from '../services/roomService';
 import CharacterSelection from './CharacterSelection';
 import CharacterBuilder from './CharacterBuilder';
@@ -12,7 +12,14 @@ const RoomView = ({
   currentPlayer, 
   gameData, 
   localization, 
-  onLeaveRoom 
+  onLeaveRoom,
+  // Novos props para controle de estado
+  initialView = 'lobby',
+  initialSelectedActor = null,
+  initialCharacterSelections = null,
+  onViewChange,
+  onActorChange,
+  onSelectionsChange
 }) => {
   const [players, setPlayers] = useState([]);
   const [currentView, setCurrentView] = useState('lobby');
@@ -21,6 +28,42 @@ const RoomView = ({
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPlayersList, setShowPlayersList] = useState(true);
+  
+  // Usar useRef para controlar se já aplicou estado inicial
+  const hasAppliedInitialState = useRef(false);
+
+  // Aplicar valores iniciais apenas UMA vez
+  useEffect(() => {
+    if (!hasAppliedInitialState.current) {
+      console.log('🔧 ROOMVIEW - VALORES RECEBIDOS:', {
+        initialView,
+        initialSelectedActor: initialSelectedActor?.name || 'null',
+        initialCharacterSelections: !!initialCharacterSelections
+      });
+      
+      if (initialView && initialView !== 'lobby') {
+        console.log('🔧 APLICANDO VIEW:', initialView);
+        setCurrentView(initialView);
+      }
+      
+      if (initialSelectedActor) {
+        console.log('🔧 APLICANDO ACTOR:', initialSelectedActor.name);
+        setSelectedActor(initialSelectedActor);
+      }
+      
+      if (initialCharacterSelections) {
+        console.log('🔧 APLICANDO SELECTIONS');
+        setCharacterSelections(initialCharacterSelections);
+      }
+      
+      hasAppliedInitialState.current = true;
+      console.log('🔧 ESTADO FINAL ROOMVIEW:', {
+        currentView: initialView || 'lobby',
+        selectedActor: initialSelectedActor?.name || 'null',
+        hasSelections: !!initialCharacterSelections
+      });
+    }
+  }, [initialView, initialSelectedActor, initialCharacterSelections]);
 
   // Gerenciar status automaticamente
   usePlayerStatus(currentPlayer?.id, currentView, selectedActor, characterSelections, localization);
@@ -126,11 +169,17 @@ const RoomView = ({
   }, [room.id]);
 
   const handleCharacterSelect = async (actor) => {
+    console.log('🎭 Personagem selecionado no RoomView:', actor.name);
     setSelectedActor(actor);
     setCurrentView('builder');
+    
+    // Notificar App.js sobre mudanças
+    if (onActorChange) onActorChange(actor);
+    if (onViewChange) onViewChange('builder');
   };
 
   const handleCharacterCreate = async (selections) => {
+    console.log('🎯 Personagem criado no RoomView');
     setCharacterSelections(selections);
     
     // Salvar personagem na sala
@@ -153,6 +202,10 @@ const RoomView = ({
     }
     
     setCurrentView('sheet');
+    
+    // Notificar App.js sobre mudanças
+    if (onSelectionsChange) onSelectionsChange(selections);
+    if (onViewChange) onViewChange('sheet');
     
     // Scroll para o topo da página quando a ficha for criada
     setTimeout(() => {
@@ -226,9 +279,9 @@ const RoomView = ({
       <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">{localization['UI.Loading'] || 'UI.Loading'}</span>
           </div>
-          <p className="mt-2 text-light">Carregando sala...</p>
+          <p className="mt-2 text-light">{localization['UI.Loading.Room'] || 'UI.Loading.Room'}</p>
         </div>
       </div>
     );
@@ -243,7 +296,7 @@ const RoomView = ({
             <div>
               <h4 className="text-white mb-1">{room.name}</h4>
               <span className="text-muted">
-                Mestre: {room.master_name} | Jogadores: {players.length}
+                {localization['UI.Room.Master'] || 'UI.Room.Master'} {room.master_name} | {localization['UI.Room.Players'] || 'UI.Room.Players'} {players.length}
               </span>
             </div>
             <div>
@@ -265,7 +318,7 @@ const RoomView = ({
                 className="btn btn-outline-danger btn-sm"
                 onClick={handleLeaveRoom}
               >
-                Sair da Sala
+                {localization['UI.Room.LeaveRoom'] || 'UI.Room.LeaveRoom'}
               </button>
             </div>
           </div>
@@ -279,7 +332,7 @@ const RoomView = ({
             <div className="col-12">
               <div className="card bg-dark border-light">
                 <div className="card-header">
-                  <h5 className="text-white mb-0">Jogadores Conectados</h5>
+                  <h5 className="text-white mb-0">{localization['UI.Room.ConnectedPlayers'] || 'UI.Room.ConnectedPlayers'}</h5>
                 </div>
                 <div className="card-body">
                   <div className="row">
@@ -303,7 +356,7 @@ const RoomView = ({
             <div className="col-12">
               <div className="card bg-dark border-light">
                 <div className="card-header">
-                  <h5 className="text-white mb-0">Criar Seu Personagem</h5>
+                  <h5 className="text-white mb-0">{localization['UI.Room.CreateYourCharacter'] || 'UI.Room.CreateYourCharacter'}</h5>
                 </div>
                 <div className="card-body">
                   <CharacterSelection 

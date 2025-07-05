@@ -1,7 +1,9 @@
 // Chaves para localStorage
 const STORAGE_KEYS = {
   CURRENT_PLAYER: 'killOrDie_currentPlayer',
-  CURRENT_ROOM: 'killOrDie_currentRoom'
+  CURRENT_ROOM: 'killOrDie_currentRoom',
+  APP_STATE: 'killOrDie_appState',
+  SESSION_ID: 'killOrDie_sessionId'
 };
 
 export class PlayerPersistence {
@@ -10,7 +12,7 @@ export class PlayerPersistence {
     try {
       localStorage.setItem(STORAGE_KEYS.CURRENT_PLAYER, JSON.stringify(player));
       localStorage.setItem(STORAGE_KEYS.CURRENT_ROOM, JSON.stringify(room));
-      console.log('✅ Dados do jogador salvos no localStorage:', {
+      console.log('💾 Dados do jogador salvos no localStorage:', {
         playerId: player.id,
         playerName: player.name,
         roomId: room.id,
@@ -19,6 +21,59 @@ export class PlayerPersistence {
     } catch (error) {
       console.error('❌ Erro ao salvar dados do jogador:', error);
     }
+  }
+
+  // Salvar estado da aplicação (view, personagem selecionado, etc.)
+  static saveAppState(appState) {
+    try {
+      const stateToSave = {
+        ...appState,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(stateToSave));
+      console.log('💾 Estado da aplicação salvo:', {
+        view: appState.currentView,
+        actor: appState.selectedActor?.name,
+        hasSelections: !!appState.characterSelections
+      });
+    } catch (error) {
+      console.error('❌ Erro ao salvar estado da aplicação:', error);
+    }
+  }
+
+  // Recuperar estado da aplicação
+  static getAppState() {
+    try {
+      const stateData = localStorage.getItem(STORAGE_KEYS.APP_STATE);
+      if (stateData) {
+        const parsed = JSON.parse(stateData);
+        console.log('📦 Estado da aplicação recuperado:', {
+          view: parsed.currentView,
+          actor: parsed.selectedActor?.name,
+          hasSelections: !!parsed.characterSelections,
+          timestamp: parsed.timestamp
+        });
+        return parsed;
+      }
+      console.log('📭 Nenhum estado de aplicação encontrado');
+      return null;
+    } catch (error) {
+      console.error('❌ Erro ao recuperar estado da aplicação:', error);
+      return null;
+    }
+  }
+
+  // Gerar ID de sessão único para cada aba
+  static generateSessionId() {
+    const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem(STORAGE_KEYS.SESSION_ID, sessionId);
+    return sessionId;
+  }
+
+  // Verificar se é a mesma sessão (mesmo navegador, mesma aba)
+  static isSameSession() {
+    const currentSessionId = localStorage.getItem(STORAGE_KEYS.SESSION_ID);
+    return currentSessionId !== null;
   }
 
   // Recuperar dados do jogador
@@ -59,6 +114,8 @@ export class PlayerPersistence {
       const hadData = this.hasPlayerData();
       localStorage.removeItem(STORAGE_KEYS.CURRENT_PLAYER);
       localStorage.removeItem(STORAGE_KEYS.CURRENT_ROOM);
+      localStorage.removeItem(STORAGE_KEYS.APP_STATE);
+      localStorage.removeItem(STORAGE_KEYS.SESSION_ID);
       
       if (hadData) {
         console.log('🗑️ Dados do jogador removidos do localStorage');

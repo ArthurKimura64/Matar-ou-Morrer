@@ -60,10 +60,10 @@ const CharacterSelection = ({
               disabled={status.disabled}
               title={
                 status.status === 'creating' 
-                  ? `${status.playerName} está criando este personagem`
+                  ? `${status.playerName} ${localization['UI.CharacterSelection.TakenByPlayer'] || 'UI.CharacterSelection.TakenByPlayer'}`
                   : status.status === 'taken'
-                  ? `${status.playerName} já criou este personagem`
-                  : `Clique para criar ${characterName}`
+                  ? `${status.playerName} ${localization['UI.CharacterSelection.AlreadyCreated'] || 'UI.CharacterSelection.AlreadyCreated'}`
+                  : `${localization['UI.CharacterSelection.ClickToCreate'] || 'UI.CharacterSelection.ClickToCreate'} ${characterName}`
               }
             >
               {characterName}

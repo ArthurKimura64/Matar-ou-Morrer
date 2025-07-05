@@ -8,12 +8,12 @@ export const Utils = {
   createAttackDescription: (def, localization, mode = 'mode1') => {
     const modeData = Utils.modeSystem.getActiveMode(def, mode);
     return `
-    <b>${localization['AttackBase.Damage'] || 'Dano'}:</b> ${modeData.Damage}
-    <br><b>${localization['AttackBase.Distance'] || 'Distância'}:</b> ${modeData.MinimumDistance === modeData.MaximumDistance ? modeData.MinimumDistance : `${modeData.MinimumDistance} - ${modeData.MaximumDistance}`}
-    <br><b>${localization['AttackBase.Dices'] || 'Dados'}:</b> ${modeData.Dices}
-    <br><b>${localization['AttackBase.LoadTime'] || 'Tempo de Recarga'}:</b> ${modeData.LoadTime || 0}
-    <br><b>${localization['AttackBase.Terrain'] || 'Terreno'}:</b> ${(modeData.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'N/A'}
-    ${def.SpecialDescription ? `<br>${localization[def.SpecialDescription] || ""}` : ""}`;
+    <b>${localization['AttackBase.Damage'] || 'AttackBase.Damage'}:</b> ${modeData.Damage}
+    <br><b>${localization['AttackBase.Distance'] || 'AttackBase.Distance'}:</b> ${modeData.MinimumDistance === modeData.MaximumDistance ? modeData.MinimumDistance : `${modeData.MinimumDistance} - ${modeData.MaximumDistance}`}
+    <br><b>${localization['AttackBase.Dices'] || 'AttackBase.Dices'}:</b> ${modeData.Dices}
+    <br><b>${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}:</b> ${modeData.LoadTime || 0}
+    <br><b>${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}:</b> ${(modeData.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'Utils.NotAvailable'}
+    ${def.SpecialDescription ? `<br>${localization[def.SpecialDescription] || def.SpecialDescription}` : ""}`;
   },
 
   createDualModeDescription: (def, localization, actor) => {
@@ -34,36 +34,36 @@ export const Utils = {
     <div class="row text-start">
       <div class="col-6 border-end border-secondary">
         <strong class="text-warning">${mode1Name}:</strong><br>
-        ${localization['AttackBase.Damage'] || 'Dano'}: ${mode1Data.Damage}<br>
-        ${localization['AttackBase.Distance'] || 'Distância'}: ${mode1Data.MinimumDistance === mode1Data.MaximumDistance ? mode1Data.MinimumDistance : `${mode1Data.MinimumDistance}-${mode1Data.MaximumDistance}`}<br>
-        ${localization['AttackBase.Dices'] || 'Dados'}: ${mode1Data.Dices}<br>
-        ${localization['AttackBase.LoadTime'] || 'Recarga'}: ${mode1Data.LoadTime || 0}<br>
-        ${localization['AttackBase.Terrain'] || 'Ambiente'}: ${(mode1Data.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")}
+        ${localization['AttackBase.Damage'] || 'AttackBase.Damage'}: ${mode1Data.Damage}<br>
+        ${localization['AttackBase.Distance'] || 'AttackBase.Distance'}: ${mode1Data.MinimumDistance === mode1Data.MaximumDistance ? mode1Data.MinimumDistance : `${mode1Data.MinimumDistance}-${mode1Data.MaximumDistance}`}<br>
+        ${localization['AttackBase.Dices'] || 'AttackBase.Dices'}: ${mode1Data.Dices}<br>
+        ${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}: ${mode1Data.LoadTime || 0}<br>
+        ${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}: ${(mode1Data.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")}
       </div>
       <div class="col-6">
         <strong class="text-danger">${mode2Name}:</strong><br>
-        ${localization['AttackBase.Damage'] || 'Dano'}: ${mode2Data.Damage}<br>
-        ${localization['AttackBase.Distance'] || 'Distância'}: ${mode2Data.MinimumDistance === mode2Data.MaximumDistance ? mode2Data.MinimumDistance : `${mode2Data.MinimumDistance}-${mode2Data.MaximumDistance}`}<br>
-        ${localization['AttackBase.Dices'] || 'Dados'}: ${mode2Data.Dices}<br>
-        ${localization['AttackBase.LoadTime'] || 'Recarga'}: ${mode2Data.LoadTime || 0}<br>
-        ${localization['AttackBase.Terrain'] || 'Ambiente'}: ${(mode2Data.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")}
+        ${localization['AttackBase.Damage'] || 'AttackBase.Damage'}: ${mode2Data.Damage}<br>
+        ${localization['AttackBase.Distance'] || 'AttackBase.Distance'}: ${mode2Data.MinimumDistance === mode2Data.MaximumDistance ? mode2Data.MinimumDistance : `${mode2Data.MinimumDistance}-${mode2Data.MaximumDistance}`}<br>
+        ${localization['AttackBase.Dices'] || 'AttackBase.Dices'}: ${mode2Data.Dices}<br>
+        ${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}: ${mode2Data.LoadTime || 0}<br>
+        ${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}: ${(mode2Data.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")}
       </div>
     </div>
-    ${def.SpecialDescription ? `<div class="mt-2">${localization[def.SpecialDescription] || ""}</div>` : ""}`;
+    ${def.SpecialDescription ? `<div class="mt-2">${localization[def.SpecialDescription] || def.SpecialDescription}</div>` : ""}`;
   },
 
   createModeRestrictedDescription: (def, localization, actor) => {
-    let description = localization[def.Description] || "";
+    let description = localization[def.Description] || def.Description || "";
     if (def.modeRestriction) {
       const modeKey = def.modeRestriction;
       const modeName = Utils.modeSystem.getModeName(actor, modeKey, localization);
-      description = `(${localization['Characteristic.Only'] || 'Apenas'} ${modeName})<br>${description}`;
+      description = `(${localization['Utils.DualModeDescription.ModeRestricted'] || localization['Characteristic.Only'] || 'Characteristic.Only'} ${modeName})<br>${description}`;
     }
     return description;
   },
 
   createTriggerName: (id, def, localization) => 
-    `${(def.TriggerType || []).map(a => localization[`AttackBase.TriggerType.${a}`] || a).join(" / ") || 'N/A'} ${(localization[id] || Utils.formatFallback(id)).trim()}`,
+    `${(def.TriggerType || []).map(a => localization[`AttackBase.TriggerType.${a}`] || a).join(" / ") || (localization['Utils.NotAvailable'] || 'Utils.NotAvailable')} ${(localization[id] || Utils.formatFallback(id)).trim()}`,
 
   // Sistema de Modos (independente de pontos de transformação)
   modeSystem: {
@@ -82,7 +82,7 @@ export const Utils = {
     
     getModeDescription: (actor, localization) => {
       if (!actor.mode1 || !actor.mode2) return '';
-      return localization[`Character.Mode.${actor.ID}.Description`] || 'Sistema de modos ativo';
+      return localization[`Character.Mode.${actor.ID}.Description`] || (localization['Utils.ModeSystem.Active'] || 'Utils.ModeSystem.Active');
     },
     
     canUseItem: (item, currentMode) => {
@@ -108,7 +108,7 @@ export const Utils = {
         return Utils.modeSystem.getModeDescription(actor, localization);
       }
       if (!actor.TransformationData) return '';
-      return localization[`Character.Transformation.${actor.ID}.Name`] || 'Transformação';
+      return localization[`Character.Transformation.${actor.ID}.Name`] || 'Character.Transformation.Name';
     },
     
     canUseItem: (item, isTransformed, actor) => {
