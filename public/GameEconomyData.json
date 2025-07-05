@@ -2184,6 +2184,57 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Katnis",
+      "DodgePoints": 4,
+      "OportunityAttacks": 4,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 2,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 3,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d10",
+        "Landfill": "d20",
+        "Mountain": "d10"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Katnis1",
+        "Attack.Katnis2",
+        "Attack.Katnis3",
+        "Attack.Katnis4"
+      ],
+      "WeaponsData": [
+        "Weapon.Katnis1",
+        "Weapon.Katnis2",
+        "Weapon.Katnis3"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Katnis1",
+        "Power.Katnis2",
+        "Power.Katnis3",
+        "Power.Katnis4",
+        "Power.Katnis5",
+        "Power.Katnis6"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Katnis1",
+        "SpecialAbility.Katnis2",
+        "SpecialAbility.Katnis3",
+        "SpecialAbility.Katnis4",
+        "SpecialAbility.Katnis5",
+        "SpecialAbility.Katnis6"
+      ],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -4558,6 +4609,57 @@
       ]
     },
     {
+      "ID": "Attack.Katnis1",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 5,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Katnis1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Katnis2",
+      "Damage": 4,
+      "MinimumDistance": 3,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Katnis2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Katnis3",
+      "Damage": 9,
+      "MinimumDistance": 5,
+      "MaximumDistance": 12,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Katnis3.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Katnis4",
+      "Damage": 3,
+      "MinimumDistance": 2,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.Katnis4.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -5346,6 +5448,40 @@
       "Ambient": [
         "Earth"
       ]
+    },
+    {
+      "ID": "Weapon.Katnis1",
+      "Damage": 7,
+      "MinimumDistance": "0",
+      "MaximumDistance": 2,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Katnis2",
+      "Damage": 5,
+      "MinimumDistance": "0",
+      "MaximumDistance": 15,
+      "LoadTime": 2,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Katnis3",
+      "Damage": 3,
+      "MinimumDistance": 2,
+      "MaximumDistance": 4,
+      "LoadTime": "0",
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Katnis3.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -7605,6 +7741,48 @@
       "Description": "Power.Vortztem12.Description"
     },
     {
+      "ID": "Power.Katnis1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Katnis1.Description"
+    },
+    {
+      "ID": "Power.Katnis2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis2.Description"
+    },
+    {
+      "ID": "Power.Katnis3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Katnis3.Description"
+    },
+    {
+      "ID": "Power.Katnis4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis4.Description"
+    },
+    {
+      "ID": "Power.Katnis5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis5.Description"
+    },
+    {
+      "ID": "Power.Katnis6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Katnis6.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -7923,6 +8101,48 @@
         "Passive"
       ],
       "Description": "SpecialAbility.AgentedoVazio2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Katnis1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Katnis1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Katnis2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Katnis2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Katnis3",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Katnis3.Description"
+    },
+    {
+      "ID": "SpecialAbility.Katnis4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Katnis4.Description"
+    },
+    {
+      "ID": "SpecialAbility.Katnis5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Katnis5.Description"
+    },
+    {
+      "ID": "SpecialAbility.Katnis6",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "SpecialAbility.Katnis6.Description"
     }
   ],
   "SpecialDefinitions": [
