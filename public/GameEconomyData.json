@@ -2235,6 +2235,53 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Eterno ",
+      "DodgePoints": 8,
+      "OportunityAttacks": 7,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 1,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d20",
+        "Landfill": "d20",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Eterno 1",
+        "Weapon.Eterno 2"
+      ],
+      "PassivesData": [
+        "Passive.Eterno 1",
+        "Passive.Eterno 2",
+        "Passive.Eterno 3"
+      ],
+      "PowersData": [
+        "Power.Eterno 1",
+        "Power.Eterno 2"
+      ],
+      "DevicesData": [
+        "Device.Eterno 1",
+        "Device.Eterno 2"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Eterno 1",
+        "SpecialAbility.Eterno 2"
+      ],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Eterno 1",
+        "PassiveSpecialAbility.Eterno 2"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2757,6 +2804,18 @@
       "Description": "Passive.MulherFantasma4.Description"
     },
     {
+      "ID": "Passive.Eterno 1",
+      "Description": "Passive.Eterno 1.Description"
+    },
+    {
+      "ID": "Passive.Eterno 2",
+      "Description": "Passive.Eterno 2.Description"
+    },
+    {
+      "ID": "Passive.Eterno 3",
+      "Description": "Passive.Eterno 3.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -2883,6 +2942,14 @@
     {
       "ID": "PassiveSpecialAbility.Zyua2",
       "Description": "PassiveSpecialAbility.Zyua2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Eterno 1",
+      "Description": "PassiveSpecialAbility.Eterno 1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Eterno 2",
+      "Description": "PassiveSpecialAbility.Eterno 2.Description"
     }
   ],
   "AttackDefinitions": [
@@ -4660,6 +4727,30 @@
       "SpecialDescription": "Attack.Katnis4.SpecialDescription"
     },
     {
+      "ID": "Attack.1",
+      "Damage": 2,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": "0",
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Attack.1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.2",
+      "Damage": 15,
+      "MinimumDistance": 5,
+      "MaximumDistance": 10,
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -5482,6 +5573,32 @@
         "Earth"
       ],
       "SpecialDescription": "Weapon.Katnis3.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Eterno 1",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Eterno 1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Eterno 2",
+      "Damage": 20,
+      "MinimumDistance": "0",
+      "MaximumDistance": 12,
+      "LoadTime": 4,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Weapon.Eterno 2.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -6335,6 +6452,20 @@
         "Passive"
       ],
       "Description": "Device.adaptado4.Description"
+    },
+    {
+      "ID": "Device.Eterno 1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Eterno 1.Description"
+    },
+    {
+      "ID": "Device.Eterno 2",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Eterno 2.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -7783,6 +7914,20 @@
       "Description": "Power.Katnis6.Description"
     },
     {
+      "ID": "Power.Eterno 1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Eterno 1.Description"
+    },
+    {
+      "ID": "Power.Eterno 2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Eterno 2.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -8143,6 +8288,20 @@
         "AfterAttack"
       ],
       "Description": "SpecialAbility.Katnis6.Description"
+    },
+    {
+      "ID": "SpecialAbility.Eterno 1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Eterno 1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Eterno 2",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Eterno 2.Description"
     }
   ],
   "SpecialDefinitions": [
