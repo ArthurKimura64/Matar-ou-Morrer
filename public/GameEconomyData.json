@@ -2137,6 +2137,53 @@
         "PassiveSpecialAbility.Zyua2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Vortztem",
+      "DodgePoints": 10,
+      "OportunityAttacks": 9,
+      "ExplorationItens": 4,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 6,
+      "NumberOfDevices": 0,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d8",
+        "Landfill": "d12",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Vortztem1",
+        "Attack.Vortztem2"
+      ],
+      "WeaponsData": [
+        "Weapon.Vortztem1",
+        "Weapon.Vortztem2"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Vortztem1",
+        "Power.Vortztem2",
+        "Power.Vortztem3",
+        "Power.Vortztem4",
+        "Power.Vortztem5",
+        "Power.Vortztem6",
+        "Power.Vortztem7",
+        "Power.Vortztem8",
+        "Power.Vortztem9",
+        "Power.Vortztem10",
+        "Power.Vortztem11",
+        "Power.Vortztem12"
+      ],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -4486,6 +4533,31 @@
       "SpecialDescription": "Attack.Zyua2.SpecialDescription"
     },
     {
+      "ID": "Attack.Vortztem1",
+      "Damage": 5,
+      "MinimumDistance": 22,
+      "MaximumDistance": 25,
+      "LoadTime": 2,
+      "Dices": 3,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Vortztem1.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Vortztem2",
+      "Damage": 3,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": "0",
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -5249,6 +5321,28 @@
       "MaximumDistance": 3,
       "LoadTime": 1,
       "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Vortztem1",
+      "Damage": 11,
+      "MinimumDistance": 1,
+      "MaximumDistance": 3,
+      "LoadTime": 2,
+      "Dices": 2,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Vortztem2",
+      "Damage": 19,
+      "MinimumDistance": 5,
+      "MaximumDistance": 7,
+      "LoadTime": 1,
+      "Dices": 1,
       "Ambient": [
         "Earth"
       ]
@@ -7425,6 +7519,90 @@
         "Passive"
       ],
       "Description": "Power.Zyua6.Description"
+    },
+    {
+      "ID": "Power.Vortztem1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Vortztem1.Description"
+    },
+    {
+      "ID": "Power.Vortztem2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vortztem2.Description"
+    },
+    {
+      "ID": "Power.Vortztem3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vortztem3.Description"
+    },
+    {
+      "ID": "Power.Vortztem4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Vortztem4.Description"
+    },
+    {
+      "ID": "Power.Vortztem5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vortztem5.Description"
+    },
+    {
+      "ID": "Power.Vortztem6",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Vortztem6.Description"
+    },
+    {
+      "ID": "Power.Vortztem7",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Vortztem7.Description"
+    },
+    {
+      "ID": "Power.Vortztem8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vortztem8.Description"
+    },
+    {
+      "ID": "Power.Vortztem9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vortztem9.Description"
+    },
+    {
+      "ID": "Power.Vortztem10",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Vortztem10.Description"
+    },
+    {
+      "ID": "Power.Vortztem11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Vortztem11.Description"
+    },
+    {
+      "ID": "Power.Vortztem12",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Vortztem12.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
