@@ -11,3 +11,77 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Estilos customizados para características */
+.characteristic-card {
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.characteristic-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.characteristic-progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+
+.bg-purple {
+  background-color: #8b5cf6 !important;
+}
+
+.text-purple {
+  color: #8b5cf6 !important;
+}
+
+.border-purple {
+  border-color: #8b5cf6 !important;
+}
+
+/* Animações suaves para contadores */
+.counter-card {
+  transition: all 0.2s ease;
+}
+
+.counter-card:hover {
+  transform: scale(1.02);
+}
+
+/* Melhor visualização para itens usados */
+.used-items-breakdown {
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.used-items-breakdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.used-items-breakdown::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.used-items-breakdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.used-items-breakdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Tooltips personalizados */
+[title] {
+  cursor: help;
+  position: relative;
+}
+
+/* Categoria separadores */
+.category-separator {
+  border-left: 3px solid;
+  padding-left: 8px;
+  margin-left: 4px;
+}
