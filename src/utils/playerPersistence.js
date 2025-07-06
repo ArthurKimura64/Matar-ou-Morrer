@@ -125,6 +125,20 @@ export class PlayerPersistence {
     }
   }
 
+  // Limpar apenas o estado da aplicação (manter dados do jogador)
+  static clearAppState() {
+    try {
+      const hadState = localStorage.getItem(STORAGE_KEYS.APP_STATE) !== null;
+      localStorage.removeItem(STORAGE_KEYS.APP_STATE);
+      
+      if (hadState) {
+        console.log('🗑️ Estado da aplicação removido do localStorage');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao limpar estado da aplicação:', error);
+    }
+  }
+
   // Verificar se há dados salvos
   static hasPlayerData() {
     return localStorage.getItem(STORAGE_KEYS.CURRENT_PLAYER) && 

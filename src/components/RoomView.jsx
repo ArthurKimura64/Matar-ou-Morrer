@@ -217,9 +217,19 @@ const RoomView = ({
   };
 
   const handleBackToLobby = async () => {
+    console.log('🔄 VOLTANDO PARA LOBBY - limpando estados');
+    
+    // Limpar estados locais do RoomView
     setCurrentView('lobby');
     setSelectedActor(null);
     setCharacterSelections(null);
+    
+    // IMPORTANTE: Notificar App.js sobre as mudanças para limpar o estado persistido
+    if (onViewChange) onViewChange('lobby');
+    if (onActorChange) onActorChange(null);
+    if (onSelectionsChange) onSelectionsChange(null);
+    
+    console.log('✅ Estados limpos e App.js notificado');
   };
 
   const handleLeaveRoom = async () => {
@@ -265,6 +275,7 @@ const RoomView = ({
                   player={player} 
                   isCurrentPlayer={player.id === currentPlayer.id}
                   localization={localization}
+                  gameData={gameData}
                 />
               </div>
             ))}
@@ -342,6 +353,7 @@ const RoomView = ({
                           player={player} 
                           isCurrentPlayer={player.id === currentPlayer.id}
                           localization={localization}
+                          gameData={gameData}
                         />
                       </div>
                     ))}

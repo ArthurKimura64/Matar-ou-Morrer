@@ -66,6 +66,10 @@ ADD COLUMN IF NOT EXISTS additional_counters JSONB DEFAULT '{}';
 ALTER TABLE public.players 
 ADD COLUMN IF NOT EXISTS app_state JSONB DEFAULT '{"currentView": "lobby", "selectedActor": null, "characterSelections": null}';
 
+-- Adicionar coluna específica para dados de defesa
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS defense_dice_count INTEGER DEFAULT 2;
+
 -- Habilitar Row Level Security (RLS)
 ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
@@ -155,6 +159,7 @@ COMMENT ON COLUMN public.players.selections IS 'Seleções do personagem organiz
 COMMENT ON COLUMN public.players.last_activity IS 'Timestamp da última atividade do jogador para limpeza automática';
 COMMENT ON COLUMN public.players.is_connected IS 'Se o jogador está conectado';
 COMMENT ON COLUMN public.players.app_state IS 'Estado da aplicação para o jogador (view atual, seleções, etc.)';
+COMMENT ON COLUMN public.players.defense_dice_count IS 'Número de dados de defesa do personagem';
 
 COMMENT ON COLUMN public.rooms.last_activity IS 'Timestamp da última atividade da sala para limpeza automática';
 

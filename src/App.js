@@ -22,7 +22,7 @@ function App() {
   const [roomInternalView, setRoomInternalView] = useState('lobby');
   const [isRestoringState, setIsRestoringState] = useState(false);
 
-  // Função para salvar estado completo no banco
+  // Função para salvar estado completo no banco (modo multiplayer)
   const saveCompleteState = useCallback(async () => {
     if (currentRoom && currentPlayer) {
       const completeState = {
@@ -55,6 +55,27 @@ function App() {
       console.log('⚠️ Não salvando estado - falta room ou player');
     }
   }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer]);
+
+  // Função para salvar estado no modo solo (apenas localStorage)
+  const saveSoloState = useCallback(() => {
+    if (!currentRoom && !currentPlayer) {
+      const soloState = {
+        currentView: currentView,
+        selectedActor: selectedActor,
+        characterSelections: characterSelections,
+        timestamp: new Date().toISOString(),
+        isSoloMode: true
+      };
+      
+      console.log('💾 SALVANDO ESTADO SOLO:', {
+        view: soloState.currentView,
+        actor: soloState.selectedActor?.name || 'null',
+        hasSelections: !!soloState.characterSelections
+      });
+      
+      PlayerPersistence.saveAppState(soloState);
+    }
+  }, [currentView, selectedActor, characterSelections, currentRoom, currentPlayer]);
 
   // Função para tentar reconectar jogador salvo
   const handleReconnectPlayer = async (savedData, savedAppState) => {
@@ -152,10 +173,16 @@ function App() {
 
   // useEffect para salvar estado sempre que mudanças importantes acontecerem
   useEffect(() => {
-    if (!isRestoringState && currentRoom && currentPlayer) {
-      saveCompleteState();
+    if (!isRestoringState) {
+      if (currentRoom && currentPlayer) {
+        // Modo multiplayer - salvar no banco
+        saveCompleteState();
+      } else {
+        // Modo solo - salvar apenas no localStorage
+        saveSoloState();
+      }
     }
-  }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer, isRestoringState, saveCompleteState]);
+  }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer, isRestoringState, saveCompleteState, saveSoloState]);
 
   useEffect(() => {
     // Verificar se a URL contém "admin" para mostrar o painel escondido
@@ -177,6 +204,28 @@ function App() {
     if (savedData && PlayerPersistence.validateSavedData()) {
       console.log('🔄 Dados salvos encontrados, tentando reconectar...');
       handleReconnectPlayer(savedData, savedAppState);
+    } else if (savedAppState && savedAppState.isSoloMode) {
+      // Restaurar estado do modo solo
+      console.log('🔄 RESTAURANDO ESTADO SOLO:', savedAppState);
+      setIsRestoringState(true);
+      
+      if (savedAppState.selectedActor) {
+        console.log('📖 DEFININDO ACTOR SOLO:', savedAppState.selectedActor.name);
+        setSelectedActor(savedAppState.selectedActor);
+      }
+      
+      if (savedAppState.characterSelections) {
+        console.log('📖 DEFININDO SELECTIONS SOLO');
+        setCharacterSelections(savedAppState.characterSelections);
+      }
+      
+      if (savedAppState.currentView) {
+        console.log('📖 DEFININDO VIEW SOLO:', savedAppState.currentView);
+        setCurrentView(savedAppState.currentView);
+      }
+      
+      setTimeout(() => setIsRestoringState(false), 100);
+      console.log('✅ ESTADO SOLO RESTAURADO');
     }
     
     // Salvar configurações do Supabase no localStorage para o painel de admin
@@ -197,27 +246,27 @@ function App() {
   }, []);
 
   const handleCharacterSelect = (actor) => {
+    console.log('🎯 SELECIONANDO PERSONAGEM:', actor.name);
     setSelectedActor(actor);
     setCurrentView('builder');
-    
-    // Salvar estado completo com timeout para garantir que foi atualizado
-    setTimeout(saveCompleteState, 100);
   };
 
   const handleCharacterCreate = (selections) => {
+    console.log('🎯 CRIANDO PERSONAGEM');
     setCharacterSelections(selections);
     setCurrentView('sheet');
-    
-    // Salvar estado completo com timeout para garantir que foi atualizado
-    setTimeout(saveCompleteState, 100);
   };
 
   const handleReset = () => {
+    console.log('🔄 RESETANDO APLICAÇÃO');
     setCurrentView('menu');
     setSelectedActor(null);
     setCharacterSelections(null);
     setCurrentRoom(null);
     setCurrentPlayer(null);
+    
+    // Limpar estado solo salvo
+    PlayerPersistence.clearAppState();
   };
 
   const handleCreateRoom = async (roomName, masterName) => {
@@ -290,6 +339,14 @@ function App() {
   };
 
   const handleSoloPlay = () => {
+    console.log('🎮 INICIANDO MODO SOLO');
+    setCurrentView('selection');
+  };
+
+  const handleBackToSelection = () => {
+    console.log('🔄 VOLTANDO PARA SELEÇÃO - limpando personagem selecionado');
+    setSelectedActor(null);
+    setCharacterSelections(null);
     setCurrentView('selection');
   };
 
@@ -436,7 +493,7 @@ function App() {
           gameData={gameData}
           localization={localization}
           onCharacterCreate={handleCharacterCreate}
-          onBack={() => setCurrentView('selection')}
+          onBack={handleBackToSelection}
         />
       )}
 

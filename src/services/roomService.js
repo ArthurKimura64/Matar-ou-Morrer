@@ -598,4 +598,26 @@ export class RoomService {
       return { success: false, error: error.message };
     }
   }
+
+  // Atualizar dados de defesa do jogador
+  static async updatePlayerDefenseDice(playerId, defenseDiceCount) {
+    try {
+      console.log('Atualizando dados de defesa do jogador:', playerId, defenseDiceCount);
+      
+      const { data, error } = await supabase
+        .from('players')
+        .update({ defense_dice_count: defenseDiceCount })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('Dados de defesa atualizados com sucesso:', data);
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('Erro ao atualizar dados de defesa:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
