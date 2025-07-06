@@ -15,10 +15,16 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
   };
 
   const usedItems = player.used_items || [];
+  const additionalCounters = player.additional_counters || {};
   
   // Calcular características totais e disponíveis
   const getCharacteristicsData = () => {
-    const usedItemsSet = new Set(usedItems);
+    // Criar Set mais robusto que lida com diferentes tipos
+    const usedItemsSet = new Set();
+    usedItems.forEach(item => {
+      usedItemsSet.add(item);
+      usedItemsSet.add(String(item)); // Adicionar versão string também
+    });
     
     const characteristicsData = {
       attacks: { total: 0, available: 0 },
@@ -54,6 +60,7 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
     
     // CALCULAR DISPONÍVEIS baseado nas seleções
     if (player.selections && typeof player.selections === 'object' && Object.keys(player.selections).length > 0) {
+      
       // Contar itens disponíveis (selecionados mas não usados)
       Object.entries(player.selections).forEach(([key, selectedItems]) => {
         if (Array.isArray(selectedItems)) {
@@ -63,8 +70,18 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
           }
           
           if (characteristicsData[key]) {
-            // Verificar quais itens foram usados
-            const usedFromThisCategory = selectedItems.filter(item => usedItemsSet.has(item));
+            // Verificar quais itens foram usados - comparando IDs corretamente
+            const usedFromThisCategory = selectedItems.filter(item => {
+              // Obter o ID do item (suporta diferentes formatos)
+              const itemId = item.ID || item.id || item.Name || item.name;
+              
+              // Verificar se o ID está na lista de itens usados
+              if (itemId && usedItems.includes(itemId)) {
+                return true;
+              }
+              return false;
+            });
+            
             const availableCount = selectedItems.length - usedFromThisCategory.length;
             characteristicsData[key].available = availableCount;
           }
@@ -198,6 +215,60 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
                 </div>
               </div>
             </div>
+
+            {/* Contadores Adicionais - Se existirem */}
+            {Object.keys(additionalCounters).length > 0 && (
+              <div className="mb-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' }}>
+                <h6 className="text-light mb-2 fw-bold d-flex align-items-center small">
+                  <span className="me-2" style={{ color: '#17a2b8' }}>📊</span>
+                  {localization['UI.AdditionalCounters.Title'] || 'Contadores Especiais'}
+                </h6>
+                
+                <div className="row g-2">
+                  {Object.entries(additionalCounters).map(([key, counter]) => {
+                    if (typeof counter === 'object' && counter.current !== undefined) {
+                      const displayText = counter.max ? `${counter.current}/${counter.max}` : counter.current.toString();
+                      let colorClass = 'text-info';
+                      let bgColor = 'rgba(23,162,184,0.1)';
+                      let borderColor = 'rgba(23,162,184,0.2)';
+                      
+                      // Definir cor baseada no status
+                      if (counter.max) {
+                        if (counter.current === 0) {
+                          colorClass = 'text-danger';
+                          bgColor = 'rgba(220,53,69,0.1)';
+                          borderColor = 'rgba(220,53,69,0.2)';
+                        } else if (counter.current < counter.max / 2) {
+                          colorClass = 'text-warning';
+                          bgColor = 'rgba(255,193,7,0.1)';
+                          borderColor = 'rgba(255,193,7,0.2)';
+                        } else {
+                          colorClass = 'text-success';
+                          bgColor = 'rgba(25,135,84,0.1)';
+                          borderColor = 'rgba(25,135,84,0.2)';
+                        }
+                      }
+                      
+                      return (
+                        <div key={key} className={Object.keys(additionalCounters).length <= 2 ? "col-6" : "col-12 col-sm-6"}>
+                          <div className="d-flex justify-content-between align-items-center py-1 px-2 rounded" 
+                               style={{ background: bgColor, border: `1px solid ${borderColor}`, minHeight: '28px' }}>
+                            <span className="text-muted d-flex align-items-center text-truncate" style={{ maxWidth: '70%' }}>
+                              {counter.icon && <span className="me-1 flex-shrink-0" style={{ fontSize: '0.8em' }}>{counter.icon}</span>}
+                              <span className="text-truncate" style={{ fontSize: '0.85em' }} title={counter.label || key}>
+                                {counter.label || key.replace('SpecialCustom.', '').replace(/\d+$/, '')}
+                              </span>
+                            </span>
+                            <span className={`fw-bold ${colorClass} flex-shrink-0`} style={{ fontSize: '0.9em' }}>{displayText}</span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Características - Versão Linhas Compactas */}
             <div className="mb-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' }}>
