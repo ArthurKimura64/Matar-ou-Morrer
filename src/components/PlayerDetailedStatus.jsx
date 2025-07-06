@@ -125,11 +125,6 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
       <div className="card bg-dark border-light h-100" style={{ transition: 'all 0.2s ease-in-out' }}>
         <div className="card-body p-2 d-flex align-items-center justify-content-center">
           <div className="text-center">
-            <div className="mb-2">
-              <div className="spinner-border spinner-border-sm text-muted" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
             <div className="text-muted small" style={{ 
               background: 'rgba(108,117,125,0.1)', 
               border: '1px solid rgba(108,117,125,0.3)',
@@ -317,11 +312,6 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
         {/* Placeholder para outros status */}
         {player.status !== 'ready' && (
           <div className="text-center py-4">
-            <div className="mb-3">
-              <div className="spinner-border spinner-border-sm text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
             <div className="text-muted" style={{ 
               background: 'rgba(13,110,253,0.1)', 
               border: '1px solid rgba(13,110,253,0.3)',
