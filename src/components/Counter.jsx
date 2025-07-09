@@ -1,26 +1,22 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 const Counter = ({ id, title, value, min, max, onChange }) => {
-  const handleDecrement = () => {
+  const handleDecrement = useCallback(() => {
     onChange(Math.max(value - 1, min));
-  };
+  }, [value, min, onChange]);
 
-  const handleIncrement = () => {
-    if (max === null || max === undefined) {
-      onChange(value + 1);
-    } else {
-      onChange(Math.min(value + 1, max));
-    }
-  };
+  const handleIncrement = useCallback(() => {
+    const newValue = max === null || max === undefined ? value + 1 : Math.min(value + 1, max);
+    onChange(newValue);
+  }, [value, max, onChange]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const newValue = parseInt(e.target.value) || min;
-    if (max === null || max === undefined) {
-      onChange(Math.max(newValue, min));
-    } else {
-      onChange(Math.max(Math.min(newValue, max), min));
-    }
-  };
+    const clampedValue = max === null || max === undefined 
+      ? Math.max(newValue, min) 
+      : Math.max(Math.min(newValue, max), min);
+    onChange(clampedValue);
+  }, [min, max, onChange]);
 
   return (
     <div className="col-12 col-md-3 mb-2 mb-md-0 d-flex justify-content-center">

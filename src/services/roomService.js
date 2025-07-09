@@ -426,6 +426,28 @@ export class RoomService {
     }
   }
 
+  // Atualizar itens desbloqueados do jogador
+  static async updatePlayerUnlockedItems(playerId, unlockedItems) {
+    try {
+      console.log('Atualizando itens desbloqueados do jogador:', playerId, unlockedItems);
+      
+      const { data, error } = await supabase
+        .from('players')
+        .update({ unlocked_items: unlockedItems })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('Itens desbloqueados atualizados com sucesso:', data);
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('Erro ao atualizar itens desbloqueados:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Atualizar contadores adicionais do jogador
   static async updatePlayerAdditionalCounters(playerId, additionalCounters) {
     try {

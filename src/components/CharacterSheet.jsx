@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Counter from './Counter';
 import CharacteristicCard from './CharacteristicCard';
 import SpecialCharacteristics from './SpecialCharacteristics';
@@ -11,17 +11,65 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   const [counters, setCounters] = useState({
     vida: 20,
     vida_max: 20,
-    esquiva: 0, // Começar em 0
+    esquiva: 0,
     esquiva_max: 0,
-    oport: 0, // Começar em 0
+    oport: 0,
     oport_max: 0,
-    item: 0, // Começar em 0
+    item: 0,
     item_max: 0
   });
   
   const [currentMode, setCurrentMode] = useState('mode1');
   const [usedItems, setUsedItems] = useState(new Set());
+  const [unlockedItems, setUnlockedItems] = useState(new Set()); // Novo estado para itens desbloqueados
   const [additionalCounters, setAdditionalCounters] = useState({});
+
+  // Memoizar contadores iniciais
+  const initialCounters = useMemo(() => ({
+    vida: 20,
+    vida_max: 20,
+    esquiva: 0,
+    esquiva_max: actor?.DodgePoints || 0,
+    oport: 0,
+    oport_max: actor?.OportunityAttacks || 0,
+    item: 0,
+    item_max: actor?.ExplorationItens || 0
+  }), [actor]);
+
+  // Memoizar características calculadas
+  const calculatedCharacteristics = useMemo(() => {
+    if (!actor || !selections) return {};
+    
+    const newCharacteristics = {
+      attacks: 0, weapons: 0, passives: 0,
+      devices: 0, powers: 0, specials: 0, passiveSpecials: 0,
+      consumables: 0, equipment: 0, modifications: 0
+    };
+
+    // Contar características selecionadas
+    Object.entries(selections).forEach(([key, selectedItems]) => {
+      if (Array.isArray(selectedItems)) {
+        selectedItems.forEach(item => {
+          const type = item.Type;
+          switch(type) {
+            case 'Attack': newCharacteristics.attacks++; break;
+            case 'Weapon': newCharacteristics.weapons++; break;
+            case 'Passive': newCharacteristics.passives++; break;
+            case 'Device': newCharacteristics.devices++; break;
+            case 'Power': newCharacteristics.powers++; break;
+            case 'SpecialAbility': newCharacteristics.specials++; break;
+            case 'PassiveSpecialAbility': newCharacteristics.passiveSpecials++; break;
+            case 'Consumable': newCharacteristics.consumables++; break;
+            case 'Equipment': newCharacteristics.equipment++; break;
+            case 'Modification': newCharacteristics.modifications++; break;
+            default: break;
+          }
+        });
+      }
+    });
+
+    return newCharacteristics;
+  }, [actor, selections]);
 
   // Inicializar itens usados a partir dos dados do jogador
   useEffect(() => {
@@ -30,75 +78,31 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     }
   }, [currentPlayer?.used_items]);
 
-  // Calcular características do personagem criado
+  // Inicializar itens desbloqueados a partir dos dados do jogador
+  useEffect(() => {
+    if (currentPlayer?.unlocked_items) {
+      setUnlockedItems(new Set(currentPlayer.unlocked_items));
+    }
+  }, [currentPlayer?.unlocked_items]);
+
+  // Calcular características do personagem criado - Otimizado
   useEffect(() => {
     if (actor && selections && currentPlayer?.id) {
-      const newCharacteristics = {
-        attacks: 0, weapons: 0, passives: 0,
-        devices: 0, powers: 0, specials: 0, passiveSpecials: 0,
-        consumables: 0, equipment: 0, modifications: 0
-      };
-
-      // Contar características selecionadas
-      Object.entries(selections).forEach(([key, selectedItems]) => {
-        if (Array.isArray(selectedItems)) {
-          selectedItems.forEach(item => {
-            if (item.Type === 'Attack') newCharacteristics.attacks++;
-            else if (item.Type === 'Weapon') newCharacteristics.weapons++;
-            else if (item.Type === 'Passive') newCharacteristics.passives++;
-            else if (item.Type === 'Device') newCharacteristics.devices++;
-            else if (item.Type === 'Power') newCharacteristics.powers++;
-            else if (item.Type === 'SpecialAbility') newCharacteristics.specials++;
-            else if (item.Type === 'PassiveSpecialAbility') newCharacteristics.passiveSpecials++;
-            else if (item.Type === 'Consumable') newCharacteristics.consumables++;
-            else if (item.Type === 'Equipment') newCharacteristics.equipment++;
-            else if (item.Type === 'Modification') newCharacteristics.modifications++;
-          });
-        }
-      });
-
-      console.log('🎮 DEBUG - Características calculadas:', newCharacteristics);
-      console.log('🎮 DEBUG - Seleções a serem salvas:', selections);
-
-      // Definir valores dos contadores baseados no personagem (valores iniciais corretos)
-      setCounters(prev => ({
-        ...prev,
-        vida: 20, // Vida sempre começa em 20
-        vida_max: 20, // Vida máxima é sempre 20 (valor fixo do jogo)
-        esquiva: 0, // Esquiva começa em 0, não no valor máximo
-        esquiva_max: actor.DodgePoints || 0, // Valor fixo baseado no personagem
-        oport: 0, // Oportunidade começa em 0, não no valor máximo  
-        oport_max: actor.OportunityAttacks || 0, // Valor fixo baseado no personagem
-        item: 0, // Itens começa em 0, não no valor máximo
-        item_max: actor.ExplorationItens || 0 // Valor fixo baseado no personagem
-      }));
+      // Definir valores dos contadores baseados no personagem
+      setCounters(prev => ({ ...prev, ...initialCounters }));
 
       // Sincronizar com o banco de dados
-      RoomService.updatePlayerCharacteristics(currentPlayer.id, newCharacteristics);
+      RoomService.updatePlayerCharacteristics(currentPlayer.id, calculatedCharacteristics);
       
       // Sincronizar seleções
-      RoomService.updatePlayerSelections(currentPlayer.id, selections).then(result => {
-        if (!result.success) {
-          console.error('❌ Falha ao salvar seleções:', result.error);
-        }
+      RoomService.updatePlayerSelections(currentPlayer.id, selections).catch(error => {
+        console.error('❌ Falha ao salvar seleções:', error);
       });
 
       // Sincronizar contadores principais com o banco
-      const initialCounters = {
-        vida: 20,
-        vida_max: 20,
-        esquiva: 0,
-        esquiva_max: actor.DodgePoints || 0,
-        oport: 0,
-        oport_max: actor.OportunityAttacks || 0,
-        item: 0,
-        item_max: actor.ExplorationItens || 0
-      };
       RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
       
-      // Configurar contadores adicionais baseados nas SpecialCharacteristics reais
-      console.log('🎮 DEBUG - Configurando contadores adicionais para:', actor.ID);
-      console.log('🎮 DEBUG - SpecialCharacteristics do ator:', actor.SpecialCharacteristics);
+      // Configurar contadores adicionais baseados nas SpecialCharacteristics
       const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
       const additionalCountersData = getCharacterAdditionalCounters(characterName, { 
         actor, 
@@ -106,11 +110,6 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         gameData, 
         localization 
       });
-      
-      console.log('🎮 DEBUG - Contadores recebidos:', Object.keys(additionalCountersData), additionalCountersData);
-      
-      // Verificar se já existem contadores adicionais no estado para evitar sobreposição
-      console.log('🎮 DEBUG - Contadores atuais no estado:', Object.keys(additionalCounters), additionalCounters);
       
       // Na ficha, os contadores especiais devem começar em 0, não no máximo
       const resetCountersData = {};
@@ -121,15 +120,12 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         };
       });
       
-      console.log('🎮 DEBUG - Contadores resetados:', resetCountersData);
-      
       setAdditionalCounters(resetCountersData);
       
       // Sincronizar contadores adicionais
       RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actor, selections, currentPlayer?.id, localization, gameData]);
+  }, [actor, selections, currentPlayer?.id, localization, gameData, initialCounters, calculatedCharacteristics]);
 
   const handleCounterChange = async (id, value) => {
     const newCounters = {
@@ -156,7 +152,8 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     }
   };
 
-  const itemSections = [
+  // Memoizar seções de itens
+  const itemSections = useMemo(() => [
     { key: 'attacks', title: localization['Characteristic.Attack.Title'], color: 'danger', type: 'attack' },
     { key: 'weapons', title: localization['Characteristic.Weapon.Title'], color: 'danger', type: 'weapon' },
     { key: 'passives', title: localization['Characteristic.Passive.Title'], color: 'success', type: 'passive' },
@@ -164,7 +161,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     { key: 'powers', title: localization['Characteristic.Power.Title'], color: 'primary', type: 'power', useButton: true },
     { key: 'specials', title: localization['Characteristic.SpecialAbility.Title'], color: 'warning', type: 'special', useButton: true },
     { key: 'passiveSpecials', title: localization['Characteristic.PassiveSpecialAbility.Title'], color: 'warning', type: 'passiveSpecial' }
-  ];
+  ], [localization]);
 
   const handleModeChange = (mode) => {
     setCurrentMode(mode);
@@ -180,6 +177,16 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     }
   };
 
+  const handleUnlockItem = async (itemId) => {
+    const newUnlockedItems = new Set([...unlockedItems, itemId]);
+    setUnlockedItems(newUnlockedItems);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
+    }
+  };
+
   const handleRecoverItems = async (type) => {
     const itemsToRecover = selections[type] || [];
     const newUsedItems = new Set(usedItems);
@@ -190,6 +197,19 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // Sincronizar com o banco de dados
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUsedItems(currentPlayer.id, Array.from(newUsedItems));
+    }
+  };
+
+  const handleLockItems = async (type) => {
+    const itemsToLock = selections[type] || [];
+    const newUnlockedItems = new Set(unlockedItems);
+    itemsToLock.forEach(item => newUnlockedItems.delete(item.ID));
+    
+    setUnlockedItems(newUnlockedItems);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
     }
   };
 
@@ -210,22 +230,46 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           : localization[item.Description] || item.Description || "");
 
     const isUsed = usedItems.has(item.ID);
+    const isUnlocked = unlockedItems.has(item.ID);
+    const isPassiveSpecial = section.type === 'passiveSpecial';
+
+    // Para habilidades passivas especiais, o estado padrão é bloqueado
+    let cardOpacity = '';
+    if (isPassiveSpecial) {
+      cardOpacity = isUnlocked ? '' : ' opacity-50'; // Bloqueado por padrão, claro quando desbloqueado
+    } else {
+      cardOpacity = isBlocked ? ' opacity-50' : ''; // Comportamento normal para outros tipos
+      if (isUsed) cardOpacity += ' bg-dark opacity-75';
+    }
 
     return (
       <div key={item.ID} className="col-12 col-md-3">
         <div 
-          className={`card border-${section.color} h-100${isBlocked ? ' opacity-50' : ''}${isUsed ? ' bg-dark opacity-75' : ''}`} 
+          className={`card border-${section.color} h-100${cardOpacity}`} 
           style={{background: 'var(--bs-gray-800)', color: '#fff'}}
         >
           <div className="card-body p-2">
             <div className={`fw-bold text-${section.color} mb-1`}>
-              {title}{isBlocked ? ` (${localization['UI.CharacterSheet.ModeRestricted'] || 'UI.CharacterSheet.ModeRestricted'})` : ''}
+              {title}
+              {isBlocked && !isPassiveSpecial ? ` (${localization['UI.CharacterSheet.ModeRestricted'] || 'UI.CharacterSheet.ModeRestricted'})` : ''}
+              {isPassiveSpecial && !isUnlocked ? ` (${localization['UI.CharacterSheet.Locked'] || 'Bloqueado'})` : ''}
             </div>
             <div 
               className="mb-2" 
               dangerouslySetInnerHTML={{ __html: desc }}
             />
-            {section.useButton && !isBlocked && (
+            {/* Botões para habilidades passivas especiais */}
+            {isPassiveSpecial && !isBlocked && (
+              <button 
+                className={`btn btn-sm btn-outline-${section.color}`}
+                onClick={() => handleUnlockItem(item.ID)}
+                disabled={isUnlocked}
+              >
+                {isUnlocked ? (localization['UI.CharacterSheet.Unlocked'] || 'Desbloqueado') : (localization['UI.CharacterSheet.Unlock'] || 'Desbloquear')}
+              </button>
+            )}
+            {/* Botões para outros tipos com useButton */}
+            {section.useButton && !isBlocked && !isPassiveSpecial && (
               <button 
                 className={`btn btn-sm btn-outline-${section.color}`}
                 disabled={isUsed}
@@ -244,6 +288,8 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     const items = selections[section.key] || [];
     if (!items.length) return null;
 
+    const isPassiveSpecial = section.type === 'passiveSpecial';
+
     return (
       <div key={section.key} className="mb-4">
         <h4 className={`text-${section.color}`}>{section.title}:</h4>
@@ -255,13 +301,27 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
             return renderItemCard({ item, section, isBlocked });
           })}
         </div>
-        {section.useButton && (
+        
+        {/* Botões para habilidades passivas especiais */}
+        {isPassiveSpecial && (
+          <div className="text-center mb-4">
+            <button 
+              className={`btn btn-sm btn-${section.color} me-2`}
+              onClick={() => handleLockItems(section.key)}
+            >
+              {localization['UI.CharacterSheet.LockAll'] || 'Bloquear Todos'}
+            </button>
+          </div>
+        )}
+        
+        {/* Botões para outros tipos com useButton */}
+        {section.useButton && !isPassiveSpecial && (
           <div className="text-center mb-4">
             <button 
               className={`btn btn-sm btn-${section.color}`}
               onClick={() => handleRecoverItems(section.key)}
             >
-              Recuperar {section.title}
+              {localization['UI.CharacterSheet.RecoverAll'] || 'Recuperar'} {section.title}
             </button>
           </div>
         )}

@@ -46,6 +46,10 @@ ADD COLUMN IF NOT EXISTS characteristics JSONB DEFAULT '{"attacks": 0, "weapons"
 ALTER TABLE public.players 
 ADD COLUMN IF NOT EXISTS used_items JSONB DEFAULT '[]';
 
+-- Adicionar coluna para itens desbloqueados (habilidades passivas especiais)
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS unlocked_items JSONB DEFAULT '[]';
+
 -- Adicionar coluna para armazenar as seleções do personagem (ataques, armas, passivas, etc.)
 ALTER TABLE public.players 
 ADD COLUMN IF NOT EXISTS selections JSONB DEFAULT '{}';
@@ -135,6 +139,7 @@ CREATE INDEX IF NOT EXISTS idx_players_counters ON public.players USING GIN (cou
 CREATE INDEX IF NOT EXISTS idx_players_characteristics ON public.players USING GIN (characteristics);
 CREATE INDEX IF NOT EXISTS idx_players_selections ON public.players USING GIN (selections);
 CREATE INDEX IF NOT EXISTS idx_players_app_state ON public.players USING GIN (app_state);
+CREATE INDEX IF NOT EXISTS idx_players_unlocked_items ON public.players USING GIN (unlocked_items);
 
 -- Comentários para documentação
 COMMENT ON TABLE public.rooms IS 'Tabela que armazena as salas de jogo';
@@ -154,6 +159,7 @@ COMMENT ON COLUMN public.players.character_name IS 'Nome do personagem escolhido
 COMMENT ON COLUMN public.players.counters IS 'Contadores do jogador (vida, esquiva, oportunidade, itens) com valores atuais e máximos';
 COMMENT ON COLUMN public.players.characteristics IS 'Quantidade de características de cada tipo (ataques, armas, passivas, etc.)';
 COMMENT ON COLUMN public.players.used_items IS 'Lista de IDs de itens usados pelo jogador';
+COMMENT ON COLUMN public.players.unlocked_items IS 'Lista de IDs de habilidades passivas especiais desbloqueadas pelo jogador';
 COMMENT ON COLUMN public.players.additional_counters IS 'Contadores adicionais específicos do personagem (munição, energia, etc.)';
 COMMENT ON COLUMN public.players.selections IS 'Seleções do personagem organizadas por tipo (attacks, weapons, passives, devices, powers, specials, passiveSpecials)';
 COMMENT ON COLUMN public.players.last_activity IS 'Timestamp da última atividade do jogador para limpeza automática';

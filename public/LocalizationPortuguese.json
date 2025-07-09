@@ -127,6 +127,7 @@
   "UI.Room.CreateYourCharacter": "Criar Seu Personagem",
   "UI.Loading.Game": "Carregando dados do jogo...",
   "UI.CharacterBuilder.CreateCharacter": "Criar Personagem",
+  "UI.CharacterSelection.SortOptions": "Ordenação",
   "UI.PlayerStatus.QuickSummary": "",
   "Character.Name.Impact": "Impacto",
   "Character.Title.Impact": "Movimentação",
