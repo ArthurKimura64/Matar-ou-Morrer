@@ -28,6 +28,9 @@ const RoomView = ({
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPlayersList, setShowPlayersList] = useState(true);
+  const [showCharacterSelection, setShowCharacterSelection] = useState(true);
+  const [showCharacterBuilder, setShowCharacterBuilder] = useState(true);
+  const [showCharacterSheet, setShowCharacterSheet] = useState(true);
   
   // Usar useRef para controlar se já aplicou estado inicial
   const hasAppliedInitialState = useRef(false);
@@ -68,25 +71,7 @@ const RoomView = ({
   // Gerenciar status automaticamente
   usePlayerStatus(currentPlayer?.id, currentView, selectedActor, characterSelections, localization);
 
-  // Função para atualizar jogadores manualmente
-  const refreshPlayers = async () => {
-    console.log('🔄 Atualizando lista de jogadores manualmente...');
-    setLoading(true);
-    
-    try {
-      const { success, players: updatedPlayers } = await RoomService.getPlayersInRoom(room.id);
-      if (success) {
-        setPlayers(updatedPlayers);
-        console.log('✅ Lista de jogadores atualizada');
-      } else {
-        console.error('❌ Falha ao atualizar jogadores');
-      }
-    } catch (error) {
-      console.error('❌ Erro ao atualizar jogadores:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Função para atualizar jogadores manualmente removida (refreshPlayers)
 
   useEffect(() => {
     let isMounted = true;
@@ -249,6 +234,18 @@ const RoomView = ({
     setShowPlayersList(!showPlayersList);
   };
 
+  const toggleCharacterSelection = () => {
+    setShowCharacterSelection(!showCharacterSelection);
+  };
+
+  const toggleCharacterBuilder = () => {
+    setShowCharacterBuilder(!showCharacterBuilder);
+  };
+
+  const toggleCharacterSheet = () => {
+    setShowCharacterSheet(!showCharacterSheet);
+  };
+
   const renderPlayersListCompact = () => (
     <div className="card bg-dark border-light mb-3">
       <div className="card-header d-flex justify-content-between align-items-center">
@@ -260,28 +257,26 @@ const RoomView = ({
           <button 
             className="btn btn-outline-light btn-sm"
             onClick={togglePlayersList}
-            title={showPlayersList ? "Minimizar lista" : "Expandir lista"}
+            title={showPlayersList ? (localization['UI.Room.CollapseList'] || "Minimizar lista") : (localization['UI.Room.ExpandList'] || "Expandir lista")}
           >
             {showPlayersList ? '▼' : '▲'}
           </button>
         </div>
       </div>
-      {showPlayersList && (
-        <div className="card-body py-2">
-          <div className="row g-2">
-            {players.map((player) => (
-              <div key={player.id} className="col-md-6 col-lg-4">
-                <PlayerDetailedStatus 
-                  player={player} 
-                  isCurrentPlayer={player.id === currentPlayer.id}
-                  localization={localization}
-                  gameData={gameData}
-                />
-              </div>
-            ))}
-          </div>
+      <div className="card-body py-2" style={{ display: showPlayersList ? 'block' : 'none' }}>
+        <div className="row g-2">
+          {players.map((player) => (
+            <div key={player.id} className="col-md-6 col-lg-4">
+              <PlayerDetailedStatus 
+                player={player} 
+                isCurrentPlayer={player.id === currentPlayer.id}
+                localization={localization}
+                gameData={gameData}
+              />
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 
@@ -318,13 +313,7 @@ const RoomView = ({
               >
                 📋 {room.id}
               </button>
-              <button 
-                className="btn btn-outline-info btn-sm me-2"
-                onClick={refreshPlayers}
-                title="Atualizar lista de jogadores"
-              >
-                🔄
-              </button>
+              {/* Botão de atualizar removido */}
               <button 
                 className="btn btn-outline-danger btn-sm"
                 onClick={handleLeaveRoom}
@@ -342,10 +331,20 @@ const RoomView = ({
           <div className="row mb-4">
             <div className="col-12">
               <div className="card bg-dark border-light">
-                <div className="card-header">
-                  <h5 className="text-white mb-0">{localization['UI.Room.ConnectedPlayers'] || 'UI.Room.ConnectedPlayers'}</h5>
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h5 className="text-white mb-0">{localization['UI.Room.ConnectedPlayers'] || 'UI.Room.ConnectedPlayers'} ({players.length})</h5>
+                  <div className="d-flex align-items-center gap-2">
+                    <ConnectionStatusIndicator />
+                    <button 
+                      className="btn btn-outline-light btn-sm"
+                      onClick={togglePlayersList}
+                      title={showPlayersList ? (localization['UI.Room.CollapseList'] || "Minimizar lista") : (localization['UI.Room.ExpandList'] || "Expandir lista")}
+                    >
+                      {showPlayersList ? '▼' : '▲'}
+                    </button>
+                  </div>
                 </div>
-                <div className="card-body">
+                <div className="card-body" style={{ display: showPlayersList ? 'block' : 'none' }}>
                   <div className="row">
                     {players.map((player) => (
                       <div key={player.id} className="col-md-6 col-lg-4 mb-3">
@@ -367,10 +366,17 @@ const RoomView = ({
           <div className="row">
             <div className="col-12">
               <div className="card bg-dark border-light">
-                <div className="card-header">
+                <div className="card-header d-flex justify-content-between align-items-center">
                   <h5 className="text-white mb-0">{localization['UI.Room.CreateYourCharacter'] || 'UI.Room.CreateYourCharacter'}</h5>
+                  <button 
+                    className="btn btn-outline-light btn-sm"
+                    onClick={toggleCharacterSelection}
+                    title={showCharacterSelection ? (localization['UI.Room.CollapseSelection'] || "Minimizar seleção") : (localization['UI.Room.ExpandSelection'] || "Expandir seleção")}
+                  >
+                    {showCharacterSelection ? '▼' : '▲'}
+                  </button>
                 </div>
-                <div className="card-body">
+                <div className="card-body" style={{ display: showCharacterSelection ? 'block' : 'none' }}>
                   <CharacterSelection 
                     gameData={gameData}
                     localization={localization}
@@ -388,27 +394,55 @@ const RoomView = ({
       {currentView === 'builder' && (
         <>
           {renderPlayersListCompact()}
-          <CharacterBuilder
-            actor={selectedActor}
-            gameData={gameData}
-            localization={localization}
-            onCharacterCreate={handleCharacterCreate}
-            onBack={handleBackToLobby}
-          />
+          <div className="card bg-dark border-light mb-3">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="text-white mb-0">{localization['UI.CharacterBuilder.CreateCharacter'] || 'Criar Personagem'}</h5>
+              <button 
+                className="btn btn-outline-light btn-sm"
+                onClick={toggleCharacterBuilder}
+                title={showCharacterBuilder ? (localization['UI.Room.CollapseBuilder'] || "Minimizar construtor") : (localization['UI.Room.ExpandBuilder'] || "Expandir construtor")}
+              >
+                {showCharacterBuilder ? '▼' : '▲'}
+              </button>
+            </div>
+            <div className="card-body" style={{ display: showCharacterBuilder ? 'block' : 'none' }}>
+              <CharacterBuilder
+                actor={selectedActor}
+                gameData={gameData}
+                localization={localization}
+                onCharacterCreate={handleCharacterCreate}
+                onBack={handleBackToLobby}
+              />
+            </div>
+          </div>
         </>
       )}
 
       {currentView === 'sheet' && (
         <>
           {renderPlayersListCompact()}
-          <CharacterSheet
-            actor={selectedActor}
-            selections={characterSelections}
-            gameData={gameData}
-            localization={localization}
-            onReset={handleBackToLobby}
-            currentPlayer={currentPlayer}
-          />
+          <div className="card bg-dark border-light mb-3">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h5 className="text-white mb-0">{localization['UI.CharacterSheet.Title'] || 'Ficha do Personagem'}</h5>
+              <button 
+                className="btn btn-outline-light btn-sm"
+                onClick={toggleCharacterSheet}
+                title={showCharacterSheet ? (localization['UI.Room.CollapseSheet'] || "Minimizar ficha") : (localization['UI.Room.ExpandSheet'] || "Expandir ficha")}
+              >
+                {showCharacterSheet ? '▼' : '▲'}
+              </button>
+            </div>
+            <div className="card-body" style={{ display: showCharacterSheet ? 'block' : 'none' }}>
+              <CharacterSheet
+                actor={selectedActor}
+                selections={characterSelections}
+                gameData={gameData}
+                localization={localization}
+                onReset={handleBackToLobby}
+                currentPlayer={currentPlayer}
+              />
+            </div>
+          </div>
         </>
       )}
     </div>

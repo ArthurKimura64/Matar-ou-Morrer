@@ -205,31 +205,31 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
                 {localization['UI.Counters.Special'] || 'Contadores'}
               </h6>
               <div className="row g-1 small">
-                <div className="col-6">
+                <div className="col-sm-6">
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(220,53,69,0.1)', border: '1px solid rgba(220,53,69,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.Health'] || 'Vida'}</span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.vida, counters.vida_max)}</span>
                   </div>
                 </div>
-                <div className="col-6">
+                <div className="col-sm-6">
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(40,167,69,0.1)', border: '1px solid rgba(40,167,69,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.DodgePoints'] || 'Esquiva'}</span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.esquiva, counters.esquiva_max)}</span>
                   </div>
                 </div>
-                <div className="col-6">
+                <div className="col-sm-6">
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.OportunityAttack'] || 'Oport.'}</span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.oport, counters.oport_max)}</span>
                   </div>
                 </div>
-                <div className="col-6">
+                <div className="col-sm-6">
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(108,117,125,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.ExplorationItens'] || 'Itens'}</span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.item, counters.item_max)}</span>
                   </div>
                 </div>
-                <div className="col-12">
+                <div className="col-sm-12">
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(102,16,242,0.1)', border: '1px solid rgba(102,16,242,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.DefenseDices'] || 'Dados de defesa'}</span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{counters.defesa || 2}</span>
