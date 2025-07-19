@@ -21,7 +21,7 @@
   "AttackBase.Damage": "Dano",
   "AttackBase.Distance": "Distância",
   "AttackBase.Dices": "Dados",
-  "AttackBase.LoadTime": "Tempo de Recarga",
+  "AttackBase.LoadTime": "Segundos",
   "AttackBase.Terrain": "Terreno",
   "AttackBase.TriggerType.Passive": "(P)",
   "AttackBase.TriggerType.BeforeAttack": "(A)",
