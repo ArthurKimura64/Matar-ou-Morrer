@@ -3,6 +3,14 @@ import PlayerStatusBadge from './PlayerStatusBadge';
 
 const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = {}, gameData }) => {
   // Memoizar contadores para evitar recalcular
+  // Buscar dados do personagem (actorData) para acessar NumberOfDefenseDices
+  const actorData = useMemo(() => {
+    if (player?.character_name && gameData?.ActorDefinitions) {
+      return gameData.ActorDefinitions.find(actor => actor.ID === player.character_name);
+    }
+    return null;
+  }, [player?.character_name, gameData]);
+
   const counters = useMemo(() => ({
     vida: player?.counters?.vida ?? 20,
     vida_max: player?.counters?.vida_max ?? 20,
@@ -11,8 +19,8 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
     oport: player?.counters?.oport ?? 0,
     oport_max: player?.counters?.oport_max ?? 0,
     item: player?.counters?.item ?? 0,
-    item_max: player?.counters?.item_max ?? 0,
-    defesa: player?.counters?.defesa ?? 2
+    item_max: player?.counters?.item_max ?? 0
+    // defesa removido daqui
   }), [player?.counters]);
 
   // Memoizar contadores adicionais
@@ -232,7 +240,9 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
                 <div className="col-sm-12">
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(102,16,242,0.1)', border: '1px solid rgba(102,16,242,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.DefenseDices'] || 'Dados de defesa'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{counters.defesa || 2}</span>
+                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>
+                      {actorData?.NumberOfDefenseDices ?? 2}
+                    </span>
                   </div>
                 </div>
               </div>
