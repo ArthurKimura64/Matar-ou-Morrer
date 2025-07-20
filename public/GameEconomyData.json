@@ -7184,14 +7184,14 @@
     {
       "ID": "Power.Vinteum3",
       "TriggerType": [
-        "BeforeAttack"
+        "Passive"
       ],
       "Description": "Power.Vinteum3.Description"
     },
     {
       "ID": "Power.Vinteum4",
       "TriggerType": [
-        "BeforeAttack"
+        "Passive"
       ],
       "Description": "Power.Vinteum4.Description"
     },
