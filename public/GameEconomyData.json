@@ -4950,7 +4950,8 @@
       "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
-        "Earth"
+        "Earth",
+        "Air"
       ]
     },
     {
@@ -5916,7 +5917,7 @@
     {
       "ID": "Device.Absoluto4",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Device.Absoluto4.Description"
     },
