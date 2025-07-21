@@ -910,7 +910,7 @@
   "Passive.adaptado3": "Lixão",
   "Passive.adaptado3.Description": "Os inimigos te atacam com -1 dado( a menos que ele jogue apenas 1 dado de ataque) enquanto estiver no lixão.",
   "Passive.adaptado4": "Lixão 2.0",
-  "Passive.adaptado4.Description": "Se o inimigo joga apenas um dado para te atacar, ele não irá te atacar enquanto você estiver no lixão(só pode escolher essa passiva se escolher a passiva Lixão).",
+  "Passive.adaptado4.Description": "Os dados de ataque do inimigo recebem -1 contra você enquanto você estiver no lixão(só pode escolher essa passiva se escolher a passiva Lixão).",
   "Passive.adaptado5": "Deserto",
   "Passive.adaptado5.Description": "Se defende com 3 dados enquanto estiver no deserto.",
   "Passive.adaptado6": "Deserto 2.0",
