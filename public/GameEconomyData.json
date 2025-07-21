@@ -2255,7 +2255,10 @@
         "Landfill": "d20",
         "Mountain": "d20"
       },
-      "UnlimitedAttacksData": [],
+      "UnlimitedAttacksData": [
+        "Attack.Eterno 1",
+        "Attack.Eterno 2"
+      ],
       "WeaponsData": [
         "Weapon.Eterno 1",
         "Weapon.Eterno 2"
@@ -4788,7 +4791,7 @@
       "SpecialDescription": "Attack.Katnis4.SpecialDescription"
     },
     {
-      "ID": "Attack.1",
+      "ID": "Attack.Eterno 1",
       "Damage": 2,
       "MinimumDistance": "0",
       "MaximumDistance": 1,
@@ -4797,10 +4800,10 @@
       "Ambient": [
         "Earth"
       ],
-      "SpecialDescription": "Attack.1.SpecialDescription"
+      "SpecialDescription": "Attack.Eterno 1.SpecialDescription"
     },
     {
-      "ID": "Attack.2",
+      "ID": "Attack.Eterno 2",
       "Damage": 15,
       "MinimumDistance": 5,
       "MaximumDistance": 10,
