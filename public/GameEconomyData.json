@@ -3131,7 +3131,7 @@
       "MinimumDistance": 5,
       "MaximumDistance": 12,
       "LoadTime": "0",
-      "Dices": 4,
+      "Dices": 3,
       "Ambient": [
         "Earth",
         "Air",
