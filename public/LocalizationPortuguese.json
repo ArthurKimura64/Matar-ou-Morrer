@@ -1743,7 +1743,7 @@
   "PassiveSpecialAbility.Atomico1": "Bomba Nuclear",
   "PassiveSpecialAbility.Atomico1.Description": "Ao ativar Bomba Nuclear você recupera 2 pulos por rodada e quando estiver com todos os pulos pode se explodir dentro da base central com uma explosão nuclear que gasta todos os seus pulos e ataca todos os inimigos com 3 dados dando 20 de dano cada um, após a primeira explosão você recupera 1 pulo por rodada é só poderá se explodir novamente quando todos os pulos voltarem e assim vai indo.",
   "PassiveSpecialAbility.Atomico2": "Aquecimento Interno",
-  "PassiveSpecialAbility.Atomico2.Description": "Joga +2 dados de defesa e ganha +1 em cada um deles.",
+  "PassiveSpecialAbility.Atomico2.Description": "Joga +2 dados de defesa e ganha +1 em todos os seus dados de defesa.",
   "PassiveSpecialAbility.Atomico3": "Impacto Explosivo",
   "PassiveSpecialAbility.Atomico3.Description": "Seus ataques ganham +5 de dano.",
   "PassiveSpecialAbility.Atomico4": "Voo Explosivo",
