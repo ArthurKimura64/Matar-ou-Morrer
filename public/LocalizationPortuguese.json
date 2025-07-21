@@ -484,7 +484,7 @@
   "Attack.MulherTitanium1": "Soco Enrijecido",
   "Attack.MulherTitanium2": "Elasticidade Titânica",
   "Attack.MulherTitanium3": "Puxão",
-  "Attack.MulherTitanium3.SpecialDescription": "Puxa o inimigo a 4 metros ou menos de distância de você.",
+  "Attack.MulherTitanium3.SpecialDescription": "Se acertar pelo menos 1 dado de ataque no inimigo, ao fim do turno você puxa ele para 5 metros ou menos de distância de você.",
   "Attack.MulherTitanium4": "Rocha Titânica",
   "Attack.MulherTitanium4.SpecialDescription": "Para efetuar esse ataque não precisa estar entre pontos de conexão ou linha reta e após usar este ataque você fica a 0 de distância do inimigo, se acertar 1 dado deste ataque em um inimigo que está voando, você cancela o voo dele por 1 rodada e tira +7 de dano.",
   "Attack.Ilusao1": "Adaga",
