@@ -809,7 +809,7 @@
   "Passive.amaldicoada6": "(Instável) Presença Amaldiçoada",
   "Passive.amaldicoada6.Description": "O inimigo que estiver em combate com você não poderá usar pulos enquanto você estiver instável.",
   "Passive.Destruidor1": "Modo Hard",
-  "Passive.Destruidor1.Description": "Enquanto estiver com 10 ou menos de vida os seus dados de defesa e ataque com os números mais baixos se transformarão no seu dado com o maior número, exemplo: se você tirar 5,3,2 nos seus dados sejam eles de defesa ou ataque, o 3 e o 2 se transformarão em 5, então ficará 5,5,5.",
+  "Passive.Destruidor1.Description": "Enquanto estiver com 10 ou menos de vida os seus dados de defesa e ataque com os números mais baixos se transformarão no seu dado com o maior número, exemplo: se você tirar 5,3,2 nos seus dados sejam eles de defesa ou ataque, o 3 e o 2 se transformarão em 5, então ficará 5,5,5, ao usar essa passiva você poderá jogar no maximo 2 dados de defesa quando estiver com 10 ou menos de vida.",
   "Passive.Destruidor2": "Telecinése Avançada",
   "Passive.Destruidor2.Description": "Antes de se movimentar no início do seu turno pode mover em até 3 metros para a direção que você escolher todos os jogadores que estiverem em área 1 de distância.",
   "Passive.Destruidor3": "Sob Controle",
