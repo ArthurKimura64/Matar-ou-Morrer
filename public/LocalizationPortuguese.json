@@ -426,7 +426,7 @@
   "Attack.SextoSentido1.SpecialDescription": "Se acertar os três dados de ataque de uma só vez, fere as pernas do inimigo e ele não poderá se mover por 2 rodadas, após as 2 rodadas a movimentação padrão dele será um d8.",
   "Attack.SextoSentido2": "Hemorragia",
   "Attack.SextoSentido3": "Artéria",
-  "Attack.SextoSentido3.SpecialDescription": "Ao final da partida o inimigo perderá +1 de vida adicional por cada rodada do combate.",
+  "Attack.SextoSentido3.SpecialDescription": "No final do combate o inimigo perderá +1 de vida adicional por cada rodada do combate.",
   "Attack.SextoSentido4": "Oportunidade de Sangue",
   "Attack.SextoSentido4.SpecialDescription": "Sempre que defender todos os dados de um ataque do inimigo sem usar pulo, ele perde 5 de vida automaticamente.",
   "Attack.PortadorDasEntidades1": "Volker",
