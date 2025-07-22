@@ -4934,7 +4934,7 @@
     {
       "ID": "Weapon.Caos3",
       "Damage": 1,
-      "MinimumDistance": 5,
+      "MinimumDistance": 4,
       "MaximumDistance": 20,
       "LoadTime": "0",
       "Dices": 6,
