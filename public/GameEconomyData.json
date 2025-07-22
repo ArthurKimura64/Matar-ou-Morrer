@@ -574,9 +574,7 @@
         "Device.SextoSentido4",
         "Device.SextoSentido5",
         "Device.SextoSentido6",
-        "Device.SextoSentido7",
-        "Device.SextoSentido11",
-        "Device.SextoSentido12"
+        "Device.SextoSentido7"
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
@@ -5972,20 +5970,6 @@
         "AfterAttack"
       ],
       "Description": "Device.SextoSentido7.Description"
-    },
-    {
-      "ID": "Device.SextoSentido11",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Device.SextoSentido11.Description"
-    },
-    {
-      "ID": "Device.SextoSentido12",
-      "TriggerType": [
-        "AfterAttack"
-      ],
-      "Description": "Device.SextoSentido12.Description"
     },
     {
       "ID": "Device.Kader1",
