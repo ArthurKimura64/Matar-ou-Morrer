@@ -1412,7 +1412,7 @@
   "Power.ArcoNegro3": "Flecha Com Corda",
   "Power.ArcoNegro3.Description": "Faz o inimigo se defender com -1 dado até o fim do combate(se o inimigo se defende com apenas 1 dado então esta flecha não terá efeito nele).",
   "Power.ArcoNegro4": "Olhar Tenebroso",
-  "Power.ArcoNegro4.Description": "Ao defender todos os dados de um ataque do inimigo ele não poderá mais usar aquele ataque até o fim do combate( seu pulo conta como defesa). ",
+  "Power.ArcoNegro4.Description": "Se você acabou de defender todos os dados de ataque do inimigo, ele não poderá mais usar aquele ataque até o fim do combate( seu pulo conta como defesa). ",
   "Power.ArcoNegro5": "Olho de Águia",
   "Power.ArcoNegro5.Description": "Por 1 rodada pode atacar sem estar entre pontos de conexão.",
   "Power.ArcoNegro6": "Arco Preciso",
