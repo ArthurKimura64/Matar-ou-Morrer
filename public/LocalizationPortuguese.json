@@ -1010,7 +1010,7 @@
   "Device.SextoSentido5": "Detector de Fraqueza",
   "Device.SextoSentido5.Description": "Ganha +1 de dano em seus dados de ataque por cada dado que você defender durante o combate(dura até o fim do combate).\r",
   "Device.SextoSentido6": "Acelerador",
-  "Device.SextoSentido6.Description": "A velocidade do seu ataque se torna -1 durante um turno.",
+  "Device.SextoSentido6.Description": "A velocidade do seu ataque se torna -1 até o fim do combate.",
   "Device.SextoSentido7": "Duas Lâminas",
   "Device.SextoSentido7.Description": "O dano do seu próximo ataque será o dobro.",
   "Device.SextoSentido11": "Acelerador",
