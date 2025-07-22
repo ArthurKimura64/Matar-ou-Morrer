@@ -423,7 +423,7 @@
   "Attack.Radiacao3": "Infectado",
   "Attack.Radiacao3.SpecialDescription": "O inimigo atingido por esse ataque perderá 1 de vida por rodada.(para realizar este ataque não precisa estar entre pontos de conexão).",
   "Attack.SextoSentido1": "Pernas Feridas",
-  "Attack.SextoSentido1.SpecialDescription": "Se acertar os três dados de ataque de uma só vez, corta as pernas do inimigo e ele não poderá se mover por 5 rodadas, após as 5 rodadas a movimentação padrão dele será um d10.",
+  "Attack.SextoSentido1.SpecialDescription": "Se acertar os três dados de ataque de uma só vez, fere as pernas do inimigo e ele não poderá se mover por 2 rodadas, após as 2 rodadas a movimentação padrão dele será um d8.",
   "Attack.SextoSentido2": "Hemorragia",
   "Attack.SextoSentido3": "Artéria",
   "Attack.SextoSentido3.SpecialDescription": "Ao final da partida o inimigo perderá +1 de vida adicional por cada rodada do combate.",
