@@ -250,7 +250,7 @@
   "Character.Name.ArcoNegro": "Arco Negro",
   "Character.Title.ArcoNegro": "Sanguinário",
   "Character.Reivolk.ArcoNegro.Title": "Arco Galáctico",
-  "Character.Reivolk.ArcoNegro.Description": "Ao atacar um inimigo o seu ataque receberá +1 de dano por cada metro que seu ataque passou até atingir o inimigo se o inimigo se defender de todos os seus dados de ataque, o dano acumulado por cada metro que ele passou ainda assim o atingirá automaticamente, se conseguir se defender de todos os dados de ataque do inimigo poderá atacá-lo novamente no momento sem contar como um ataque seu, ganha +1 dado de defesa e seus pulos se tornam infinitos.",
+  "Character.Reivolk.ArcoNegro.Description": "A distância de cada seu muda para 1/Infinita e funciona em ambiente Espaço e ao atacar um inimigo o seu ataque receberá +1 de dano por cada metro que seu ataque passou até atingir o inimigo, se o inimigo se defender de todos os seus dados de ataque, o dano acumulado por cada metro que ele passou ainda assim o atingirá automaticamente mesmo se ele estiver intangivel, indestrutivel ou se tiver imune aos seus ataques, se conseguir se defender de todos os dados de ataque do inimigo poderá atacá-lo novamente no momento sem contar como um ataque seu, ganha +1 dado de defesa e seus pulos se tornam infinitos.",
   "Character.Name.Vazio": "Vazio",
   "Character.Title.Vazio": "??????",
   "Character.Reivolk.Vazio.Title": "Vazio Infinito",
