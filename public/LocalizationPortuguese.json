@@ -144,7 +144,7 @@
   "Character.Reivolk.Atomico.Description": "A cada início de rodada sendo sua rodada ou não você se explode e ataca todos os inimigos do mapa com 1 dado dando 10.000 de dano.",
   "Character.Name.Caos": "Caos",
   "Character.Title.Caos": "O Devorador",
-  "Character.Description.Caos": "Possui ao seu redor uma aura negra que começa em 0 de distância e a cada dado que acertar no inimigo, faz a aura se expandir 1 metro para todas as direções em ambiente T e A, Caos ganha +2 em cada dado de defesa e ataque contra um inimigo que esteja em combate com ele dentro de sua aura.",
+  "Character.Description.Caos": "Possui ao seu redor uma aura negra que começa em 0 de distância e a cada dado que acertar no inimigo, faz a aura se expandir 1 metro para todas as direções em ambiente T e A, Caos ganha +1 em cada dado de defesa e +2 em cada dado de ataque contra um inimigo que esteja em combate com ele dentro de sua aura.",
   "Character.Reivolk.Caos.Title": "Devorador de Energias",
   "Character.Reivolk.Caos.Description": "Sua aura se expande pelo mapa e universo todo, você ganha +3 em cada dado de ataque e defesa e sua vida regenera 10 a cada primeira rodada passiva.",
   "Character.Name.Ryan": "Ryan",
