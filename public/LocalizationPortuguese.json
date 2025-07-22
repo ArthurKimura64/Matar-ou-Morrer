@@ -775,7 +775,7 @@
   "Passive.Gravidade3": "Peso nos Pés",
   "Passive.Gravidade3.Description": "Pode gastar um pulo e impedir todos os inimigos de se movimentarem durante 1 rodada(Exceto os que estiverem dentro de um local de exploração).",
   "Passive.Gravidade4": "Levitação",
-  "Passive.Gravidade4.Description": "Escolhe um inimigo e durante 1 rodada sempre no primeiro ataque dele em cada combate, ele só poderá atacar com apenas 1 dado.",
+  "Passive.Gravidade4.Description": "A cada primeira rodada passiva sua escolhe um inimigo e durante 1 rodada sempre no primeiro ataque dele em cada combate, ele só poderá atacar com apenas 1 dado.",
   "Passive.Gravidade5": "Trancada",
   "Passive.Gravidade5.Description": "Após um inimigo entrar em um local de exploração você pode gastar um pulo para impedi-lo de sair de lá por 1 rodada.",
   "Passive.Gravidade6": "Sabedoria",
