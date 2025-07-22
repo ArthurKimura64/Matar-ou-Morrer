@@ -5967,7 +5967,7 @@
     {
       "ID": "Device.SextoSentido7",
       "TriggerType": [
-        "AfterAttack"
+        "BeforeAttack"
       ],
       "Description": "Device.SextoSentido7.Description"
     },
