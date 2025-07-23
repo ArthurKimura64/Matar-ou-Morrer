@@ -1396,7 +1396,7 @@
   "Power.Alpha1": "Restart",
   "Power.Alpha1.Description": "Faz um jogador a até 25 metros de distância reaparecer no ponto de partida inicial dele.",
   "Power.Alpha2": "Ponto Fixo",
-  "Power.Alpha2.Description": "Pode ativar essa habilidade antes de entrar em um combate e caso sobreviva ao combate , assim que ele acabar você voltará com a quantidade de vida que estava antes de iniciar o combate.",
+  "Power.Alpha2.Description": "Retorna com a vida que estava ao ativar o ponto fixo(se você ativou o ponto fixo e morreu, ainda assim retornará).",
   "Power.Alpha3": "Observador ",
   "Power.Alpha3.Description": "Ao se defender de um ataque no combate, no próximo ataque desviará automaticamente do número de ataque que havia defendido antes e assim vai indo, exemplo: se defender um dado no primeiro ataque, desviará automaticamente de um dado no segundo ataque . Dura até o fim do combate.",
   "Power.ArcoNegro1": "Flecha Vinculada",
