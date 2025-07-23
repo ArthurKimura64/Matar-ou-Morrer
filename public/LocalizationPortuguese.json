@@ -1696,7 +1696,7 @@
   "SpecialAbility.Sistema4": "Céu de Fogo",
   "SpecialAbility.Sistema4.Description": "Lança um míssil em cada inimigo(exceto inimigos dentro de locais de exploração), Míssil: Dano 10 / Dados 2(os inimigos não podem pular deste ataque).",
   "SpecialAbility.Sistema5": "Minigun Acoplada",
-  "SpecialAbility.Sistema5.Description": "Ataca o inimigo usando sua Minigun, MiniGun: Dano 10 / Segundos 1 / Dados 4 (dura até o fim do combate).",
+  "SpecialAbility.Sistema5.Description": "Ataca o inimigo usando sua Minigun, MiniGun: Dano 10 / Distância 1/30 / Segundos 1 / Dados 4 (dura até o fim do combate), não precisa estar entre pontos de conexão.",
   "SpecialAbility.Sistema6": "Destroços",
   "SpecialAbility.Sistema6.Description": "Pode explodir um local de exploração que não tenha nenhum jogador dentro dele e ninguém mais poderá entrar naquele local até o fim do jogo.",
   "SpecialAbility.Onisciente1": "Sol na Terra",
