@@ -876,7 +876,7 @@
   "Passive.Alpha1": "Te conheço",
   "Passive.Alpha1.Description": "Faz o seu adversário jogar os dados de defesa antes de você jogar seus dados de ataque e se vc conseguir vencer todos os dados dele você o ataca com dobro de dano, você pode usar seu pulo de direito do combate para anular o dado com maior valor do inimigo que está em combate com você.",
   "Passive.Alpha2": "Aproveitador",
-  "Passive.Alpha2.Description": "Pode fazer o adversário jogar os dados de defesa novamente (Opcional).",
+  "Passive.Alpha2.Description": "Pode fazer o inimigo que esta em combate com você rejogar os dados de defesa novamente (Opcional), pode usar isso apenas uma vez por turno.",
   "Passive.Alpha3": "Respawn",
   "Passive.Alpha3.Description": "A qualquer momento em seu turno passivo pode reaparecer no ponto de partida inicial.",
   "Passive.Vazio1": "Energia do Vazio",
