@@ -6931,7 +6931,7 @@
     {
       "ID": "Power.Imortal4",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Power.Imortal4.Description"
     },
