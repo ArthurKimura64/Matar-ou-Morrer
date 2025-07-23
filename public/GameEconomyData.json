@@ -4054,11 +4054,11 @@
     },
     {
       "ID": "Attack.Alpha1",
-      "Damage": 4,
+      "Damage": 2,
       "MinimumDistance": 2,
       "MaximumDistance": 14,
       "LoadTime": 1,
-      "Dices": 4,
+      "Dices": 3,
       "Ambient": [
         "Earth",
         "Air"
@@ -4067,11 +4067,11 @@
     },
     {
       "ID": "Attack.Alpha2",
-      "Damage": 2,
+      "Damage": 3,
       "MinimumDistance": "0",
       "MaximumDistance": 8,
       "LoadTime": "0",
-      "Dices": 3,
+      "Dices": 4,
       "Ambient": [
         "Earth"
       ],
