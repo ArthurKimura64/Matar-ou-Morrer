@@ -388,7 +388,7 @@
   "Attack.Destroul1": "Destruidor de Corpos",
   "Attack.Destroul1.SpecialDescription": "Você e o inimigo jogarão 1 d6 seis vezes, se você conseguir vencer o inimigo 4 vezes você o mata instantaneamente, você dá apenas o último ataque do combate, o dado do inimigo ganha +1, se der empate seu dado vence.",
   "Attack.Destroul2": "Arrastão Destrutivo",
-  "Attack.Destroul2.SpecialDescription": "Se houver um inimigo que esteja entre os mesmos pontos de conexão que você, poderá arrastá-lo para 0 de distância de você e ele perderá 1 de vida por cada metro que ele foi arrastado.",
+  "Attack.Destroul2.SpecialDescription": "Se houver um inimigo que esteja entre os mesmos pontos de conexão que você, poderá arrastá-lo para 0 de distância de você e ele perderá 2 de vida.",
   "Attack.Destroul3": "Envolvido",
   "Attack.Destroul3.SpecialDescription": "Se acertar três dados de ataque até o fim do combate, o inimigo não poderá se mover por 1 rodada.",
   "Attack.Destroul4": "Vendaval de Destroços",
