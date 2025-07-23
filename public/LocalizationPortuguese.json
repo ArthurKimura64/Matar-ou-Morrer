@@ -1286,7 +1286,7 @@
   "Power.Imortal1": "Controle do Corpo",
   "Power.Imortal1.Description": "Cura de vida equivalente ao dano que você sofreu do último ataque do seu oponente no combate.",
   "Power.Imortal2": "Aumento de Resistência",
-  "Power.Imortal2.Description": "Inicia o combate com +10 de vida temporária que não será acrescentada como se fosse o limite da sua vida e ao final do combate sua vida volta ao normal.",
+  "Power.Imortal2.Description": "Inicia o combate com +10 de vida temporária que não será acrescentada como se fosse o limite da sua vida e ao final do combate se estiver com mais de 20 de vida sua vida volta para 20.",
   "Power.Imortal3": "Imbatível",
   "Power.Imortal3.Description": "Ganha +50 de vida por uma rodada mas, não poderá atacar ninguém e nem revidar, apenas se defender.\r",
   "Power.Imortal4": "Cura Rápida",
