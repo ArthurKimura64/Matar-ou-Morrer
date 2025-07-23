@@ -395,7 +395,7 @@
   "Attack.Destroul5": "Caído",
   "Attack.Destroul5.SpecialDescription": "A cada dado que você acertar o inimigo recebe -1 no dado de defesa até o fim do combate.",
   "Attack.Destroul6": "Prisioneiro da Levitação",
-  "Attack.Destroul6.SpecialDescription": "Se durante o combate acertar pelo menos 1 dado de ataque, ao final do combate você usará levitação no inimigo o deixando-o em ambiente (A) durante 1 rodada, qualquer outro inimigo poderá atacar ele sem precisar estar entre pontos de conexão e ele também poderá atacar sem estar entre pontos de conexão.",
+  "Attack.Destroul6.SpecialDescription": "Se durante o combate acertar pelo menos 1 dado de ataque, ao final do combate você usará levitação no inimigo o deixando-o em ambiente Aéreo durante 1 rodada, qualquer outro inimigo poderá atacar ele sem precisar estar entre pontos de conexão e ele também poderá atacar sem estar entre pontos de conexão.",
   "Attack.Destroul7": "Chuva de Rochas",
   "Attack.Destroul7.SpecialDescription": "Não precisa estar entre pontos de conexão.",
   "Attack.Destroul8": "Força Telecinética",
