@@ -1981,9 +1981,7 @@
         "Device.Tecnology4",
         "Device.Tecnology5",
         "Device.Tecnology6",
-        "Device.Tecnology7",
-        "Device.Tecnology11",
-        "Device.Tecnology12"
+        "Device.Tecnology7"
       ],
       "SpecialAbilitiesData": [
         "SpecialAbility.Tecnology1",
@@ -5829,20 +5827,6 @@
         "Passive"
       ],
       "Description": "Device.Tecnology7.Description"
-    },
-    {
-      "ID": "Device.Tecnology11",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Tecnology11.Description"
-    },
-    {
-      "ID": "Device.Tecnology12",
-      "TriggerType": [
-        "Passive"
-      ],
-      "Description": "Device.Tecnology12.Description"
     },
     {
       "ID": "Device.Tai1",
