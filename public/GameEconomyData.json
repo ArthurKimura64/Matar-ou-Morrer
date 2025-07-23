@@ -1733,8 +1733,7 @@
         "Device.Sistema9",
         "Device.Sistema10",
         "Device.Sistema11",
-        "Device.Sistema12",
-        "Device.Sistema13"
+        "Device.Sistema12"
       ],
       "SpecialAbilitiesData": [
         "SpecialAbility.Sistema1",
@@ -6468,7 +6467,7 @@
     {
       "ID": "Device.Sistema10",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Device.Sistema10.Description"
     },
@@ -6485,13 +6484,6 @@
         "Passive"
       ],
       "Description": "Device.Sistema12.Description"
-    },
-    {
-      "ID": "Device.Sistema13",
-      "TriggerType": [
-        "BeforeAttack"
-      ],
-      "Description": "Device.Sistema13.Description"
     },
     {
       "ID": "Device.Capuz1",
