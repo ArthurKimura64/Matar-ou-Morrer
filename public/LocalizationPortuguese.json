@@ -163,7 +163,7 @@
   "Character.Reivolk.Protetor.Description": "A cada Turno do combate você ganha +1 dado de defesa e 2 de escudo temporário, o escudo funciona da seguinte maneira, dano do inimigo menos o número do escudo, se o dano do inimigo ultrapassar o número do escudo ele é destruído e começa do 0 novamente.",
   "Character.Name.Destroul": "Destroul",
   "Character.Title.Destroul": "Onipresente",
-  "Character.Description.Destroul": "Você tem 3 ações e poderá ativar cada uma delas vez por rodada, opção 1: (P,A)Perder 1 de vida e mover um inimigo a até 10 metros para a direção que você escolher, Opção 2: (P,A)Perder 1 de vida e voar por 1 rodada podendo atacar qualquer inimigo sem estar entre pontos de conexão, Opção 3: (D)Perder 2 de vida e bloquear um ataque do inimigo.",
+  "Character.Description.Destroul": "Você tem 3 ações e poderá ativar cada uma delas uma vez por rodada, opção 1: (P,A)Perder 1 de vida e mover um inimigo a até 10 metros para a direção que você escolher, Opção 2: (P,A)Perder 1 de vida e voar por 1 rodada podendo atacar qualquer inimigo sem estar entre pontos de conexão, Opção 3: (D)Perder 2 de vida e bloquear um ataque do inimigo. Pode alternar de ataque a qualquer momento durante um combate.",
   "Character.Reivolk.Destroul.Title": "Deus da Telecinese",
   "Character.Reivolk.Destroul.Description": "Não precisa estar entre pontos de conexão para executar seus ataques, seus ataques ganham +3 de dano e os seus dados de ataque e defesa ganham +1.",
   "Character.Name.Imortal": "Imortal",
