@@ -7332,7 +7332,7 @@
     {
       "ID": "Power.Alpha3",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Power.Alpha3.Description"
     },
