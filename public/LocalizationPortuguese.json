@@ -496,7 +496,7 @@
   "Attack.Alpha1": "Paralisia",
   "Attack.Alpha1.SpecialDescription": "Se acertar Três dados deixa o adversário incapaz de atacar alguém por uma rodada, mas se ele for atacado poderá revidar(não precisa estar entre pontos de conexão).",
   "Attack.Alpha2": "Reta da Morte",
-  "Attack.Alpha2.SpecialDescription": "Se esse ataque for feito em linha reta passando de um ponto de conexão ele fica com 15 de dano e não precisa estar entre ponto de conexão.",
+  "Attack.Alpha2.SpecialDescription": "Se esse ataque for feito em linha reta passando de um ponto de conexão o dano dele vai para 15 (não precisa estar entre ponto de conexão).",
   "Attack.Alpha3": "Em Toda Parte",
   "Attack.Alpha3.SpecialDescription": "Ataca o adversário e depois jogará um d12 para saber a distância que irá aparecer perto dele(não precisa estar entre pontos de conexão para executar este ataque).",
   "Attack.Vazio1": "Sanidade",
