@@ -1154,7 +1154,7 @@
   "Device.Sistema9": "Satélite Armado",
   "Device.Sistema9.Description": "Durante 1 rodada os inimigos irão perder 1 de vida por cada metro que eles se movimentarem.",
   "Device.Sistema10": "Neutralizador",
-  "Device.Sistema10.Description": "O dado de defesa com menor número do inimigo perde o efeito de defender todos os números inferiores a ele(dura até o fim do combate).",
+  "Device.Sistema10.Description": "O dado de defesa com menor número do inimigo perde o efeito de dado bloqueador(defender todos os dados com numeros iguais ou inferiores a ele)dura até o fim do combate.",
   "Device.Sistema11": "Sensores Visuais",
   "Device.Sistema11.Description": "Não pode sofrer ataque de nenhum poder ou dispositivo por uma rodada.",
   "Device.Sistema12": "Câmera de Spot",
