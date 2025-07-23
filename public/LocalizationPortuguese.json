@@ -935,7 +935,7 @@
   "Passive.AgentedoVazio1": "Armadura do Vazio",
   "Passive.AgentedoVazio1.Description": "Ganha +1 em cada dado de ataque por cada pulo que o inimigo usar durante o combate(dura até o fim do combate).",
   "Passive.AgentedoVazio2": "Energia Fragmentada",
-  "Passive.AgentedoVazio2.Description": "Cura 5 de vida sempre que o inimigo pular durante um combate.",
+  "Passive.AgentedoVazio2.Description": "Cura 5 de vida sempre que um inimigo pular durante um combate no qual você esta envolvido, seja como um dos dois combatentes ou dando apenas ataque de oportunidade(conta a partir do momento que você entrou no combate).",
   "Passive.AgentedoVazio3": "Energia Vazia",
   "Passive.AgentedoVazio3.Description": "O primeiro inimigo que entrar em combate com você ficara marcado com a Energia Vazia e a cada vez que você entrar em combate com ele novamente ganhará +1 em seus dados de ataque permanentemente apenas contra ele e só poderá marcar outro inimigo que entrar em combate com você, quando o inimigo marcado morrer.",
   "Passive.AgentedoVazio4": "Proteção do Universo",
