@@ -1158,7 +1158,7 @@
   "Device.Sistema11": "Sensores Visuais",
   "Device.Sistema11.Description": "Não pode sofrer ataque de nenhum poder ou dispositivo por uma rodada.",
   "Device.Sistema12": "Câmera de Spot",
-  "Device.Sistema12.Description": "Interrompe a movimentação de um inimigo que passou no alcance de sua arma para atacá-lo como se fosse sua vez e ao fim do combate ele continuará sua movimentação.",
+  "Device.Sistema12.Description": "Durante 1 rodada Interrompe a movimentação de um inimigo que passou no alcance de sua arma para atacá-lo como se fosse sua vez e ao fim do combate ele completa a movimentação dele.",
   "Device.Capuz1": "Proteção Frontal ",
   "Device.Capuz1.Description": "Joga +3 dados para se defender até o fim do combate.",
   "Device.Capuz2": "Braço Impulsionador",
