@@ -621,7 +621,8 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": [
-        "SpecialCustom.Kader1"
+        "SpecialCustom.Kader1",
+        "SpecialCustom.Kader2"
       ]
     },
     {
@@ -8512,6 +8513,11 @@
       "ID": "SpecialCustom.Kader1",
       "Type": "textbox",
       "Title": "SpecialCustom.Kader1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Kader2",
+      "Type": "counter",
+      "Title": "SpecialCustom.Kader2.Title"
     },
     {
       "ID": "SpecialCustom.Destroul1",
