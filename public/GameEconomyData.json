@@ -7326,7 +7326,7 @@
     {
       "ID": "Power.Alpha2",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Power.Alpha2.Description"
     },
