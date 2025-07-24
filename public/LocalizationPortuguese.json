@@ -446,7 +446,7 @@
   "Attack.amaldicoada1": "Mãos Instáveis",
   "Attack.amaldicoada1.SpecialDescription": "INSTÁVEL: Sempre que tirar 1 ele se transformará em 5 automaticamente.",
   "Attack.amaldicoada2": "Perda de Controle",
-  "Attack.amaldicoada2.SpecialDescription": "INSTÁVEL: Se tirar pelo menos dois 6 nos seus dados de ataque, cada dado de ataque seu ganha +15 de dano durante aquele ataque.",
+  "Attack.amaldicoada2.SpecialDescription": "INSTÁVEL: Se tirar pelo menos dois 6 nos seus dados de ataque, cada dado de ataque seu ganha +4 de dano durante aquele ataque.",
   "Attack.amaldicoada3": "Possessão Obsessiva",
   "Attack.amaldicoada3.SpecialDescription": "INSTÁVEL: Se você acertar todos os dados de ataque você possui o jogador e faz ele se torturar e perder 10 de vida.",
   "Attack.amaldicoada4": "Comando da Morte",
