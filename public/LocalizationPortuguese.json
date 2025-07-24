@@ -448,7 +448,7 @@
   "Attack.amaldicoada2": "Perda de Controle",
   "Attack.amaldicoada2.SpecialDescription": "INSTÁVEL: Se tirar pelo menos dois 6 nos seus dados de ataque, cada dado de ataque seu ganha +4 de dano durante aquele ataque.",
   "Attack.amaldicoada3": "Possessão Obsessiva",
-  "Attack.amaldicoada3.SpecialDescription": "INSTÁVEL: Se você acertar todos os dados de ataque você possui o jogador e faz ele se torturar e perder 10 de vida.",
+  "Attack.amaldicoada3.SpecialDescription": "INSTÁVEL: Se você acertar um ataque você possui o jogador e faz ele se torturar e perder 6 de vida.",
   "Attack.amaldicoada4": "Comando da Morte",
   "Attack.amaldicoada4.SpecialDescription": "INSTÁVEL: Cada dado que o inimigo defender do seu ataque dará -8 de dano ao seu ataque( a diminuição do dano acontece antes do ataque acertar o jogador) após o fim do combate o seu dano voltará para 20 novamente.",
   "Attack.amaldicoada5": "Roleta Mortífera",
