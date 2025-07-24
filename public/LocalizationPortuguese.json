@@ -606,7 +606,7 @@
   "Attack.Stratton4": "Onda Fervente",
   "Attack.Stratton5": "Chuva de Iceberg",
   "Attack.Stratton6": "Quebra Braço",
-  "Attack.Stratton6.SpecialDescription": "Se acertar todos os ataques o inimigo fica com -1 nos dados de ataque dele até o fim do jogo.",
+  "Attack.Stratton6.SpecialDescription": "Se acertar um ataque o inimigo fica com -1 nos dados de ataque dele até o fim do jogo(não soma caso acerte de novo).",
   "Attack.Stratton7": "Explosão Aquática",
   "Attack.Stratton7.SpecialDescription": "Pode atacar todos os inimigos que estiverem dentro dessa distancia ao mesmo tempo sem precisar estar entre ponto de conexão, os inimigos que você atacou podem revidar apenas atacando você",
   "Attack.Stratton8": "Redemoinho",
