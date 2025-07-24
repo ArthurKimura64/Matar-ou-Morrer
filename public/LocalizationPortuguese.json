@@ -1478,7 +1478,7 @@
   "Power.Pressao4": "Perturbação",
   "Power.Pressao4.Description": "Faz o inimigo que está em combate com você perder 2 de vida por cada dado de ataque dele que você defendeu neste turno.",
   "Power.Pressao5": "Fratura",
-  "Power.Pressao5.Description": "Deixa uma Fratura no inimigo que está em combate com você e se ele iniciar um ataque combate contra você enquanto estiver com a Fratura ele perde 3 de vida e se defende com 1 dado(se caso ele já se defende com apenas 1 dado então ele não irá se defender).",
+  "Power.Pressao5.Description": "Deixa uma Fratura no inimigo que está em combate com você por 1 rodada e se ele iniciar um combate contra você enquanto estiver com a Fratura ele perde 3 de vida e se defende com 1 dado(se caso ele já se defende com apenas 1 dado então ele não irá se defender).",
   "Power.Pressao6": "Imã",
   "Power.Pressao6.Description": "Sempre que acertar um dado de ataque no inimigo, pode puxar um inimigo em area 1 para 0 de distância do inimigo alvo(dura até o fim do combate).",
   "Power.Manipulador1": "Trocados",
