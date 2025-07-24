@@ -1229,12 +1229,15 @@
       "PowersData": [
         "Power.Alpha1",
         "Power.Alpha2",
-        "Power.Alpha3"
+        "Power.Alpha3",
+        "Power.Alpha4",
+        "Power.Alpha5"
       ],
       "DevicesData": [
         "Device.Alpha1",
         "Device.Alpha2",
-        "Device.Alpha3"
+        "Device.Alpha3",
+        "Device.Alpha4"
       ],
       "SpecialAbilitiesData": [
         "SpecialAbility.Alpha1",
@@ -6294,6 +6297,13 @@
       "Description": "Device.Alpha3.Description"
     },
     {
+      "ID": "Device.Alpha4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Alpha4.Description"
+    },
+    {
       "ID": "Device.Vazio1",
       "TriggerType": [
         "BeforeAttack"
@@ -7336,6 +7346,20 @@
         "BeforeAttack"
       ],
       "Description": "Power.Alpha3.Description"
+    },
+    {
+      "ID": "Power.Alpha4",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Alpha4.Description"
+    },
+    {
+      "ID": "Power.Alpha5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Alpha5.Description"
     },
     {
       "ID": "Power.ArcoNegro1",
