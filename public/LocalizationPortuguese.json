@@ -450,7 +450,7 @@
   "Attack.amaldicoada3": "Possessão Obsessiva",
   "Attack.amaldicoada3.SpecialDescription": "INSTÁVEL: Se você acertar um ataque você possui o jogador e faz ele se torturar e perder 6 de vida.",
   "Attack.amaldicoada4": "Comando da Morte",
-  "Attack.amaldicoada4.SpecialDescription": "INSTÁVEL: Cada dado que o inimigo defender do seu ataque dará -8 de dano ao seu ataque( a diminuição do dano acontece antes do ataque acertar o jogador) após o fim do combate o seu dano voltará para 20 novamente.",
+  "Attack.amaldicoada4.SpecialDescription": "INSTÁVEL: Cada dado que o inimigo defender do seu ataque dará -8 de dano ao seu ataque( a diminuição do dano acontece antes do ataque acertar o jogador) dura até o fim do turno.",
   "Attack.amaldicoada5": "Roleta Mortífera",
   "Attack.amaldicoada5.SpecialDescription": "INSTÁVEL: Joga um d6, se tirar 3 ou mais você tira 4 de vida do inimigo mas se tirar 2 ou menos você perde 8 de vida.",
   "Attack.Destruidor1": "Vendaval",
