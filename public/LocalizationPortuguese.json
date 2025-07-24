@@ -1489,7 +1489,7 @@
   "Power.Manipulador3.Description": "Soma todo o dano recebido durante um combate e ao final do combate se você estiver vivo receberá tudo em vida e se chegar ao limite é acrescentado permanentemente logo assim aumentando o limite da sua vida.",
   "Power.Manipulador4": "Proteção Ancestral",
   "Power.Manipulador4.Description": "Se defende com 6 dados até o fim do combate e drena 1 de vida do inimigo por cada dado que você defender(se chegar ao limite de vida, será acrescentado).",
-  "Power.Manipulador5": "Último Quebrada",
+  "Power.Manipulador5": "Alma Quebrada",
   "Power.Manipulador5.Description": "Drena 3 de vida do inimigo por cada dado que ele tirar o numero 1 ou 2 até o fim do combate(sua vida não passa do limite).",
   "Power.Manipulador6": "Cópia de Essência",
   "Power.Manipulador6.Description": "Fica com a mesma quantidade de vida que seu adversário.",
