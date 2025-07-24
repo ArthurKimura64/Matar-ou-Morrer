@@ -1476,7 +1476,7 @@
   "Power.Pressao3": "Caminho Destruido",
   "Power.Pressao3.Description": "Destrói um caminho e durante 3 rodadas ninguém poderá passar por ele, Caminho: De um ponto de conexão a outro.",
   "Power.Pressao4": "Perturbação",
-  "Power.Pressao4.Description": "Faz o inimigo que está em combate com você perder 2 de vida por cada dado de ataque dele que você defender(dura até o final do turno).",
+  "Power.Pressao4.Description": "Faz o inimigo que está em combate com você perder 2 de vida por cada dado de ataque dele que você defendeu neste turno.",
   "Power.Pressao5": "Fratura",
   "Power.Pressao5.Description": "Deixa uma Fratura no inimigo que está em combate com você e se ele iniciar um ataque combate contra você enquanto estiver com a Fratura ele perde 3 de vida e se defende com 1 dado(se caso ele já se defende com apenas 1 dado então ele não irá se defender).",
   "Power.Pressao6": "Imã",
