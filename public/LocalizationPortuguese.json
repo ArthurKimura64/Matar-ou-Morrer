@@ -1736,7 +1736,7 @@
   "SpecialAbility.Eterno 2": "Mutação",
   "SpecialAbility.Eterno 2.Description": "Ao entrar na base central pode ativar essa habilidade e jogará um d12 e o numero tirado será a quantidade de vida que você drenou de cada jogador inimigo para encher e acrescentar a sua(se sua vida chegar no limite será acrescentado).",
   "SpecialAbility.Stratton1": "Planeta Congelado",
-  "SpecialAbility.Stratton1.Description": "Ao entrar na base pode ativar essa habilidade e após 12 rodadas o mundo irá congelar fazendo com que todos os jogadores morram.",
+  "SpecialAbility.Stratton1.Description": "Ao entrar na base central pode ativar essa habilidade e após 12 rodadas o mundo irá congelar fazendo com que todos os jogadores morram.",
   "SpecialAbility.Stratton2": "Catástrofe",
   "SpecialAbility.Stratton2.Description": "Escolhe um local do mapa e envia um tsunami fazendo todos os inimigos que estiverem ali perderem 8 de vida automaticamente.",
   "PassiveSpecialAbility.Atomico1": "Bomba Nuclear",
