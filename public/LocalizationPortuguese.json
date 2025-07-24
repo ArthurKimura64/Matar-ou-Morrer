@@ -436,7 +436,7 @@
   "Attack.PortadorDasEntidades2": "Tempo",
   "Attack.PortadorDasEntidades2.SpecialDescription": "A cada vez que o oponente te acertar um ataque, vocês trocam de vida(Tempo só faz efeito se for seu último ataque usado antes do oponente te acertar um ataque).",
   "Attack.PortadorDasEntidades3": "Escolta",
-  "Attack.PortadorDasEntidades3.SpecialDescription": "Sempre que acertar um ataque você ganha +3 de escudo temporário que dura até o fim do combate(o escudo funciona assim: dano total do ataque do oponente menos o número do escudo, o escudo reinicia do zero após ter sofrido dano).",
+  "Attack.PortadorDasEntidades3.SpecialDescription": "Sempre que acertar um dado de ataque você ganha +3 de escudo temporário que dura até o fim do combate(o escudo funciona assim: dano total do ataque do oponente menos o número do escudo, o escudo reinicia do zero após ter sofrido dano).",
   "Attack.PortadorDasEntidades4": "Gigante Devorador",
   "Attack.PortadorDasEntidades4.SpecialDescription": "Pode atacar todos os inimigos que estiverem nessa distância, não precisa estar entre ponto de conexão.",
   "Attack.PortadorDasEntidades5": "Espírito da Vida",
