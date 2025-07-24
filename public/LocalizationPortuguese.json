@@ -929,7 +929,7 @@
   "Passive.Raioroxo3": "Regeneração Básica",
   "Passive.Raioroxo3.Description": "Recupera 1 de vida por cada dado que você defender, acertar ou esquivar em combate(a vida não passa do limite).",
   "Passive.Raioroxo4": "Destemido",
-  "Passive.Raioroxo4.Description": "Enquanto estiver com 5 ou menos de vida, o Ataque S. limite dele fica com 20 de dano em cada dado.",
+  "Passive.Raioroxo4.Description": "Enquanto estiver com 5 ou menos de vida, seu Ataque S. limite fica com 20 de dano.",
   "Passive.Raioroxo5": "Superação",
   "Passive.Raioroxo5.Description": "Sempre que o adversário defender todos os seus dados de ataque, no seu próximo ataque você escolherá um dos seus dados de ataque para ganhar +2.",
   "Passive.Raioroxo6": "Travado",
