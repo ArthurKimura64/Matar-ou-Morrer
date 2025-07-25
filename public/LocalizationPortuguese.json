@@ -280,7 +280,7 @@
   "Character.Reivolk.SenhordaLuz.Description": "Gera uma quantidade de Luz tão poderosa que faz todos os inimigos ficarem com -3 em seus dados de defesa.",
   "Character.Name.Dimensao": "Dimensão",
   "Character.Title.Dimensao": "Viajante",
-  "Character.Description.Dimensao": "Quando os jogadores saírem da dimensão que você os enviou eles aparecerão no ponto de queda deles e enquanto estiverem em outra dimensão será como se eles não estivessem no jogo",
+  "Character.Description.Dimensao": "O jogador que estiver em outra dimensão pode se movimentar normalmente e só poderá atacar outro jogador que tambem esta naquela dimensão. Por rodada você pode usar essas 3 opções, Opção 1:Gastar 1 pulo e ganha +2 dados de ataque até o fim do turno. Opção 2: Gastar 1 e dar -2 no d20 do inimigo que esta tentando sair de sua dimensão. Opção 3: Gastar 3 pulos e enviar o inimigo que esta em combate com você para a dimensão do ataque que você usou contra ele no combate.",
   "Character.Reivolk.Dimensao.Title": "Desespero Dimensional",
   "Character.Reivolk.Dimensao.Description": "Joga +2 dados de defesa e se acertar pelo menos 1 dado de ataque no inimigo, ao fim do combate ele será enviado para a dimensão ao qual o seu ataque o enviaria e ele receberá o castigo da dimensão em dobro.",
   "Character.Name.Programador": "Programador",
