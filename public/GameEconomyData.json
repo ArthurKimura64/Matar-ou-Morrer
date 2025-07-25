@@ -4720,7 +4720,7 @@
       "MinimumDistance": 22,
       "MaximumDistance": 25,
       "LoadTime": 2,
-      "Dices": 3,
+      "Dices": 2,
       "Ambient": [
         "Earth",
         "Air",
