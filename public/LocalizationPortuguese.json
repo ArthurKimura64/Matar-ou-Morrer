@@ -1082,7 +1082,7 @@
   "Device.Bruce12": "Gatilho",
   "Device.Bruce12.Description": "Ataca o inimigo fazendo com que ele revide apenas uma vez.",
   "Device.Observadora1": "Torreta de Escolta ",
-  "Device.Observadora1.Description": "Coloca 1 torreta nos dois pontos de conexão ligados ao caminho que você está(não pode ativar quando estiver em cima de um ponto de conexão), e quando algum inimigo te atacar ele receberá um ataque de oportunidade de cada torreta antes do primeiro ataque, se você sair do caminho onde ativou as Torretas, elas são desativadas e destruídas e para destruí-las o inimigo precisa ficar em cima do ponto de conexão onde cada torreta esta. Torreta: Dano 5 / Dados 2.",
+  "Device.Observadora1.Description": "Coloca 1 torreta nos dois pontos de conexão ligados ao caminho que você está(não pode ativar quando estiver em cima de um ponto de conexão), e quando algum inimigo entrar em combate com você, ele receberá um ataque de oportunidade de cada torreta antes do primeiro ataque, se você sair do caminho onde ativou as Torretas, elas são desativadas e destruídas e para destruí-las o inimigo precisa ficar em cima do ponto de conexão onde cada torreta esta. Torreta: Dano 5 / Dados 2.",
   "Device.Observadora2": "Campo Mimado",
   "Device.Observadora2.Description": "Joga um dispositivo no chão que ativa um campo minado em area 1 de distancia(exceto dentro de locais de exploração), e o inimigo perderá 1 de vida por cada metro que ele andar ou correr dentro dessa área, se você sair da área 1 onde ativou o campo minado, ele irá se desativar e se auto destruir.",
   "Device.Observadora3": "Nanotecnologia Explosiva",
