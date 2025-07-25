@@ -1552,7 +1552,7 @@
   "Power.Onisciente4": "Vento de Nebulosa",
   "Power.Onisciente4.Description": "Os dados de defesa do inimigo recebem -1 até o fim do seu turno de ataque.",
   "Power.Onisciente5": "Queda Atmosférica",
-  "Power.Onisciente5.Description": "Se durante um combate você acertar 2 dados no inimigo, ao fim do combate ele será sugado para o espaço e ficará 5 rodadas em órbita, a cada rodada ele jogará um d20 e somará os resultados, se ao chegar na última rodada e o resultado não for mais alto que 35, ele morrerá na queda atmosférica, caso ele sobreviva, voltará para o ponto de conexão onde começou o jogo, mas sem pulos.",
+  "Power.Onisciente5.Description": "Se durante um combate você acertar 2 dados no inimigo, ao fim do combate ele será sugado para o espaço e ficará 5 rodadas em órbita, a cada rodada ele jogará um d20 e somará os resultados, se ao chegar na última rodada e o resultado não for mais alto que 45, ele morrerá na queda atmosférica, caso ele sobreviva, voltará para o ponto de conexão onde começou o jogo, mas sem pulos.",
   "Power.Onisciente6": "Núcleo de Netuno",
   "Power.Onisciente6.Description": "Se o inimigo que estiver em combate com você estiver em cima ou até 3 metros de um ponto de conexão, os dados de ataque e defesa dele receberão -2.",
   "Power.Onisciente7": "Distorção Temporal",
