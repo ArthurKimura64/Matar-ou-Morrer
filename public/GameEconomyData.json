@@ -1594,7 +1594,8 @@
       "PowersData": [
         "Power.Dimensao1",
         "Power.Dimensao2",
-        "Power.Dimensao3"
+        "Power.Dimensao3",
+        "Power.Dimensao4"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
@@ -7718,6 +7719,13 @@
         "AfterAttack"
       ],
       "Description": "Power.Dimensao3.Description"
+    },
+    {
+      "ID": "Power.Dimensao4",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Dimensao4.Description"
     },
     {
       "ID": "Power.NyanjaVlast1",
