@@ -3,8 +3,8 @@ import { RoomService } from '../services/roomService';
 import CharacterSelection from './CharacterSelection';
 import CharacterBuilder from './CharacterBuilder';
 import CharacterSheet from './CharacterSheet';
-import PlayerDetailedStatus from './PlayerDetailedStatus';
-import ConnectionStatusIndicator from './ConnectionStatusIndicator';
+import PlayersSidebar from './PlayersSidebar';
+import TableCards from './TableCards';
 import { usePlayerStatus } from '../hooks/usePlayerStatus';
 
 const RoomView = ({ 
@@ -27,7 +27,6 @@ const RoomView = ({
   const [characterSelections, setCharacterSelections] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showPlayersList, setShowPlayersList] = useState(true);
   const [showCharacterSelection, setShowCharacterSelection] = useState(true);
   const [showCharacterBuilder, setShowCharacterBuilder] = useState(true);
   const [showCharacterSheet, setShowCharacterSheet] = useState(true);
@@ -204,6 +203,11 @@ const RoomView = ({
   const handleBackToLobby = async () => {
     console.log('🔄 VOLTANDO PARA LOBBY - limpando estados');
     
+    // Limpar cartas expostas no banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
+    }
+    
     // Limpar estados locais do RoomView
     setCurrentView('lobby');
     setSelectedActor(null);
@@ -230,8 +234,33 @@ const RoomView = ({
     alert('ID da sala copiado para a área de transferência!');
   };
 
-  const togglePlayersList = () => {
-    setShowPlayersList(!showPlayersList);
+  const handleKickPlayer = async (playerToKick) => {
+    const confirmMessage = localization['UI.Room.ConfirmKick'] || 
+      `Tem certeza que deseja expulsar ${playerToKick.name} da sala?`;
+    
+    const confirmKick = window.confirm(confirmMessage);
+    
+    if (!confirmKick) return;
+
+    try {
+      const result = await RoomService.kickPlayer(room.id, playerToKick.id, currentPlayer.id);
+      
+      if (result.success) {
+        const successMessage = localization['UI.Room.PlayerKicked'] || 
+          `${playerToKick.name} foi expulso da sala.`;
+        alert(successMessage);
+        // Os dados serão atualizados automaticamente via subscription
+      } else {
+        const errorMessage = localization['UI.Room.KickError'] || 
+          `Erro ao expulsar jogador: ${result.error}`;
+        alert(errorMessage);
+      }
+    } catch (error) {
+      console.error('Erro ao expulsar jogador:', error);
+      const unexpectedError = localization['UI.Room.UnexpectedKickError'] || 
+        'Erro inesperado ao expulsar jogador.';
+      alert(unexpectedError);
+    }
   };
 
   const toggleCharacterSelection = () => {
@@ -245,40 +274,6 @@ const RoomView = ({
   const toggleCharacterSheet = () => {
     setShowCharacterSheet(!showCharacterSheet);
   };
-
-  const renderPlayersListCompact = () => (
-    <div className="card bg-dark border-light mb-3">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <h6 className="text-white mb-0">
-          Jogadores ({players.length})
-        </h6>
-        <div className="d-flex align-items-center gap-2">
-          <ConnectionStatusIndicator />
-          <button 
-            className="btn btn-outline-light btn-sm"
-            onClick={togglePlayersList}
-            title={showPlayersList ? (localization['UI.Room.CollapseList'] || "Minimizar lista") : (localization['UI.Room.ExpandList'] || "Expandir lista")}
-          >
-            {showPlayersList ? '▼' : '▲'}
-          </button>
-        </div>
-      </div>
-      <div className="card-body py-2" style={{ display: showPlayersList ? 'block' : 'none' }}>
-        <div className="row g-2">
-          {players.map((player) => (
-            <div key={player.id} className="col-md-6 col-lg-4">
-              <PlayerDetailedStatus 
-                player={player} 
-                isCurrentPlayer={player.id === currentPlayer.id}
-                localization={localization}
-                gameData={gameData}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   if (loading) {
     return (
@@ -327,41 +322,6 @@ const RoomView = ({
 
       {currentView === 'lobby' && (
         <>
-          {/* Lista de Jogadores */}
-          <div className="row mb-4">
-            <div className="col-12">
-              <div className="card bg-dark border-light">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h5 className="text-white mb-0">{localization['UI.Room.ConnectedPlayers'] || 'UI.Room.ConnectedPlayers'} ({players.length})</h5>
-                  <div className="d-flex align-items-center gap-2">
-                    <ConnectionStatusIndicator />
-                    <button 
-                      className="btn btn-outline-light btn-sm"
-                      onClick={togglePlayersList}
-                      title={showPlayersList ? (localization['UI.Room.CollapseList'] || "Minimizar lista") : (localization['UI.Room.ExpandList'] || "Expandir lista")}
-                    >
-                      {showPlayersList ? '▼' : '▲'}
-                    </button>
-                  </div>
-                </div>
-                <div className="card-body" style={{ display: showPlayersList ? 'block' : 'none' }}>
-                  <div className="row">
-                    {players.map((player) => (
-                      <div key={player.id} className="col-md-6 col-lg-4 mb-3">
-                        <PlayerDetailedStatus 
-                          player={player} 
-                          isCurrentPlayer={player.id === currentPlayer.id}
-                          localization={localization}
-                          gameData={gameData}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Criar Personagem */}
           <div className="row">
             <div className="col-12">
@@ -393,7 +353,6 @@ const RoomView = ({
 
       {currentView === 'builder' && (
         <>
-          {renderPlayersListCompact()}
           <div className="card bg-dark border-light mb-3">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h5 className="text-white mb-0">{localization['UI.CharacterBuilder.CreateCharacter'] || 'Criar Personagem'}</h5>
@@ -420,7 +379,6 @@ const RoomView = ({
 
       {currentView === 'sheet' && (
         <>
-          {renderPlayersListCompact()}
           <div className="card bg-dark border-light mb-3">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h5 className="text-white mb-0">{localization['UI.CharacterSheet.Title'] || 'Ficha do Personagem'}</h5>
@@ -445,6 +403,23 @@ const RoomView = ({
           </div>
         </>
       )}
+
+      {/* Sidebar de jogadores - sempre visível */}
+      <PlayersSidebar 
+        players={players}
+        currentPlayer={currentPlayer}
+        localization={localization}
+        gameData={gameData}
+        room={room}
+        onKickPlayer={handleKickPlayer}
+      />
+
+      {/* Cartas na mesa - sempre visível */}
+      <TableCards 
+        players={players}
+        gameData={gameData}
+        localization={localization}
+      />
     </div>
   );
 };

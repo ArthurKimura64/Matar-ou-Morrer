@@ -150,6 +150,11 @@ export class RoomService {
         updateData.character_name = characterName;
       }
       
+      // Se o status voltou para 'selecting', limpar cartas expostas
+      if (status === 'selecting') {
+        updateData.exposed_cards = [];
+      }
+      
       const { data, error } = await supabase
         .from('players')
         .update(updateData)
@@ -580,7 +585,8 @@ export class RoomService {
         .from('players')
         .update({ 
           is_connected: true,
-          last_activity: new Date().toISOString()
+          last_activity: new Date().toISOString(),
+          exposed_cards: [] // Limpar cartas expostas na reconexão
         })
         .eq('id', playerId)
         .select()
@@ -588,7 +594,7 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('✅ Jogador reconectado com sucesso:', data);
+      console.log('✅ Jogador reconectado com sucesso (cartas expostas limpas):', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao reconectar jogador:', error);
@@ -639,6 +645,68 @@ export class RoomService {
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar dados de defesa:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Expulsar jogador da sala (apenas para o mestre da sala)
+  static async kickPlayer(roomId, playerId, masterPlayerId) {
+    try {
+      console.log('🚫 Tentativa de expulsar jogador:', { roomId, playerId, masterPlayerId });
+      
+      // Verificar se quem está expulsando é realmente o mestre da sala
+      const { data: room, error: roomError } = await supabase
+        .from('rooms')
+        .select('master_player_id')
+        .eq('id', roomId)
+        .single();
+
+      if (roomError) throw roomError;
+
+      if (room.master_player_id !== masterPlayerId) {
+        throw new Error('Apenas o mestre da sala pode expulsar jogadores');
+      }
+
+      // Não permitir que o mestre expulse a si mesmo
+      if (playerId === masterPlayerId) {
+        throw new Error('O mestre não pode expulsar a si mesmo');
+      }
+
+      // Remover o jogador da sala
+      const { error: deleteError } = await supabase
+        .from('players')
+        .delete()
+        .eq('id', playerId)
+        .eq('room_id', roomId);
+
+      if (deleteError) throw deleteError;
+      
+      console.log('✅ Jogador expulso com sucesso');
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Erro ao expulsar jogador:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Atualizar cartas expostas do jogador
+  static async updatePlayerExposedCards(playerId, exposedCards) {
+    try {
+      console.log('🃏 Atualizando cartas expostas do jogador:', playerId, exposedCards);
+      
+      const { data, error } = await supabase
+        .from('players')
+        .update({ exposed_cards: exposedCards })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('✅ Cartas expostas atualizadas com sucesso:', data);
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('❌ Erro ao atualizar cartas expostas:', error);
       return { success: false, error: error.message };
     }
   }

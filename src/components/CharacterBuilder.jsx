@@ -154,7 +154,7 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
       </div>
 
       <div className="row justify-content-center">
-        <CharacteristicCard actor={actor} localization={localization} />
+        <CharacteristicCard actor={actor} localization={localization} deathCount={0} />
       </div>
 
       {Object.entries(selectionConfigs).map(([type, config]) => (

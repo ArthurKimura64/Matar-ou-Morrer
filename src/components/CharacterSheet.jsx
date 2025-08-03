@@ -16,13 +16,15 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     oport: 0,
     oport_max: 0,
     item: 0,
-    item_max: 0
+    item_max: 0,
+    mortes: 0
   });
   
   const [currentMode, setCurrentMode] = useState('mode1');
   const [usedItems, setUsedItems] = useState(new Set());
   const [unlockedItems, setUnlockedItems] = useState(new Set()); // Novo estado para itens desbloqueados
   const [additionalCounters, setAdditionalCounters] = useState({});
+  const [exposedCards, setExposedCards] = useState(new Set()); // Estado para cartas expostas na mesa
 
   // Memoizar contadores iniciais
   const initialCounters = useMemo(() => ({
@@ -33,7 +35,8 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     oport: 0,
     oport_max: actor?.OportunityAttacks || 0,
     item: 0,
-    item_max: actor?.ExplorationItens || 0
+    item_max: actor?.ExplorationItens || 0,
+    mortes: 0
   }), [actor]);
 
   // Memoizar características calculadas
@@ -84,6 +87,13 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       setUnlockedItems(new Set(currentPlayer.unlocked_items));
     }
   }, [currentPlayer?.unlocked_items]);
+
+  // Inicializar cartas expostas a partir dos dados do jogador
+  useEffect(() => {
+    if (currentPlayer?.exposed_cards) {
+      setExposedCards(new Set(currentPlayer.exposed_cards));
+    }
+  }, [currentPlayer?.exposed_cards]);
 
   // Calcular características do personagem criado - Otimizado
   useEffect(() => {
@@ -137,9 +147,64 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     setCounters(newCounters);
     
+    // Lógica especial para o contador de mortes
+    if (id === 'mortes') {
+      if (value > counters.mortes) {
+        // Aumentou mortes - desbloquear habilidades
+        await handleDeathUnlock(value);
+      } else if (value < 2 && currentMode === 'mode2') {
+        // Diminuiu mortes para menos de 2 e está no modo Reivolk - forçar modo normal
+        setCurrentMode('mode1');
+      }
+    }
+    
     // Sincronizar com o banco de dados
     if (currentPlayer?.id) {
       await RoomService.updatePlayerCounters(currentPlayer.id, newCounters);
+    }
+  };
+
+  // Função para desbloquear habilidades com base nas mortes
+  const handleDeathUnlock = async (deathCount) => {
+    if (!selections.specials && !selections.passiveSpecials) return;
+    
+    const newUnlockedItems = new Set(unlockedItems);
+    const currentDeaths = counters.mortes;
+    
+    // Para cada nova morte, desbloquear uma habilidade especial e uma passiva especial
+    for (let i = currentDeaths; i < deathCount; i++) {
+      // Obter habilidades especiais não desbloqueadas
+      const availableSpecials = (selections.specials || []).filter(item => !newUnlockedItems.has(item.ID));
+      // Obter habilidades passivas especiais não desbloqueadas
+      const availablePassiveSpecials = (selections.passiveSpecials || []).filter(item => !newUnlockedItems.has(item.ID));
+      
+      // Desbloquear uma habilidade especial se disponível
+      if (availableSpecials.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableSpecials.length);
+        const selectedSpecial = availableSpecials[randomIndex];
+        newUnlockedItems.add(selectedSpecial.ID);
+        console.log(`💀 Morte ${i + 1}: Habilidade Especial desbloqueada:`, selectedSpecial.ID);
+      }
+      
+      // Desbloquear uma habilidade passiva especial se disponível
+      if (availablePassiveSpecials.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availablePassiveSpecials.length);
+        const selectedPassiveSpecial = availablePassiveSpecials[randomIndex];
+        newUnlockedItems.add(selectedPassiveSpecial.ID);
+        console.log(`💀 Morte ${i + 1}: Habilidade Passiva Especial desbloqueada:`, selectedPassiveSpecial.ID);
+      }
+    }
+    
+    setUnlockedItems(newUnlockedItems);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
+    }
+    
+    // Mostrar notificação se alcançou 2 mortes
+    if (deathCount >= 2 && currentDeaths < 2) {
+      console.log('🔥 Modo Reivolk desbloqueado!');
     }
   };
 
@@ -213,6 +278,36 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     }
   };
 
+  const handleToggleCardExposure = async (itemId) => {
+    const newExposedCards = new Set(exposedCards);
+    
+    if (newExposedCards.has(itemId)) {
+      newExposedCards.delete(itemId);
+    } else {
+      newExposedCards.add(itemId);
+    }
+    
+    setExposedCards(newExposedCards);
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerExposedCards(currentPlayer.id, Array.from(newExposedCards));
+    }
+  };
+
+  const handleReset = async () => {
+    // Limpar cartas expostas antes de fazer reset
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
+    }
+    
+    // Limpar estado local
+    setExposedCards(new Set());
+    
+    // Chamar função de reset original
+    onReset();
+  };
+
   const renderItemCard = ({ item, section, isBlocked }) => {
     // Título: se for device, power, special, mostrar TriggerType
     let title = '';
@@ -231,6 +326,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
 
     const isUsed = usedItems.has(item.ID);
     const isUnlocked = unlockedItems.has(item.ID);
+    const isExposed = exposedCards.has(item.ID);
     const isPassiveSpecial = section.type === 'passiveSpecial';
 
     // Para habilidades passivas especiais, o estado padrão é bloqueado
@@ -245,10 +341,30 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     return (
       <div key={item.ID} className="col-12 col-md-3">
         <div 
-          className={`card border-${section.color} h-100${cardOpacity}`} 
+          className={`card border-${section.color} h-100${cardOpacity} position-relative`} 
           style={{background: 'var(--bs-gray-800)', color: '#fff'}}
         >
-          <div className="card-body p-2">
+          {/* Ícone de olho no canto superior direito */}
+          <button 
+            className={`btn btn-sm position-absolute ${isExposed ? 'btn-success' : 'btn-outline-secondary'}`}
+            style={{ 
+              top: '5px', 
+              right: '5px', 
+              zIndex: 1,
+              width: '24px',
+              height: '24px',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px'
+            }}
+            onClick={() => handleToggleCardExposure(item.ID)}
+            title={isExposed ? 'Ocultar da mesa' : 'Expor na mesa'}
+          >
+            👁️
+          </button>
+          <div className="card-body p-2" style={{ paddingTop: '30px' }}>
             <div className={`fw-bold text-${section.color} mb-1`}>
               {title}
               {isBlocked && !isPassiveSpecial ? ` (${localization['UI.CharacterSheet.ModeRestricted'] || 'UI.CharacterSheet.ModeRestricted'})` : ''}
@@ -347,24 +463,26 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         <div className="text-center mb-3">
           <div className="btn-group" role="group">
             {Utils.modeSystem.hasModes(actor) ? (
-              Utils.modeSystem.getModes(actor).map((mode, index) => (
-                <React.Fragment key={mode}>
-                  <input 
-                    type="radio" 
-                    className="btn-check" 
-                    name="transformation-mode" 
-                    id={`mode-${mode}`}
-                    checked={currentMode === mode}
-                    onChange={() => handleModeChange(mode)}
-                  />
-                  <label 
-                    className={`btn btn-outline-${mode === 'mode2' ? 'danger' : 'warning'}`} 
-                    htmlFor={`mode-${mode}`}
-                  >
-                    {Utils.modeSystem.getModeName(actor, mode, localization)}
-                  </label>
-                </React.Fragment>
-              ))
+              Utils.modeSystem.getModes(actor).map((mode, index) => {
+                return (
+                  <React.Fragment key={mode}>
+                    <input 
+                      type="radio" 
+                      className="btn-check" 
+                      name="transformation-mode" 
+                      id={`mode-${mode}`}
+                      checked={currentMode === mode}
+                      onChange={() => handleModeChange(mode)}
+                    />
+                    <label 
+                      className={`btn btn-outline-${mode === 'mode2' ? 'danger' : 'warning'}`} 
+                      htmlFor={`mode-${mode}`}
+                    >
+                      {Utils.modeSystem.getModeName(actor, mode, localization)}
+                    </label>
+                  </React.Fragment>
+                );
+              })
             ) : (
               <>
                 <input 
@@ -392,6 +510,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
               </>
             )}
           </div>
+          {/* Mostrar descrição do modo */}
           <div className="mt-2 small text-muted">
             {Utils.transformationSystem.getTransformationName(actor, localization)}
           </div>
@@ -431,10 +550,18 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           max={null}
           onChange={(value) => handleCounterChange('item', value)}
         />
+        <Counter
+          id="mortes"
+          title={localization['Characteristic.Deaths'] || 'Mortes'}
+          value={counters.mortes}
+          min={0}
+          max={null}
+          onChange={(value) => handleCounterChange('mortes', value)}
+        />
       </div>
 
       <div className="row justify-content-center">
-        <CharacteristicCard actor={actor} localization={localization} />
+        <CharacteristicCard actor={actor} localization={localization} deathCount={counters.mortes} />
       </div>
 
       <div id="character-items">
@@ -456,7 +583,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       />
 
       <div className="text-center mt-4">
-        <button className="btn btn-secondary" onClick={onReset}>
+        <button className="btn btn-secondary" onClick={handleReset}>
           Reiniciar
         </button>
       </div>

@@ -58,6 +58,10 @@ ADD COLUMN IF NOT EXISTS selections JSONB DEFAULT '{}';
 ALTER TABLE public.players 
 ADD COLUMN IF NOT EXISTS last_activity TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 
+-- Adicionar coluna para cartas expostas na mesa
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS exposed_cards JSONB DEFAULT '[]';
+
 -- Adicionar coluna para atualização de atividade das salas
 ALTER TABLE public.rooms 
 ADD COLUMN IF NOT EXISTS last_activity TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());

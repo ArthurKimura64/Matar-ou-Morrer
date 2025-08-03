@@ -1,7 +1,15 @@
 import React, { useMemo } from 'react';
 import PlayerStatusBadge from './PlayerStatusBadge';
 
-const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = {}, gameData }) => {
+const PlayerDetailedStatus = ({ 
+  player, 
+  isCurrentPlayer = false, 
+  localization = {}, 
+  gameData,
+  canKick = false,
+  onKickPlayer = null,
+  isMaster = false
+}) => {
   // Memoizar contadores para evitar recalcular
   // Buscar dados do personagem (actorData) para acessar NumberOfDefenseDices
   const actorData = useMemo(() => {
@@ -19,7 +27,8 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
     oport: player?.counters?.oport ?? 0,
     oport_max: player?.counters?.oport_max ?? 0,
     item: player?.counters?.item ?? 0,
-    item_max: player?.counters?.item_max ?? 0
+    item_max: player?.counters?.item_max ?? 0,
+    mortes: player?.counters?.mortes ?? 0
     // defesa removido daqui
   }), [player?.counters]);
 
@@ -83,7 +92,22 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
               return itemId && unlockedItems.has(itemId);
             }).length;
             
-            data[key].available = unlockedCount;
+            // Calcular disponíveis baseado nas mortes (1 por morte)
+            const deathCount = counters.mortes || 0;
+            const maxAvailableByDeaths = Math.min(deathCount, data[key].total);
+            data[key].available = Math.min(unlockedCount, maxAvailableByDeaths);
+          } else if (key === 'specials') {
+            // Para habilidades especiais, considerar mortes para disponibilidade
+            const usedCount = selectedItems.filter(item => {
+              const itemId = item.ID || item.id || item.Name || item.name;
+              return itemId && usedItems.has(itemId);
+            }).length;
+            
+            // Calcular disponíveis baseado nas mortes (1 por morte)
+            const deathCount = counters.mortes || 0;
+            const maxAvailableByDeaths = Math.min(deathCount, data[key].total);
+            const availableByUsage = selectedItems.length - usedCount;
+            data[key].available = Math.min(availableByUsage, maxAvailableByDeaths);
           } else {
             // Para outros tipos, contar itens não utilizados
             const usedCount = selectedItems.filter(item => {
@@ -103,7 +127,7 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
     }
     
     return data;
-  }, [player, gameData]);
+  }, [player, gameData, counters.mortes]);
 
   // Memoizar labels para evitar recalcular
   const getCharacteristicLabel = useMemo(() => {
@@ -187,11 +211,34 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
               {player.name}
             </h6>
           </div>
-          {isCurrentPlayer && (
-            <span className="badge bg-primary flex-shrink-0 ms-2">
-              {localization['UI.You'] || 'Você'}
-            </span>
-          )}
+          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+            {isMaster && (
+              <span className="badge bg-warning text-dark">
+                👑 {localization['UI.Room.Master'] || 'Mestre'}
+              </span>
+            )}
+            {isCurrentPlayer && (
+              <span className="badge bg-primary">
+                {localization['UI.You'] || 'Você'}
+              </span>
+            )}
+            {canKick && !isCurrentPlayer && !isMaster && onKickPlayer && (
+              <button
+                onClick={() => onKickPlayer(player)}
+                className="btn btn-outline-danger btn-sm"
+                style={{ 
+                  width: '24px', 
+                  height: '24px',
+                  fontSize: '10px',
+                  padding: '0',
+                  borderRadius: '50%'
+                }}
+                title={localization['UI.Room.KickPlayer'] || 'Expulsar jogador'}
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
         
         {/* Status Badge */}
@@ -235,6 +282,12 @@ const PlayerDetailedStatus = ({ player, isCurrentPlayer = false, localization = 
                   <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(108,117,125,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
                     <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.ExplorationItens'] || 'Itens'}</span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.item, counters.item_max)}</span>
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(139,0,0,0.1)', border: '1px solid rgba(139,0,0,0.2)' }}>
+                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.Deaths'] || 'Mortes'}</span>
+                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{counters.mortes || 0}</span>
                   </div>
                 </div>
                 <div className="col-sm-12">
