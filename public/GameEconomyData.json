@@ -124,7 +124,8 @@
       "PassivesData": [
         "Passive.Atomico1",
         "Passive.Atomico2",
-        "Passive.Atomico3"
+        "Passive.Atomico3",
+        "Passive.Atomico4"
       ],
       "PowersData": [],
       "DevicesData": [],
@@ -939,7 +940,8 @@
         "Attack.Invicto1",
         "Attack.Invicto2",
         "Attack.Invicto3",
-        "Attack.Invicto4"
+        "Attack.Invicto4",
+        "Attack.Invicto5"
       ],
       "WeaponsData": [],
       "PassivesData": [
@@ -1756,7 +1758,7 @@
       "DodgePoints": 4,
       "OportunityAttacks": 2,
       "ExplorationItens": 2,
-      "NumberOfDefenseDices": 2,
+      "NumberOfDefenseDices": 3,
       "NumberOfUnlimitedAttacks": 4,
       "NumberOfWeapons": 0,
       "NumberOfPassives": 0,
@@ -2380,6 +2382,10 @@
     {
       "ID": "Passive.Atomico3",
       "Description": "Passive.Atomico3.Description"
+    },
+    {
+      "ID": "Passive.Atomico4",
+      "Description": "Passive.Atomico4.Description"
     },
     {
       "ID": "Passive.Caos1",
@@ -3173,7 +3179,8 @@
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
-        "Earth"
+        "Earth",
+        "Air"
       ],
       "SpecialDescription": "Attack.Atomico2.SpecialDescription"
     },
@@ -3185,8 +3192,7 @@
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [
-        "Earth",
-        "Air"
+        "Earth"
       ],
       "SpecialDescription": "Attack.Atomico3.SpecialDescription"
     },
@@ -3281,8 +3287,8 @@
       "ID": "Attack.Protetor1",
       "Damage": 3,
       "MinimumDistance": "0",
-      "MaximumDistance": 1,
-      "LoadTime": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
         "Earth"
@@ -3455,7 +3461,7 @@
     },
     {
       "ID": "Attack.Imortal1",
-      "Damage": 2,
+      "Damage": 3,
       "MinimumDistance": 2,
       "MaximumDistance": 8,
       "LoadTime": "0",
@@ -3681,7 +3687,7 @@
       "MinimumDistance": 3,
       "MaximumDistance": 10,
       "LoadTime": 2,
-      "Dices": 2,
+      "Dices": 3,
       "Ambient": [
         "Earth",
         "Air",
@@ -3870,12 +3876,25 @@
       "Damage": 5,
       "MinimumDistance": 2,
       "MaximumDistance": 15,
-      "LoadTime": 2,
+      "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
         "Earth",
         "Air"
       ]
+    },
+    {
+      "ID": "Attack.Invicto5",
+      "Damage": 10,
+      "MinimumDistance": 40,
+      "MaximumDistance": 42,
+      "LoadTime": 3,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Invicto5.SpecialDescription"
     },
     {
       "ID": "Attack.Vinteum1",
