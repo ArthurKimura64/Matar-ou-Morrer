@@ -3055,11 +3055,11 @@
     },
     {
       "ID": "Attack.Impact4",
-      "Damage": 1,
+      "Damage": 2,
       "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": "0",
-      "Dices": 5,
+      "Dices": 4,
       "Ambient": [
         "Earth"
       ],
@@ -3070,7 +3070,7 @@
       "Damage": 12,
       "MinimumDistance": 3,
       "MaximumDistance": 10,
-      "LoadTime": 3,
+      "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
         "Earth",
@@ -3095,7 +3095,7 @@
       "MinimumDistance": 20,
       "MaximumDistance": 20,
       "LoadTime": 3,
-      "Dices": 2,
+      "Dices": 3,
       "Ambient": [
         "Earth"
       ],
