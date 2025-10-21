@@ -7986,7 +7986,7 @@
     {
       "ID": "Power.Vortztem4",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Power.Vortztem4.Description"
     },
