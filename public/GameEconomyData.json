@@ -2224,7 +2224,12 @@
         "Power.Katnis3",
         "Power.Katnis4",
         "Power.Katnis5",
-        "Power.Katnis6"
+        "Power.Katnis6",
+        "Power.Katnis7",
+        "Power.Katnis8",
+        "Power.Katnis9",
+        "Power.Katnis10",
+        "Power.Katnis11"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [
@@ -8075,7 +8080,7 @@
     {
       "ID": "Power.Katnis2",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Power.Katnis2.Description"
     },
@@ -8089,14 +8094,16 @@
     {
       "ID": "Power.Katnis4",
       "TriggerType": [
-        "Passive"
+        "Passive",
+        "BeforeAttack"
       ],
       "Description": "Power.Katnis4.Description"
     },
     {
       "ID": "Power.Katnis5",
       "TriggerType": [
-        "Passive"
+        "Passive",
+        "BeforeAttack"
       ],
       "Description": "Power.Katnis5.Description"
     },
@@ -8106,6 +8113,49 @@
         "BeforeAttack"
       ],
       "Description": "Power.Katnis6.Description"
+    },
+    {
+      "ID": "Power.Katnis7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis7.Description"
+    },
+    {
+      "ID": "Power.Katnis8",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Power.Katnis8.Description"
+    },
+    {
+      "ID": "Power.Katnis9",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis9.Description"
+    },
+    {
+      "ID": "Power.Katnis10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis10.Description"
+    },
+    {
+      "ID": "Power.Katnis11",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis11.Description"
+    },
+    {
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Katnis12.Description"
     },
     {
       "ID": "Power.Eterno 1",
