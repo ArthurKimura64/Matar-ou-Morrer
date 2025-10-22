@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 const SelectionSection = ({ type, config, actor, localization, onSelectionChange, globalSelectedIds = new Set(), initialSelected = [] }) => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -11,9 +11,9 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!config.data || !config.data.length) return null;
+  const hasData = !!(config.data && config.data.length);
 
-  const handleItemToggle = (item, isSelected) => {
+  const handleItemToggle = useCallback((item, isSelected) => {
     let newSelection;
     if (isSelected) {
       newSelection = [...selectedItems, item];
@@ -25,9 +25,18 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
       setSelectedItems(newSelection);
       onSelectionChange(newSelection);
     }
-  };
+  }, [selectedItems, config.number, onSelectionChange]);
 
-  const isSelected = (item) => selectedItems.some(selected => selected.ID === item.ID);
+  const isSelected = useCallback((item) => selectedItems.some(selected => selected.ID === item.ID), [selectedItems]);
+
+  // Mapa de definições por ID para acesso O(1)
+  const defMap = useMemo(() => {
+    const m = new Map();
+    (config.definitions || []).forEach(d => { m.set(d.ID, d); });
+    return m;
+  }, [config.definitions]);
+
+  if (!hasData) return null;
 
   return (
     <div className="row justify-content-center">
@@ -35,7 +44,7 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
         {config.title} (Escolha {config.number})
       </h3>
       {config.data.map((id) => {
-        const def = (config.definitions || []).find((d) => d.ID === id) || { ID: id };
+        const def = defMap.get(id) || { ID: id };
         const name = typeof config.getName === 'function' ? config.getName(id, def) : id;
         const desc = typeof config.getDesc === 'function' ? config.getDesc(def) : "";
         const itemSelected = isSelected(def);

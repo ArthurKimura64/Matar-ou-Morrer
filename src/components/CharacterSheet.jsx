@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Counter from './Counter';
 import CharacteristicCard from './CharacteristicCard';
 import SpecialCharacteristics from './SpecialCharacteristics';
@@ -6,6 +6,17 @@ import AdditionalCounters from './AdditionalCounters';
 import { Utils } from '../utils/Utils';
 import { RoomService } from '../services/roomService';
 import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
+
+// Map from sheet section key to selections key in player data
+const TYPE_KEY_MAP = {
+  attacks: 'attacks',
+  weapons: 'weapons',
+  passives: 'passives',
+  devices: 'devices',
+  powers: 'powers',
+  specials: 'specials',
+  passiveSpecials: 'passiveSpecials'
+};
 
 const CharacterSheet = ({ actor, selections, gameData, localization, onReset, currentPlayer, players = [] }) => {
   const [counters, setCounters] = useState({
@@ -161,20 +172,21 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     RoomService.updatePlayerSelections(currentPlayer.id, { ...selections, copycatAssignments });
   }, [copycatAssignments, isCopycat, currentPlayer?.id, selections]);
 
+  // Memoize assigned item IDs across all copycat slots
+  const assignedIds = useMemo(() => {
+    const ids = new Set();
+    Object.values(copycatAssignments || {}).forEach(map => {
+      Object.values(map || {}).forEach(it => { if (it && it.ID) ids.add(it.ID); });
+    });
+    return ids;
+  }, [copycatAssignments]);
+
   // Construir lista de candidatos com a característica/type desejado
-  const getAvailableSources = (type) => {
-    // mapear type para a key salva nos players.character.selections
-    const typeKeyMap = {
-      attacks: 'attacks',
-      weapons: 'weapons',
-      passives: 'passives',
-      devices: 'devices',
-      powers: 'powers',
-      specials: 'specials',
-      passiveSpecials: 'passiveSpecials'
-    };
-    const key = typeKeyMap[type];
+  const getAvailableSources = useCallback((type) => {
+    const key = TYPE_KEY_MAP[type];
     if (!key) return [];
+
+    const currentSlotKey = isSelectingSource?.slotKey;
 
     return (players || [])
       .map(p => {
@@ -182,15 +194,11 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         const actorId = p.character?.actor?.ID;
         const everMap = (p.app_state && p.app_state.ever_exposed_cards) || {};
         const everSet = new Set((actorId && everMap[actorId]) || []);
-        // Keep items that were ever exposed (history) OR currently exposed. This makes them available
-        // for copying even if the owner later hides them.
-        const rawItems = (p.character.selections[key] || []);
+        const rawItems = (p.character?.selections?.[key] || []);
         const items = rawItems
-          .filter(it => exposedNow.has(it.ID) || everSet.has(it.ID))
+          .filter(it => it && (exposedNow.has(it.ID) || everSet.has(it.ID)))
           .map(it => {
-            // Ensure we have the full definition object (some flows store only IDs)
             if (it && it.ID && it.Type) return it;
-            // Try to resolve from gameData using possible definition lists
             const findIn = [
               gameData.AttackDefinitions || [],
               gameData.PassiveDefinitions || [],
@@ -201,17 +209,18 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
               const found = list.find(d => d.ID === (it.ID || it));
               if (found) return found;
             }
-            // fallback: return item as-is
             return it;
+          })
+          .filter(it => {
+            if (!it || !it.ID) return false;
+            const assignedToCurrentSlot = (copycatAssignments[type] && copycatAssignments[type][currentSlotKey] && copycatAssignments[type][currentSlotKey].ID === it.ID);
+            if (assignedIds.has(it.ID) && !assignedToCurrentSlot) return false;
+            return true;
           });
-        return {
-          playerId: p.id,
-          playerName: p.name,
-          items
-        };
+        return { playerId: p.id, playerName: p.name, items };
       })
       .filter(entry => entry.items && entry.items.length > 0);
-  };
+  }, [players, gameData.AttackDefinitions, gameData.PassiveDefinitions, gameData.ConsumableDefinitions, gameData.SpecialDefinitions, isSelectingSource?.slotKey, copycatAssignments, assignedIds]);
 
   const handleOpenCopySelect = (slotKey, type) => {
     setIsSelectingSource({ slotKey, type });
