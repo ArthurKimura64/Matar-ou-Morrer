@@ -145,7 +145,8 @@
       "PassivesData": [
         "Passive.Atomico1",
         "Passive.Atomico2",
-        "Passive.Atomico3"
+        "Passive.Atomico3",
+        "Passive.Atomico4"
       ],
       "PowersData": [],
       "DevicesData": [],
@@ -960,7 +961,8 @@
         "Attack.Invicto1",
         "Attack.Invicto2",
         "Attack.Invicto3",
-        "Attack.Invicto4"
+        "Attack.Invicto4",
+        "Attack.Invicto5"
       ],
       "WeaponsData": [],
       "PassivesData": [
@@ -1777,7 +1779,7 @@
       "DodgePoints": 4,
       "OportunityAttacks": 2,
       "ExplorationItens": 2,
-      "NumberOfDefenseDices": 2,
+      "NumberOfDefenseDices": 3,
       "NumberOfUnlimitedAttacks": 4,
       "NumberOfWeapons": 0,
       "NumberOfPassives": 0,
@@ -2243,7 +2245,12 @@
         "Power.Katnis3",
         "Power.Katnis4",
         "Power.Katnis5",
-        "Power.Katnis6"
+        "Power.Katnis6",
+        "Power.Katnis7",
+        "Power.Katnis8",
+        "Power.Katnis9",
+        "Power.Katnis10",
+        "Power.Katnis11"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [
@@ -2359,6 +2366,34 @@
         "PassiveSpecialAbility.Stratton2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Copiador",
+      "DodgePoints": 10,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 3,
+      "NumberOfPassives": 3,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 3,
+      "NumberOfSpecialAbilities": 3,
+      "NumberOfPassiveSpecialAbilities": 3,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d4",
+        "Landfill": "d4",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2401,6 +2436,10 @@
     {
       "ID": "Passive.Atomico3",
       "Description": "Passive.Atomico3.Description"
+    },
+    {
+      "ID": "Passive.Atomico4",
+      "Description": "Passive.Atomico4.Description"
     },
     {
       "ID": "Passive.Caos1",
@@ -3194,7 +3233,8 @@
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
-        "Earth"
+        "Earth",
+        "Air"
       ],
       "SpecialDescription": "Attack.Atomico2.SpecialDescription"
     },
@@ -3206,8 +3246,7 @@
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [
-        "Earth",
-        "Air"
+        "Earth"
       ],
       "SpecialDescription": "Attack.Atomico3.SpecialDescription"
     },
@@ -3302,8 +3341,8 @@
       "ID": "Attack.Protetor1",
       "Damage": 3,
       "MinimumDistance": "0",
-      "MaximumDistance": 1,
-      "LoadTime": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
         "Earth"
@@ -3476,7 +3515,7 @@
     },
     {
       "ID": "Attack.Imortal1",
-      "Damage": 2,
+      "Damage": 3,
       "MinimumDistance": 2,
       "MaximumDistance": 8,
       "LoadTime": "0",
@@ -3702,7 +3741,7 @@
       "MinimumDistance": 3,
       "MaximumDistance": 10,
       "LoadTime": 2,
-      "Dices": 2,
+      "Dices": 3,
       "Ambient": [
         "Earth",
         "Air",
@@ -3891,12 +3930,25 @@
       "Damage": 5,
       "MinimumDistance": 2,
       "MaximumDistance": 15,
-      "LoadTime": 2,
+      "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
         "Earth",
         "Air"
       ]
+    },
+    {
+      "ID": "Attack.Invicto5",
+      "Damage": 10,
+      "MinimumDistance": 40,
+      "MaximumDistance": 42,
+      "LoadTime": 3,
+      "Dices": 4,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Invicto5.SpecialDescription"
     },
     {
       "ID": "Attack.Vinteum1",
@@ -8077,7 +8129,7 @@
     {
       "ID": "Power.Katnis2",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Power.Katnis2.Description"
     },
@@ -8091,14 +8143,16 @@
     {
       "ID": "Power.Katnis4",
       "TriggerType": [
-        "Passive"
+        "Passive",
+        "BeforeAttack"
       ],
       "Description": "Power.Katnis4.Description"
     },
     {
       "ID": "Power.Katnis5",
       "TriggerType": [
-        "Passive"
+        "Passive",
+        "BeforeAttack"
       ],
       "Description": "Power.Katnis5.Description"
     },
@@ -8108,6 +8162,49 @@
         "BeforeAttack"
       ],
       "Description": "Power.Katnis6.Description"
+    },
+    {
+      "ID": "Power.Katnis7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis7.Description"
+    },
+    {
+      "ID": "Power.Katnis8",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Power.Katnis8.Description"
+    },
+    {
+      "ID": "Power.Katnis9",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis9.Description"
+    },
+    {
+      "ID": "Power.Katnis10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis10.Description"
+    },
+    {
+      "ID": "Power.Katnis11",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Katnis11.Description"
+    },
+    {
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Katnis12.Description"
     },
     {
       "ID": "Power.Eterno 1",
