@@ -7,7 +7,7 @@ import { Utils } from '../utils/Utils';
 import { RoomService } from '../services/roomService';
 import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
 
-const CharacterSheet = ({ actor, selections, gameData, localization, onReset, currentPlayer }) => {
+const CharacterSheet = ({ actor, selections, gameData, localization, onReset, currentPlayer, players = [] }) => {
   const [counters, setCounters] = useState({
     vida: 20,
     vida_max: 20,
@@ -25,6 +25,8 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   const [unlockedItems, setUnlockedItems] = useState(new Set()); // Novo estado para itens desbloqueados
   const [additionalCounters, setAdditionalCounters] = useState({});
   const [exposedCards, setExposedCards] = useState(new Set()); // Estado para cartas expostas na mesa
+  const [copycatAssignments, setCopycatAssignments] = useState({}); // slots ocupados pelo Copiador
+  const [isSelectingSource, setIsSelectingSource] = useState(null); // {slotKey, type} quando escolhendo a origem
 
   // Memoizar contadores iniciais
   const initialCounters = useMemo(() => ({
@@ -136,6 +138,75 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
     }
   }, [actor, selections, currentPlayer?.id, localization, gameData, initialCounters, calculatedCharacteristics]);
+
+  // Determinar se é o Copiador e preparar slots vazios
+  const isCopycat = useMemo(() => actor?.ID?.toLowerCase() === 'copiador', [actor?.ID]);
+
+  const copycatSlots = useMemo(() => {
+    if (!isCopycat) return {};
+    return {
+      attacks: actor.NumberOfUnlimitedAttacks || 0,
+      weapons: actor.NumberOfWeapons || 0,
+      passives: actor.NumberOfPassives || 0,
+      devices: actor.NumberOfDevices || 0,
+      powers: actor.NumberOfPowers || 0,
+      specials: actor.NumberOfSpecialAbilities || 0,
+      passiveSpecials: actor.NumberOfPassiveSpecialAbilities || 0
+    };
+  }, [isCopycat, actor]);
+
+  // Persistir assignments do Copiador
+  useEffect(() => {
+    if (!isCopycat || !currentPlayer?.id) return;
+    RoomService.updatePlayerSelections(currentPlayer.id, { ...selections, copycatAssignments });
+  }, [copycatAssignments, isCopycat, currentPlayer?.id, selections]);
+
+  // Construir lista de candidatos com a característica/type desejado
+  const getAvailableSources = (type) => {
+    // mapear type para a key salva nos players.character.selections
+    const typeKeyMap = {
+      attacks: 'attacks',
+      weapons: 'weapons',
+      passives: 'passives',
+      devices: 'devices',
+      powers: 'powers',
+      specials: 'specials',
+      passiveSpecials: 'passiveSpecials'
+    };
+    const key = typeKeyMap[type];
+    if (!key) return [];
+
+    return (players || [])
+      .filter(p => p?.character?.selections?.[key]?.length)
+      .map(p => {
+        const exposedNow = new Set(p.exposed_cards || []);
+        const actorId = p.character?.actor?.ID;
+        const everMap = (p.app_state && p.app_state.ever_exposed_cards) || {};
+        const everSet = new Set((actorId && everMap[actorId]) || []);
+        const items = (p.character.selections[key] || []).filter(it => exposedNow.has(it.ID) || everSet.has(it.ID));
+        return {
+          playerId: p.id,
+          playerName: p.name,
+          items
+        };
+      })
+      .filter(entry => entry.items.length > 0);
+  };
+
+  const handleOpenCopySelect = (slotKey, type) => {
+    setIsSelectingSource({ slotKey, type });
+  };
+
+  const handleAssignCopy = (slotKey, type, item) => {
+    setCopycatAssignments(prev => ({
+      ...prev,
+      [type]: {
+        ...(prev[type] || {}),
+        [slotKey]: item
+      }
+    }));
+    setIsSelectingSource(null);
+  };
 
   const handleCounterChange = async (id, value) => {
     const newCounters = {
@@ -292,6 +363,21 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // Sincronizar com o banco de dados
     if (currentPlayer?.id) {
       await RoomService.updatePlayerExposedCards(currentPlayer.id, Array.from(newExposedCards));
+
+      // Se acabou de expor (ligar o olho), registrar no histórico permanente do jogador atual
+      if (newExposedCards.has(itemId)) {
+        try {
+          const actorId = actor?.ID;
+          const appState = currentPlayer.app_state || {};
+          const ever = { ...(appState.ever_exposed_cards || {}) };
+          const list = new Set([...(ever[actorId] || [])]);
+          list.add(itemId);
+          ever[actorId] = Array.from(list);
+          await RoomService.updatePlayerAppState(currentPlayer.id, { ...appState, ever_exposed_cards: ever });
+        } catch (e) {
+          console.error('Falha ao registrar histórico de exposição:', e);
+        }
+      }
     }
   };
 
@@ -299,6 +385,18 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // Limpar cartas expostas antes de fazer reset
     if (currentPlayer?.id) {
       await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
+      // Remover histórico apenas do personagem atual (reinício da ficha)
+      try {
+        const actorId = actor?.ID;
+        const appState = currentPlayer.app_state || {};
+        const ever = { ...(appState.ever_exposed_cards || {}) };
+        if (actorId && ever[actorId]) {
+          delete ever[actorId];
+          await RoomService.updatePlayerAppState(currentPlayer.id, { ...appState, ever_exposed_cards: ever });
+        }
+      } catch (e) {
+        console.error('Erro ao limpar histórico deste personagem no reset:', e);
+      }
     }
     
     // Limpar estado local
@@ -445,6 +543,104 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     );
   };
 
+  // Render de slots do Copiador quando não há seleções próprias
+  const renderCopycatSection = (section) => {
+    const total = copycatSlots[section.key] || 0;
+    if (total <= 0) return null;
+
+    const assignedByType = copycatAssignments[section.key] || {};
+
+    const sources = isSelectingSource?.type === section.key ? getAvailableSources(section.key) : [];
+
+    return (
+      <div key={`copycat-${section.key}`} className="mb-4">
+        <h4 className={`text-${section.color}`}>{section.title}:</h4>
+        <div className="row g-2 mb-2 justify-content-center">
+          {Array.from({ length: total }).map((_, idx) => {
+            const slotKey = `${section.key}-${idx+1}`;
+            const assigned = assignedByType[slotKey];
+            return (
+              <div key={slotKey} className="col-12 col-md-3">
+                <div className={`card border-${section.color} h-100`} style={{background: 'var(--bs-gray-800)', color: '#fff'}}>
+                  <div className="card-body p-2">
+                    {!assigned ? (
+                      <>
+                        <div className={`fw-bold text-${section.color} mb-1`}>Slot {idx+1}</div>
+                        {isSelectingSource && isSelectingSource.slotKey === slotKey ? (
+                          <div className="small">
+                            {sources.length === 0 && (
+                              <div className="text-muted">Nenhum jogador expôs esta característica.</div>
+                            )}
+                            {sources.map(src => (
+                              <div key={src.playerId} className="mb-3">
+                                <div className="fw-semibold mb-1">{src.playerName}</div>
+                                <div className="row g-2">
+                                  {src.items.map(it => {
+                                    const title = (["device","power","special"].includes(section.type))
+                                      ? Utils.createTriggerName(it.ID, it, localization)
+                                      : (localization[it.ID] || it.ID);
+                                    const desc = (['attack','weapon'].includes(section.type)
+                                      ? (Utils.modeSystem.hasModes(actor) && it.modes
+                                          ? Utils.createDualModeDescription(it, localization, actor)
+                                          : Utils.createAttackDescription(it, localization, currentMode))
+                                      : (Utils.modeSystem.hasModes(actor) && ['power', 'passive', 'special', 'passiveSpecial'].includes(section.type)
+                                          ? Utils.createModeRestrictedDescription(it, localization, actor)
+                                          : (localization[it.Description] || it.Description || ""))
+                                    );
+                                    return (
+                                      <div key={it.ID} className="col-12">
+                                        <div className={`card border-${section.color}`} style={{background: 'var(--bs-gray-900)', color: '#fff'}}>
+                                          <div className="card-body p-2">
+                                            <div className={`fw-bold text-${section.color} mb-1`}>{title}</div>
+                                            <div className="mb-2" dangerouslySetInnerHTML={{ __html: desc }} />
+                                            <button
+                                              className={`btn btn-sm btn-${section.color}`}
+                                              onClick={() => handleAssignCopy(slotKey, section.key, it)}
+                                            >
+                                              {localization['Characteristic.Select'] || 'Selecionar'}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                            <button className="btn btn-sm btn-secondary" onClick={() => setIsSelectingSource(null)}>Cancelar</button>
+                          </div>
+                        ) : (
+                          <button 
+                            className={`btn btn-sm btn-outline-${section.color}`}
+                            onClick={() => handleOpenCopySelect(slotKey, section.key)}
+                          >
+                            adicionar {section.title}
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className={`fw-bold text-${section.color} mb-1`}>{localization[assigned.ID] || assigned.ID}</div>
+                        <div className="mb-2" dangerouslySetInnerHTML={{ __html: (['attack','weapon'].includes(section.type)
+                          ? (Utils.modeSystem.hasModes(actor) && assigned.modes
+                              ? Utils.createDualModeDescription(assigned, localization, actor)
+                              : Utils.createAttackDescription(assigned, localization, currentMode))
+                          : (Utils.modeSystem.hasModes(actor) && ['power', 'passive', 'special', 'passiveSpecial'].includes(section.type)
+                              ? Utils.createModeRestrictedDescription(assigned, localization, actor)
+                              : localization[assigned.Description] || "")
+                        ) }} />
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="card col-12 col-md-12 mx-auto my-5 p-4">
       <h2 className="text-center mb-4">{localization['UI.CharacterSheet.Title'] || 'UI.CharacterSheet.Title'}</h2>
@@ -565,7 +761,13 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       </div>
 
       <div id="character-items">
-        {itemSections.map(renderItemSection)}
+        {/* Se não for Copiador, render normal; se for, render slots de cópia quando não houver seleções próprias */}
+        {!isCopycat && itemSections.map(renderItemSection)}
+        {isCopycat && itemSections.map(section => (
+          (selections[section.key] && selections[section.key].length > 0)
+            ? renderItemSection(section)
+            : renderCopycatSection(section)
+        ))}
       </div>
 
       <SpecialCharacteristics 

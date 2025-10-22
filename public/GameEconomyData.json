@@ -1,6 +1,27 @@
 {
   "ActorDefinitions": [
     {
+      "ID": "Copiador",
+      "DodgePoints": 1,
+      "OportunityAttacks": 1,
+      "ExplorationItens": 1,
+      "NumberOfDefenseDices": 1,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 1,
+      "NumberOfPassives": 1,
+      "NumberOfPowers": 1,
+      "NumberOfDevices": 1,
+      "NumberOfSpecialAbilities": 1,
+      "NumberOfPassiveSpecialAbilities": 1,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d4",
+        "Landfill": "d4",
+        "Mountain": "d4"
+      },
+      "SpecialCharacteristics": []
+    },
+    {
       "ID": "Impact",
       "DodgePoints": 10,
       "OportunityAttacks": 8,
@@ -1349,7 +1370,7 @@
       "DodgePoints": 12,
       "OportunityAttacks": 4,
       "ExplorationItens": 2,
-      "NumberOfDefenseDices": "Não joga dados para se defender , o jogador só irá atingi-lo se tirar 5 ou 6 no dado de ataque dele.",
+  "NumberOfDefenseDices": "Characteristic.DefenseDices.Special.Energz",
       "NumberOfUnlimitedAttacks": 2,
       "NumberOfWeapons": 0,
       "NumberOfPassives": 1,
@@ -3168,8 +3189,8 @@
     {
       "ID": "Attack.Atomico2",
       "Damage": 6,
-      "MinimumDistance": "Área 1",
-      "MaximumDistance": "Área 1",
+  "MinimumDistance": "AttackBase.Distance.Area1",
+  "MaximumDistance": "AttackBase.Distance.Area1",
       "LoadTime": 2,
       "Dices": 2,
       "Ambient": [
@@ -3180,8 +3201,8 @@
     {
       "ID": "Attack.Atomico3",
       "Damage": 5,
-      "MinimumDistance": "Região",
-      "MaximumDistance": "Região",
+  "MinimumDistance": "AttackBase.Distance.Region",
+  "MaximumDistance": "AttackBase.Distance.Region",
       "LoadTime": 5,
       "Dices": 1,
       "Ambient": [

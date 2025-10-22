@@ -1,5 +1,12 @@
 // Utilitários globais
 export const Utils = {
+  // Resolve a value through localization if it's a string key
+  resolveLocalizedValue: (value, localization) => {
+    if (typeof value === 'string') {
+      return localization[value] || value;
+    }
+    return value;
+  },
   formatFallback: (id) => id
     .replace(/([A-Z])/g, " $1")
     .replace(/^./, (s) => s.toUpperCase())
@@ -7,9 +14,11 @@ export const Utils = {
 
   createAttackDescription: (def, localization, mode = 'mode1') => {
     const modeData = Utils.modeSystem.getActiveMode(def, mode);
-    return `
-    <b>${localization['AttackBase.Damage'] || 'AttackBase.Damage'}:</b> ${modeData.Damage}
-    <br><b>${localization['AttackBase.Distance'] || 'AttackBase.Distance'}:</b> ${modeData.MinimumDistance === modeData.MaximumDistance ? modeData.MinimumDistance : `${modeData.MinimumDistance} - ${modeData.MaximumDistance}`}
+  const minDist = Utils.resolveLocalizedValue(modeData.MinimumDistance, localization);
+  const maxDist = Utils.resolveLocalizedValue(modeData.MaximumDistance, localization);
+  return `
+  <b>${localization['AttackBase.Damage'] || 'AttackBase.Damage'}:</b> ${modeData.Damage}
+  <br><b>${localization['AttackBase.Distance'] || 'AttackBase.Distance'}:</b> ${minDist === maxDist ? minDist : `${minDist} - ${maxDist}`}
     <br><b>${localization['AttackBase.Dices'] || 'AttackBase.Dices'}:</b> ${modeData.Dices}
     <br><b>${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}:</b> ${modeData.LoadTime || 0}
     <br><b>${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}:</b> ${(modeData.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'Utils.NotAvailable'}
@@ -30,12 +39,16 @@ export const Utils = {
     const mode2Data = def.modes[mode2Key] || def.modes[modes[1]];
     const mode1Name = Utils.modeSystem.getModeName(actor, mode1Key, localization);
     const mode2Name = Utils.modeSystem.getModeName(actor, mode2Key, localization);
-    return `
+  const min1 = Utils.resolveLocalizedValue(mode1Data.MinimumDistance, localization);
+  const max1 = Utils.resolveLocalizedValue(mode1Data.MaximumDistance, localization);
+  const min2 = Utils.resolveLocalizedValue(mode2Data.MinimumDistance, localization);
+  const max2 = Utils.resolveLocalizedValue(mode2Data.MaximumDistance, localization);
+  return `
     <div class="row text-start">
       <div class="col-6 border-end border-secondary">
         <strong class="text-warning">${mode1Name}:</strong><br>
         ${localization['AttackBase.Damage'] || 'AttackBase.Damage'}: ${mode1Data.Damage}<br>
-        ${localization['AttackBase.Distance'] || 'AttackBase.Distance'}: ${mode1Data.MinimumDistance === mode1Data.MaximumDistance ? mode1Data.MinimumDistance : `${mode1Data.MinimumDistance}-${mode1Data.MaximumDistance}`}<br>
+  ${localization['AttackBase.Distance'] || 'AttackBase.Distance'}: ${min1 === max1 ? min1 : `${min1}-${max1}`}<br>
         ${localization['AttackBase.Dices'] || 'AttackBase.Dices'}: ${mode1Data.Dices}<br>
         ${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}: ${mode1Data.LoadTime || 0}<br>
         ${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}: ${(mode1Data.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")}
@@ -43,7 +56,7 @@ export const Utils = {
       <div class="col-6">
         <strong class="text-danger">${mode2Name}:</strong><br>
         ${localization['AttackBase.Damage'] || 'AttackBase.Damage'}: ${mode2Data.Damage}<br>
-        ${localization['AttackBase.Distance'] || 'AttackBase.Distance'}: ${mode2Data.MinimumDistance === mode2Data.MaximumDistance ? mode2Data.MinimumDistance : `${mode2Data.MinimumDistance}-${mode2Data.MaximumDistance}`}<br>
+  ${localization['AttackBase.Distance'] || 'AttackBase.Distance'}: ${min2 === max2 ? min2 : `${min2}-${max2}`}<br>
         ${localization['AttackBase.Dices'] || 'AttackBase.Dices'}: ${mode2Data.Dices}<br>
         ${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}: ${mode2Data.LoadTime || 0}<br>
         ${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}: ${(mode2Data.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join("/")}

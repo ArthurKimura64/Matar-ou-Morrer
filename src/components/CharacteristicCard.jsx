@@ -21,7 +21,9 @@ const CharacteristicCard = ({ actor, localization, deathCount = 0 }) => {
             </li>
             <li className="list-group-item">
               <b>{localization['Characteristic.DefenseDices']}: </b>
-              {actor.NumberOfDefenseDices}
+              {typeof actor.NumberOfDefenseDices === 'string' 
+                ? (localization[actor.NumberOfDefenseDices] || actor.NumberOfDefenseDices)
+                : actor.NumberOfDefenseDices}
             </li>
           </ul>
         </div>

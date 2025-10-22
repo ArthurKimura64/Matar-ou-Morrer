@@ -190,13 +190,17 @@ const TableCards = ({
                               } catch (error) {
                                 // Fallback para descrição manual se Utils falhar
                                 if (foundItem.Damage !== undefined) {
+                                  const minDist = typeof foundItem.MinimumDistance === 'string' 
+                                    ? (localization[foundItem.MinimumDistance] || foundItem.MinimumDistance)
+                                    : foundItem.MinimumDistance;
+                                  const maxDist = typeof foundItem.MaximumDistance === 'string' 
+                                    ? (localization[foundItem.MaximumDistance] || foundItem.MaximumDistance)
+                                    : foundItem.MaximumDistance;
                                   description = `
-                                    <b>Dano:</b> ${foundItem.Damage}<br>
-                                    <b>Distância:</b> ${foundItem.MinimumDistance === foundItem.MaximumDistance ? 
-                                      foundItem.MinimumDistance : 
-                                      `${foundItem.MinimumDistance} - ${foundItem.MaximumDistance}`}<br>
-                                    <b>Dados:</b> ${foundItem.Dices}<br>
-                                    <b>Tempo de Recarga:</b> ${foundItem.LoadTime || 0}
+                                    <b>${localization['AttackBase.Damage'] || 'Dano'}:</b> ${foundItem.Damage}<br>
+                                    <b>${localization['AttackBase.Distance'] || 'Distância'}:</b> ${minDist === maxDist ? minDist : `${minDist} - ${maxDist}`}<br>
+                                    <b>${localization['AttackBase.Dices'] || 'Dados'}:</b> ${foundItem.Dices}<br>
+                                    <b>${localization['AttackBase.LoadTime'] || 'Segundos'}:</b> ${foundItem.LoadTime || 0}
                                   `;
                                 } else {
                                   description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';

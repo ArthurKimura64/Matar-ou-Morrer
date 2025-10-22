@@ -208,7 +208,7 @@ const RoomView = ({
       await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
     }
     
-    // Limpar estados locais do RoomView
+  // Limpar estados locais do RoomView
     setCurrentView('lobby');
     setSelectedActor(null);
     setCharacterSelections(null);
@@ -220,6 +220,24 @@ const RoomView = ({
     
     console.log('✅ Estados limpos e App.js notificado');
   };
+
+  // Quando o jogador trocar de personagem (voltar ao lobby e escolher outro), limpar completamente o histórico ever_exposed_cards
+  useEffect(() => {
+    const clearHistoryIfNoActor = async () => {
+      try {
+        if (!selectedActor && currentPlayer?.id && currentView === 'lobby') {
+          const appState = currentPlayer.app_state || {};
+          if (appState.ever_exposed_cards && Object.keys(appState.ever_exposed_cards).length) {
+            await RoomService.updatePlayerAppState(currentPlayer.id, { ...appState, ever_exposed_cards: {} });
+            console.log('🧹 Histórico de cartas expostas (ever_exposed_cards) limpo ao trocar de personagem.');
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao limpar histórico de exposição ao trocar de personagem:', e);
+      }
+    };
+    clearHistoryIfNoActor();
+  }, [selectedActor, currentView, currentPlayer?.id, currentPlayer?.app_state]);
 
   const handleLeaveRoom = async () => {
     await RoomService.leaveRoom(currentPlayer.id);
@@ -398,6 +416,7 @@ const RoomView = ({
                 localization={localization}
                 onReset={handleBackToLobby}
                 currentPlayer={currentPlayer}
+                players={players}
               />
             </div>
           </div>
