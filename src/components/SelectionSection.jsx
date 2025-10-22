@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const SelectionSection = ({ type, config, actor, localization, onSelectionChange }) => {
+const SelectionSection = ({ type, config, actor, localization, onSelectionChange, globalSelectedIds = new Set(), initialSelected = [] }) => {
   const [selectedItems, setSelectedItems] = useState([]);
+
+  useEffect(() => {
+    if (Array.isArray(initialSelected) && initialSelected.length) {
+      setSelectedItems(initialSelected);
+      onSelectionChange(initialSelected);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!config.data || !config.data.length) return null;
 
@@ -32,6 +40,7 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
         const desc = typeof config.getDesc === 'function' ? config.getDesc(def) : "";
         const itemSelected = isSelected(def);
         const maxSelected = selectedItems.length >= config.number;
+        const alreadySelectedElsewhere = !itemSelected && globalSelectedIds.has(def.ID);
         // Classes para simular o JS: border, shadow, bg-dark, opacity-75
         let cardClass = 'card col-10 col-md-4 m-2';
         if (itemSelected) {
@@ -49,10 +58,11 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
               <div className="card-text" dangerouslySetInnerHTML={{ __html: desc }} />
               <button
                 className={`btn btn-outline-${config.color} select-btn w-100 mt-2${itemSelected ? ' active' : ''}`}
-                disabled={!itemSelected && maxSelected}
+                disabled={alreadySelectedElsewhere || (!itemSelected && maxSelected)}
                 onClick={() => handleItemToggle(def, !itemSelected)}
+                title={alreadySelectedElsewhere ? (localization['Characteristic.AlreadySelectedElsewhere'] || 'Já selecionado em outra seção') : ''}
               >
-                {itemSelected ? localization['Characteristic.Selected'] || 'Characteristic.Selected' : localization['Characteristic.Select'] || 'Characteristic.Select'}
+                {itemSelected ? localization['Characteristic.Selected'] || 'Characteristic.Selected' : (alreadySelectedElsewhere ? (localization['Characteristic.AlreadySelected'] || 'Já selecionado') : (localization['Characteristic.Select'] || 'Characteristic.Select'))}
               </button>
             </div>
           </div>

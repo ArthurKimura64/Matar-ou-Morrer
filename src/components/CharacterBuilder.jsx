@@ -8,50 +8,58 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
   const [isComplete, setIsComplete] = useState(false);
 
   const selectionConfigs = useMemo(() => {
-    const configs = {
-      attack: { 
-        data: actor.UnlimitedAttacksData, 
-        number: actor.NumberOfUnlimitedAttacks, 
-        definitions: gameData.AttackDefinitions, 
-        color: 'danger' 
-      },
-      weapon: { 
-        data: actor.WeaponsData, 
-        number: actor.NumberOfWeapons, 
-        definitions: gameData.AttackDefinitions, 
-        color: 'danger' 
-      },
-      passive: { 
-        data: actor.PassivesData, 
-        number: actor.NumberOfPassives, 
-        definitions: gameData.PassiveDefinitions, 
-        color: 'success' 
-      },
-      device: { 
-        data: actor.DevicesData, 
-        number: actor.NumberOfDevices, 
-        definitions: gameData.ConsumableDefinitions, 
-        color: 'info' 
-      },
-      power: { 
-        data: actor.PowersData, 
-        number: actor.NumberOfPowers, 
-        definitions: gameData.ConsumableDefinitions, 
-        color: 'primary' 
-      },
-      special: { 
-        data: actor.SpecialAbilitiesData, 
-        number: actor.NumberOfSpecialAbilities, 
-        definitions: gameData.ConsumableDefinitions, 
-        color: 'warning' 
-      },
-      passiveSpecial: { 
-        data: actor.PassiveSpecialAbilitiesData, 
-        number: actor.NumberOfPassiveSpecialAbilities, 
-        definitions: gameData.PassiveDefinitions, 
-        color: 'warning' 
-      }
-    };
+    const configs = (() => {
+      const numOrLen = (numField, arr) => {
+        const parsed = Number(numField);
+        if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+        return (arr || []).length || 0;
+      };
+
+      return {
+        attack: { 
+          data: actor.UnlimitedAttacksData, 
+          number: numOrLen(actor.NumberOfUnlimitedAttacks, actor.UnlimitedAttacksData), 
+          definitions: gameData.AttackDefinitions, 
+          color: 'danger' 
+        },
+        weapon: { 
+          data: actor.WeaponsData, 
+          number: numOrLen(actor.NumberOfWeapons, actor.WeaponsData), 
+          definitions: gameData.AttackDefinitions, 
+          color: 'danger' 
+        },
+        passive: { 
+          data: actor.PassivesData, 
+          number: numOrLen(actor.NumberOfPassives, actor.PassivesData), 
+          definitions: gameData.PassiveDefinitions, 
+          color: 'success' 
+        },
+        device: { 
+          data: actor.DevicesData, 
+          number: numOrLen(actor.NumberOfDevices, actor.DevicesData), 
+          definitions: gameData.ConsumableDefinitions, 
+          color: 'info' 
+        },
+        power: { 
+          data: actor.PowersData, 
+          number: numOrLen(actor.NumberOfPowers, actor.PowersData), 
+          definitions: gameData.ConsumableDefinitions, 
+          color: 'primary' 
+        },
+        special: { 
+          data: actor.SpecialAbilitiesData, 
+          number: numOrLen(actor.NumberOfSpecialAbilities, actor.SpecialAbilitiesData), 
+          definitions: gameData.ConsumableDefinitions, 
+          color: 'warning' 
+        },
+        passiveSpecial: { 
+          data: actor.PassiveSpecialAbilitiesData, 
+          number: numOrLen(actor.NumberOfPassiveSpecialAbilities, actor.PassiveSpecialAbilitiesData), 
+          definitions: gameData.PassiveDefinitions, 
+          color: 'warning' 
+        }
+      };
+    })();
 
     // Aplicar configurações específicas de cada tipo
     Object.entries(configs).forEach(([type, config]) => {
@@ -103,9 +111,25 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
     }));
   };
 
+  // IDs already selected across all sections (prevent duplicate selection of same item)
+  const globalSelectedIds = useMemo(() => {
+    const ids = new Set();
+    Object.values(selections).forEach(arr => {
+      if (Array.isArray(arr)) arr.forEach(it => {
+        if (!it) return;
+        // Support both full definition objects { ID: '...' } and plain ID strings
+        const id = (typeof it === 'string') ? it : (it.ID || it.id || null);
+        if (id) ids.add(id);
+      });
+    });
+    return ids;
+  }, [selections]);
+
   useEffect(() => {
     const complete = Object.entries(selectionConfigs).every(([type, config]) => {
-      if (config.data && config.number) {
+      // Only require selections if a positive number is expected AND there is selectable data available
+      const requiresSelection = config.number && Array.isArray(config.data) && config.data.length > 0;
+      if (requiresSelection) {
         return (selections[type]?.length || 0) === config.number;
       }
       return true;
@@ -159,13 +183,14 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
 
       {Object.entries(selectionConfigs).map(([type, config]) => (
         <SelectionSection
-          key={type}
-          type={type}
-          config={config}
-          actor={actor}
-          localization={localization}
-          onSelectionChange={(selectedItems) => handleSelectionChange(type, selectedItems)}
-        />
+            key={type}
+            type={type}
+            config={config}
+            actor={actor}
+            localization={localization}
+            globalSelectedIds={globalSelectedIds}
+            onSelectionChange={(selectedItems) => handleSelectionChange(type, selectedItems)}
+          />
       ))}
 
       <div className="row justify-content-center my-4">

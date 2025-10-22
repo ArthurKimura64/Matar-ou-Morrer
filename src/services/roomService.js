@@ -7,6 +7,23 @@ export class RoomService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
+  // Obter um jogador pelo ID
+  static async getPlayer(playerId) {
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('id', playerId)
+        .single();
+
+      if (error) throw error;
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('Erro ao obter jogador:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Criar uma nova sala
   static async createRoom(roomName, masterName) {
     try {

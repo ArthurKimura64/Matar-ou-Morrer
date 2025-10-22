@@ -145,13 +145,13 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   const copycatSlots = useMemo(() => {
     if (!isCopycat) return {};
     return {
-      attacks: actor.NumberOfUnlimitedAttacks || 0,
-      weapons: actor.NumberOfWeapons || 0,
-      passives: actor.NumberOfPassives || 0,
-      devices: actor.NumberOfDevices || 0,
-      powers: actor.NumberOfPowers || 0,
-      specials: actor.NumberOfSpecialAbilities || 0,
-      passiveSpecials: actor.NumberOfPassiveSpecialAbilities || 0
+      attacks: (typeof actor.NumberOfUnlimitedAttacks === 'number' && actor.NumberOfUnlimitedAttacks) || (actor.UnlimitedAttacksData || []).length || 0,
+      weapons: (typeof actor.NumberOfWeapons === 'number' && actor.NumberOfWeapons) || (actor.WeaponsData || []).length || 0,
+      passives: (typeof actor.NumberOfPassives === 'number' && actor.NumberOfPassives) || (actor.PassivesData || []).length || 0,
+      devices: (typeof actor.NumberOfDevices === 'number' && actor.NumberOfDevices) || (actor.DevicesData || []).length || 0,
+      powers: (typeof actor.NumberOfPowers === 'number' && actor.NumberOfPowers) || (actor.PowersData || []).length || 0,
+      specials: (typeof actor.NumberOfSpecialAbilities === 'number' && actor.NumberOfSpecialAbilities) || (actor.SpecialAbilitiesData || []).length || 0,
+      passiveSpecials: (typeof actor.NumberOfPassiveSpecialAbilities === 'number' && actor.NumberOfPassiveSpecialAbilities) || (actor.PassiveSpecialAbilitiesData || []).length || 0
     };
   }, [isCopycat, actor]);
 
@@ -177,20 +177,40 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (!key) return [];
 
     return (players || [])
-      .filter(p => p?.character?.selections?.[key]?.length)
       .map(p => {
         const exposedNow = new Set(p.exposed_cards || []);
         const actorId = p.character?.actor?.ID;
         const everMap = (p.app_state && p.app_state.ever_exposed_cards) || {};
         const everSet = new Set((actorId && everMap[actorId]) || []);
-        const items = (p.character.selections[key] || []).filter(it => exposedNow.has(it.ID) || everSet.has(it.ID));
+        // Keep items that were ever exposed (history) OR currently exposed. This makes them available
+        // for copying even if the owner later hides them.
+        const rawItems = (p.character.selections[key] || []);
+        const items = rawItems
+          .filter(it => exposedNow.has(it.ID) || everSet.has(it.ID))
+          .map(it => {
+            // Ensure we have the full definition object (some flows store only IDs)
+            if (it && it.ID && it.Type) return it;
+            // Try to resolve from gameData using possible definition lists
+            const findIn = [
+              gameData.AttackDefinitions || [],
+              gameData.PassiveDefinitions || [],
+              gameData.ConsumableDefinitions || [],
+              gameData.SpecialDefinitions || [],
+            ];
+            for (const list of findIn) {
+              const found = list.find(d => d.ID === (it.ID || it));
+              if (found) return found;
+            }
+            // fallback: return item as-is
+            return it;
+          });
         return {
           playerId: p.id,
           playerName: p.name,
           items
         };
       })
-      .filter(entry => entry.items.length > 0);
+      .filter(entry => entry.items && entry.items.length > 0);
   };
 
   const handleOpenCopySelect = (slotKey, type) => {
@@ -368,7 +388,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       if (newExposedCards.has(itemId)) {
         try {
           const actorId = actor?.ID;
-          const appState = currentPlayer.app_state || {};
+          // Fetch latest player row to avoid overwriting concurrent changes
+          const latest = await RoomService.getPlayer(currentPlayer.id);
+          const appState = (latest.success && latest.player && latest.player.app_state) ? latest.player.app_state : (currentPlayer.app_state || {});
           const ever = { ...(appState.ever_exposed_cards || {}) };
           const list = new Set([...(ever[actorId] || [])]);
           list.add(itemId);
