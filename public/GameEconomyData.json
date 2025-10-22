@@ -2345,6 +2345,34 @@
         "PassiveSpecialAbility.Stratton2"
       ],
       "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Copiador",
+      "DodgePoints": 10,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 3,
+      "NumberOfWeapons": 3,
+      "NumberOfPassives": 3,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 3,
+      "NumberOfSpecialAbilities": 3,
+      "NumberOfPassiveSpecialAbilities": 3,
+      "Tecnique": {
+        "Desert": "d4",
+        "City": "d4",
+        "Landfill": "d4",
+        "Mountain": "d4"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [],
+      "PassivesData": [],
+      "PowersData": [],
+      "DevicesData": [],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
