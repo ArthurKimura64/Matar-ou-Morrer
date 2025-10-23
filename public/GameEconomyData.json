@@ -4696,9 +4696,9 @@
     {
       "ID": "Attack.Raioroxo3",
       "Damage": 20,
-      "MinimumDistance": 5,
+      "MinimumDistance": "0",
       "MaximumDistance": 10,
-      "LoadTime": 1,
+      "LoadTime": 2,
       "Dices": 1,
       "Ambient": [
         "Earth",
