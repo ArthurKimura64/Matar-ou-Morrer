@@ -2362,7 +2362,7 @@
       "Tecnique": {
         "Desert": "d4",
         "City": "d4",
-        "Landfill": "d2",
+        "Landfill": "d4",
         "Mountain": "d4"
       },
       "UnlimitedAttacksData": [],
@@ -4683,8 +4683,8 @@
     {
       "ID": "Attack.Raioroxo2",
       "Damage": 6,
-      "MinimumDistance": 4,
-      "MaximumDistance": 15,
+      "MinimumDistance": 3,
+      "MaximumDistance": 6,
       "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
