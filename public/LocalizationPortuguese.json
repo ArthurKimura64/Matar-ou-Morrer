@@ -707,7 +707,7 @@
   "Weapon.Stratton1": "Lança de Gelo",
   "Weapon.Stratton2": "Luva de Rajada",
   "Passive.Impact1": "Velocidade do Som",
-  "Passive.Impact1.Description": "Você se movimenta usando 1d20.",
+  "Passive.Impact1.Description": "Você se movimenta usando d20.",
   "Passive.Impact2": "Sem Tempo",
   "Passive.Impact2.Description": "Você realiza todos os seus ataques antes que o adversário possa revidar.",
   "Passive.Impact3": "Alvo Difícil",
