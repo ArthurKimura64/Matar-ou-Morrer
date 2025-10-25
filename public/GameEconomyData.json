@@ -5085,8 +5085,8 @@
     {
       "ID": "Weapon.LuaNegra1",
       "Damage": 10,
-      "MinimumDistance": 5,
-      "MaximumDistance": 12,
+      "MinimumDistance": 3,
+      "MaximumDistance": 10,
       "LoadTime": "0",
       "Dices": 2,
       "Ambient": [
