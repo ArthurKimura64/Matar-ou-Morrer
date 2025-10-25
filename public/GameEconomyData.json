@@ -5288,7 +5288,8 @@
       "Ambient": [
         "Earth",
         "Air"
-      ]
+      ],
+      "SpecialDescription": "Weapon.Observadora2.SpecialDescription"
     },
     {
       "ID": "Weapon.Observadora3",
