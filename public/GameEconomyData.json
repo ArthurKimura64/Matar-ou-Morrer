@@ -7858,6 +7858,9 @@
     },
     {
       "ID": "Power.NyanjaVlast12",
+      "TriggerType": [
+        "Passive"
+      ],
       "Description": "Power.NyanjaVlast12.Description"
     },
     {
