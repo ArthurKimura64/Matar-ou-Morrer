@@ -6128,7 +6128,7 @@
     {
       "ID": "Device.LuaNegra5",
       "TriggerType": [
-        "Passive"
+        "BeforeAttack"
       ],
       "Description": "Device.LuaNegra5.Description"
     },
