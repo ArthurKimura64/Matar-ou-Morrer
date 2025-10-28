@@ -7757,7 +7757,8 @@
     {
       "ID": "Power.Dimensao1",
       "TriggerType": [
-        "BeforeAttack"
+        "BeforeAttack",
+        "AfterAttack"
       ],
       "Description": "Power.Dimensao1.Description"
     },
