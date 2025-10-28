@@ -1515,7 +1515,7 @@
   "Power.SenhordaLuz4": "Voo Solar",
   "Power.SenhordaLuz4.Description": "Voa por 1 rodada, podendo atacar qualquer inimigo do mapa(pode atacar mesmo se o seu ataque não alcançar ele mas dá apenas um ataque) e não pode ser atacado por ninguém.",
   "Power.Dimensao1": "Dimensão Intensa",
-  "Power.Dimensao1.Description": "Dobra o tipo de efeito que o inimigo irá receber enquanto estiver na dimensão ao qual foi enviado(o efeito acaba assim que ele sair de lá).",
+  "Power.Dimensao1.Description": "Dobra o tipo de efeito que o inimigo irá receber enquanto estiver na dimensão ao qual será enviado ao fim do combate(o efeito acaba assim que ele sair de lá).",
   "Power.Dimensao2": "Mudança de Planos",
   "Power.Dimensao2.Description": "Ao invés de enviar o inimigo para a dimensão que ele terá que ir por conta do ataque que sofreu, pode enviá-lo para a dimensão que o seu outro ataque o enviaria(Pode escolher dimensão de ataques que não está equipado).",
   "Power.Dimensao3": "DImensão do Pesadelo",
