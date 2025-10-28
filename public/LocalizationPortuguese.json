@@ -912,7 +912,7 @@
   "Passive.Dimensao1": "Dimensão Tranquila",
   "Passive.Dimensao1.Description": "Pode gastar um pulo e durante 2 rodadas não poderá atacar nem ser atacado por ninguém e poderá empurrar sem gastar pulo, poderá entrar em locais sem gastar o item de exploração mas não poderá realizar ações do mapa(quando está na dimensão tranquila, não conta como se estivesse no jogo).",
   "Passive.Dimensao2": "X1 até a Morte",
-  "Passive.Dimensao2.Description": "Ao final de um combate pode gastar um pulo e enviar você e o seu adversário para outra dimensão e vocês só sairão de lá quando um de vocês morrerem(nessa dimensão um atacará o outro com qualquer arma ou ataque que quiser, mas respeitando a ordem e velocidade dos ataques), o x1 se inicia com você atacando o inimigo e a sequência de ataques vai se repetindo até um dos dois morrerem.",
+  "Passive.Dimensao2.Description": "Ao final de um combate pode gastar um pulo e enviar você e o seu adversário para outra dimensão e vocês só sairão de lá quando um de vocês morrer(nessa dimensão um atacará o outro com qualquer arma ou ataque que quiser, mas respeitando a ordem e velocidade dos ataques), o x1 se inicia com você atacando o inimigo e a sequência de ataques vai se repetindo até um dos dois morrer.",
   "Passive.Dimensao3": "Castigo Dimensional",
   "Passive.Dimensao3.Description": "Se defender todos os dados do último ataque do inimigo ele perderá 3 de vida automaticamente.\r",
   "Passive.Dimensao4": "Sob Pressão",
