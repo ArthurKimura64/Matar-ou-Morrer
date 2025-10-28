@@ -2372,7 +2372,9 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Copiador1"
+      ]
     }
   ],
   "PassiveDefinitions": [
@@ -8686,6 +8688,11 @@
       "ID": "SpecialCustom.AgentedoVazio1",
       "Type": "counter",
       "Title": "SpecialCustom.AgentedoVazio1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Copiador1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Copiador1.Title"
     }
   ]
 }
