@@ -1325,7 +1325,7 @@
   "Power.SextoSentido5": "Quebra de Defesa",
   "Power.SextoSentido5.Description": "O dado com menor número defenderá o oponente apenas de um número igual ou inferior e não de todos os outros dados iguais e inferiores(dura até o fim do combate).",
   "Power.PortadorDasEntidades1": "Zezzy",
-  "Power.PortadorDasEntidades1.Description": "No final de um combate pode Sacrificar X de sua vida sendo X o valor que você decidir para acrescentar ao seu último ataque que atingiu o oponente.",
+  "Power.PortadorDasEntidades1.Description": "Pode sacrificar até 5 de vida ao fim do combate para acrescentar ao dano total que seu inimigo recebeu de você durante o combate.",
   "Power.PortadorDasEntidades2": "Volker",
   "Power.PortadorDasEntidades2.Description": "Se torna indestrutível por uma rodada. ",
   "Power.LuaNegra1": "Super Pulo",
