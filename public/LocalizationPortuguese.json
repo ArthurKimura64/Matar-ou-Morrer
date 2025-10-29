@@ -988,7 +988,7 @@
   "Device.Tai1": "Esfera da Vida",
   "Device.Tai1.Description": "Enche toda a sua vida.",
   "Device.Tai2": "Núcleo Concentrado",
-  "Device.Tai2.Description": "Sua vida se torna infinita por 1 rodada e após isso, sua vida volta para a quantidade que estava. ",
+  "Device.Tai2.Description": "Sua vida se torna infinita por 1 rodada e após isso volta para a quantidade que estava. ",
   "Device.Tai3": "Alterador",
   "Device.Tai3.Description": "Joga +2 dados para atacar ou se defender durante um turno.",
   "Device.Tai4": "Manto restaurador",
