@@ -6590,7 +6590,7 @@
     {
       "ID": "Device.Capuz8",
       "TriggerType": [
-        "AfterAttack"
+        "BeforeAttack"
       ],
       "Description": "Device.Capuz8.Description"
     },
