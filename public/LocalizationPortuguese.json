@@ -1733,7 +1733,7 @@
   "SpecialAbility.Onisciente2": "Big Bang",
   "SpecialAbility.Onisciente2.Description": "Você começa a voar para sair da terra e jogará um d20 a cada inicio da sua rodada, vai somar os resultados e quando passar de 100 você alcança o espaço e destroi a terra, matando todos os inimigos que estão nela, os inimigos podem te atacar com qualquer ataque exceto os de 0 a 5 de distância, você estará em ambiente Aéreo, mas quanto mais alto você estiver, mais difícil ficará para eles, você só poderá se defender, Voo: 0-20 atacam normalmente, 21-50 -1 nos dados de ataque, 51-100 -2 dados de ataque.",
   "SpecialAbility.Capuz1": "Chuva de Lasers",
-  "SpecialAbility.Capuz1.Description": "Ataca todos os inimigos que estiverem em pontos de conexão ao mesmo tempo com a chuva de lasers: Dano 19 / dados 3.",
+  "SpecialAbility.Capuz1.Description": "Ataca todos os inimigos que estiverem em cima ou até 2 metros de um ponto de conexão ao mesmo tempo com a chuva de lasers: Dano 12 / dados 3.",
   "SpecialAbility.Capuz2": "Destruidor de Lares",
   "SpecialAbility.Capuz2.Description": "Destroi um local de exploração que esteja a até 20 metros de você e o inimigo que estiver lá dentro deverá jogar um d20, se ele tirar 15 ou mais sairá com 10 de vida, se tirar 14 ou menos conseguirá sair com 5 de vida(ele ficará na entrada do local destruído).",
   "SpecialAbility.Raioroxo1": "Incansável",
