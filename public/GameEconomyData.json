@@ -4496,8 +4496,8 @@
     {
       "ID": "Attack.Onisciente1",
       "Damage": 18,
-      "MinimumDistance": 13,
-      "MaximumDistance": 15,
+      "MinimumDistance": 15,
+      "MaximumDistance": "",
       "LoadTime": 5,
       "Dices": 3,
       "Ambient": [
@@ -4576,8 +4576,8 @@
     {
       "ID": "Attack.Onisciente7",
       "Damage": 10,
-      "MinimumDistance": 15,
-      "MaximumDistance": 17,
+      "MinimumDistance": 16,
+      "MaximumDistance": "",
       "LoadTime": 5,
       "Dices": 5,
       "Ambient": [
@@ -4590,7 +4590,7 @@
     {
       "ID": "Attack.Onisciente8",
       "Damage": 20,
-      "MinimumDistance": 18,
+      "MinimumDistance": "",
       "MaximumDistance": 20,
       "LoadTime": 5,
       "Dices": 6,
