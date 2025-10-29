@@ -1145,7 +1145,7 @@
   "Device.Programador9": "Cubo de Aceleração",
   "Device.Programador9.Description": "A velocidade do seu ataque é -1 até o fim do combate.",
   "Device.Programador10": "Ligamento",
-  "Device.Programador10.Description": "Escolhe um inimigo que esteja 0/10 de distancia para usar o dispositivo de ligamento nele, e ficará ligado a ele por 1 rodada e todo dano que você receber, ele perderá em vida(caso você “morra”, os dados ou o dado com o dano que te matou é anulado para o inimigo).",
+  "Device.Programador10.Description": "Escolhe um inimigo que esteja 0/10 de distancia para usar o dispositivo de ligamento nele, e ficará ligado a ele por 1 rodada e todo dano que você receber, ele perderá em vida(o dado com o dano que iria matar o inimigo atingido pelo ligamento é anulado até que o ligamento se encerre).",
   "Device.Sistema1": "Analisador",
   "Device.Sistema1.Description": "Cancela o poder ou dispositivo que o inimigo acabou de usar.",
   "Device.Sistema2": "Puxador de Sanidade",
