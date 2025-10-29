@@ -2375,7 +2375,8 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": [
-        "SpecialCustom.Copiador1"
+        "SpecialCustom.Copiador1",
+        "SpecialCustom.Copiador2"
       ]
     }
   ],
@@ -8696,6 +8697,11 @@
       "ID": "SpecialCustom.Copiador1",
       "Type": "counter",
       "Title": "SpecialCustom.Copiador1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Copiador2",
+      "Type": "counter",
+      "Title": "SpecialCustom.Copiador2.Title"
     },
     {
       "ID": "SpecialCustom.MulherFantasma1",
