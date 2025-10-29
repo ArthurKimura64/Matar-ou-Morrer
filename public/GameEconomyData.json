@@ -7943,7 +7943,7 @@
     {
       "ID": "Power.Onisciente7",
       "TriggerType": [
-        "AfterAttack"
+        "BeforeAttack"
       ],
       "Description": "Power.Onisciente7.Description"
     },
