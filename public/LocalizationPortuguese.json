@@ -130,6 +130,7 @@
   "UI.CharacterSheet.AdditionalCounters": "Contadores Especiais",
   "Character.Name.Impact": "Impacto",
   "Character.Title.Impact": "Movimentação",
+  "Character.Description.Impact": "Pode alternar de ataque a qualquer momento do combate.",
   "Character.Reivolk.Impact.Title": "Deus da Velocidade",
   "Character.Reivolk.Impact.Description": "Não precisa mais jogar dado para se movimentar, sua movimentação padrão é de 1 a até 1 Sextilhão e ao empurrar um inimigo pode movê-lo 2 metros para a direção que você quiser.",
   "Character.Name.Tai": "Tai",
