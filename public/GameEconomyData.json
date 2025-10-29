@@ -8532,6 +8532,7 @@
     {
       "ID": "SpecialAbility.Capuz1",
       "TriggerType": [
+        "Passive",
         "BeforeAttack"
       ],
       "Description": "SpecialAbility.Capuz1.Description"
