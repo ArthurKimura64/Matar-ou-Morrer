@@ -795,7 +795,9 @@
       "PowersData": [
         "Power.LuaNegra1",
         "Power.LuaNegra2",
-        "Power.LuaNegra3"
+        "Power.LuaNegra3",
+        "Power.LuaNegra4",
+        "Power.LuaNegra5"
       ],
       "DevicesData": [
         "Device.LuaNegra1",
@@ -808,7 +810,8 @@
         "Device.LuaNegra8",
         "Device.LuaNegra9",
         "Device.LuaNegra10",
-        "Device.LuaNegra11"
+        "Device.LuaNegra11",
+        "Device.LuaNegra12"
       ],
       "SpecialAbilitiesData": [
         "SpecialAbility.LuaNegra1",
@@ -6187,6 +6190,13 @@
       "Description": "Device.LuaNegra11.Description"
     },
     {
+      "ID": "Device.LuaNegra12",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.LuaNegra12.Description"
+    },
+    {
       "ID": "Device.Bruce1",
       "TriggerType": [
         "Passive"
@@ -7121,6 +7131,20 @@
         "AfterAttack"
       ],
       "Description": "Power.LuaNegra3.Description"
+    },
+    {
+      "ID": "Power.LuaNegra4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.LuaNegra4.Description"
+    },
+    {
+      "ID": "Power.LuaNegra5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.LuaNegra5.Description"
     },
     {
       "ID": "Power.EclipseKnight1",
