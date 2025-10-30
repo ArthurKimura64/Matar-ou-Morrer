@@ -1343,6 +1343,8 @@
   "Power.LuaNegra4.Description": "No inicio do combate antes do inimigo jogar o primeiros dados, pode se movimentar e ficar na distância exata para revidar.",
   "Power.LuaNegra5": "Reflexo de um Deus",
   "Power.LuaNegra5.Description": "Se defende com 6 dados até o fim do turno.",
+  "Power.LuaNegra6": "Energia Negativa",
+  "Power.LuaNegra6.Description": "Não pode ser atingido por nada e nem receber nenhum tipo de ataque durante 1 rodada.",
   "Power.EclipseKnight1": "Raio do Julgamento",
   "Power.EclipseKnight1.Description": "Todos os jogadores inimigos que já entraram em combate em algum momento da partida até esse momento receberão -1 em seus dados de defesa por 3 rodadas. ",
   "Power.EclipseKnight2": "Vigor de Batalha",
