@@ -3076,7 +3076,7 @@
       "MinimumDistance": 2,
       "MaximumDistance": 6,
       "LoadTime": "0",
-      "Dices": 1,
+      "Dices": 3,
       "Ambient": [
         "Earth",
         "Air"
@@ -3096,11 +3096,11 @@
     },
     {
       "ID": "Attack.Impact3",
-      "Damage": 10,
+      "Damage": 5,
       "MinimumDistance": 5,
       "MaximumDistance": 10,
       "LoadTime": "0",
-      "Dices": 1,
+      "Dices": 2,
       "Ambient": [
         "Earth"
       ],
@@ -3110,13 +3110,12 @@
       "ID": "Attack.Impact4",
       "Damage": 2,
       "MinimumDistance": "0",
-      "MaximumDistance": 1,
+      "MaximumDistance": "",
       "LoadTime": "0",
-      "Dices": 4,
+      "Dices": 6,
       "Ambient": [
         "Earth"
-      ],
-      "SpecialDescription": "Attack.Impact4.SpecialDescription"
+      ]
     },
     {
       "ID": "Attack.Tecnology1",
