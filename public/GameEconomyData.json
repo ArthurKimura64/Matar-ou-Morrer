@@ -797,7 +797,8 @@
         "Power.LuaNegra2",
         "Power.LuaNegra3",
         "Power.LuaNegra4",
-        "Power.LuaNegra5"
+        "Power.LuaNegra5",
+        "Power.LuaNegra6"
       ],
       "DevicesData": [
         "Device.LuaNegra1",
@@ -7145,6 +7146,13 @@
         "BeforeAttack"
       ],
       "Description": "Power.LuaNegra5.Description"
+    },
+    {
+      "ID": "Power.LuaNegra6",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.LuaNegra6.Description"
     },
     {
       "ID": "Power.EclipseKnight1",
