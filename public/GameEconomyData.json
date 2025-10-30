@@ -586,7 +586,7 @@
       "DodgePoints": 3,
       "OportunityAttacks": 8,
       "ExplorationItens": 2,
-      "NumberOfDefenseDices": 2,
+      "NumberOfDefenseDices": 3,
       "NumberOfUnlimitedAttacks": 0,
       "NumberOfWeapons": 2,
       "NumberOfPassives": 0,
@@ -5127,7 +5127,8 @@
       "Dices": 1,
       "Ambient": [
         "Earth"
-      ]
+      ],
+      "SpecialDescription": "Weapon.LuaNegra3.SpecialDescription"
     },
     {
       "ID": "Weapon.Bruce1",
