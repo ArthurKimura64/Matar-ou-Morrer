@@ -1439,7 +1439,7 @@
       "DodgePoints": 4,
       "OportunityAttacks": 2,
       "ExplorationItens": 2,
-      "NumberOfDefenseDices": 2,
+      "NumberOfDefenseDices": 3,
       "NumberOfUnlimitedAttacks": 3,
       "NumberOfWeapons": 0,
       "NumberOfPassives": 0,
@@ -1468,7 +1468,12 @@
         "Power.Pressao3",
         "Power.Pressao4",
         "Power.Pressao5",
-        "Power.Pressao6"
+        "Power.Pressao6",
+        "Power.Pressao7",
+        "Power.Pressao8",
+        "Power.Pressao9",
+        "Power.Pressao10",
+        "Power.Pressao11"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
@@ -7679,6 +7684,41 @@
         "BeforeAttack"
       ],
       "Description": "Power.Pressao6.Description"
+    },
+    {
+      "ID": "Power.Pressao7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pressao7.Description"
+    },
+    {
+      "ID": "Power.Pressao8",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Pressao8.Description"
+    },
+    {
+      "ID": "Power.Pressao9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Pressao9.Description"
+    },
+    {
+      "ID": "Power.Pressao10",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Pressao10.Description"
+    },
+    {
+      "ID": "Power.Pressao11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Pressao11.Description"
     },
     {
       "ID": "Power.Manipulador1",
