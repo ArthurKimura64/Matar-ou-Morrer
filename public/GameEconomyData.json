@@ -4392,7 +4392,7 @@
     },
     {
       "ID": "Attack.SenhordaLuz3",
-      "Damage": "??",
+      "Damage": "0",
       "MinimumDistance": "0",
       "MaximumDistance": 13,
       "LoadTime": "0",
