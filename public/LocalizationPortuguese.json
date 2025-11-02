@@ -1617,7 +1617,7 @@
   "Power.Vortztem3": "Portal Refletor",
   "Power.Vortztem3.Description": "Faz um jogador inimigo que está dando ataque de oportunidade em você se defender do próprio dado.",
   "Power.Vortztem4": "Evolução Constante",
-  "Power.Vortztem4.Description": "A cada rodada do combate ele cria um portal que o ajuda a atacar dando +1 dado de ataque na sua vez de atacar, esse efeito dura até o fim do combate.",
+  "Power.Vortztem4.Description": "A cada inicio do seu turno no combate você cria um portal que o ajuda a atacar dando +1 dado de ataque na sua vez de atacar, esse efeito dura até o fim do combate (os dadossomam).",
   "Power.Vortztem5": "Do meu Jeito",
   "Power.Vortztem5.Description": "Quando um inimigo iniciar um ataque contra você, você pode ficar na distância exata para dar seu ataque.",
   "Power.Vortztem6": "Portal de Defesa",
