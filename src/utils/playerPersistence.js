@@ -33,7 +33,7 @@ export class PlayerPersistence {
       localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(stateToSave));
       console.log('💾 Estado da aplicação salvo:', {
         view: appState.currentView,
-        actor: appState.selectedActor?.name,
+        actor: appState.selectedActor?.ID || appState.selectedActor?.name || 'null',
         hasSelections: !!appState.characterSelections
       });
     } catch (error) {
@@ -49,7 +49,7 @@ export class PlayerPersistence {
         const parsed = JSON.parse(stateData);
         console.log('📦 Estado da aplicação recuperado:', {
           view: parsed.currentView,
-          actor: parsed.selectedActor?.name,
+          actor: parsed.selectedActor?.ID || parsed.selectedActor?.name || 'null',
           hasSelections: !!parsed.characterSelections,
           timestamp: parsed.timestamp
         });

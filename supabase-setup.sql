@@ -616,4 +616,238 @@ SELECT test_cleanup_system();
 SELECT 'ESTATÍSTICAS ATUAIS:' as status;
 SELECT get_system_stats();
 
+-- ================================
+-- SISTEMA DE COMBATE
+-- ================================
+
+-- Tabela de notificações de combate
+CREATE TABLE IF NOT EXISTS public.combat_notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    room_id VARCHAR(6) REFERENCES public.rooms(id) ON DELETE CASCADE,
+    attacker_id UUID REFERENCES public.players(id) ON DELETE CASCADE,
+    defender_id UUID REFERENCES public.players(id) ON DELETE CASCADE,
+    attacker_name VARCHAR(50) NOT NULL,
+    defender_name VARCHAR(50) NOT NULL,
+    attack_data JSONB NOT NULL,
+    defender_weapon JSONB,
+    allow_counter_attack BOOLEAN DEFAULT true,
+    allow_opportunity_attacks BOOLEAN DEFAULT true,
+    opportunity_attacks_used JSONB DEFAULT '[]',
+    status VARCHAR(20) DEFAULT 'pending',
+    combat_phase VARCHAR(30) DEFAULT 'weapon_selection',
+    current_round INTEGER DEFAULT 0,
+    total_rounds INTEGER DEFAULT 0,
+    round_data JSONB DEFAULT '[]',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Adicionar coluna opportunity_attacks_used se não existir (para compatibilidade com bancos antigos)
+ALTER TABLE public.combat_notifications 
+ADD COLUMN IF NOT EXISTS opportunity_attacks_used JSONB DEFAULT '[]';
+
+-- Adicionar constraint de check para status
+ALTER TABLE public.combat_notifications 
+DROP CONSTRAINT IF EXISTS combat_notifications_status_check;
+
+ALTER TABLE public.combat_notifications 
+ADD CONSTRAINT combat_notifications_status_check 
+CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled'));
+
+-- Adicionar constraint de check para combat_phase
+ALTER TABLE public.combat_notifications 
+DROP CONSTRAINT IF EXISTS combat_notifications_phase_check;
+
+ALTER TABLE public.combat_notifications 
+ADD CONSTRAINT combat_notifications_phase_check 
+CHECK (combat_phase IN ('weapon_selection', 'rolling', 'results'));
+
+-- Criar índices para melhorar performance
+CREATE INDEX IF NOT EXISTS idx_combat_room_id ON public.combat_notifications(room_id);
+CREATE INDEX IF NOT EXISTS idx_combat_status ON public.combat_notifications(status);
+CREATE INDEX IF NOT EXISTS idx_combat_attacker ON public.combat_notifications(attacker_id);
+CREATE INDEX IF NOT EXISTS idx_combat_defender ON public.combat_notifications(defender_id);
+CREATE INDEX IF NOT EXISTS idx_combat_created_at ON public.combat_notifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_combat_round_data ON public.combat_notifications USING GIN (round_data);
+CREATE INDEX IF NOT EXISTS idx_combat_opportunity_attacks ON public.combat_notifications USING GIN (opportunity_attacks_used);
+
+-- Comentários para documentação da tabela de combate
+COMMENT ON TABLE public.combat_notifications IS 'Tabela que armazena os combates entre jogadores, incluindo sistema de espectadores e ataques de oportunidade';
+
+COMMENT ON COLUMN public.combat_notifications.id IS 'ID único do combate';
+COMMENT ON COLUMN public.combat_notifications.room_id IS 'Referência à sala onde o combate está ocorrendo';
+COMMENT ON COLUMN public.combat_notifications.attacker_id IS 'ID do jogador atacante';
+COMMENT ON COLUMN public.combat_notifications.defender_id IS 'ID do jogador defensor';
+COMMENT ON COLUMN public.combat_notifications.attacker_name IS 'Nome do atacante';
+COMMENT ON COLUMN public.combat_notifications.defender_name IS 'Nome do defensor';
+COMMENT ON COLUMN public.combat_notifications.attack_data IS 'Dados do ataque inicial (arma, tipo, etc.) em formato JSON';
+COMMENT ON COLUMN public.combat_notifications.defender_weapon IS 'Arma de contra-ataque do defensor em formato JSON';
+COMMENT ON COLUMN public.combat_notifications.allow_counter_attack IS 'Se o defensor pode contra-atacar';
+COMMENT ON COLUMN public.combat_notifications.allow_opportunity_attacks IS 'Se espectadores podem dar ataques de oportunidade';
+COMMENT ON COLUMN public.combat_notifications.opportunity_attacks_used IS 'Array de IDs de jogadores (espectadores) que já usaram seu ataque de oportunidade neste combate';
+COMMENT ON COLUMN public.combat_notifications.status IS 'Status do combate: pending, in_progress, completed, cancelled';
+COMMENT ON COLUMN public.combat_notifications.combat_phase IS 'Fase atual do combate: weapon_selection, rolling, results';
+COMMENT ON COLUMN public.combat_notifications.current_round IS 'Rodada atual do combate (0 = não iniciado)';
+COMMENT ON COLUMN public.combat_notifications.total_rounds IS 'Número total de rodadas (inclui ataque, contra-ataque e ataques de oportunidade)';
+COMMENT ON COLUMN public.combat_notifications.round_data IS 'Array JSON com dados de cada rodada: [{round: 1, action_type: "attack"|"counter"|"opportunity", who_acts: "attacker"|"defender"|"opportunity", opportunity_attacker_id: UUID, opportunity_attacker_name: string, opportunity_weapon: {...}, opportunity_target: "attacker"|"defender", attacker: name, attacker_roll: [dados], defender: name, defender_roll: [dados], completed: boolean}]';
+COMMENT ON COLUMN public.combat_notifications.created_at IS 'Timestamp de criação do combate';
+COMMENT ON COLUMN public.combat_notifications.updated_at IS 'Timestamp da última atualização do combate';
+
+
+-- Habilitar Row Level Security (RLS)
+ALTER TABLE public.combat_notifications ENABLE ROW LEVEL SECURITY;
+
+-- Habilitar Realtime para a tabela de combate
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND tablename = 'combat_notifications'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.combat_notifications;
+    END IF;
+END $$;
+
+-- Política de acesso: jogadores podem ver combates da sua sala
+DROP POLICY IF EXISTS "Players can view combat notifications in their room" ON public.combat_notifications;
+CREATE POLICY "Players can view combat notifications in their room"
+ON public.combat_notifications FOR SELECT
+USING (true);
+
+-- Política de inserção: jogadores podem criar combates
+DROP POLICY IF EXISTS "Players can create combat notifications" ON public.combat_notifications;
+CREATE POLICY "Players can create combat notifications"
+ON public.combat_notifications FOR INSERT
+WITH CHECK (true);
+
+-- Política de atualização: jogadores envolvidos podem atualizar
+DROP POLICY IF EXISTS "Players can update their combat notifications" ON public.combat_notifications;
+CREATE POLICY "Players can update their combat notifications"
+ON public.combat_notifications FOR UPDATE
+USING (true);
+
+-- Política de exclusão: jogadores envolvidos podem deletar
+DROP POLICY IF EXISTS "Players can delete their combat notifications" ON public.combat_notifications;
+CREATE POLICY "Players can delete their combat notifications"
+ON public.combat_notifications FOR DELETE
+USING (true);
+
+-- Função para limpar combates antigos (mais de 24 horas)
+CREATE OR REPLACE FUNCTION clean_old_combats()
+RETURNS INTEGER AS $$
+DECLARE
+    deleted_count INTEGER;
+BEGIN
+    DELETE FROM public.combat_notifications 
+    WHERE created_at < NOW() - INTERVAL '24 hours';
+    
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    
+    RAISE NOTICE 'Limpeza de combates: % registros removidos', deleted_count;
+    
+    RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função para obter estatísticas de combate
+CREATE OR REPLACE FUNCTION get_combat_stats()
+RETURNS JSON AS $$
+BEGIN
+    RETURN json_build_object(
+        'timestamp', NOW(),
+        'total_combats', (SELECT COUNT(*) FROM public.combat_notifications),
+        'active_combats', (SELECT COUNT(*) FROM public.combat_notifications WHERE status = 'in_progress'),
+        'pending_combats', (SELECT COUNT(*) FROM public.combat_notifications WHERE status = 'pending'),
+        'completed_combats', (SELECT COUNT(*) FROM public.combat_notifications WHERE status = 'completed'),
+        'combats_with_opportunity_attacks', (
+            SELECT COUNT(*) 
+            FROM public.combat_notifications 
+            WHERE allow_opportunity_attacks = true 
+            AND jsonb_array_length(opportunity_attacks_used) > 0
+        ),
+        'total_opportunity_attacks', (
+            SELECT SUM(jsonb_array_length(opportunity_attacks_used))::INTEGER 
+            FROM public.combat_notifications
+        ),
+        'combats_by_room', (
+            SELECT json_object_agg(room_id, combat_count)
+            FROM (
+                SELECT room_id, COUNT(*) as combat_count
+                FROM public.combat_notifications
+                GROUP BY room_id
+            ) subquery
+        )
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION clean_old_combats() IS 'Remove combates com mais de 24 horas';
+COMMENT ON FUNCTION get_combat_stats() IS 'Retorna estatísticas detalhadas sobre os combates';
+
+-- ================================
+-- EXEMPLOS DE USO DO SISTEMA
+-- ================================
+
+-- EXEMPLO 1: Consultar todos os combates ativos de uma sala
+-- SELECT * FROM public.combat_notifications 
+-- WHERE room_id = 'ABC123' 
+-- AND status = 'in_progress';
+
+-- EXEMPLO 2: Verificar se um jogador já usou ataque de oportunidade
+-- SELECT 
+--     id,
+--     attacker_name,
+--     defender_name,
+--     opportunity_attacks_used @> '["uuid-do-jogador"]'::jsonb as already_used
+-- FROM public.combat_notifications
+-- WHERE room_id = 'ABC123';
+
+-- EXEMPLO 3: Contar quantos ataques de oportunidade foram usados em um combate
+-- SELECT 
+--     id,
+--     attacker_name,
+--     defender_name,
+--     jsonb_array_length(opportunity_attacks_used) as total_opportunity_attacks
+-- FROM public.combat_notifications
+-- WHERE id = 'uuid-do-combate';
+
+-- EXEMPLO 4: Listar todas as rodadas de um combate (incluindo ataques de oportunidade)
+-- SELECT 
+--     id,
+--     current_round,
+--     total_rounds,
+--     jsonb_array_length(round_data) as rounds_completed,
+--     round_data
+-- FROM public.combat_notifications
+-- WHERE id = 'uuid-do-combate';
+
+-- EXEMPLO 5: Encontrar combates onde há espectadores que podem dar ataques de oportunidade
+-- SELECT 
+--     cn.id,
+--     cn.room_id,
+--     cn.attacker_name,
+--     cn.defender_name,
+--     cn.allow_opportunity_attacks,
+--     COUNT(p.id) as total_players_in_room,
+--     jsonb_array_length(cn.opportunity_attacks_used) as attacks_used,
+--     (COUNT(p.id) - 2 - jsonb_array_length(cn.opportunity_attacks_used)) as available_spectators
+-- FROM public.combat_notifications cn
+-- JOIN public.players p ON p.room_id = cn.room_id AND p.is_connected = true
+-- WHERE cn.status = 'in_progress'
+-- AND cn.allow_opportunity_attacks = true
+-- GROUP BY cn.id, cn.room_id, cn.attacker_name, cn.defender_name, cn.allow_opportunity_attacks
+-- HAVING (COUNT(p.id) - 2 - jsonb_array_length(cn.opportunity_attacks_used)) > 0;
+
+-- EXEMPLO 6: Obter detalhes de uma rodada de oportunidade específica
+-- SELECT 
+--     id,
+--     round_data -> (current_round - 1) as current_round_info,
+--     (round_data -> (current_round - 1) ->> 'action_type') as action_type,
+--     (round_data -> (current_round - 1) ->> 'opportunity_attacker_name') as opportunity_attacker,
+--     (round_data -> (current_round - 1) ->> 'opportunity_target') as opportunity_target
+-- FROM public.combat_notifications
+-- WHERE id = 'uuid-do-combate'
+-- AND (round_data -> (current_round - 1) ->> 'action_type') = 'opportunity';
+
 SELECT 'SETUP CONCLUÍDO!' as status;

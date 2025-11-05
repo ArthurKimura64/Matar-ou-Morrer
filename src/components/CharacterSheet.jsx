@@ -111,19 +111,24 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   // Calcular características do personagem criado - Otimizado
   useEffect(() => {
     if (actor && selections && currentPlayer?.id) {
-      // Definir valores dos contadores baseados no personagem
-      setCounters(prev => ({ ...prev, ...initialCounters }));
+      // RESTAURAR contadores salvos do banco, ou usar valores iniciais
+      if (currentPlayer.counters) {
+        console.log('🔄 RESTAURANDO CONTADORES DO BANCO:', currentPlayer.counters);
+        setCounters(currentPlayer.counters);
+      } else {
+        console.log('📝 INICIALIZANDO CONTADORES PADRÃO');
+        setCounters(initialCounters);
+        // Sincronizar com o banco de dados
+        RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
+      }
 
-      // Sincronizar com o banco de dados
+      // Sincronizar características
       RoomService.updatePlayerCharacteristics(currentPlayer.id, calculatedCharacteristics);
       
       // Sincronizar seleções
       RoomService.updatePlayerSelections(currentPlayer.id, selections).catch(error => {
         console.error('❌ Falha ao salvar seleções:', error);
       });
-
-      // Sincronizar contadores principais com o banco
-      RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
       
       // Configurar contadores adicionais baseados nas SpecialCharacteristics
       const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
@@ -134,21 +139,29 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         localization 
       });
       
-      // Na ficha, os contadores especiais devem começar em 0, não no máximo
-      const resetCountersData = {};
-      Object.entries(additionalCountersData).forEach(([key, counter]) => {
-        resetCountersData[key] = {
-          ...counter,
-          current: 0 // Começar sempre em 0 na ficha
-        };
-      });
-      
-      setAdditionalCounters(resetCountersData);
-      
-      // Sincronizar contadores adicionais
-      RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
+      // RESTAURAR contadores adicionais do banco, ou resetar para 0
+      if (currentPlayer.additional_counters && Object.keys(currentPlayer.additional_counters).length > 0) {
+        console.log('🔄 RESTAURANDO CONTADORES ADICIONAIS DO BANCO:', currentPlayer.additional_counters);
+        setAdditionalCounters(currentPlayer.additional_counters);
+      } else {
+        console.log('📝 INICIALIZANDO CONTADORES ADICIONAIS PADRÃO');
+        // Na ficha, os contadores especiais devem começar em 0, não no máximo
+        const resetCountersData = {};
+        Object.entries(additionalCountersData).forEach(([key, counter]) => {
+          resetCountersData[key] = {
+            ...counter,
+            current: 0 // Começar sempre em 0 na ficha
+          };
+        });
+        
+        setAdditionalCounters(resetCountersData);
+        
+        // Sincronizar contadores adicionais
+        RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
+      }
     }
-  }, [actor, selections, currentPlayer?.id, localization, gameData, initialCounters, calculatedCharacteristics]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actor?.ID, selections, currentPlayer?.id]);
 
   // Determinar se é o Copiador e preparar slots vazios
   const isCopycat = useMemo(() => actor?.ID?.toLowerCase() === 'copiador', [actor?.ID]);

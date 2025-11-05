@@ -5,6 +5,7 @@ import CharacterBuilder from './CharacterBuilder';
 import CharacterSheet from './CharacterSheet';
 import PlayersSidebar from './PlayersSidebar';
 import TableCards from './TableCards';
+import CombatPanel from './CombatPanel';
 import { usePlayerStatus } from '../hooks/usePlayerStatus';
 
 const RoomView = ({ 
@@ -203,12 +204,45 @@ const RoomView = ({
   const handleBackToLobby = async () => {
     console.log('🔄 VOLTANDO PARA LOBBY - limpando estados');
     
-    // Limpar cartas expostas no banco de dados
+    // Limpar TODOS os dados do personagem no banco de dados
     if (currentPlayer?.id) {
+      console.log('🧹 Limpando dados do personagem no banco...');
+      
+      // Limpar cartas expostas
       await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
+      
+      // Limpar contadores (resetar para valores padrão)
+      await RoomService.updatePlayerCounters(currentPlayer.id, {
+        vida: 20,
+        vida_max: 20,
+        esquiva: 0,
+        esquiva_max: 0,
+        oport: 0,
+        oport_max: 0,
+        item: 0,
+        item_max: 0,
+        mortes: 0
+      });
+      
+      // Limpar itens usados
+      await RoomService.updatePlayerUsedItems(currentPlayer.id, []);
+      
+      // Limpar itens desbloqueados
+      await RoomService.updatePlayerUnlockedItems(currentPlayer.id, []);
+      
+      // Limpar contadores adicionais
+      await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, {});
+      
+      // Limpar personagem
+      await RoomService.updatePlayerCharacter(currentPlayer.id, null, null);
+      
+      // Atualizar status para 'selecting'
+      await RoomService.updatePlayerStatus(currentPlayer.id, 'selecting', null);
+      
+      console.log('✅ Dados do personagem limpos no banco');
     }
     
-  // Limpar estados locais do RoomView
+    // Limpar estados locais do RoomView
     setCurrentView('lobby');
     setSelectedActor(null);
     setCharacterSelections(null);
@@ -436,6 +470,16 @@ const RoomView = ({
       {/* Cartas na mesa - sempre visível */}
       <TableCards 
         players={players}
+        gameData={gameData}
+        localization={localization}
+      />
+
+      {/* Painel Lateral de Combate - integra todo sistema de combate */}
+      <CombatPanel
+        currentPlayer={currentPlayer}
+        currentPlayerData={players.find(p => p.id === currentPlayer?.id)}
+        players={players}
+        roomId={room.id}
         gameData={gameData}
         localization={localization}
       />

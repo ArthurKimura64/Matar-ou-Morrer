@@ -27,11 +27,11 @@ const PlayersSidebar = ({
         className="btn btn-dark position-fixed d-flex align-items-center justify-content-center sidebar-toggle-btn border border-light"
         style={{
           right: isOpen ? '320px' : '0px',
-          top: '50%',
+          top: 'calc(50% + 60px)',
           transform: 'translateY(-50%)',
           zIndex: 1055,
-          width: '30px',
-          height: '60px',
+          width: '40px',
+          height: '80px',
           borderRadius: '8px 0 0 8px',
           transition: 'all 0.3s ease-in-out',
           fontSize: '14px',
@@ -43,9 +43,16 @@ const PlayersSidebar = ({
           `${localization['UI.Room.ExpandPlayersList'] || "Abrir lista de jogadores"} (${players.length} ${players.length === 1 ? 'jogador' : 'jogadores'})`
         }
       >
-        {/* Apenas a seta */}
-        <span style={{ fontSize: '14px' }}>
-          {isOpen ? '▶' : '◀'}
+        {/* Ícone centralizado */}
+        <span style={{ 
+          fontSize: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%'
+        }}>
+          {isOpen ? '▶' : '👥'}
         </span>
       </button>
 

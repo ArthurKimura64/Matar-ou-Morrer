@@ -37,7 +37,7 @@ function App() {
         playerId: currentPlayer.id,
         view: completeState.currentView,
         internalView: completeState.roomInternalView,
-        actor: completeState.selectedActor?.name || 'null',
+        actor: completeState.selectedActor?.ID || completeState.selectedActor?.name || 'null',
         hasSelections: !!completeState.characterSelections
       });
       
@@ -69,7 +69,7 @@ function App() {
       
       console.log('💾 SALVANDO ESTADO SOLO:', {
         view: soloState.currentView,
-        actor: soloState.selectedActor?.name || 'null',
+        actor: soloState.selectedActor?.ID || soloState.selectedActor?.name || 'null',
         hasSelections: !!soloState.characterSelections
       });
       
@@ -78,7 +78,7 @@ function App() {
   }, [currentView, selectedActor, characterSelections, currentRoom, currentPlayer]);
 
   // Função para tentar reconectar jogador salvo
-  const handleReconnectPlayer = async (savedData, savedAppState) => {
+  const handleReconnectPlayer = useCallback(async (savedData, savedAppState, loadedGameData = null) => {
     try {
       setLoading(true);
       setIsRestoringState(true);
@@ -87,15 +87,23 @@ function App() {
       // Verificar se a sala ainda existe e está ativa
       const roomsResult = await RoomService.getActiveRooms();
       if (!roomsResult.success) {
-        console.log('❌ Erro ao verificar salas, limpando dados salvos');
-        PlayerPersistence.clearPlayerData();
+        console.error('❌ Erro ao verificar salas:', roomsResult.error);
+        // NÃO limpar dados ainda - pode ser erro temporário de rede
+        alert('Erro ao verificar salas. Verifique sua conexão e recarregue a página.');
+        setLoading(false);
+        setIsRestoringState(false);
         return;
       }
       
       const room = roomsResult.rooms.find(r => r.id === savedData.room.id);
       if (!room) {
-        console.log('🗑️ Sala não encontrada, limpando dados salvos');
+        console.log('⚠️ Sala não encontrada ou fechada');
+        // Limpar dados apenas se sala realmente não existe mais
         PlayerPersistence.clearPlayerData();
+        setCurrentView('menu');
+        alert('A sala não está mais disponível. Voltando ao menu principal.');
+        setLoading(false);
+        setIsRestoringState(false);
         return;
       }
       
@@ -108,30 +116,70 @@ function App() {
         setCurrentRoom(room);
         setCurrentPlayer(reconnectResult.player);
         
-        // PRIORIDADE: Estado do banco (app_state) > localStorage
+        // PRIORIDADE: Estado do banco (app_state) > character > localStorage
         let stateToRestore = null;
         
         if (reconnectResult.player.app_state && 
             reconnectResult.player.app_state.timestamp) {
-          console.log('🎯 USANDO ESTADO DO BANCO:', reconnectResult.player.app_state);
+          console.log('🎯 USANDO ESTADO DO BANCO (app_state):', reconnectResult.player.app_state);
           stateToRestore = reconnectResult.player.app_state;
+        } else if (reconnectResult.player.character && 
+                   (reconnectResult.player.character.actor || reconnectResult.player.character.selections)) {
+          // Se tem character salvo mas não tem app_state, criar state do character
+          console.log('🎯 USANDO CHARACTER DO BANCO:', reconnectResult.player.character);
+          stateToRestore = {
+            selectedActor: reconnectResult.player.character.actor,
+            characterSelections: reconnectResult.player.character.selections,
+            roomInternalView: 'sheet', // Se tem character completo, está na sheet
+            currentView: 'room'
+          };
         } else if (savedAppState) {
-          console.log('� USANDO ESTADO DO LOCALSTORAGE:', savedAppState);
+          console.log('📦 USANDO ESTADO DO LOCALSTORAGE:', savedAppState);
           stateToRestore = savedAppState;
         }
         
         if (stateToRestore) {
           console.log('🔄 RESTAURANDO ESTADO:', stateToRestore);
           
-          // Restaurar tudo de uma vez
-          if (stateToRestore.selectedActor) {
-            console.log('📖 DEFININDO ACTOR:', stateToRestore.selectedActor.name);
-            setSelectedActor(stateToRestore.selectedActor);
-          }
+          // Usar gameData carregado ou do estado
+          const gameDataToUse = loadedGameData || gameData;
           
-          if (stateToRestore.characterSelections) {
-            console.log('📖 DEFININDO SELECTIONS');
-            setCharacterSelections(stateToRestore.characterSelections);
+          if (gameDataToUse) {
+            // Restaurar actor procurando pelo ID no gameData
+            if (stateToRestore.selectedActor) {
+              const actorId = stateToRestore.selectedActor.ID || stateToRestore.selectedActor.id;
+              console.log('📖 PROCURANDO ACTOR COM ID:', actorId);
+              
+              if (actorId && gameDataToUse.ActorDefinitions) {
+                const foundActor = gameDataToUse.ActorDefinitions.find(a => a.ID === actorId);
+                if (foundActor) {
+                  console.log('📖 ACTOR ENCONTRADO:', foundActor.ID);
+                  setSelectedActor(foundActor);
+                } else {
+                  console.warn('⚠️ Actor não encontrado no gameData:', actorId);
+                  setSelectedActor(stateToRestore.selectedActor);
+                }
+              } else {
+                console.log('📖 DEFININDO ACTOR DIRETAMENTE');
+                setSelectedActor(stateToRestore.selectedActor);
+              }
+            }
+            
+            if (stateToRestore.characterSelections) {
+              console.log('📖 DEFININDO SELECTIONS');
+              setCharacterSelections(stateToRestore.characterSelections);
+            }
+          } else {
+            // Se gameData ainda não carregou, apenas definir os estados
+            if (stateToRestore.selectedActor) {
+              console.log('📖 DEFININDO ACTOR (gameData ainda não carregado)');
+              setSelectedActor(stateToRestore.selectedActor);
+            }
+            
+            if (stateToRestore.characterSelections) {
+              console.log('📖 DEFININDO SELECTIONS');
+              setCharacterSelections(stateToRestore.characterSelections);
+            }
           }
           
           // Definir views
@@ -147,7 +195,7 @@ function App() {
           console.log('✅ ESTADO RESTAURADO:', {
             view: 'room',
             internalView: stateToRestore.roomInternalView,
-            actor: stateToRestore.selectedActor?.name,
+            actor: stateToRestore.selectedActor?.ID || stateToRestore.selectedActor?.name,
             hasSelections: !!stateToRestore.characterSelections
           });
         } else {
@@ -159,17 +207,21 @@ function App() {
         // Atualizar dados salvos com informações mais recentes
         PlayerPersistence.updatePlayerData(reconnectResult.player);
       } else {
-        console.log('❌ Falha ao reconectar, limpando dados salvos');
+        console.log('❌ Falha ao reconectar jogador');
+        // Não limpar automaticamente - pode ser erro temporário
+        alert('Não foi possível reconectar. Voltando ao menu principal.');
         PlayerPersistence.clearPlayerData();
+        setCurrentView('menu');
       }
     } catch (error) {
       console.error('❌ Erro na reconexão:', error);
-      PlayerPersistence.clearPlayerData();
+      alert('Erro ao tentar reconectar. Verifique sua conexão.');
+      // Não limpar dados em caso de erro de rede
     } finally {
       setLoading(false);
       setIsRestoringState(false);
     }
-  };
+  }, [gameData]);
 
   // useEffect para salvar estado sempre que mudanças importantes acontecerem
   useEffect(() => {
@@ -197,53 +249,70 @@ function App() {
       PlayerPersistence.generateSessionId();
     }
     
-    // Verificar se há dados de jogador salvos para reconexão
-    const savedData = PlayerPersistence.getPlayerData();
-    const savedAppState = PlayerPersistence.getAppState();
-    
-    if (savedData && PlayerPersistence.validateSavedData()) {
-      console.log('🔄 Dados salvos encontrados, tentando reconectar...');
-      handleReconnectPlayer(savedData, savedAppState);
-    } else if (savedAppState && savedAppState.isSoloMode) {
-      // Restaurar estado do modo solo
-      console.log('🔄 RESTAURANDO ESTADO SOLO:', savedAppState);
-      setIsRestoringState(true);
+    // Carregar dados do jogo primeiro
+    Promise.all([
+      fetch("GameEconomyData.json").then(r => r.json()),
+      fetch("LocalizationPortuguese.json").then(r => r.json())
+    ]).then(([loadedGameData, loadedLocalization]) => {
+      setGameData(loadedGameData);
+      setLocalization(loadedLocalization);
       
-      if (savedAppState.selectedActor) {
-        console.log('📖 DEFININDO ACTOR SOLO:', savedAppState.selectedActor.name);
-        setSelectedActor(savedAppState.selectedActor);
+      // Após carregar gameData, verificar se há dados salvos para restaurar
+      const savedData = PlayerPersistence.getPlayerData();
+      const savedAppState = PlayerPersistence.getAppState();
+      
+      if (savedData && PlayerPersistence.validateSavedData()) {
+        console.log('🔄 Dados salvos encontrados, tentando reconectar...');
+        // Reconectar passando o gameData carregado
+        handleReconnectPlayer(savedData, savedAppState, loadedGameData);
+      } else if (savedAppState && savedAppState.isSoloMode) {
+        // Restaurar estado do modo solo
+        console.log('🔄 RESTAURANDO ESTADO SOLO:', savedAppState);
+        setIsRestoringState(true);
+        
+        if (savedAppState.selectedActor) {
+          const actorId = savedAppState.selectedActor.ID || savedAppState.selectedActor.id;
+          console.log('📖 PROCURANDO ACTOR SOLO COM ID:', actorId);
+          
+          if (actorId && loadedGameData.ActorDefinitions) {
+            const foundActor = loadedGameData.ActorDefinitions.find(a => a.ID === actorId);
+            if (foundActor) {
+              console.log('📖 ACTOR SOLO ENCONTRADO:', foundActor.ID);
+              setSelectedActor(foundActor);
+            } else {
+              console.warn('⚠️ Actor solo não encontrado no gameData:', actorId);
+              setSelectedActor(savedAppState.selectedActor);
+            }
+          } else {
+            console.log('📖 DEFININDO ACTOR SOLO DIRETAMENTE');
+            setSelectedActor(savedAppState.selectedActor);
+          }
+        }
+        
+        if (savedAppState.characterSelections) {
+          console.log('📖 DEFININDO SELECTIONS SOLO');
+          setCharacterSelections(savedAppState.characterSelections);
+        }
+        
+        if (savedAppState.currentView) {
+          console.log('📖 DEFININDO VIEW SOLO:', savedAppState.currentView);
+          setCurrentView(savedAppState.currentView);
+        }
+        
+        setTimeout(() => setIsRestoringState(false), 100);
+        console.log('✅ ESTADO SOLO RESTAURADO');
       }
-      
-      if (savedAppState.characterSelections) {
-        console.log('📖 DEFININDO SELECTIONS SOLO');
-        setCharacterSelections(savedAppState.characterSelections);
-      }
-      
-      if (savedAppState.currentView) {
-        console.log('📖 DEFININDO VIEW SOLO:', savedAppState.currentView);
-        setCurrentView(savedAppState.currentView);
-      }
-      
-      setTimeout(() => setIsRestoringState(false), 100);
-      console.log('✅ ESTADO SOLO RESTAURADO');
-    }
+    }).catch(error => {
+      console.error('Erro ao carregar dados:', error);
+    });
     
     // Salvar configurações do Supabase no localStorage para o painel de admin
     if (process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY) {
       localStorage.setItem('supabase_url', process.env.REACT_APP_SUPABASE_URL);
       localStorage.setItem('supabase_key', process.env.REACT_APP_SUPABASE_ANON_KEY);
     }
-    
-    Promise.all([
-      fetch("GameEconomyData.json").then(r => r.json()),
-      fetch("LocalizationPortuguese.json").then(r => r.json())
-    ]).then(([gameData, localization]) => {
-      setGameData(gameData);
-      setLocalization(localization);
-    }).catch(error => {
-      console.error('Erro ao carregar dados:', error);
-    });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Executar apenas uma vez na montagem
 
   const handleCharacterSelect = (actor) => {
     console.log('🎯 SELECIONANDO PERSONAGEM:', actor.name);
