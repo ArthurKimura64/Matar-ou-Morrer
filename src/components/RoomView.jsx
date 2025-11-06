@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RoomService } from '../services/roomService';
 import CharacterSelection from './CharacterSelection';
 import CharacterBuilder from './CharacterBuilder';
@@ -32,8 +32,24 @@ const RoomView = ({
   const [showCharacterBuilder, setShowCharacterBuilder] = useState(true);
   const [showCharacterSheet, setShowCharacterSheet] = useState(true);
   
+  // Controle centralizado das sidebars - apenas uma aberta por vez
+  const [openSidebar, setOpenSidebar] = useState(null); // 'players', 'table', 'combat' ou null
+  
   // Usar useRef para controlar se já aplicou estado inicial
   const hasAppliedInitialState = useRef(false);
+  
+  // Funções de toggle das sidebars com useCallback para estabilidade
+  const handleTogglePlayers = useCallback(() => {
+    setOpenSidebar(prev => prev === 'players' ? null : 'players');
+  }, []);
+  
+  const handleToggleTable = useCallback(() => {
+    setOpenSidebar(prev => prev === 'table' ? null : 'table');
+  }, []);
+  
+  const handleToggleCombat = useCallback(() => {
+    setOpenSidebar(prev => prev === 'combat' ? null : 'combat');
+  }, []);
 
   // Aplicar valores iniciais apenas UMA vez
   useEffect(() => {
@@ -465,6 +481,8 @@ const RoomView = ({
         gameData={gameData}
         room={room}
         onKickPlayer={handleKickPlayer}
+        isOpen={openSidebar === 'players'}
+        onToggle={handleTogglePlayers}
       />
 
       {/* Cartas na mesa - sempre visível */}
@@ -472,6 +490,8 @@ const RoomView = ({
         players={players}
         gameData={gameData}
         localization={localization}
+        isOpen={openSidebar === 'table'}
+        onToggle={handleToggleTable}
       />
 
       {/* Painel Lateral de Combate - integra todo sistema de combate */}
@@ -482,6 +502,8 @@ const RoomView = ({
         roomId={room.id}
         gameData={gameData}
         localization={localization}
+        isOpen={openSidebar === 'combat'}
+        onToggle={handleToggleCombat}
       />
     </div>
   );

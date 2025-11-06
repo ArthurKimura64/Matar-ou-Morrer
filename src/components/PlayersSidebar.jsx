@@ -8,12 +8,20 @@ const PlayersSidebar = ({
   localization = {}, 
   gameData,
   room = null,
-  onKickPlayer = null
+  onKickPlayer = null,
+  isOpen: isOpenProp,
+  onToggle
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+  // Usar estado local apenas se não for controlado externamente
+  const [isOpenLocal, setIsOpenLocal] = useState(false);
+  const isOpen = isOpenProp !== undefined ? isOpenProp : isOpenLocal;
+  
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+    if (onToggle) {
+      onToggle();
+    } else {
+      setIsOpenLocal(!isOpenLocal);
+    }
   };
 
   // Verificar se o jogador atual é o mestre da sala
@@ -89,7 +97,7 @@ const PlayersSidebar = ({
         <div className="bg-secondary border-bottom border-light p-3">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <h6 className="text-white mb-1 fw-bold">
+              <h6 className="text-white mb-1">
                 {localization['UI.Room.ConnectedPlayers'] || 'Jogadores Conectados'}
               </h6>
               <small className="text-light">
@@ -118,7 +126,7 @@ const PlayersSidebar = ({
             overflowX: 'hidden'
           }}
         >
-          <div className="d-flex flex-column gap-3">
+          <div className="d-flex flex-column gap-2">
             {players.length === 0 ? (
               <div className="text-center py-4">
                 <div className="text-muted">
@@ -164,7 +172,7 @@ const PlayersSidebar = ({
         <div className="bg-secondary border-bottom border-light p-3">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <h6 className="text-white mb-1 fw-bold">
+              <h6 className="text-white mb-1">
                 {localization['UI.Room.ConnectedPlayers'] || 'Jogadores Conectados'}
               </h6>
               <small className="text-light">
@@ -193,7 +201,7 @@ const PlayersSidebar = ({
             overflowX: 'hidden'
           }}
         >
-          <div className="d-flex flex-column gap-3">
+          <div className="d-flex flex-column gap-2">
             {players.length === 0 ? (
               <div className="text-center py-4">
                 <div className="text-muted">

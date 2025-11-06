@@ -5,12 +5,20 @@ const TableCards = ({
   players = [], 
   gameData = {}, 
   localization = {},
-  currentPlayer = null
+  currentPlayer = null,
+  isOpen: isOpenProp,
+  onToggle
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  // Usar estado local apenas se não for controlado externamente
+  const [isOpenLocal, setIsOpenLocal] = useState(false);
+  const isOpen = isOpenProp !== undefined ? isOpenProp : isOpenLocal;
 
   const toggleTableCards = () => {
-    setIsOpen(!isOpen);
+    if (onToggle) {
+      onToggle();
+    } else {
+      setIsOpenLocal(!isOpenLocal);
+    }
   };
 
   // Filtrar jogadores que têm cartas expostas

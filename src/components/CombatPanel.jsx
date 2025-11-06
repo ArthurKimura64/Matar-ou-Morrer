@@ -17,9 +17,22 @@ const CombatPanel = ({
   players = [],
   roomId,
   gameData,
-  localization = {}
+  localization = {},
+  isOpen: isOpenProp,
+  onToggle
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  // Usar estado local apenas se não for controlado externamente
+  const [isOpenLocal, setIsOpenLocal] = useState(false);
+  const isOpen = isOpenProp !== undefined ? isOpenProp : isOpenLocal;
+  
+  const toggleSidebar = () => {
+    if (onToggle) {
+      onToggle();
+    } else {
+      setIsOpenLocal(!isOpenLocal);
+    }
+  };
+  
   const [selectedAttack, setSelectedAttack] = useState(null);
   const [selectedDefenders, setSelectedDefenders] = useState([]);
   const [allowCounterAttack, setAllowCounterAttack] = useState(true);
@@ -53,8 +66,149 @@ const CombatPanel = ({
   const [opportunityWeapon, setOpportunityWeapon] = useState(null);
   const [opportunityTarget, setOpportunityTarget] = useState(null); // 'attacker' ou 'defender'
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+  // ===== FUNÇÃO HELPER PARA AJUSTAR DADOS DE ARMAS =====
+  const adjustWeaponDices = (weapon, delta) => {
+    if (!weapon) return weapon;
+    
+    const currentDices = parseInt(weapon.Dices) || 1;
+    const newDices = Math.max(1, Math.min(12, currentDices + delta));
+    
+    console.log('adjustWeaponDices:', { weapon: weapon.Name, currentDices, delta, newDices });
+    
+    return {
+      ...weapon,
+      Dices: newDices.toString()
+    };
+  };
+
+  // ===== COMPONENTE DE AJUSTE DE DADOS =====
+  const DiceAdjuster = ({ weapon, onAdjust, compact = false }) => {
+    if (!weapon) return null;
+    
+    const currentDices = parseInt(weapon.Dices) || 1;
+    const canDecrease = currentDices > 1;
+    const canIncrease = currentDices < 12;
+    
+    console.log('DiceAdjuster render:', { weapon: weapon.Name, currentDices, canDecrease, canIncrease });
+    
+    return (
+      <div 
+        className={`d-flex align-items-center gap-1 ${compact ? '' : 'mt-2'}`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('DiceAdjuster div clicked - prevented');
+        }}
+      >
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-danger"
+          style={{ width: '28px', height: '28px', padding: '0', fontSize: '14px' }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Decrease button clicked', { canDecrease, currentDices });
+            if (canDecrease && onAdjust) {
+              const adjusted = adjustWeaponDices(weapon, -1);
+              console.log('Calling onAdjust with:', adjusted);
+              onAdjust(adjusted);
+            }
+          }}
+          disabled={!canDecrease}
+          title="Diminuir dados"
+        >
+          −
+        </button>
+        <div className="text-center" style={{ minWidth: '60px' }}>
+          <div className="text-white fw-bold" style={{ fontSize: compact ? '14px' : '16px' }}>
+            🎲 {currentDices}
+          </div>
+          {!compact && (
+            <div className="text-muted" style={{ fontSize: '10px' }}>
+              dados
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-success"
+          style={{ width: '28px', height: '28px', padding: '0', fontSize: '14px' }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Increase button clicked', { canIncrease, currentDices });
+            if (canIncrease && onAdjust) {
+              const adjusted = adjustWeaponDices(weapon, 1);
+              console.log('Calling onAdjust with:', adjusted);
+              onAdjust(adjusted);
+            }
+          }}
+          disabled={!canIncrease}
+          title="Aumentar dados"
+        >
+          +
+        </button>
+      </div>
+    );
+  };
+
+  // ===== COMPONENTE DE AJUSTE DE RESULTADO DE DADOS (DISCRETO) =====
+  const DiceResultAdjuster = ({ diceArray, onAdjust, playerRole }) => {
+    const [hoveredIndex, setHoveredIndex] = useState(null);
+
+    const adjustDie = (index, delta) => {
+      const newDice = [...diceArray];
+      const currentValue = newDice[index];
+      const newValue = Math.max(1, Math.min(6, currentValue + delta));
+      
+      if (newValue !== currentValue) {
+        newDice[index] = newValue;
+        onAdjust(newDice);
+      }
+    };
+
+    return (
+      <div className="dice-result-inline">
+        {diceArray.map((die, i) => (
+          <div 
+            key={i}
+            className="die-adjustable-wrapper"
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            {hoveredIndex === i && (
+              <div className="die-adjust-controls">
+                <button
+                  type="button"
+                  className="die-adjust-btn die-adjust-up"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    adjustDie(i, 1);
+                  }}
+                  disabled={die >= 6}
+                  title="Aumentar"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  className="die-adjust-btn die-adjust-down"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    adjustDie(i, -1);
+                  }}
+                  disabled={die <= 1}
+                  title="Diminuir"
+                >
+                  ▼
+                </button>
+              </div>
+            )}
+            <span className="die-number">{die}</span>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   // Buscar ataques/armas disponíveis do jogador atual
@@ -95,6 +249,7 @@ const CombatPanel = ({
       const normalized = {
         ID: String(effectiveData.ID || effectiveData.Name || ''),
         Name: String(itemName),
+        Description: typeof effectiveData.Description === 'object' ? JSON.stringify(effectiveData.Description) : String(effectiveData.Description || ''),
         Dices: typeof effectiveData.Dices === 'object' ? JSON.stringify(effectiveData.Dices) : String(effectiveData.Dices || '?'),
         LoadTime: typeof effectiveData.LoadTime === 'object' ? '0' : String(effectiveData.LoadTime || '0'),
         Damage: typeof effectiveData.Damage === 'object' ? '0' : String(effectiveData.Damage || '0'),
@@ -209,7 +364,11 @@ const CombatPanel = ({
                 }
                 
                 // Abrir sidebar automaticamente
-                setIsOpen(true);
+                if (!isOpen && onToggle) {
+                  onToggle();
+                } else if (!isOpen) {
+                  setIsOpenLocal(true);
+                }
               }
             } else {
               console.log('👁️ Você é espectador deste combate.');
@@ -230,6 +389,7 @@ const CombatPanel = ({
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, currentPlayer?.id, loadCombat]);
 
   // ========== INICIALIZAR VALORES TEMPORÁRIOS QUANDO COMBATE MUDAR ==========
@@ -392,7 +552,12 @@ const CombatPanel = ({
 
   // ========== DEFENSOR ESCOLHE ARMA OU NÃO RETALIAR ==========
   const selectWeaponForDefense = async (skipRetaliation = false) => {
-    if (!combat) return;
+    console.log('selectWeaponForDefense called', { skipRetaliation, selectedWeapon, combat: combat?.id });
+    
+    if (!combat) {
+      console.log('No combat found');
+      return;
+    }
 
     try {
       let totalRounds, rounds;
@@ -415,9 +580,15 @@ const CombatPanel = ({
       } else {
         // Defensor escolheu uma arma
         if (!selectedWeapon) {
+          console.log('No weapon selected');
           alert('Selecione uma arma primeiro!');
           return;
         }
+        
+        console.log('Calculating rounds with:', {
+          attackerLoadTime: combat.attack_data.LoadTime,
+          defenderLoadTime: selectedWeapon.LoadTime
+        });
         
         const attackerLoadTime = parseInt(combat.attack_data.LoadTime) || 0;
         const defenderLoadTime = parseInt(selectedWeapon.LoadTime) || 0;
@@ -425,6 +596,8 @@ const CombatPanel = ({
         const result = calculateRounds(attackerLoadTime, defenderLoadTime);
         totalRounds = result.totalRounds;
         rounds = result.rounds;
+        
+        console.log('Rounds calculated:', { totalRounds, rounds });
       }
 
       // Preparar round_data inicial
@@ -434,6 +607,12 @@ const CombatPanel = ({
         defender: { rolled: false, roll: [], total: 0 },
         completed: false
       }));
+
+      console.log('Updating combat with:', {
+        defender_weapon: skipRetaliation ? null : selectedWeapon,
+        total_rounds: totalRounds,
+        roundData
+      });
 
       const { error } = await supabase
         .from('combat_notifications')
@@ -451,9 +630,12 @@ const CombatPanel = ({
       if (error) {
         console.error('Erro ao selecionar arma:', error);
         alert('Erro ao confirmar escolha. Tente novamente.');
+      } else {
+        console.log('Weapon selection successful!');
       }
     } catch (err) {
       console.error('Erro ao processar seleção:', err);
+      alert('Erro inesperado: ' + err.message);
     }
   };
 
@@ -666,6 +848,42 @@ const CombatPanel = ({
     }
   };
 
+  // ========== AJUSTAR RESULTADO DOS DADOS ==========
+  const adjustDiceResult = async (newDiceArray, isAttackerAdjusting) => {
+    if (!combat || !newDiceArray) return;
+
+    const currentRound = combat.current_round;
+    const roundData = [...(combat.round_data || [])];
+    const roundIndex = currentRound - 1;
+    const roundInfo = roundData[roundIndex];
+
+    if (!roundInfo) return;
+
+    const newTotal = newDiceArray.reduce((sum, val) => sum + val, 0);
+
+    // Atualizar o array de dados e o total
+    if (isAttackerAdjusting) {
+      roundInfo.attacker.roll = newDiceArray;
+      roundInfo.attacker.total = newTotal;
+    } else {
+      roundInfo.defender.roll = newDiceArray;
+      roundInfo.defender.total = newTotal;
+    }
+
+    // Salvar no Supabase
+    const { error } = await supabase
+      .from('combat_notifications')
+      .update({
+        round_data: roundData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', combat.id);
+
+    if (error) {
+      console.error('Erro ao ajustar dados:', error);
+    }
+  };
+
   // ========== AVANÇAR RODADA MANUALMENTE ==========
   const advanceRound = async () => {
     if (!combat) return;
@@ -833,7 +1051,9 @@ const CombatPanel = ({
         alert(`Combate iniciado contra ${selectedDefenders.length} jogador(es)!`);
         
         // Fechar sidebar após iniciar
-        setIsOpen(false);
+        if (isOpen) {
+          toggleSidebar();
+        }
       }
     } catch (err) {
       console.error('Erro ao iniciar combate:', err);
@@ -872,6 +1092,79 @@ const CombatPanel = ({
     const current = getCurrentDefenseDices();
     const newValue = Math.max(0, Math.min(8, current + delta)); // Limite entre 0 e 8
     setTempDefenseDices(newValue);
+  };
+
+  // ========== GERENCIAMENTO DE RODADAS ==========
+  
+  // Adicionar rodada ao final (com controle de quem ataca)
+  const addRound = async (whoAttacks) => {
+    if (!combat) return;
+
+    const roundData = [...(combat.round_data || [])];
+    const newRoundNumber = roundData.length + 1;
+    
+    // whoAttacks pode ser 'attacker' ou 'defender' (controlado pelo usuário)
+    const newWhoActs = whoAttacks;
+    const newActionType = whoAttacks === 'attacker' ? 'attack' : 'counter';
+
+    // Criar nova rodada
+    const newRound = {
+      round: newRoundNumber,
+      who_acts: newWhoActs,
+      action_type: newActionType,
+      attacker: { rolled: false, roll: [], total: 0 },
+      defender: { rolled: false, roll: [], total: 0 },
+      completed: false
+    };
+
+    roundData.push(newRound);
+
+    // Atualizar no Supabase
+    const { error } = await supabase
+      .from('combat_notifications')
+      .update({
+        total_rounds: roundData.length,
+        round_data: roundData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', combat.id);
+
+    if (error) {
+      console.error('Erro ao adicionar rodada:', error);
+      alert('Erro ao adicionar rodada. Tente novamente.');
+    }
+  };
+
+  // Remover última rodada
+  const removeRound = async () => {
+    if (!combat || combat.round_data.length <= 1) return;
+
+    const roundData = [...(combat.round_data || [])];
+    const currentRound = combat.current_round;
+    
+    // Não permitir remover se estamos na última rodada ou após ela
+    if (currentRound >= roundData.length) {
+      alert('Não é possível remover a rodada atual ou rodadas já completadas.');
+      return;
+    }
+
+    // Remover última rodada
+    roundData.pop();
+
+    // Atualizar no Supabase
+    const { error } = await supabase
+      .from('combat_notifications')
+      .update({
+        total_rounds: roundData.length,
+        round_data: roundData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', combat.id);
+
+    if (error) {
+      console.error('Erro ao remover rodada:', error);
+      alert('Erro ao remover rodada. Tente novamente.');
+    }
   };
 
   // Abrir modal de seleção de arma
@@ -1044,38 +1337,56 @@ const CombatPanel = ({
                         )}
                         
                         <div className="d-flex flex-column gap-2">
-                          {weapons.map((weapon, idx) => (
-                            <div
-                              key={idx}
-                              className={`card border ${
-                                selectedWeapon?.Name === weapon.Name
-                                  ? 'border-success bg-success bg-opacity-25'
-                                  : 'border-secondary'
-                              } cursor-pointer`}
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => setSelectedWeapon(weapon)}
-                            >
-                              <div className="card-body p-2">
-                                <div className="d-flex justify-content-between align-items-start">
-                                  <div>
-                                    <h6 className="text-white mb-1 small">{weapon.Name}</h6>
-                                    <div className="text-muted" style={{ fontSize: '11px' }}>
-                                      <span className="me-2">🎲 {weapon.Dices}</span>
-                                      <span className="me-2">⏱️ {weapon.LoadTime}</span>
+                          {weapons.map((weapon, idx) => {
+                            const isSelected = selectedWeapon?.Name === weapon.Name;
+                            return (
+                              <div
+                                key={idx}
+                                className={`card border ${
+                                  isSelected
+                                    ? 'border-success bg-success bg-opacity-25'
+                                    : 'border-secondary'
+                                } ${!isSelected ? 'cursor-pointer' : ''}`}
+                                style={{ cursor: !isSelected ? 'pointer' : 'default' }}
+                                onClick={!isSelected ? () => setSelectedWeapon(weapon) : undefined}
+                              >
+                                <div className="card-body p-2">
+                                  <div className="d-flex justify-content-between align-items-start">
+                                    <div className="flex-grow-1">
+                                      <h6 className="text-white mb-1 small">{weapon.Name}</h6>
+                                      <div className="text-muted" style={{ fontSize: '11px' }}>
+                                        <span className="me-2">🎲 {weapon.Dices}</span>
+                                        <span className="me-2">⏱️ {weapon.LoadTime}</span>
+                                        <span className="me-2">💥 {weapon.Damage || '0'}</span>
+                                      </div>
+                                      {weapon.Description && (
+                                        <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>
+                                          {weapon.Description}
+                                        </small>
+                                      )}
+                                      {weapon.Effects && (
+                                        <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
+                                          {weapon.Effects}
+                                        </small>
+                                      )}
+                                      
+                                      {/* Ajustador de dados - aparece quando selecionado */}
+                                      {isSelected && (
+                                        <DiceAdjuster 
+                                          weapon={selectedWeapon}
+                                          onAdjust={(adjustedWeapon) => setSelectedWeapon(adjustedWeapon)}
+                                          compact={false}
+                                        />
+                                      )}
                                     </div>
-                                    {weapon.Effects && (
-                                      <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
-                                        {weapon.Effects}
-                                      </small>
+                                    {isSelected && (
+                                      <span className="text-success ms-2">✓</span>
                                     )}
                                   </div>
-                                  {selectedWeapon?.Name === weapon.Name && (
-                                    <span className="text-success">✓</span>
-                                  )}
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
 
@@ -1174,9 +1485,14 @@ const CombatPanel = ({
                   };
                 } else if (isAttackerActing) {
                   // Rodada normal de ataque
+                  // Verificar se o atacante trocou de arma (tempWeapon)
+                  const attackerWeaponName = isAttacker && tempWeapon 
+                    ? tempWeapon.Name 
+                    : combat.attack_data.Name;
+                  
                   leftPlayer = {
                     name: combat.attacker_name,
-                    weapon: combat.attack_data.Name,
+                    weapon: attackerWeaponName,
                     rolled: attackerRolled,
                     data: roundInfo.attacker,
                     icon: '⚔️',
@@ -1192,9 +1508,14 @@ const CombatPanel = ({
                   };
                 } else {
                   // Rodada de contra-ataque
+                  // Verificar se o defensor trocou de arma (tempWeapon)
+                  const defenderWeaponName = isDefender && tempWeapon 
+                    ? tempWeapon.Name 
+                    : (combat.defender_weapon?.Name || 'Arma');
+                  
                   leftPlayer = {
                     name: combat.defender_name,
-                    weapon: combat.defender_weapon?.Name || 'Arma',
+                    weapon: defenderWeaponName,
                     rolled: defenderRolled,
                     data: roundInfo.defender,
                     icon: '⚔️',
@@ -1408,6 +1729,50 @@ const CombatPanel = ({
                                   '💡 Arraste o slider para ajustar'}
                               </small>
                             </div>
+                            
+                            {/* Gerenciamento de Rodadas */}
+                            <div className="round-management mt-3">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <label className="form-label text-white mb-0" style={{ fontSize: '13px' }}>
+                                  ⚔️ Gerenciar Rodadas
+                                </label>
+                                <span className="badge bg-warning text-dark" style={{ fontSize: '14px', padding: '4px 10px' }}>
+                                  {totalRounds} rodadas
+                                </span>
+                              </div>
+                              
+                              {/* Botões para adicionar rodadas específicas */}
+                              <div className="d-flex gap-2 mb-2">
+                                <button 
+                                  className="btn btn-sm btn-outline-primary flex-fill"
+                                  onClick={() => addRound('attacker')}
+                                  title="Adicionar rodada de ATAQUE (atacante age)"
+                                >
+                                  ⚔️ + Ataque
+                                </button>
+                                <button 
+                                  className="btn btn-sm btn-outline-info flex-fill"
+                                  onClick={() => addRound('defender')}
+                                  title="Adicionar rodada de CONTRA-ATAQUE (defensor age)"
+                                >
+                                  🛡️ + Contra
+                                </button>
+                              </div>
+                              
+                              {/* Botão para remover */}
+                              <button 
+                                className="btn btn-sm btn-outline-danger w-100"
+                                onClick={() => removeRound()}
+                                disabled={totalRounds <= 1}
+                                title="Remover última rodada"
+                              >
+                                − Remover Última Rodada
+                              </button>
+                              
+                              <small className="text-muted d-block mt-2 text-center" style={{ fontSize: '10px' }}>
+                                💡 Adicione rodadas de ataque ou contra-ataque, ou remova a última
+                              </small>
+                            </div>
                           </div>
                         </div>
                       </details>
@@ -1480,11 +1845,24 @@ const CombatPanel = ({
                         
                         {leftPlayer.rolled && leftPlayer.data ? (
                           <div className="combatant-result">
-                            <div className="dice-result-inline">
-                              {leftPlayer.data.roll.map((die, i) => (
-                                <span key={i} className="die-number">{die}</span>
-                              ))}
-                            </div>
+                            {/* Verificar se o jogador atual pode ajustar esses dados */}
+                            {(
+                              isOpportunityRound ?
+                                (currentPlayer.id === roundInfo.opportunity_attacker_id) :
+                                (((isAttackerActing && isAttacker) || (!isAttackerActing && !isAttacker)) && !isSpectator)
+                            ) ? (
+                              <DiceResultAdjuster 
+                                diceArray={leftPlayer.data.roll}
+                                onAdjust={(newDice) => adjustDiceResult(newDice, isAttackerActing)}
+                                playerRole="left"
+                              />
+                            ) : (
+                              <div className="dice-result-inline">
+                                {leftPlayer.data.roll.map((die, i) => (
+                                  <span key={i} className="die-number">{die}</span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : !rolling && (
                           <>
@@ -1579,11 +1957,27 @@ const CombatPanel = ({
                         
                         {rightPlayer.rolled && rightPlayer.data ? (
                           <div className="combatant-result">
-                            <div className="dice-result-inline">
-                              {rightPlayer.data.roll.map((die, i) => (
-                                <span key={i} className="die-number">{die}</span>
-                              ))}
-                            </div>
+                            {/* Verificar se o jogador atual pode ajustar esses dados */}
+                            {(
+                              isOpportunityRound ?
+                                (
+                                  (roundInfo.opportunity_target === 'attacker' && currentPlayer.id === combat.attacker_id) ||
+                                  (roundInfo.opportunity_target === 'defender' && currentPlayer.id === combat.defender_id)
+                                ) :
+                                ((!isAttackerActing && isAttacker) || (isAttackerActing && !isAttacker)) && !isSpectator
+                            ) ? (
+                              <DiceResultAdjuster 
+                                diceArray={rightPlayer.data.roll}
+                                onAdjust={(newDice) => adjustDiceResult(newDice, !isAttackerActing)}
+                                playerRole="right"
+                              />
+                            ) : (
+                              <div className="dice-result-inline">
+                                {rightPlayer.data.roll.map((die, i) => (
+                                  <span key={i} className="die-number">{die}</span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : !rolling && (
                           <>
@@ -1903,52 +2297,69 @@ const CombatPanel = ({
                   </div>
                 ) : (
                   <div className="d-flex flex-column gap-2">
-                    {availableAttacks.map((attack, idx) => (
-                      <div
-                        key={idx}
-                        className={`card border ${
-                          selectedAttack?.Name === attack.Name
-                            ? 'border-success bg-success bg-opacity-25'
-                            : 'border-secondary'
-                        } cursor-pointer`}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => setSelectedAttack(attack)}
-                      >
-                        <div className="card-body p-2">
-                          <div className="d-flex justify-content-between align-items-start">
-                            <div>
-                              <h6 className="text-white mb-1 small">
-                                {attack.Name}
-                                {(() => {
-                                  const actor = currentPlayerData?.character?.actor;
-                                  const hasModes = actor?.mode1 && actor?.mode2;
-                                  if (hasModes && attack.modes) {
-                                    const modeName = localization?.[actor[combatMode]] || actor[combatMode] || combatMode;
-                                    return <span className="weapon-mode-indicator ms-1" style={{ fontSize: '9px', padding: '1px 6px' }}>{modeName}</span>;
-                                  }
-                                  return null;
-                                })()}
-                              </h6>
-                              <div className="text-muted" style={{ fontSize: '11px' }}>
-                                <span className="me-2">🎲 {attack.Dices || '?'}</span>
-                                <span className="me-2">⏱️ {attack.LoadTime || '?'}</span>
-                                <span className="me-2">💥 {attack.Damage || '0'}</span>
-                                {attack.Distance && <span className="me-2">📏 {attack.Distance}</span>}
-                                <span className="badge bg-secondary">{attack.category}</span>
+                    {availableAttacks.map((attack, idx) => {
+                      const isSelected = selectedAttack?.Name === attack.Name;
+                      return (
+                        <div
+                          key={idx}
+                          className={`card border ${
+                            isSelected
+                              ? 'border-success bg-success bg-opacity-25'
+                              : 'border-secondary'
+                          } ${!isSelected ? 'cursor-pointer' : ''}`}
+                          style={{ cursor: !isSelected ? 'pointer' : 'default' }}
+                          onClick={!isSelected ? () => setSelectedAttack(attack) : undefined}
+                        >
+                          <div className="card-body p-2">
+                            <div className="d-flex justify-content-between align-items-start">
+                              <div className="flex-grow-1">
+                                <h6 className="text-white mb-1 small">
+                                  {attack.Name}
+                                  {(() => {
+                                    const actor = currentPlayerData?.character?.actor;
+                                    const hasModes = actor?.mode1 && actor?.mode2;
+                                    if (hasModes && attack.modes) {
+                                      const modeName = localization?.[actor[combatMode]] || actor[combatMode] || combatMode;
+                                      return <span className="weapon-mode-indicator ms-1" style={{ fontSize: '9px', padding: '1px 6px' }}>{modeName}</span>;
+                                    }
+                                    return null;
+                                  })()}
+                                </h6>
+                                <div className="text-muted" style={{ fontSize: '11px' }}>
+                                  <span className="me-2">🎲 {attack.Dices || '1'}</span>
+                                  <span className="me-2">⏱️ {attack.LoadTime || '?'}</span>
+                                  <span className="me-2">💥 {attack.Damage || '0'}</span>
+                                  {attack.Distance && <span className="me-2">📏 {attack.Distance}</span>}
+                                  <span className="badge bg-secondary">{attack.category}</span>
+                                </div>
+                                {attack.Description && (
+                                  <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>
+                                    {attack.Description}
+                                  </small>
+                                )}
+                                {attack.Effects && (
+                                  <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
+                                    {attack.Effects}
+                                  </small>
+                                )}
+                                
+                                {/* Ajustador de dados - aparece quando selecionado */}
+                                {isSelected && (
+                                  <DiceAdjuster 
+                                    weapon={selectedAttack}
+                                    onAdjust={(adjustedWeapon) => setSelectedAttack(adjustedWeapon)}
+                                    compact={false}
+                                  />
+                                )}
                               </div>
-                              {attack.Effects && (
-                                <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
-                                  {attack.Effects}
-                                </small>
+                              {isSelected && (
+                                <span className="text-success ms-2">✓</span>
                               )}
                             </div>
-                            {selectedAttack?.Name === attack.Name && (
-                              <span className="text-success">✓</span>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     
                     {/* Card de Ataque Customizado */}
                     <div
@@ -2209,38 +2620,56 @@ const CombatPanel = ({
 
             {/* Lista de Armas Disponíveis */}
             <div className="d-flex flex-column gap-2">
-              {availableAttacks.map((attack, idx) => (
-                <div
-                  key={idx}
-                  className={`card border ${
-                    tempWeapon?.Name === attack.Name
-                      ? 'border-warning bg-warning bg-opacity-25'
-                      : 'border-secondary'
-                  } cursor-pointer`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => confirmWeaponChange(attack)}
-                >
-                  <div className="card-body p-2">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div style={{ flex: 1 }}>
-                        <h6 className="text-white mb-1 small">{attack.Name}</h6>
-                        <div className="d-flex gap-2 flex-wrap">
-                          <small className="text-muted">🎲 {attack.Dices}</small>
-                          <small className="text-muted">⚡ {attack.LoadTime}</small>
-                          <small className="text-muted">💥 {attack.Damage}</small>
-                          {attack.Distance && <small className="text-muted">📏 {attack.Distance}</small>}
+              {availableAttacks.map((attack, idx) => {
+                const isSelected = tempWeapon?.Name === attack.Name;
+                return (
+                  <div
+                    key={idx}
+                    className={`card border ${
+                      isSelected
+                        ? 'border-warning bg-warning bg-opacity-25'
+                        : 'border-secondary'
+                    }`}
+                  >
+                    <div className="card-body p-2">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <div style={{ flex: 1 }}>
+                          <h6 className="text-white mb-1 small">{attack.Name}</h6>
+                          <div className="d-flex gap-2 flex-wrap">
+                            <small className="text-muted">⚡ {attack.LoadTime}</small>
+                            <small className="text-muted">💥 {attack.Damage}</small>
+                            {attack.Distance && <small className="text-muted">📏 {attack.Distance}</small>}
+                          </div>
+                          {attack.Effects && (
+                            <small className="text-info d-block mt-1">✨ {attack.Effects}</small>
+                          )}
                         </div>
-                        {attack.Effects && (
-                          <small className="text-info d-block mt-1">✨ {attack.Effects}</small>
+                        {isSelected && (
+                          <span className="text-warning ms-2">✓</span>
                         )}
                       </div>
-                      {tempWeapon?.Name === attack.Name && (
-                        <span className="text-warning ms-2">✓</span>
-                      )}
+                      
+                      {/* Ajustador de dados + botão confirmar */}
+                      <div className="d-flex gap-2 align-items-center">
+                        <DiceAdjuster 
+                          weapon={isSelected ? tempWeapon : attack}
+                          onAdjust={(adjustedWeapon) => {
+                            // Atualiza a arma temporária e já seleciona
+                            setTempWeapon(adjustedWeapon);
+                          }}
+                          compact={true}
+                        />
+                        <button
+                          className="btn btn-sm btn-warning flex-grow-1"
+                          onClick={() => confirmWeaponChange(isSelected ? tempWeapon : attack)}
+                        >
+                          Usar esta
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Ataque Customizado */}
               <div
@@ -2392,34 +2821,49 @@ const CombatPanel = ({
             <div className="mb-3">
               <label className="text-white mb-2 small"><strong>2️⃣ Escolha sua Arma:</strong></label>
               <div className="d-flex flex-column gap-2">
-                {getAvailableAttacks().map((attack, idx) => (
-                  <div
-                    key={idx}
-                    className={`card border ${
-                      opportunityWeapon?.Name === attack.Name
-                        ? 'border-warning bg-warning bg-opacity-25'
-                        : 'border-secondary'
-                    } cursor-pointer`}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setOpportunityWeapon(attack)}
-                  >
-                    <div className="card-body p-2">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div style={{ flex: 1 }}>
-                          <h6 className="text-white mb-1 small">{attack.Name}</h6>
-                          <div className="d-flex gap-2 flex-wrap">
-                            <small className="text-muted">🎲 {attack.Dices}</small>
-                            <small className="text-muted">⚡ {attack.LoadTime}</small>
-                            <small className="text-muted">💥 {attack.Damage}</small>
+                {getAvailableAttacks().map((attack, idx) => {
+                  const isSelected = opportunityWeapon?.Name === attack.Name;
+                  return (
+                    <div
+                      key={idx}
+                      className={`card border ${
+                        isSelected
+                          ? 'border-warning bg-warning bg-opacity-25'
+                          : 'border-secondary'
+                      }`}
+                    >
+                      <div className="card-body p-2">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div style={{ flex: 1 }}>
+                            <h6 className="text-white mb-1 small">{attack.Name}</h6>
+                            <div className="d-flex gap-2 flex-wrap">
+                              <small className="text-muted">⚡ {attack.LoadTime}</small>
+                              <small className="text-muted">💥 {attack.Damage}</small>
+                            </div>
                           </div>
+                          {isSelected && (
+                            <span className="text-warning ms-2">✓</span>
+                          )}
                         </div>
-                        {opportunityWeapon?.Name === attack.Name && (
-                          <span className="text-warning ms-2">✓</span>
-                        )}
+                        
+                        {/* Ajustador de dados + botão selecionar */}
+                        <div className="d-flex gap-2 align-items-center">
+                          <DiceAdjuster 
+                            weapon={isSelected ? opportunityWeapon : attack}
+                            onAdjust={(adjustedWeapon) => setOpportunityWeapon(adjustedWeapon)}
+                            compact={true}
+                          />
+                          <button
+                            className="btn btn-sm btn-warning flex-grow-1"
+                            onClick={() => setOpportunityWeapon(isSelected ? opportunityWeapon : attack)}
+                          >
+                            Selecionar
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

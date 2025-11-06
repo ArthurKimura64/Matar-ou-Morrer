@@ -19,18 +19,29 @@ const PlayerDetailedStatus = ({
     return null;
   }, [player?.character_name, gameData]);
 
-  const counters = useMemo(() => ({
-    vida: player?.counters?.vida ?? 20,
-    vida_max: player?.counters?.vida_max ?? 20,
-    esquiva: player?.counters?.esquiva ?? 0,
-    esquiva_max: player?.counters?.esquiva_max ?? 0,
-    oport: player?.counters?.oport ?? 0,
-    oport_max: player?.counters?.oport_max ?? 0,
-    item: player?.counters?.item ?? 0,
-    item_max: player?.counters?.item_max ?? 0,
-    mortes: player?.counters?.mortes ?? 0
-    // defesa removido daqui
-  }), [player?.counters]);
+  const counters = useMemo(() => {
+    const vida = player?.counters?.vida ?? 20;
+    const vida_max = player?.counters?.vida_max ?? 20;
+    const esquiva = player?.counters?.esquiva ?? 0;
+    const esquiva_max = player?.counters?.esquiva_max ?? esquiva; // Se não tem max definido, usa o valor atual
+    const oport = player?.counters?.oport ?? 0;
+    const oport_max = player?.counters?.oport_max ?? oport; // Se não tem max definido, usa o valor atual
+    const item = player?.counters?.item ?? 0;
+    const item_max = player?.counters?.item_max ?? item; // Se não tem max definido, usa o valor atual
+    
+    return {
+      vida,
+      vida_max,
+      esquiva,
+      esquiva_max,
+      oport,
+      oport_max,
+      item,
+      item_max,
+      mortes: player?.counters?.mortes ?? 0
+      // defesa removido daqui
+    };
+  }, [player?.counters]);
 
   // Memoizar contadores adicionais
   const additionalCounters = useMemo(() => 
@@ -158,7 +169,7 @@ const PlayerDetailedStatus = ({
 
   // Função otimizada para formatação de contadores
   const formatCounter = useMemo(() => (current, max) => {
-    return max && max > 0 && max !== current ? `${current}/${max}` : current.toString();
+    return max && max > 0 ? `${current}/${max}` : current.toString();
   }, []);
 
   // Validação após hooks
@@ -202,12 +213,12 @@ const PlayerDetailedStatus = ({
   }
 
   return (
-    <div className="card bg-dark border-light h-100" style={{ transition: 'all 0.2s ease-in-out', minWidth: 0 }}>
+    <div className="card bg-dark border-light" style={{ transition: 'all 0.2s ease-in-out', minWidth: 0 }}>
       <div className="card-body p-2" style={{ minWidth: 0 }}>
         {/* Header com Nome e Status - Mais Compacto */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className="d-flex align-items-center flex-grow-1 min-width-0">
-            <h6 className="card-title text-white mb-0 fw-bold me-2 text-truncate">
+            <h6 className="card-title text-white mb-0 me-2 text-truncate">
               {player.name}
             </h6>
           </div>
@@ -253,51 +264,29 @@ const PlayerDetailedStatus = ({
         {/* Contadores e Características - só mostrar se o jogador estiver pronto */}
         {player.status === 'ready' && (
           <>
-            {/* Contadores Básicos - Grid Compacto */}
+            {/* Contadores Básicos - Linhas Horizontais */}
             <div className="mb-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' }}>
               <h6 className="text-light mb-2 fw-bold d-flex align-items-center small">
                 <span className="me-2" style={{ color: '#17a2b8' }}>⚡</span>
                 {localization['UI.Counters.Special'] || 'Contadores'}
               </h6>
-              <div className="row g-1 small">
-                <div className="col-sm-6">
-                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(220,53,69,0.1)', border: '1px solid rgba(220,53,69,0.2)' }}>
-                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.Health'] || 'Vida'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.vida, counters.vida_max)}</span>
-                  </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(40,167,69,0.1)', border: '1px solid rgba(40,167,69,0.2)' }}>
-                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.DodgePoints'] || 'Esquiva'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.esquiva, counters.esquiva_max)}</span>
-                  </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.2)' }}>
-                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.OportunityAttack'] || 'Oport.'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.oport, counters.oport_max)}</span>
-                  </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(108,117,125,0.1)', border: '1px solid rgba(108,117,125,0.2)' }}>
-                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.ExplorationItens'] || 'Itens'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{formatCounter(counters.item, counters.item_max)}</span>
-                  </div>
-                </div>
-                <div className="col-sm-6">
-                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(139,0,0,0.1)', border: '1px solid rgba(139,0,0,0.2)' }}>
-                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.Deaths'] || 'Mortes'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{counters.mortes || 0}</span>
-                  </div>
-                </div>
-                <div className="col-sm-12">
-                  <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" style={{ background: 'rgba(102,16,242,0.1)', border: '1px solid rgba(102,16,242,0.2)' }}>
-                    <span className="text-muted text-truncate me-1" style={{ fontSize: '0.8rem' }}>{localization['Characteristic.DefenseDices'] || 'Dados de defesa'}</span>
-                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>
-                      {actorData?.NumberOfDefenseDices ?? 2}
+              <div className="small">
+                {[
+                  { key: 'vida', label: localization['Characteristic.Health'] || 'Vida', value: formatCounter(counters.vida, counters.vida_max), color: '#dc3545' },
+                  { key: 'esquiva', label: localization['Characteristic.DodgePoints'] || 'Esquiva', value: formatCounter(counters.esquiva, counters.esquiva_max), color: '#28a745' },
+                  { key: 'oport', label: localization['Characteristic.OportunityAttack'] || 'Oport.', value: formatCounter(counters.oport, counters.oport_max), color: '#ffc107' },
+                  { key: 'itens', label: localization['Characteristic.ExplorationItens'] || 'Itens', value: formatCounter(counters.item, counters.item_max), color: '#6c757d' },
+                  { key: 'mortes', label: localization['Characteristic.Deaths'] || 'Mortes', value: counters.mortes || 0, color: '#8b0000' },
+                  { key: 'defesa', label: localization['Characteristic.DefenseDices'] || 'Dados de defesa', value: actorData?.NumberOfDefenseDices ?? 2, color: '#6610f2' }
+                ].map(({ key, label, value, color }) => (
+                  <div key={key} className="d-flex justify-content-between align-items-center py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <span className="d-flex align-items-center text-truncate me-2" style={{ maxWidth: '65%' }}>
+                      <span className="me-2 flex-shrink-0" style={{ width: '6px', height: '6px', borderRadius: '2px', background: color }} />
+                      <span className="text-muted text-truncate" style={{ fontSize: '0.8rem' }}>{label}</span>
                     </span>
+                    <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{value}</span>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -308,48 +297,25 @@ const PlayerDetailedStatus = ({
                   <span className="me-2" style={{ color: '#17a2b8' }}>📊</span>
                   {localization['UI.AdditionalCounters.Title'] || 'Contadores Especiais'}
                 </h6>
-                
-                <div className="row g-2">
+                <div className="small">
                   {Object.entries(additionalCounters).map(([key, counter]) => {
                     if (typeof counter !== 'object' || counter.current === undefined) return null;
-                    
                     const displayText = counter.max ? `${counter.current}/${counter.max}` : counter.current.toString();
-                    
-                    // Definir cores baseado no status de forma otimizada
-                    let colorClass = 'text-info';
-                    let bgColor = 'rgba(23,162,184,0.1)';
-                    let borderColor = 'rgba(23,162,184,0.2)';
-                    
+                    let color = '#17a2b8';
                     if (counter.max) {
-                      if (counter.current === 0) {
-                        colorClass = 'text-danger';
-                        bgColor = 'rgba(220,53,69,0.1)';
-                        borderColor = 'rgba(220,53,69,0.2)';
-                      } else if (counter.current < counter.max / 2) {
-                        colorClass = 'text-warning';
-                        bgColor = 'rgba(255,193,7,0.1)';
-                        borderColor = 'rgba(255,193,7,0.2)';
-                      } else {
-                        colorClass = 'text-success';
-                        bgColor = 'rgba(25,135,84,0.1)';
-                        borderColor = 'rgba(25,135,84,0.2)';
-                      }
+                      if (counter.current === 0) color = '#dc3545';
+                      else if (counter.current < counter.max / 2) color = '#ffc107';
+                      else color = '#198754';
                     }
-                    
-                    const colClass = Object.keys(additionalCounters).length <= 2 ? "col-6" : "col-12 col-sm-6";
-                    
+                    const label = counter.label || key.replace('SpecialCustom.', '').replace(/\d+$/, '');
                     return (
-                      <div key={key} className={colClass}>
-                        <div className="d-flex justify-content-between align-items-center py-1 px-1 px-sm-2 rounded" 
-                             style={{ background: bgColor, border: `1px solid ${borderColor}`, minHeight: '28px' }}>
-                          <span className="text-muted d-flex align-items-center text-truncate" style={{ maxWidth: '65%', minWidth: 0 }}>
-                            {counter.icon && <span className="me-1 flex-shrink-0" style={{ fontSize: '0.7em' }}>{counter.icon}</span>}
-                            <span className="text-truncate" style={{ fontSize: '0.75rem' }} title={counter.label || key}>
-                              {counter.label || key.replace('SpecialCustom.', '').replace(/\d+$/, '')}
-                            </span>
-                          </span>
-                          <span className={`fw-bold ${colorClass} flex-shrink-0`} style={{ fontSize: '0.8rem' }}>{displayText}</span>
-                        </div>
+                      <div key={key} className="d-flex justify-content-between align-items-center py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                        <span className="d-flex align-items-center text-truncate me-2" style={{ maxWidth: '65%' }}>
+                          {counter.icon && <span className="me-1 flex-shrink-0" style={{ fontSize: '0.9em' }}>{counter.icon}</span>}
+                          <span className="me-2 flex-shrink-0" style={{ width: '6px', height: '6px', borderRadius: '2px', background: color }} />
+                          <span className="text-muted text-truncate" style={{ fontSize: '0.75rem' }} title={label}>{label}</span>
+                        </span>
+                        <span className="fw-bold flex-shrink-0" style={{ fontSize: '0.8rem', color }}>{displayText}</span>
                       </div>
                     );
                   })}

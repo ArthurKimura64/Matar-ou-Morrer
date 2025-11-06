@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  min-height: 100vh;
 }
 
 code {
@@ -14,18 +16,38 @@ code {
 
 /* Estilos customizados para características */
 .characteristic-card {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.characteristic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.characteristic-card:hover::before {
+  opacity: 1;
 }
 
 .characteristic-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .characteristic-progress-bar {
-  transition: width 0.3s ease-in-out;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
 }
 
 .bg-purple {
@@ -42,35 +64,40 @@ code {
 
 /* Animações suaves para contadores */
 .counter-card {
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .counter-card:hover {
-  transform: scale(1.02);
+  transform: scale(1.03) translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* Melhor visualização para itens usados */
 .used-items-breakdown {
   max-height: 120px;
   overflow-y: auto;
+  border-radius: 6px;
+  padding: 4px;
 }
 
 .used-items-breakdown::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .used-items-breakdown::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
 }
 
 .used-items-breakdown::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.4), rgba(139, 92, 246, 0.3));
+  border-radius: 3px;
 }
 
 .used-items-breakdown::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.6), rgba(139, 92, 246, 0.5));
 }
 
 /* Tooltips personalizados */
@@ -88,38 +115,1746 @@ code {
 
 /* Estilos para a sidebar de jogadores */
 .player-card-sidebar {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .player-card-sidebar:hover {
-  transform: translateX(-2px);
+  transform: translateX(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Sidebar - Container principal com visual aprimorado */
+.position-fixed.bg-dark.border-start {
+  background: linear-gradient(135deg, rgba(18, 18, 20, 0.98) 0%, rgba(24, 24, 28, 0.98) 100%) !important;
+  backdrop-filter: blur(20px);
+}
+
+/* Borda específica para sidebar de jogadores */
+.position-fixed.bg-dark.border-start:not(.border-danger) {
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Borda vermelha para sidebar de combate */
+.position-fixed.bg-dark.border-start.border-danger {
+  border-left: 3px solid rgba(220, 53, 69, 0.6) !important;
+  box-shadow: -4px 0 12px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* Header da sidebar com gradiente */
+.bg-secondary.border-bottom {
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.3) 0%, rgba(73, 80, 87, 0.3) 100%) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 1rem !important;
+}
+
+/* Header vermelho para painel de combate */
+.bg-danger.border-bottom {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.3) 0%, rgba(200, 35, 51, 0.3) 100%) !important;
+  border-bottom: 2px solid rgba(220, 53, 69, 0.4) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  padding: 1rem !important;
+}
+
+.bg-secondary.border-bottom h6,
+.bg-danger.border-bottom h6 {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.bg-secondary.border-bottom small {
+  font-size: 0.8rem;
+}
+
+.bg-danger.border-bottom small {
+  font-size: 0.8rem;
+}
+
+.bg-secondary.border-bottom .d-flex.align-items-center.gap-2,
+.bg-danger.border-bottom .d-flex.align-items-center.gap-2 {
+  gap: 0.75rem !important;
+  flex-shrink: 0;
+}
+
+/* Botão toggle da sidebar - aprimorado */
+.sidebar-toggle-btn {
+  backdrop-filter: blur(15px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Botão verde (cartas na mesa) - mantém cor original */
+.btn-success.sidebar-toggle-btn {
+  background: linear-gradient(135deg, rgba(25, 135, 84, 0.95) 0%, rgba(20, 108, 67, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.btn-success.sidebar-toggle-btn:hover {
+  transform: translateY(-50%) scale(1.08) translateX(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(25, 135, 84, 0.4) !important;
+  background: linear-gradient(135deg, rgba(30, 150, 95, 0.98) 0%, rgba(25, 135, 84, 0.98) 100%) !important;
+  border-color: rgba(25, 135, 84, 0.6) !important;
+}
+
+/* Botão vermelho (combate) - mantém cor original */
+.btn-danger.sidebar-toggle-btn {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.95) 0%, rgba(200, 35, 51, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.btn-danger.sidebar-toggle-btn:hover {
+  transform: translateY(-50%) scale(1.08) translateX(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(220, 53, 69, 0.4) !important;
+  background: linear-gradient(135deg, rgba(235, 60, 77, 0.98) 0%, rgba(220, 53, 69, 0.98) 100%) !important;
+  border-color: rgba(220, 53, 69, 0.6) !important;
+}
+
+/* Botão escuro (jogadores) - mantém cor original */
+.btn-dark.sidebar-toggle-btn {
+  background: linear-gradient(135deg, rgba(33, 37, 41, 0.95) 0%, rgba(23, 27, 31, 0.95) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.btn-dark.sidebar-toggle-btn:hover {
+  transform: translateY(-50%) scale(1.08) translateX(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(108, 117, 125, 0.3) !important;
+  background: linear-gradient(135deg, rgba(43, 47, 51, 0.98) 0%, rgba(33, 37, 41, 0.98) 100%) !important;
+  border-color: rgba(108, 117, 125, 0.5) !important;
+}
+
+.sidebar-toggle-btn:active {
+  transform: translateY(-50%) scale(1.02) translateX(-1px);
+}
+
+/* Animação do ícone do botão */
+.sidebar-toggle-btn span {
+  transition: all 0.3s ease;
+}
+
+.btn-success.sidebar-toggle-btn:hover span {
+  text-shadow: 0 0 10px rgba(25, 135, 84, 0.8);
+}
+
+.btn-danger.sidebar-toggle-btn:hover span {
+  text-shadow: 0 0 10px rgba(220, 53, 69, 0.8);
+}
+
+.btn-dark.sidebar-toggle-btn:hover span {
+  text-shadow: 0 0 10px rgba(108, 117, 125, 0.6);
+}
+
+/* Cards de jogadores na sidebar - estilo premium */
+.player-card-sidebar .card {
+  background: linear-gradient(135deg, rgba(26, 30, 34, 0.95) 0%, rgba(20, 24, 28, 0.95) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.player-card-sidebar .card .card-body {
+  padding: 0.6rem !important;
+}
+
+.player-card-sidebar .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.player-card-sidebar .card:hover::before {
+  opacity: 1;
+}
+
+.player-card-sidebar .card:hover {
+  border-color: rgba(139, 92, 246, 0.4) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+  transform: scale(1.02);
+}
+
+/* Card titles na sidebar */
+.player-card-sidebar .card-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+  max-width: 100%;
+}
+
+/* Ajuste do header do card para melhor espaçamento */
+.player-card-sidebar .d-flex.justify-content-between.align-items-center {
+  gap: 0.5rem;
+}
+
+.player-card-sidebar .d-flex.align-items-center.gap-2 {
+  gap: 0.4rem !important;
+}
+
+/* Badges na sidebar - aprimorados */
+.player-card-sidebar .badge {
+  border-radius: 6px !important;
+  padding: 0.3em 0.5em !important;
+  font-size: 0.7rem !important;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.player-card-sidebar .badge.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.4);
+}
+
+.player-card-sidebar .badge.bg-primary {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.4);
+}
+
+/* Contadores na sidebar - visual aprimorado */
+.player-card-sidebar .row.g-1 > div > div {
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+  border-radius: 8px !important;
+  padding: 0.4rem 0.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+}
+
+.player-card-sidebar .row.g-1 > div > div:hover {
+  transform: translateX(3px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Espaçamento melhorado para textos dos contadores */
+.player-card-sidebar .row.g-1 .text-muted {
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2 !important;
+  margin-bottom: 0.1rem !important;
+}
+
+.player-card-sidebar .row.g-1 .fw-bold {
+  font-size: 0.85rem !important;
+  white-space: nowrap;
+  line-height: 1.2 !important;
+}
+
+/* Seções de características na sidebar */
+.player-card-sidebar h6.text-light {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+  font-size: 0.85rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Ícones de características com melhor espaçamento */
+.player-card-sidebar .badge.rounded-circle {
+  width: 26px;
+  height: 26px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  line-height: 1 !important;
+  padding: 0 !important;
+  font-size: 0.8rem !important;
+}
+
+.player-card-sidebar .badge.rounded-circle:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Melhor espaçamento para grid de características */
+.player-card-sidebar .row.g-2 {
+  gap: 0.35rem !important;
+  margin: 0 !important;
+}
+
+.player-card-sidebar .row.g-2 > div {
+  padding: 0.15rem !important;
+}
+
+/* Botão de expulsar jogador */
+.player-card-sidebar .btn-outline-danger {
+  transition: all 0.3s ease;
+  border-width: 2px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+  font-size: 0.7rem !important;
+  line-height: 1 !important;
+}
+
+.player-card-sidebar .btn-outline-danger:hover {
+  transform: rotate(90deg) scale(1.15);
+  box-shadow: 0 0 12px rgba(220, 53, 69, 0.5);
+  background-color: rgba(220, 53, 69, 0.2) !important;
+}
+
+/* Centralização perfeita de ícones em todos os botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Ícones de emoji - centralização universal */
+.btn:has(:only-child) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botão X de fechar sidebar */
+.bg-secondary .btn-outline-light {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  flex-shrink: 0;
+}
+
+/* Overlay da sidebar - animado */
+.position-fixed[style*="background-color: rgba(0, 0, 0, 0.5)"] {
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Status badges coloridos */
+.player-card-sidebar .badge.bg-success {
+  background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important;
+  box-shadow: 0 2px 6px rgba(25, 135, 84, 0.4);
+}
+
+.player-card-sidebar .badge.bg-info {
+  background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important;
+  box-shadow: 0 2px 6px rgba(13, 202, 240, 0.4);
+}
+
+.player-card-sidebar .badge.bg-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.4);
+}
+
+/* Separadores de seção na sidebar */
+.player-card-sidebar hr {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  margin: 0.75rem 0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Seções de background na sidebar */
+.player-card-sidebar div[style*="background: rgba(255,255,255,0.05)"] {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div[style*="background: rgba(255,255,255,0.05)"]:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Animação de entrada para cards de jogadores */
+.player-card-sidebar {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Estados de contadores com cores específicas */
+.player-card-sidebar div[style*="rgba(220,53,69"] {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.12) 0%, rgba(220, 53, 69, 0.08) 100%) !important;
+  border-color: rgba(220, 53, 69, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div[style*="rgba(220,53,69"]:hover {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.18) 0%, rgba(220, 53, 69, 0.12) 100%) !important;
+  box-shadow: 0 0 8px rgba(220, 53, 69, 0.3);
+}
+
+.player-card-sidebar div[style*="rgba(40,167,69"] {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.12) 0%, rgba(40, 167, 69, 0.08) 100%) !important;
+  border-color: rgba(40, 167, 69, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div[style*="rgba(40,167,69"]:hover {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.18) 0%, rgba(40, 167, 69, 0.12) 100%) !important;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+}
+
+.player-card-sidebar div[style*="rgba(255,193,7"] {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 193, 7, 0.08) 100%) !important;
+  border-color: rgba(255, 193, 7, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div[style*="rgba(255,193,7"]:hover {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.18) 0%, rgba(255, 193, 7, 0.12) 100%) !important;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+}
+
+.player-card-sidebar div[style*="rgba(13,202,240"] {
+  background: linear-gradient(135deg, rgba(13, 202, 240, 0.12) 0%, rgba(13, 202, 240, 0.08) 100%) !important;
+  border-color: rgba(13, 202, 240, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div[style*="rgba(13,202,240"]:hover {
+  background: linear-gradient(135deg, rgba(13, 202, 240, 0.18) 0%, rgba(13, 202, 240, 0.12) 100%) !important;
+  box-shadow: 0 0 8px rgba(13, 202, 240, 0.3);
+}
+
+/* Connection Status Indicator - estilizado */
+.bg-dark.bg-opacity-25 {
+  background: linear-gradient(135deg, rgba(33, 37, 41, 0.4) 0%, rgba(23, 27, 31, 0.4) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.4rem !important;
+  border-radius: 6px !important;
+  font-size: 0.75rem !important;
+}
+
+.bg-dark.bg-opacity-25:hover {
+  background: linear-gradient(135deg, rgba(43, 47, 51, 0.5) 0%, rgba(33, 37, 41, 0.5) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* Ícones de status com animação */
+.bg-dark.bg-opacity-25 .text-success {
+  text-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+.bg-dark.bg-opacity-25 .text-danger {
+  text-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+.bg-dark.bg-opacity-25 .text-warning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.4);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Botão de fechar (X) da sidebar */
+.bg-secondary .btn-outline-light {
+  border-width: 2px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(5px);
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  flex-shrink: 0;
+}
+
+.bg-secondary .btn-outline-light:hover {
+  transform: scale(1.15) rotate(90deg);
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(220, 53, 69, 0.6) !important;
+  color: #dc3545 !important;
+  box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
+}
+
+/* Estado vazio (sem jogadores) */
+.text-center.py-4 .text-muted {
+  transition: all 0.3s ease;
+}
+
+.text-center.py-4:hover .text-muted div[style*="fontSize"] {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+/* Melhoria no texto truncado */
+.text-truncate {
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar .card:hover .text-truncate {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Efeito de brilho nos números dos contadores */
+.player-card-sidebar .fw-bold[style*="fontSize"] {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div:hover .fw-bold[style*="fontSize"] {
+  text-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Características - ícones coloridos */
+.player-card-sidebar span[style*="color: #17a2b8"] {
+  text-shadow: 0 0 8px rgba(23, 162, 184, 0.5);
+  filter: drop-shadow(0 2px 4px rgba(23, 162, 184, 0.3));
+}
+
+/* Sidebar - transição suave e sombra dinâmica */
+.position-fixed.bg-dark.border-start {
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+/* Mobile sidebar - transição suave */
+.position-fixed.bg-dark.d-block.d-md-none {
+  background: linear-gradient(135deg, rgba(18, 18, 20, 0.98) 0%, rgba(24, 24, 28, 0.98) 100%) !important;
+  backdrop-filter: blur(20px);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Grid de características - layout melhorado */
+.player-card-sidebar .row.g-2 {
+  gap: 0.4rem !important;
+}
+
+/* Pequenos ícones de características */
+.player-card-sidebar small {
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar div:hover small {
+  transform: scale(1.02);
+}
+
+/* Scrollbar da sidebar - suave e moderna */
+.players-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.5) rgba(255, 255, 255, 0.05);
+  padding: 0.75rem !important;
+}
+
+/* Ajuste fino para cards empilhados */
+.player-card-sidebar + .player-card-sidebar {
+  margin-top: 0.4rem;
+}
+
+/* Título do jogador mais compacto */
+.player-card-sidebar .card-title {
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.2px;
+}
+
+/* Espaçamento interno das seções dos cards */
+.player-card-sidebar .mb-2 {
+  margin-bottom: 0.65rem !important;
+}
+
+.player-card-sidebar div[style*="background: rgba(255,255,255,0.05)"] {
+  padding: 0.65rem !important;
+}
+
+/* Hover state para seções completas */
+.player-card-sidebar .card-body > div[style*="background"] {
+  transition: all 0.3s ease;
+}
+
+.player-card-sidebar .card:hover .card-body > div[style*="background"] {
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Ajustes de responsividade e quebra de texto */
+.player-card-sidebar .text-truncate {
+  min-width: 0;
+  flex: 1;
+}
+
+.player-card-sidebar .flex-grow-1.min-width-0 {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.player-card-sidebar .flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+/* Garantir alinhamento perfeito no header */
+.bg-secondary.border-bottom .d-flex.justify-content-between {
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bg-secondary.border-bottom > div > div:first-child {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Melhor espaçamento entre colunas de contadores */
+.player-card-sidebar .col-sm-6 {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+}
+
+.player-card-sidebar .row.g-1 {
+  margin-left: -0.25rem !important;
+  margin-right: -0.25rem !important;
 }
 
 /* Scrollbar customizado para a sidebar */
 .players-sidebar-scroll::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .players-sidebar-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  margin: 4px 0;
 }
 
 .players-sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.6), rgba(139, 92, 246, 0.4));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .players-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.8), rgba(139, 92, 246, 0.6));
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
 }
 
 /* Botão toggle da sidebar com animação */
 .sidebar-toggle-btn {
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px !important;
 }
 
 .sidebar-toggle-btn:hover {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Melhorias globais de cards e elementos Bootstrap */
+.card {
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Botões aprimorados */
+.btn {
+  border-radius: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+  transform: translateY(0px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none !important;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+  border: none !important;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #146c43 0%, #0f5132 100%);
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%);
+  border: none !important;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #bb2d3b 0%, #a02834 100%);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  border: none !important;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+/* Badges aprimorados */
+.badge {
+  border-radius: 6px !important;
+  padding: 0.35em 0.65em !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Inputs e Forms */
+.form-control, .form-select {
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Modais aprimorados */
+.modal-content {
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 0 16px 16px !important;
+}
+
+/* Alerts aprimorados */
+.alert {
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress bars */
+.progress {
+  border-radius: 8px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.progress-bar {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Tabelas */
+.table {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+.table > :not(caption) > * > * {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Tooltips aprimorados */
+.tooltip-inner {
+  border-radius: 6px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Animação de fade-in suave */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Efeito de pulso sutil para elementos importantes */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+/* Scrollbar global personalizado */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.5), rgba(139, 92, 246, 0.3));
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.7), rgba(139, 92, 246, 0.5));
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+/* Transição suave para mudanças de cor */
+* {
+  transition-property: color, background-color, border-color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+/* Botões outline aprimorados */
+.btn-outline-light {
+  border-width: 2px !important;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.btn-outline-danger {
+  border-width: 2px !important;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: rgba(220, 53, 69, 0.2) !important;
+  box-shadow: 0 0 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Botões de tamanhos especiais */
+.btn-sm {
+  padding: 0.4rem 0.8rem !important;
+  font-size: 0.85rem !important;
+}
+
+.btn-lg {
+  padding: 0.7rem 1.5rem !important;
+  font-size: 1.1rem !important;
+}
+
+/* Cards com header aprimorados */
+.card-header {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.card-body {
+  backdrop-filter: blur(10px);
+}
+
+/* Efeitos para cards de cartas (TableCards) */
+.card.h-100 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-width: 2px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.card.h-100::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.card.h-100:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+/* ===== CARTAS ATIVAS (não usadas) - DESTAQUE MODERADO (sem exposição) ===== */
+.card.h-100:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-width: 2px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card.h-100:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+/* ===== CARTAS EXPOSTAS (com olho ativado) - DESTAQUE MÁXIMO ===== */
+.card.h-100.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-width: 3px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.05);
+  animation: subtle-glow 3s ease-in-out infinite, border-pulse 2s ease-in-out infinite;
+}
+
+.card.h-100.card-exposed:not(.opacity-75):not(.opacity-50)::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent, rgba(255, 255, 255, 0.05));
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card.h-100.card-exposed:not(.opacity-75):not(.opacity-50):hover::after {
+  opacity: 1;
+}
+
+.card.h-100.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+/* Animação de brilho sutil para cartas ativas */
+@keyframes subtle-glow {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.05);
+  }
+}
+
+/* Pulso nas bordas das cartas EXPOSTAS */
+@keyframes border-pulse {
+  0%, 100% {
+    border-width: 3px;
+  }
+  50% {
+    border-width: 3.5px;
+  }
+}
+
+/* Indicador visual de carta EXPOSTA - pequeno brilho no canto */
+.card.h-100.card-exposed:not(.opacity-75):not(.opacity-50)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.15) 0%, transparent 30%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  pointer-events: none;
+  animation: shimmer 4s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* Garantir que botões de olho fiquem acima das animações */
+.card.h-100 .btn.position-absolute {
+  z-index: 100 !important;
+}
+
+.card.h-100 .card-body {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ===== CARTAS USADAS - MENOS DESTAQUE ===== */
+.card.h-100.opacity-75, .card.h-100.bg-dark.opacity-75 {
+  border-width: 1px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  filter: grayscale(30%) brightness(0.7);
+  opacity: 0.6 !important;
+  animation: none !important;
+}
+
+.card.h-100.opacity-75::before, .card.h-100.bg-dark.opacity-75::before {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, transparent 100%);
+}
+
+.card.h-100.opacity-75:hover, .card.h-100.bg-dark.opacity-75:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  filter: grayscale(20%) brightness(0.75);
+  z-index: 5;
+}
+
+.card.h-100.opacity-75 .card-body, .card.h-100.bg-dark.opacity-75 .card-body {
+  background: linear-gradient(135deg, rgba(15, 18, 20, 0.98) 0%, rgba(10, 12, 14, 0.98) 100%);
+}
+
+/* Textos em cartas usadas ficam mais discretos */
+.card.h-100.opacity-75 .fw-bold, .card.h-100.bg-dark.opacity-75 .fw-bold {
+  opacity: 0.7;
+  text-shadow: none;
+}
+
+.card.h-100.opacity-75 div[dangerouslySetInnerHTML], 
+.card.h-100.bg-dark.opacity-75 div[dangerouslySetInnerHTML] {
+  opacity: 0.6;
+}
+
+/* ===== CARTAS BLOQUEADAS/DESATIVADAS ===== */
+.card.h-100.opacity-50 {
+  border-width: 1px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+  filter: grayscale(50%) brightness(0.6);
+  opacity: 0.5 !important;
+  cursor: not-allowed;
+}
+
+.card.h-100.opacity-50:hover {
+  transform: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+  filter: grayscale(50%) brightness(0.6);
+}
+
+/* Bordas coloridas específicas para cartas ATIVAS (não expostas) */
+.card.border-primary:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #0d6efd !important;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25), inset 0 0 15px rgba(13, 110, 253, 0.03);
+}
+
+.card.border-primary:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(13, 110, 253, 0.35), 0 0 15px rgba(13, 110, 253, 0.15), inset 0 0 20px rgba(13, 110, 253, 0.05);
+  border-color: #2d7afd !important;
+}
+
+/* Bordas coloridas para cartas EXPOSTAS - destaque máximo */
+.card.border-primary.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #0d6efd !important;
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.4), 0 0 20px rgba(13, 110, 253, 0.2), inset 0 0 20px rgba(13, 110, 253, 0.05);
+}
+
+.card.border-primary.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(13, 110, 253, 0.5), 0 0 30px rgba(13, 110, 253, 0.4), inset 0 0 30px rgba(13, 110, 253, 0.08);
+  border-color: #3d8bfd !important;
+}
+
+/* Bordas para cartas USADAS - menos destaque */
+.card.border-primary.opacity-75, .card.border-primary.bg-dark.opacity-75 {
+  border-color: rgba(13, 110, 253, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(13, 110, 253, 0.1) !important;
+}
+
+.card.border-primary.opacity-75:hover {
+  border-color: rgba(13, 110, 253, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.15) !important;
+}
+
+.card.border-success:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #198754 !important;
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.25), inset 0 0 15px rgba(25, 135, 84, 0.03);
+}
+
+.card.border-success:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(25, 135, 84, 0.35), 0 0 15px rgba(25, 135, 84, 0.15), inset 0 0 20px rgba(25, 135, 84, 0.05);
+  border-color: #1ea765 !important;
+}
+
+.card.border-success.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #198754 !important;
+  box-shadow: 0 4px 16px rgba(25, 135, 84, 0.4), 0 0 20px rgba(25, 135, 84, 0.2), inset 0 0 20px rgba(25, 135, 84, 0.05);
+}
+
+.card.border-success.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(25, 135, 84, 0.5), 0 0 30px rgba(25, 135, 84, 0.4), inset 0 0 30px rgba(25, 135, 84, 0.08);
+  border-color: #20c997 !important;
+}
+
+.card.border-success.opacity-75, .card.border-success.bg-dark.opacity-75 {
+  border-color: rgba(25, 135, 84, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(25, 135, 84, 0.1) !important;
+}
+
+.card.border-success.opacity-75:hover {
+  border-color: rgba(25, 135, 84, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(25, 135, 84, 0.15) !important;
+}
+
+.card.border-danger:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #dc3545 !important;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25), inset 0 0 15px rgba(220, 53, 69, 0.03);
+}
+
+.card.border-danger:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(220, 53, 69, 0.35), 0 0 15px rgba(220, 53, 69, 0.15), inset 0 0 20px rgba(220, 53, 69, 0.05);
+  border-color: #e35563 !important;
+}
+
+.card.border-danger.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #dc3545 !important;
+  box-shadow: 0 4px 16px rgba(220, 53, 69, 0.4), 0 0 20px rgba(220, 53, 69, 0.2), inset 0 0 20px rgba(220, 53, 69, 0.05);
+}
+
+.card.border-danger.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(220, 53, 69, 0.5), 0 0 30px rgba(220, 53, 69, 0.4), inset 0 0 30px rgba(220, 53, 69, 0.08);
+  border-color: #ea6a78 !important;
+}
+
+.card.border-warning:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #ffc107 !important;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.25), inset 0 0 15px rgba(255, 193, 7, 0.03);
+}
+
+.card.border-warning:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(255, 193, 7, 0.35), 0 0 15px rgba(255, 193, 7, 0.15), inset 0 0 20px rgba(255, 193, 7, 0.05);
+  border-color: #ffc721 !important;
+}
+
+.card.border-warning.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #ffc107 !important;
+  box-shadow: 0 4px 16px rgba(255, 193, 7, 0.4), 0 0 20px rgba(255, 193, 7, 0.2), inset 0 0 20px rgba(255, 193, 7, 0.05);
+}
+
+.card.border-warning.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(255, 193, 7, 0.5), 0 0 30px rgba(255, 193, 7, 0.4), inset 0 0 30px rgba(255, 193, 7, 0.08);
+  border-color: #ffcd39 !important;
+}
+
+.card.border-info:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #0dcaf0 !important;
+  box-shadow: 0 2px 8px rgba(13, 202, 240, 0.25), inset 0 0 15px rgba(13, 202, 240, 0.03);
+}
+
+.card.border-info:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(13, 202, 240, 0.35), 0 0 15px rgba(13, 202, 240, 0.15), inset 0 0 20px rgba(13, 202, 240, 0.05);
+  border-color: #25d0f3 !important;
+}
+
+.card.border-info.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #0dcaf0 !important;
+  box-shadow: 0 4px 16px rgba(13, 202, 240, 0.4), 0 0 20px rgba(13, 202, 240, 0.2), inset 0 0 20px rgba(13, 202, 240, 0.05);
+}
+
+.card.border-info.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(13, 202, 240, 0.5), 0 0 30px rgba(13, 202, 240, 0.4), inset 0 0 30px rgba(13, 202, 240, 0.08);
+  border-color: #3dd5f3 !important;
+}
+
+.card.border-info.opacity-75, .card.border-info.bg-dark.opacity-75 {
+  border-color: rgba(13, 202, 240, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(13, 202, 240, 0.1) !important;
+}
+
+.card.border-info.opacity-75:hover {
+  border-color: rgba(13, 202, 240, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(13, 202, 240, 0.15) !important;
+}
+
+/* Restante das cores */
+.card.border-light:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: rgba(248, 249, 250, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(248, 249, 250, 0.2), inset 0 0 15px rgba(248, 249, 250, 0.03);
+}
+
+.card.border-light:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(248, 249, 250, 0.15), inset 0 0 20px rgba(248, 249, 250, 0.05);
+  border-color: rgba(248, 249, 250, 0.55) !important;
+}
+
+.card.border-light.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: rgba(248, 249, 250, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(248, 249, 250, 0.3), 0 0 20px rgba(248, 249, 250, 0.15), inset 0 0 20px rgba(248, 249, 250, 0.05);
+}
+
+.card.border-light.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(248, 249, 250, 0.25), inset 0 0 30px rgba(248, 249, 250, 0.08);
+  border-color: rgba(248, 249, 250, 0.7) !important;
+}
+
+.card.border-light.opacity-75, .card.border-light.bg-dark.opacity-75 {
+  border-color: rgba(248, 249, 250, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(248, 249, 250, 0.1) !important;
+}
+
+.card.border-light.opacity-75:hover {
+  border-color: rgba(248, 249, 250, 0.3) !important;
+  box-shadow: 0 2px 6px rgba(248, 249, 250, 0.15) !important;
+}
+
+.card.border-dark:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: rgba(33, 37, 41, 0.85) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.03);
+}
+
+.card.border-dark:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
+  border-color: rgba(33, 37, 41, 0.95) !important;
+}
+
+.card.border-dark.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: rgba(33, 37, 41, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.card.border-dark.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.08);
+  border-color: rgba(33, 37, 41, 1) !important;
+}
+
+.card.border-dark.opacity-75, .card.border-dark.bg-dark.opacity-75 {
+  border-color: rgba(33, 37, 41, 0.5) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.card.border-dark.opacity-75:hover {
+  border-color: rgba(33, 37, 41, 0.6) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Cartas com bordas especiais - secondary e purple */
+.card.border-secondary:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #6c757d !important;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.25), inset 0 0 15px rgba(108, 117, 125, 0.03);
+}
+
+.card.border-secondary:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(108, 117, 125, 0.35), 0 0 15px rgba(108, 117, 125, 0.15), inset 0 0 20px rgba(108, 117, 125, 0.05);
+  border-color: #7d8794 !important;
+}
+
+.card.border-secondary.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #6c757d !important;
+  box-shadow: 0 4px 16px rgba(108, 117, 125, 0.4), 0 0 20px rgba(108, 117, 125, 0.2), inset 0 0 20px rgba(108, 117, 125, 0.05);
+}
+
+.card.border-secondary.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(108, 117, 125, 0.5), 0 0 30px rgba(108, 117, 125, 0.3), inset 0 0 30px rgba(108, 117, 125, 0.08);
+  border-color: #8d9aa5 !important;
+}
+
+/* Melhoria no card-body das cartas */
+.card.h-100 .card-body {
+  background: linear-gradient(135deg, rgba(26, 30, 34, 0.98) 0%, rgba(20, 24, 28, 0.98) 100%);
+  position: relative;
+  z-index: 1;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+}
+
+/* Hover effect para melhor destaque do conteúdo */
+.card.h-100:hover .card-body {
+  background: linear-gradient(135deg, rgba(30, 34, 38, 0.98) 0%, rgba(24, 28, 32, 0.98) 100%);
+}
+
+/* Textos coloridos nas cartas com melhor contraste */
+.text-primary {
+  color: #3d8bfd !important;
+  text-shadow: 0 1px 3px rgba(13, 110, 253, 0.5);
+  font-weight: 600;
+}
+
+.text-success {
+  color: #20c997 !important;
+  text-shadow: 0 1px 3px rgba(25, 135, 84, 0.5);
+  font-weight: 600;
+}
+
+.text-danger {
+  color: #ea6a78 !important;
+  text-shadow: 0 1px 3px rgba(220, 53, 69, 0.5);
+  font-weight: 600;
+}
+
+.text-warning {
+  color: #ffcd39 !important;
+  text-shadow: 0 1px 3px rgba(255, 193, 7, 0.5);
+  font-weight: 600;
+}
+
+.text-info {
+  color: #3dd5f3 !important;
+  text-shadow: 0 1px 3px rgba(13, 202, 240, 0.5);
+  font-weight: 600;
+}
+
+/* Text shadows sutis para melhor legibilidade */
+h1, h2, h3, h4, h5, h6 {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Borders com gradiente sutil */
+.border-light {
+  border-color: rgba(248, 249, 250, 0.3) !important;
+}
+
+.border-primary {
+  border-color: #0d6efd !important;
+}
+
+.border-success {
+  border-color: #198754 !important;
+}
+
+.border-danger {
+  border-color: #dc3545 !important;
+}
+
+.border-warning {
+  border-color: #ffc107 !important;
+}
+
+.border-info {
+  border-color: #0dcaf0 !important;
+}
+
+.border-secondary {
+  border-color: #6c757d !important;
+}
+
+.border-purple, .border-violet {
+  border-color: #8b5cf6 !important;
+}
+
+/* Cartas com bordas especiais */
+.card.border-secondary:not(.opacity-75):not(.opacity-50) {
+  border-color: #6c757d !important;
+  box-shadow: 0 4px 16px rgba(108, 117, 125, 0.4), 0 0 20px rgba(108, 117, 125, 0.2), inset 0 0 20px rgba(108, 117, 125, 0.05);
+}
+
+.card.border-secondary:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(108, 117, 125, 0.5), 0 0 30px rgba(108, 117, 125, 0.3), inset 0 0 30px rgba(108, 117, 125, 0.08);
+  border-color: #8d9aa5 !important;
+}
+
+.card.border-secondary.opacity-75, .card.border-secondary.bg-dark.opacity-75 {
+  border-color: rgba(108, 117, 125, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(108, 117, 125, 0.1) !important;
+}
+
+.card.border-secondary.opacity-75:hover {
+  border-color: rgba(108, 117, 125, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.15) !important;
+}
+
+.card.border-purple:not(.opacity-75):not(.opacity-50):not(.card-exposed), 
+.card.border-violet:not(.opacity-75):not(.opacity-50):not(.card-exposed) {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25), inset 0 0 15px rgba(139, 92, 246, 0.03);
+}
+
+.card.border-purple:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover, 
+.card.border-violet:not(.opacity-75):not(.opacity-50):not(.card-exposed):hover {
+  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.35), 0 0 15px rgba(139, 92, 246, 0.15), inset 0 0 20px rgba(139, 92, 246, 0.05);
+  border-color: #9c73f7 !important;
+}
+
+.card.border-purple.card-exposed:not(.opacity-75):not(.opacity-50), 
+.card.border-violet.card-exposed:not(.opacity-75):not(.opacity-50) {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.2), inset 0 0 20px rgba(139, 92, 246, 0.05);
+}
+
+.card.border-purple.card-exposed:not(.opacity-75):not(.opacity-50):hover, 
+.card.border-violet.card-exposed:not(.opacity-75):not(.opacity-50):hover {
+  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.5), 0 0 30px rgba(139, 92, 246, 0.4), inset 0 0 30px rgba(139, 92, 246, 0.08);
+  border-color: #a78bfa !important;
+}
+
+.card.border-purple.opacity-75, .card.border-violet.opacity-75,
+.card.border-purple.bg-dark.opacity-75, .card.border-violet.bg-dark.opacity-75 {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(139, 92, 246, 0.1) !important;
+}
+
+.card.border-purple.opacity-75:hover, .card.border-violet.opacity-75:hover {
+  border-color: rgba(139, 92, 246, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* Bordas para cartas USADAS de todas as cores */
+.card.border-danger.opacity-75, .card.border-danger.bg-dark.opacity-75 {
+  border-color: rgba(220, 53, 69, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(220, 53, 69, 0.1) !important;
+}
+
+.card.border-danger.opacity-75:hover {
+  border-color: rgba(220, 53, 69, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.15) !important;
+}
+
+.card.border-warning.opacity-75, .card.border-warning.bg-dark.opacity-75 {
+  border-color: rgba(255, 193, 7, 0.3) !important;
+  box-shadow: 0 1px 3px rgba(255, 193, 7, 0.1) !important;
+}
+
+.card.border-warning.opacity-75:hover {
+  border-color: rgba(255, 193, 7, 0.4) !important;
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.15) !important;
+}
+
+/* Textos coloridos adicionais */
+.text-secondary {
+  color: #8d9aa5 !important;
+  text-shadow: 0 1px 3px rgba(108, 117, 125, 0.5);
+  font-weight: 600;
+}
+
+/* Efeito de brilho sutil para elementos ativos */
+.active, .show {
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Melhorias para listas */
+.list-group-item {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Spinners e loaders */
+.spinner-border, .spinner-grow {
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* Dropdowns */
+.dropdown-menu {
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  background-color: rgba(33, 37, 41, 0.95) !important;
+}
+
+.dropdown-item {
+  border-radius: 6px !important;
+  margin: 2px 4px;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(139, 92, 246, 0.2) !important;
+  transform: translateX(4px);
+}
+
+/* Nav tabs */
+.nav-tabs .nav-link {
+  border-radius: 8px 8px 0 0 !important;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: rgba(139, 92, 246, 0.2) !important;
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  box-shadow: 0 -2px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* Posição fixa com blur melhorado */
+.position-fixed {
+  backdrop-filter: blur(15px);
+}
+
+/* Melhorias no espaçamento e legibilidade das cartas */
+.card.h-100 .card-body {
+  padding: 0.75rem !important;
+}
+
+.card.h-100 .card-body.p-2 {
+  padding: 0.75rem !important;
+}
+
+.card.h-100 .card-body .fw-bold {
+  letter-spacing: 0.3px;
+  margin-bottom: 0.5rem !important;
+  font-size: 1rem;
+  display: block;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card.h-100 .card-body .small {
+  font-size: 0.875rem !important;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Melhor formatação de descrições */
+.card.h-100 .card-body div[dangerouslySetInnerHTML] {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+
+.card.h-100 .card-body div[dangerouslySetInnerHTML] strong {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+}
+
+.card.h-100 .card-body div[dangerouslySetInnerHTML] em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.card.h-100 .card-body div[dangerouslySetInnerHTML] p {
+  margin-bottom: 0.5rem;
+}
+
+.card.h-100 .card-body div[dangerouslySetInnerHTML] p:last-child {
+  margin-bottom: 0;
+}
+
+/* Espaçamento das colunas de cartas */
+.col-12.mb-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Container de cartas */
+.row.row-cols-1 {
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+/* Animação suave de aparição para cartas */
+.card.h-100 {
+  animation: fadeInCard 0.4s ease-out;
+}
+
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Melhor responsividade para cartas em telas pequenas */
+@media (max-width: 768px) {
+  .card.h-100 .card-body {
+    padding: 0.6rem !important;
+  }
+  
+  .card.h-100 .card-body .fw-bold {
+    font-size: 0.95rem;
+  }
+  
+  .card.h-100 .card-body .small {
+    font-size: 0.825rem !important;
+  }
+}
+
+/* Centralização perfeita de ícones emoji em botões */
+.btn-sm.position-absolute {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+/* Botão do olho - centralização perfeita */
+button[title*="Expor"],
+button[title*="Ocultar"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 14px !important;
+}
+
+/* Badges circulares - centralização perfeita */
+.badge.rounded-circle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+/* Botões com emojis - ajuste universal */
+.btn:not(.btn-link) {
+  line-height: 1.2;
+}
+
+.btn-sm {
+  line-height: 1 !important;
+}
+
+/* Ajuste específico para botões circulares */
+.btn[style*="border-radius: 50%"],
+.btn[style*="borderRadius: 50%"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Centralização de texto em badges com ícones */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.badge.bg-warning,
+.badge.bg-primary {
+  gap: 0.25rem;
+}
+
+/* Cards de seleção de armas no painel de combate - bordas consistentes */
+.card.border.cursor-pointer {
+  border-radius: 8px !important;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.card.border.cursor-pointer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card.border.cursor-pointer .card-body {
+  border-radius: 8px !important;
+}
+
+/* Garantir que cards selecionados também tenham bordas corretas */
+.card.border-success.bg-success.bg-opacity-25,
+.card.border-warning.bg-warning.bg-opacity-25 {
+  border-radius: 8px !important;
 }

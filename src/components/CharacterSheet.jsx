@@ -483,7 +483,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     return (
       <div key={item.ID} className="col-12 col-md-3">
         <div 
-          className={`card border-${section.color} h-100${cardOpacity} position-relative`} 
+          className={`card border-${section.color} h-100${cardOpacity}${isExposed ? ' card-exposed' : ''} position-relative`} 
           style={{background: 'var(--bs-gray-800)', color: '#fff'}}
         >
           {/* Ícone de olho no canto superior direito */}

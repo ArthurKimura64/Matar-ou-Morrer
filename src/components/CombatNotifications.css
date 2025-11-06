@@ -445,13 +445,11 @@
 /* Dados Pequenos */
 .die-small {
   font-size: 16px !important;
-  padding: 6px 10px !important;
   margin: 3px !important;
 }
 
 .die-mini {
   font-size: 14px !important;
-  padding: 4px 8px !important;
   margin: 2px !important;
 }
 
@@ -491,7 +489,6 @@
   color: #000000;
   font-size: 26px;
   font-weight: bold;
-  padding: 8px;
   border-radius: 6px;
   min-width: 48px;
   min-height: 48px;
@@ -532,7 +529,6 @@
   color: #000000;
   font-size: 32px;
   font-weight: bold;
-  padding: 10px;
   min-width: 52px;
   min-height: 52px;
   border-radius: 8px;
@@ -563,7 +559,6 @@
   color: #000000;
   font-size: 18px;
   font-weight: bold;
-  padding: 6px;
   min-width: 34px;
   min-height: 34px;
   border-radius: 5px;
@@ -1172,7 +1167,6 @@
   font-size: 24px;
   font-weight: bold;
   margin: 5px;
-  padding: 10px 15px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
@@ -1263,7 +1257,6 @@
   color: #000000;
   font-size: 28px;
   font-weight: bold;
-  padding: 15px 20px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   animation: diceRoll 0.12s ease-in-out;
@@ -1486,8 +1479,114 @@
 
   .die {
     font-size: 20px;
-    padding: 8px 12px;
   }
+}
+
+/* ========================================
+   AJUSTE DISCRETO DE RESULTADO DE DADOS (HOVER)
+   ======================================== */
+
+.die-adjustable-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 36px; /* Espaço para os botões */
+}
+
+.die-adjust-controls {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Mostrar controles ao hover no wrapper (inclui botões E dado) */
+.die-adjustable-wrapper:hover .die-adjust-controls {
+  opacity: 1;
+  pointer-events: auto;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.die-adjust-btn {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.4);
+}
+
+.die-adjust-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px rgba(13, 110, 253, 0.6);
+}
+
+.die-adjust-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.die-adjust-btn:disabled {
+  background: #6c757d;
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.die-adjust-up {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+}
+
+.die-adjust-up:hover:not(:disabled) {
+  background: linear-gradient(135deg, #20c997 0%, #17a673 100%);
+  box-shadow: 0 3px 8px rgba(40, 167, 69, 0.6);
+}
+
+.die-adjust-down {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+}
+
+.die-adjust-down:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  box-shadow: 0 3px 8px rgba(220, 53, 69, 0.6);
+}
+
+.die-adjustable-wrapper .die-number {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.die-adjustable-wrapper:hover .die-number {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(13, 110, 253, 0.3);
 }
 
 /* Scrollbar customizada */
