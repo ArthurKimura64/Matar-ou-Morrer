@@ -426,7 +426,7 @@
   "Attack.Imortal4.SpecialDescription": "Não precisa estar entre pontos de conexão.",
   "Attack.Gravidade1": "Descarga Gravitacional",
   "Attack.Gravidade2": "Tortura da Gravidade",
-  "Attack.Gravidade2.SpecialDescription": "Sempre que acertar todos os dados de ataque você ganha +2 de dano, +1 ataque, +1 dado de ataque e +1 no dado de ataque com menor número.(dura até o fim do combate).",
+  "Attack.Gravidade2.SpecialDescription": "Sempre que acertar pelo menos 1 dado de ataque você ganha +2 de dano, +1 ataque, +1 dado de ataque e +1 no dado de ataque com menor número.(dura até o fim do combate).",
   "Attack.Radiacao1": "Possesão Verde",
   "Attack.Radiacao1.SpecialDescription": "o inimigo perde 3 de vida automaticamente sempre que for sua vez de atacar.",
   "Attack.Radiacao2": "Chuva Radioativa",
