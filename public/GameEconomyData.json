@@ -1063,7 +1063,9 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Pax1"
+      ]
     },
     {
       "ID": "Observadora",
@@ -8780,6 +8782,11 @@
       "ID": "SpecialCustom.MulherFantasma1",
       "Type": "counter",
       "Title": "SpecialCustom.MulherFantasma1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Pax1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Pax1.Title"
     }
   ]
 }
