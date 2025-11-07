@@ -114,7 +114,29 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       // RESTAURAR contadores salvos do banco, ou usar valores iniciais
       if (currentPlayer.counters) {
         console.log('🔄 RESTAURANDO CONTADORES DO BANCO:', currentPlayer.counters);
-        setCounters(currentPlayer.counters);
+        
+        // Mesclar contadores salvos com initialCounters para garantir que *_max existam
+        const restoredCounters = {
+          ...initialCounters, // Começar com os valores iniciais (que têm *_max corretos)
+          ...currentPlayer.counters // Sobrescrever com os valores salvos
+        };
+        
+        // Garantir que os valores *_max não sejam perdidos ou zerados
+        if (!restoredCounters.esquiva_max && initialCounters.esquiva_max) {
+          restoredCounters.esquiva_max = initialCounters.esquiva_max;
+        }
+        if (!restoredCounters.oport_max && initialCounters.oport_max) {
+          restoredCounters.oport_max = initialCounters.oport_max;
+        }
+        if (!restoredCounters.item_max && initialCounters.item_max) {
+          restoredCounters.item_max = initialCounters.item_max;
+        }
+        
+        console.log('✅ CONTADORES MESCLADOS COM VALORES MÁXIMOS:', restoredCounters);
+        setCounters(restoredCounters);
+        
+        // Atualizar o banco com os valores corrigidos (caso estejam faltando *_max)
+        RoomService.updatePlayerCounters(currentPlayer.id, restoredCounters);
       } else {
         console.log('📝 INICIALIZANDO CONTADORES PADRÃO');
         setCounters(initialCounters);
@@ -161,7 +183,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actor?.ID, selections, currentPlayer?.id]);
+  }, [actor?.ID, selections, currentPlayer?.id, initialCounters]);
 
   // Determinar se é o Copiador e preparar slots vazios
   const isCopycat = useMemo(() => actor?.ID?.toLowerCase() === 'copiador', [actor?.ID]);
@@ -251,12 +273,26 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   };
 
   const handleCounterChange = async (id, value) => {
+    // Criar novos contadores preservando TODOS os valores, especialmente os *_max
     const newCounters = {
       ...counters,
       [id]: value
-      // IMPORTANTE: NÃO alterar o valor máximo automaticamente!
-      // O valor máximo deve ser fixo baseado nas características do personagem
     };
+    
+    // GARANTIR que os valores máximos nunca sejam perdidos ou zerados
+    // Se o contador atual não tem *_max definido, usar o valor do initialCounters
+    if (!newCounters.esquiva_max && initialCounters.esquiva_max) {
+      newCounters.esquiva_max = initialCounters.esquiva_max;
+    }
+    if (!newCounters.oport_max && initialCounters.oport_max) {
+      newCounters.oport_max = initialCounters.oport_max;
+    }
+    if (!newCounters.item_max && initialCounters.item_max) {
+      newCounters.item_max = initialCounters.item_max;
+    }
+    if (!newCounters.vida_max) {
+      newCounters.vida_max = initialCounters.vida_max || 20;
+    }
     
     setCounters(newCounters);
     
