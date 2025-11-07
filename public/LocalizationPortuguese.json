@@ -396,7 +396,7 @@
   "Attack.Protetor2": "Irritabilidade",
   "Attack.Protetor2.SpecialDescription": "Se o adversário que está em combate com você tirar 1 em um dos dados de defesa os seus dados dão o triplo de dano durante aquele ataque.",
   "Attack.Destroul1": "Destruidor de Corpos",
-  "Attack.Destroul1.SpecialDescription": "O inimigo da todos os ataques dele primeiro e após isso você o ataca 6 vezes seguidas jogando apenas 1 d6 e ele se defenderá apenas com 1 d6, se das 6 rodadas você vencer ele em 4 rodadas (se der empate no dado você vence), você o mata instantaneamente.",
+  "Attack.Destroul1.SpecialDescription": "O inimigo da todos os ataques dele primeiro e após isso você o ataca 6 vezes seguidas jogando apenas 1 d6 e ele se defenderá apenas com 1 d6, se das 6 rodadas você vencer ele em 4 rodadas (se der empate no dado você vence e o dado do inimigo ganha +1), você o mata instantaneamente.",
   "Attack.Destroul2": "Arrastão Destrutivo",
   "Attack.Destroul2.SpecialDescription": "Se houver um inimigo que esteja entre os mesmos pontos de conexão que você, poderá arrastá-lo para 0 de distância de você e ele perderá 2 de vida.",
   "Attack.Destroul3": "Envolvido",
