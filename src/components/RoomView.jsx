@@ -54,33 +54,19 @@ const RoomView = ({
   // Aplicar valores iniciais apenas UMA vez
   useEffect(() => {
     if (!hasAppliedInitialState.current) {
-      console.log('🔧 ROOMVIEW - VALORES RECEBIDOS:', {
-        initialView,
-        initialSelectedActor: initialSelectedActor?.name || 'null',
-        initialCharacterSelections: !!initialCharacterSelections
-      });
-      
       if (initialView && initialView !== 'lobby') {
-        console.log('🔧 APLICANDO VIEW:', initialView);
         setCurrentView(initialView);
       }
       
       if (initialSelectedActor) {
-        console.log('🔧 APLICANDO ACTOR:', initialSelectedActor.name);
         setSelectedActor(initialSelectedActor);
       }
       
       if (initialCharacterSelections) {
-        console.log('🔧 APLICANDO SELECTIONS');
         setCharacterSelections(initialCharacterSelections);
       }
       
       hasAppliedInitialState.current = true;
-      console.log('🔧 ESTADO FINAL ROOMVIEW:', {
-        currentView: initialView || 'lobby',
-        selectedActor: initialSelectedActor?.name || 'null',
-        hasSelections: !!initialCharacterSelections
-      });
     }
   }, [initialView, initialSelectedActor, initialCharacterSelections]);
 
@@ -97,7 +83,6 @@ const RoomView = ({
         const result = await RoomService.getRoomPlayers(room.id);
         if (result.success && isMounted) {
           setPlayers(result.players);
-          console.log('Jogadores carregados:', result.players);
         }
       } catch (error) {
         console.error('Erro ao carregar jogadores:', error);
@@ -112,7 +97,6 @@ const RoomView = ({
     
     // Configurar subscription para mudanças em tempo real com monitoramento
     const handlePlayersChange = (payload) => {
-      console.log('Evento recebido:', payload);
       // Recarregar dados sempre que houver mudança
       loadPlayersData();
     };
@@ -124,18 +108,15 @@ const RoomView = ({
     const connectionCheckInterval = setInterval(() => {
       if (sub && !RoomService.checkAndReconnectSubscription(sub)) {
         // Se a subscription está inativa, tentar recarregar dados manualmente
-        console.log('🔄 Verificando dados da sala devido à subscription inativa...');
         loadPlayersData();
       }
     }, 60000); // Verificar a cada minuto
 
     // Limpeza automática de dados antigos a cada 10 minutos
     const cleanupInterval = setInterval(async () => {
-      console.log('🧹 Executando limpeza automática...');
       try {
         const result = await RoomService.cleanupOldData();
         if (result.success) {
-          console.log('✅ Limpeza automática concluída');
         }
       } catch (error) {
         console.error('❌ Erro na limpeza automática:', error);
@@ -145,7 +126,6 @@ const RoomView = ({
     // Listener para quando a página fica visível novamente
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('👁️ Página visível novamente, verificando dados...');
         loadPlayersData();
         
         // Verificar se a subscription precisa ser reconectada
@@ -170,7 +150,6 @@ const RoomView = ({
   }, [room.id]);
 
   const handleCharacterSelect = async (actor) => {
-    console.log('🎭 Personagem selecionado no RoomView:', actor.name);
     setSelectedActor(actor);
     setCurrentView('builder');
     
@@ -180,7 +159,6 @@ const RoomView = ({
   };
 
   const handleCharacterCreate = async (selections) => {
-    console.log('🎯 Personagem criado no RoomView');
     setCharacterSelections(selections);
     
     // Salvar personagem na sala
@@ -199,7 +177,6 @@ const RoomView = ({
     );
     
     if (result.success) {
-      console.log('Personagem atualizado com sucesso');
     }
     
     setCurrentView('sheet');
@@ -218,11 +195,10 @@ const RoomView = ({
   };
 
   const handleBackToLobby = async () => {
-    console.log('🔄 VOLTANDO PARA LOBBY - limpando estados');
+    
     
     // Limpar TODOS os dados do personagem no banco de dados
     if (currentPlayer?.id) {
-      console.log('🧹 Limpando dados do personagem no banco...');
       
       // Limpar cartas expostas
       await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
@@ -255,7 +231,7 @@ const RoomView = ({
       // Atualizar status para 'selecting'
       await RoomService.updatePlayerStatus(currentPlayer.id, 'selecting', null);
       
-      console.log('✅ Dados do personagem limpos no banco');
+      
     }
     
     // Limpar estados locais do RoomView
@@ -268,7 +244,7 @@ const RoomView = ({
     if (onActorChange) onActorChange(null);
     if (onSelectionsChange) onSelectionsChange(null);
     
-    console.log('✅ Estados limpos e App.js notificado');
+    
   };
 
   // Quando o jogador trocar de personagem (voltar ao lobby e escolher outro), limpar completamente o histórico ever_exposed_cards
@@ -279,7 +255,6 @@ const RoomView = ({
           const appState = currentPlayer.app_state || {};
           if (appState.ever_exposed_cards && Object.keys(appState.ever_exposed_cards).length) {
             await RoomService.updatePlayerAppState(currentPlayer.id, { ...appState, ever_exposed_cards: {} });
-            console.log('🧹 Histórico de cartas expostas (ever_exposed_cards) limpo ao trocar de personagem.');
           }
         }
       } catch (e) {

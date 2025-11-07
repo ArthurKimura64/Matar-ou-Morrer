@@ -113,7 +113,6 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (actor && selections && currentPlayer?.id) {
       // RESTAURAR contadores salvos do banco, ou usar valores iniciais
       if (currentPlayer.counters) {
-        console.log('🔄 RESTAURANDO CONTADORES DO BANCO:', currentPlayer.counters);
         
         // Mesclar contadores salvos com initialCounters para garantir que *_max existam
         const restoredCounters = {
@@ -132,13 +131,11 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           restoredCounters.item_max = initialCounters.item_max;
         }
         
-        console.log('✅ CONTADORES MESCLADOS COM VALORES MÁXIMOS:', restoredCounters);
-        setCounters(restoredCounters);
+  setCounters(restoredCounters);
         
         // Atualizar o banco com os valores corrigidos (caso estejam faltando *_max)
         RoomService.updatePlayerCounters(currentPlayer.id, restoredCounters);
       } else {
-        console.log('📝 INICIALIZANDO CONTADORES PADRÃO');
         setCounters(initialCounters);
         // Sincronizar com o banco de dados
         RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
@@ -163,10 +160,8 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       
       // RESTAURAR contadores adicionais do banco, ou resetar para 0
       if (currentPlayer.additional_counters && Object.keys(currentPlayer.additional_counters).length > 0) {
-        console.log('🔄 RESTAURANDO CONTADORES ADICIONAIS DO BANCO:', currentPlayer.additional_counters);
         setAdditionalCounters(currentPlayer.additional_counters);
       } else {
-        console.log('📝 INICIALIZANDO CONTADORES ADICIONAIS PADRÃO');
         // Na ficha, os contadores especiais devem começar em 0, não no máximo
         const resetCountersData = {};
         Object.entries(additionalCountersData).forEach(([key, counter]) => {
@@ -176,7 +171,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           };
         });
         
-        setAdditionalCounters(resetCountersData);
+  setAdditionalCounters(resetCountersData);
         
         // Sincronizar contadores adicionais
         RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
@@ -331,16 +326,14 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       if (availableSpecials.length > 0) {
         const randomIndex = Math.floor(Math.random() * availableSpecials.length);
         const selectedSpecial = availableSpecials[randomIndex];
-        newUnlockedItems.add(selectedSpecial.ID);
-        console.log(`💀 Morte ${i + 1}: Habilidade Especial desbloqueada:`, selectedSpecial.ID);
+  newUnlockedItems.add(selectedSpecial.ID);
       }
       
       // Desbloquear uma habilidade passiva especial se disponível
       if (availablePassiveSpecials.length > 0) {
         const randomIndex = Math.floor(Math.random() * availablePassiveSpecials.length);
         const selectedPassiveSpecial = availablePassiveSpecials[randomIndex];
-        newUnlockedItems.add(selectedPassiveSpecial.ID);
-        console.log(`💀 Morte ${i + 1}: Habilidade Passiva Especial desbloqueada:`, selectedPassiveSpecial.ID);
+  newUnlockedItems.add(selectedPassiveSpecial.ID);
       }
     }
     
@@ -353,7 +346,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     // Mostrar notificação se alcançou 2 mortes
     if (deathCount >= 2 && currentDeaths < 2) {
-      console.log('🔥 Modo Reivolk desbloqueado!');
+      // modo Reivolk desbloqueado
     }
   };
 

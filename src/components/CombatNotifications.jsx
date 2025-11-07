@@ -63,27 +63,18 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
           filter: `room_id=eq.${roomId}`
         },
         (payload) => {
-          console.log('🔔 Atualização de combate recebida:', payload);
-          
           // Verificar se este combate envolve o jogador atual
           const combatData = payload.new || payload.old;
-          console.log('💾 Dados do combate:', combatData);
-          console.log('👤 ID do jogador atual:', currentPlayer?.id);
-          
+
           if (
             combatData &&
             (combatData.attacker_id === currentPlayer.id || combatData.defender_id === currentPlayer.id)
           ) {
-            console.log('✅ Combate envolve este jogador!');
             if (payload.eventType === 'DELETE' || combatData.status === 'cancelled' || combatData.status === 'completed') {
-              console.log('❌ Combate cancelado/completado, removendo...');
               setCombat(null);
             } else {
-              console.log('🎮 Atualizando estado do combate...');
               setCombat(combatData);
             }
-          } else {
-            console.log('⚠️ Combate não envolve este jogador, ignorando.');
           }
         }
       )

@@ -43,7 +43,6 @@ export const usePlayerStatus = (playerId, currentView, selectedActor, characterS
 
       // Só atualizar se mudou de view
       if (previousView.current !== currentView) {
-        console.log('Atualizando status automaticamente:', newStatus, characterName);
         await RoomService.updatePlayerStatus(playerId, newStatus, characterName);
         previousView.current = currentView;
       }

@@ -19,13 +19,12 @@ export const getCharacterAdditionalCounters = (characterName, characterData) => 
   if (characterData?.actor?.SpecialCharacteristics && characterData?.gameData?.SpecialDefinitions) {
     const { actor, gameData, localization } = characterData;
     
-    console.log('🔍 DEBUG - Processando SpecialCharacteristics:', actor.SpecialCharacteristics);
-    console.log('🔍 DEBUG - SpecialDefinitions disponíveis:', gameData.SpecialDefinitions.filter(s => s.Type === 'counter'));
+    
     
     actor.SpecialCharacteristics.forEach(specialId => {
       const spec = gameData.SpecialDefinitions.find(s => s.ID === specialId);
       if (spec && spec.Type === 'counter') {
-        console.log('✅ DEBUG - Criando contador para:', specialId, spec);
+        
         
         // Verificar se já existe para evitar duplicatas
         if (counters[specialId]) {
@@ -56,7 +55,7 @@ export const getCharacterAdditionalCounters = (characterName, characterData) => 
     });
   }
 
-  console.log('📊 DEBUG - Contadores finais gerados:', Object.keys(counters), counters);
+  
   return counters;
 };
 

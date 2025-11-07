@@ -46,7 +46,6 @@ class ConnectionMonitor {
         if (!this.isConnected) {
           this.isConnected = true;
           this.reconnectAttempts = 0;
-          console.log('✅ Conexão Supabase restabelecida');
           this.notifyCallbacks('connected');
         }
       } catch (error) {
@@ -64,14 +63,12 @@ class ConnectionMonitor {
     // Listener para quando a página fica visível novamente
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && !this.isConnected) {
-        console.log('🔄 Página visível novamente, verificando conexão...');
         this.attemptReconnect();
       }
     });
 
     // Listener para quando a conexão de rede é restabelecida
     window.addEventListener('online', () => {
-      console.log('🌐 Conexão de rede restabelecida, verificando Supabase...');
       this.attemptReconnect();
     });
   }
@@ -82,8 +79,7 @@ class ConnectionMonitor {
       return;
     }
 
-    this.reconnectAttempts++;
-    console.log(`🔄 Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+  this.reconnectAttempts++;
 
     try {
       const { error } = await supabase
@@ -94,7 +90,6 @@ class ConnectionMonitor {
       if (!error) {
         this.isConnected = true;
         this.reconnectAttempts = 0;
-        console.log('✅ Reconexão bem-sucedida!');
         this.notifyCallbacks('reconnected');
       }
     } catch (error) {

@@ -70,21 +70,19 @@ export class RoomService {
   // Entrar em uma sala
   static async joinRoom(roomId, playerName, character = null, forceNewPlayer = false) {
     try {
-      console.log('🚪 Tentando entrar na sala:', roomId, 'como jogador:', playerName);
       
       // Se não forçar novo jogador, verificar se o jogador já existe (apenas para reconexão automática)
       if (!forceNewPlayer) {
         const existingResult = await this.findExistingPlayer(roomId, playerName);
         
         if (existingResult.success && existingResult.player) {
-          console.log('🔄 Jogador existente encontrado, reconectando:', existingResult.player.id);
           // Reconectar jogador existente
           return await this.reconnectPlayer(existingResult.player.id);
         }
       }
       
       // Se não existe ou está forçando novo jogador, criar novo jogador
-      console.log('🆕 Criando novo jogador na sala');
+      
       const playerId = uuidv4();
       
       const { data, error } = await supabase
@@ -106,8 +104,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('✅ Novo jogador criado com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao entrar na sala:', error);
@@ -138,7 +134,6 @@ export class RoomService {
   // Obter jogadores de uma sala
   static async getRoomPlayers(roomId) {
     try {
-      console.log('Buscando jogadores da sala:', roomId);
       
       const { data, error } = await supabase
         .from('players')
@@ -148,8 +143,6 @@ export class RoomService {
         .order('joined_at', { ascending: true });
 
       if (error) throw error;
-      
-      console.log('Jogadores encontrados:', data);
       return { success: true, players: data };
     } catch (error) {
       console.error('Erro ao buscar jogadores:', error);
@@ -160,7 +153,7 @@ export class RoomService {
   // Atualizar status do jogador
   static async updatePlayerStatus(playerId, status, characterName = null) {
     try {
-      console.log('Atualizando status do jogador:', playerId, 'para:', status);
+      
       
       const updateData = { status };
       if (characterName) {
@@ -180,8 +173,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('Status atualizado com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
@@ -209,8 +200,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('Personagem atualizado com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar personagem:', error);
@@ -221,7 +210,6 @@ export class RoomService {
   // Sair da sala
   static async leaveRoom(playerId) {
     try {
-      console.log('🚪 Jogador saindo da sala:', playerId);
       
       // Remover completamente o jogador quando sair definitivamente
       const { error } = await supabase
@@ -230,8 +218,6 @@ export class RoomService {
         .eq('id', playerId);
 
       if (error) throw error;
-      
-      console.log('✅ Jogador removido da sala com sucesso');
       return { success: true };
     } catch (error) {
       console.error('❌ Erro ao sair da sala:', error);
@@ -259,7 +245,7 @@ export class RoomService {
   static subscribeToRoom(roomId, onPlayersChange) {
     const channelName = `room-players-${roomId}`;
     
-    console.log('Criando subscription para sala:', roomId);
+    
     
     let channel = null;
     let isSubscribed = false;
@@ -267,7 +253,7 @@ export class RoomService {
     const maxReconnectAttempts = 5;
 
     const createSubscription = () => {
-      console.log(`🔄 Criando subscription para sala ${roomId} (tentativa ${reconnectAttempts + 1})`);
+      
       
       channel = supabase
         .channel(channelName)
@@ -280,24 +266,21 @@ export class RoomService {
             filter: `room_id=eq.${roomId}`
           },
           (payload) => {
-            console.log('Mudança detectada na sala:', roomId, payload);
             onPlayersChange(payload);
           }
         )
         .subscribe((status) => {
-          console.log(`📡 Status da subscription ${roomId}:`, status);
+          
           
           if (status === 'SUBSCRIBED') {
             isSubscribed = true;
             reconnectAttempts = 0;
-            console.log(`✅ Subscription ativa para sala ${roomId}`);
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
             isSubscribed = false;
             console.warn(`⚠️ Erro na subscription da sala ${roomId}:`, status);
             attemptReconnect();
           } else if (status === 'CLOSED') {
             isSubscribed = false;
-            console.log(`🔌 Subscription fechada para sala ${roomId}`);
           }
         });
 
@@ -313,7 +296,6 @@ export class RoomService {
       reconnectAttempts++;
       
       setTimeout(() => {
-        console.log(`🔄 Tentando reconectar subscription da sala ${roomId} (${reconnectAttempts}/${maxReconnectAttempts})`);
         
         // Remover subscription anterior se existir
         if (channel) {
@@ -338,7 +320,6 @@ export class RoomService {
   // Cancelar inscrição
   static unsubscribeFromRoom(subscription) {
     if (subscription) {
-      console.log('Removendo subscription');
       return supabase.removeChannel(subscription);
     }
   }
@@ -348,7 +329,6 @@ export class RoomService {
     if (!subscription) return false;
     
     if (subscription.isActive && !subscription.isActive()) {
-      console.log('🔄 Subscription inativa detectada, tentando reconectar...');
       if (subscription.reconnect) {
         subscription.reconnect();
         return true;
@@ -374,8 +354,7 @@ export class RoomService {
         return { connected: false, error: error.message, latency: null };
       }
       
-      console.log(`✅ Teste de conexão bem-sucedido (${latency}ms)`);
-      return { connected: true, error: null, latency };
+  return { connected: true, error: null, latency };
     } catch (error) {
       console.error('❌ Erro no teste de conexão:', error);
       return { connected: false, error: error.message, latency: null };
@@ -385,7 +364,6 @@ export class RoomService {
   // Atualizar contadores do jogador
   static async updatePlayerCounters(playerId, counters) {
     try {
-      console.log('Atualizando contadores do jogador:', playerId, counters);
       
       const { data, error } = await supabase
         .from('players')
@@ -396,7 +374,6 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('Contadores atualizados com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar contadores:', error);
@@ -407,7 +384,6 @@ export class RoomService {
   // Atualizar características do jogador
   static async updatePlayerCharacteristics(playerId, characteristics) {
     try {
-      console.log('Atualizando características do jogador:', playerId, characteristics);
       
       const { data, error } = await supabase
         .from('players')
@@ -418,7 +394,6 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('Características atualizadas com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar características:', error);
@@ -429,7 +404,6 @@ export class RoomService {
   // Atualizar itens usados do jogador
   static async updatePlayerUsedItems(playerId, usedItems) {
     try {
-      console.log('Atualizando itens usados do jogador:', playerId, usedItems);
       
       const { data, error } = await supabase
         .from('players')
@@ -440,7 +414,6 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('Itens usados atualizados com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar itens usados:', error);
@@ -451,7 +424,6 @@ export class RoomService {
   // Atualizar itens desbloqueados do jogador
   static async updatePlayerUnlockedItems(playerId, unlockedItems) {
     try {
-      console.log('Atualizando itens desbloqueados do jogador:', playerId, unlockedItems);
       
       const { data, error } = await supabase
         .from('players')
@@ -462,7 +434,6 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('Itens desbloqueados atualizados com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar itens desbloqueados:', error);
@@ -473,7 +444,6 @@ export class RoomService {
   // Atualizar contadores adicionais do jogador
   static async updatePlayerAdditionalCounters(playerId, additionalCounters) {
     try {
-      console.log('Atualizando contadores adicionais do jogador:', playerId, additionalCounters);
       
       const { data, error } = await supabase
         .from('players')
@@ -484,7 +454,6 @@ export class RoomService {
 
       if (error) throw error;
       
-      console.log('Contadores adicionais atualizados com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar contadores adicionais:', error);
@@ -494,8 +463,7 @@ export class RoomService {
 
   static async updatePlayerSelections(playerId, selections) {
     try {
-      console.log('🎮 Atualizando seleções do jogador:', playerId, selections);
-      
+
       const { data, error } = await supabase
         .from('players')
         .update({ selections: selections })
@@ -507,8 +475,6 @@ export class RoomService {
         console.error('❌ Erro SQL ao atualizar seleções:', error);
         throw error;
       }
-      
-      console.log('✅ Seleções atualizadas com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro geral ao atualizar seleções:', error);
@@ -519,23 +485,18 @@ export class RoomService {
   // Função para executar limpeza de dados antigos
   static async cleanupOldData() {
     try {
-      console.log('🧹 Executando limpeza de dados antigos...');
-      
+
       // Executar limpeza de jogadores inativos
       const { error: playersError } = await supabase.rpc('cleanup_inactive_players');
       if (playersError) {
         console.error('Erro na limpeza de jogadores:', playersError);
-      } else {
-        console.log('✅ Limpeza de jogadores concluída');
       }
       
       // Executar limpeza de salas inativas
       const { error: roomsError } = await supabase.rpc('cleanup_inactive_rooms');
       if (roomsError) {
         console.error('Erro na limpeza de salas:', roomsError);
-      } else {
-        console.log('✅ Limpeza de salas concluída');
-      }
+      } 
       
       return { success: true };
     } catch (error) {
@@ -565,7 +526,6 @@ export class RoomService {
   // Verificar se jogador já existe na sala
   static async findExistingPlayer(roomId, playerName) {
     try {
-      console.log('🔍 Verificando jogador existente:', playerName, 'na sala:', roomId);
       
       const { data, error } = await supabase
         .from('players')
@@ -581,9 +541,7 @@ export class RoomService {
       }
 
       if (data) {
-        console.log('✅ Jogador existente encontrado:', data.id);
       } else {
-        console.log('🆕 Nenhum jogador existente encontrado');
       }
 
       return { success: true, player: data };
@@ -596,7 +554,6 @@ export class RoomService {
   // Reconectar jogador existente
   static async reconnectPlayer(playerId) {
     try {
-      console.log('🔄 Reconectando jogador:', playerId);
       
       const { data, error } = await supabase
         .from('players')
@@ -610,8 +567,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('✅ Jogador reconectado com sucesso (cartas expostas limpas):', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao reconectar jogador:', error);
@@ -622,7 +577,6 @@ export class RoomService {
   // Atualizar estado da aplicação de um jogador
   static async updatePlayerAppState(playerId, appState) {
     try {
-      console.log('💾 Atualizando app_state no banco:', { playerId, appState });
       
       const { data, error } = await supabase
         .from('players')
@@ -635,8 +589,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('✅ App state atualizado no banco com sucesso');
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao atualizar app state:', error);
@@ -647,7 +599,6 @@ export class RoomService {
   // Atualizar dados de defesa do jogador
   static async updatePlayerDefenseDice(playerId, defenseDiceCount) {
     try {
-      console.log('Atualizando dados de defesa do jogador:', playerId, defenseDiceCount);
       
       const { data, error } = await supabase
         .from('players')
@@ -657,8 +608,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('Dados de defesa atualizados com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar dados de defesa:', error);
@@ -669,7 +618,6 @@ export class RoomService {
   // Expulsar jogador da sala (apenas para o mestre da sala)
   static async kickPlayer(roomId, playerId, masterPlayerId) {
     try {
-      console.log('🚫 Tentativa de expulsar jogador:', { roomId, playerId, masterPlayerId });
       
       // Verificar se quem está expulsando é realmente o mestre da sala
       const { data: room, error: roomError } = await supabase
@@ -698,7 +646,6 @@ export class RoomService {
 
       if (deleteError) throw deleteError;
       
-      console.log('✅ Jogador expulso com sucesso');
       return { success: true };
     } catch (error) {
       console.error('❌ Erro ao expulsar jogador:', error);
@@ -709,7 +656,6 @@ export class RoomService {
   // Atualizar cartas expostas do jogador
   static async updatePlayerExposedCards(playerId, exposedCards) {
     try {
-      console.log('🃏 Atualizando cartas expostas do jogador:', playerId, exposedCards);
       
       const { data, error } = await supabase
         .from('players')
@@ -719,8 +665,6 @@ export class RoomService {
         .single();
 
       if (error) throw error;
-      
-      console.log('✅ Cartas expostas atualizadas com sucesso:', data);
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao atualizar cartas expostas:', error);
