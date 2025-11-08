@@ -1,6 +1,6 @@
-# Matar ou Morrer (React)
+# Kill or Die (React)
 
-Este projeto é a versão React JS do jogo "Matar ou Morrer", originalmente desenvolvido em HTML/JavaScript vanilla.
+Este projeto é a versão React JS do jogo "Kill or Die", originalmente desenvolvido em HTML/JavaScript vanilla.
 
 ---
 

@@ -42,7 +42,7 @@ function AdminApp() {
         <div className="col-12 text-center mb-4">
           <img 
             src="KillOrDieLogo.png"
-            alt="Matar ou Morrer" 
+            alt="Kill or Die" 
             className="img-fluid rounded mx-auto d-block my-3"
             style={{maxHeight: '200px'}} 
           />

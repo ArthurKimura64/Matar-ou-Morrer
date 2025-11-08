@@ -454,11 +454,11 @@ function App() {
             <div className="col-12 text-center">
               <img 
                 src="KillOrDieLogo.png"
-                alt="Matar ou Morrer" 
+                alt="Kill or Die" 
                 className="img-fluid rounded mx-auto d-block my-3"
                 style={{maxHeight: '300px'}} 
               />
-              <h1 className="text-white">Matar ou Morrer</h1>
+              <h1 className="text-white">Kill or Die</h1>
               <h4 className="text-light mb-4">Escolha como jogar!</h4>
             </div>
           </div>
@@ -533,11 +533,11 @@ function App() {
             <div className="col-12 text-center">
               <img 
                 src="KillOrDieLogo.png"
-                alt="Matar ou Morrer" 
+                alt="Kill or Die" 
                 className="img-fluid rounded mx-auto d-block my-3"
                 style={{maxHeight: '300px'}} 
               />
-              <h1 className="text-white">Matar ou Morrer</h1>
+              <h1 className="text-white">Kill or Die</h1>
               <h4 className="text-light mb-4">Escolha seu personagem!</h4>
               <button 
                 className="btn btn-outline-light btn-sm mb-3"
@@ -584,7 +584,7 @@ function App() {
             <div className="col-12 text-center mb-4">
               <img 
                 src="KillOrDieLogo.png"
-                alt="Matar ou Morrer" 
+                alt="Kill or Die" 
                 className="img-fluid rounded mx-auto d-block my-3"
                 style={{maxHeight: '200px'}} 
               />
