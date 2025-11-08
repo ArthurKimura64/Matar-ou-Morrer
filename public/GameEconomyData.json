@@ -125,7 +125,8 @@
         "Passive.Atomico1",
         "Passive.Atomico2",
         "Passive.Atomico3",
-        "Passive.Atomico4"
+        "Passive.Atomico4",
+        "Passive.Atomico5"
       ],
       "PowersData": [],
       "DevicesData": [],
@@ -2435,6 +2436,10 @@
     {
       "ID": "Passive.Atomico4",
       "Description": "Passive.Atomico4.Description"
+    },
+    {
+      "ID": "Passive.Atomico5",
+      "Description": "Passive.Atomico5.Description"
     },
     {
       "ID": "Passive.Caos1",
@@ -4994,7 +4999,7 @@
       "MinimumDistance": "0",
       "MaximumDistance": 1,
       "LoadTime": 1,
-      "Dices": 6,
+      "Dices": 4,
       "Ambient": [
         "Earth"
       ],
@@ -5003,7 +5008,7 @@
     {
       "ID": "Weapon.Caos3",
       "Damage": 1,
-      "MinimumDistance": 4,
+      "MinimumDistance": 3,
       "MaximumDistance": 20,
       "LoadTime": "0",
       "Dices": 6,
