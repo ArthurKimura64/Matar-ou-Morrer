@@ -128,6 +128,7 @@
   "UI.Room.CreateYourCharacter": "Criar Seu Personagem",
   "UI.CharacterBuilder.CreateCharacter": "Criar Personagem",
   "UI.CharacterSheet.AdditionalCounters": "Contadores Especiais",
+  "UI.Room.KickedYou": "Você foi expulso da sala pelo anfitrião.",
   "Character.Name.Impact": "Impacto",
   "Character.Title.Impact": "Movimentação",
   "Character.Description.Impact": "Pode alternar de ataque a qualquer momento do combate.",
