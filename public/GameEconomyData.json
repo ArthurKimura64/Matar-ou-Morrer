@@ -6022,7 +6022,7 @@
     {
       "ID": "Device.SextoSentido6",
       "TriggerType": [
-        "AfterAttack"
+        "BeforeAttack"
       ],
       "Description": "Device.SextoSentido6.Description"
     },
