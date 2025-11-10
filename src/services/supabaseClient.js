@@ -5,17 +5,21 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'your_supabase_url';
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'your_supabase_anon_key';
 
-// Configurar Supabase com reconexão automática
+// Configurar Supabase com reconexão automática e otimizações
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   realtime: {
     params: {
       eventsPerSecond: 10,
     },
-    heartbeatIntervalMs: 30000, // Heartbeat a cada 30 segundos
-    reconnectAfterMs: (tries) => Math.min(tries * 1000, 30000), // Reconexão progressiva
+    heartbeatIntervalMs: 60000, // Heartbeat a cada 60 segundos (reduzido overhead)
+    reconnectAfterMs: (tries) => Math.min(tries * 1500, 30000), // Reconexão progressiva mais suave
   },
   auth: {
     persistSession: false
+  },
+  // Adicionar configurações de pool para melhor performance
+  db: {
+    schema: 'public'
   }
 });
 
@@ -33,7 +37,7 @@ class ConnectionMonitor {
   }
 
   startHeartbeat() {
-    // Heartbeat a cada 30 segundos para manter a conexão ativa
+    // Heartbeat a cada 60 segundos para manter a conexão ativa (reduzido overhead)
     this.heartbeatInterval = setInterval(async () => {
       try {
         const { error } = await supabase
@@ -56,7 +60,7 @@ class ConnectionMonitor {
         }
         this.attemptReconnect();
       }
-    }, 30000);
+    }, 60000); // Aumentado para 60 segundos
   }
 
   setupConnectionListeners() {

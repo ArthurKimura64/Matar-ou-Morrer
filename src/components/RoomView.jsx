@@ -77,12 +77,27 @@ const RoomView = ({
 
   useEffect(() => {
     let isMounted = true;
+    let lastUpdateTime = Date.now();
     
-    const loadPlayersData = async () => {
+    const loadPlayersData = async (forceRefresh = false) => {
       try {
+        // Se forceRefresh, aguardar um pouco para garantir que o banco atualizou
+        if (forceRefresh) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
         const result = await RoomService.getRoomPlayers(room.id);
         if (result.success && isMounted) {
+          console.log('🔄 Jogadores atualizados:', result.players.length);
           setPlayers(result.players);
+          lastUpdateTime = Date.now();
+
+          // Se o jogador atual não estiver mais na lista, foi expulso
+          // Sair imediatamente da sala sem mostrar alert
+          if (currentPlayer && !result.players.find(p => p.id === currentPlayer.id)) {
+            console.log('🚪 Jogador expulso da sala, saindo automaticamente...');
+            if (onLeaveRoom) onLeaveRoom();
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar jogadores:', error);
@@ -97,36 +112,47 @@ const RoomView = ({
     
     // Configurar subscription para mudanças em tempo real com monitoramento
     const handlePlayersChange = (payload) => {
-      // Recarregar dados sempre que houver mudança
-      loadPlayersData();
+      console.log('📡 Mudança detectada, atualizando jogadores...', payload.eventType);
+      
+      // Evitar múltiplas atualizações muito próximas (debounce de 200ms)
+      const timeSinceLastUpdate = Date.now() - lastUpdateTime;
+      if (timeSinceLastUpdate < 200) {
+        console.log('⏱️ Aguardando para evitar múltiplas atualizações...');
+        setTimeout(() => loadPlayersData(true), 200);
+      } else {
+        // Recarregar dados imediatamente com flag de forceRefresh
+        loadPlayersData(true);
+      }
     };
 
     const sub = RoomService.subscribeToRoom(room.id, handlePlayersChange);
     setSubscription(sub);
 
-    // Verificar periodicamente se a subscription está ativa
+    // Verificar periodicamente se a subscription está ativa (a cada 30 segundos)
     const connectionCheckInterval = setInterval(() => {
       if (sub && !RoomService.checkAndReconnectSubscription(sub)) {
-        // Se a subscription está inativa, tentar recarregar dados manualmente
-        loadPlayersData();
+        console.log('⚠️ Subscription inativa, recarregando dados...');
+        loadPlayersData(true);
       }
-    }, 60000); // Verificar a cada minuto
+    }, 30000); // 30 segundos
 
-    // Limpeza automática de dados antigos a cada 10 minutos
+    // Limpeza automática de dados antigos a cada 15 minutos (reduzido frequência)
     const cleanupInterval = setInterval(async () => {
       try {
         const result = await RoomService.cleanupOldData();
         if (result.success) {
+          // Silencioso
         }
       } catch (error) {
         console.error('❌ Erro na limpeza automática:', error);
       }
-    }, 10 * 60 * 1000); // 10 minutos
+    }, 15 * 60 * 1000); // Aumentado para 15 minutos
 
     // Listener para quando a página fica visível novamente
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        loadPlayersData();
+        console.log('👁️ Página visível novamente, atualizando...');
+        loadPlayersData(true);
         
         // Verificar se a subscription precisa ser reconectada
         if (sub) {
@@ -147,7 +173,7 @@ const RoomView = ({
       clearInterval(cleanupInterval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [room.id]);
+  }, [room.id, currentPlayer, onLeaveRoom]);
 
   const handleCharacterSelect = async (actor) => {
     setSelectedActor(actor);

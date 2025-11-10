@@ -1,9 +1,28 @@
+// Cache para localização e formatação
+const localizationCache = new Map();
+const descriptionCache = new Map();
+
 // Utilitários globais
 export const Utils = {
-  // Resolve a value through localization if it's a string key
+  // Resolve a value through localization if it's a string key (com cache)
   resolveLocalizedValue: (value, localization) => {
     if (typeof value === 'string') {
-      return localization[value] || value;
+      const cacheKey = `${value}_${JSON.stringify(localization).substring(0, 50)}`;
+      
+      if (localizationCache.has(cacheKey)) {
+        return localizationCache.get(cacheKey);
+      }
+      
+      const result = localization[value] || value;
+      localizationCache.set(cacheKey, result);
+      
+      // Limitar tamanho do cache
+      if (localizationCache.size > 500) {
+        const firstKey = localizationCache.keys().next().value;
+        localizationCache.delete(firstKey);
+      }
+      
+      return result;
     }
     return value;
   },
@@ -13,16 +32,34 @@ export const Utils = {
     .trim(),
 
   createAttackDescription: (def, localization, mode = 'mode1') => {
+    // Criar chave de cache única
+    const cacheKey = `attack_${def.ID}_${mode}`;
+    
+    if (descriptionCache.has(cacheKey)) {
+      return descriptionCache.get(cacheKey);
+    }
+    
     const modeData = Utils.modeSystem.getActiveMode(def, mode);
   const minDist = Utils.resolveLocalizedValue(modeData.MinimumDistance, localization);
   const maxDist = Utils.resolveLocalizedValue(modeData.MaximumDistance, localization);
-  return `
+  const result = `
   <b>${localization['AttackBase.Damage'] || 'AttackBase.Damage'}:</b> ${modeData.Damage}
   <br><b>${localization['AttackBase.Distance'] || 'AttackBase.Distance'}:</b> ${minDist === maxDist ? minDist : `${minDist} - ${maxDist}`}
     <br><b>${localization['AttackBase.Dices'] || 'AttackBase.Dices'}:</b> ${modeData.Dices}
     <br><b>${localization['AttackBase.LoadTime'] || 'AttackBase.LoadTime'}:</b> ${modeData.LoadTime || 0}
     <br><b>${localization['AttackBase.Terrain'] || 'AttackBase.Terrain'}:</b> ${(modeData.Ambient || []).map(a => localization[`Ambient.${a}`] || a).join(" / ") || 'Utils.NotAvailable'}
     ${def.SpecialDescription ? `<br>${localization[def.SpecialDescription] || def.SpecialDescription}` : ""}`;
+  
+  // Armazenar no cache
+  descriptionCache.set(cacheKey, result);
+  
+  // Limitar tamanho do cache
+  if (descriptionCache.size > 200) {
+    const firstKey = descriptionCache.keys().next().value;
+    descriptionCache.delete(firstKey);
+  }
+  
+  return result;
   },
 
   createDualModeDescription: (def, localization, actor) => {

@@ -1,13 +1,27 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import CharacterSelection from './components/CharacterSelection';
-import CharacterBuilder from './components/CharacterBuilder';
-import CharacterSheet from './components/CharacterSheet';
-import RoomLobby from './components/RoomLobby';
-import RoomView from './components/RoomView';
-import AdminPanel from './components/AdminPanel';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { RoomService } from './services/roomService';
 import { PlayerPersistence } from './utils/playerPersistence';
 import './App.css';
+
+// Lazy loading para componentes grandes
+const CharacterSelection = lazy(() => import('./components/CharacterSelection'));
+const CharacterBuilder = lazy(() => import('./components/CharacterBuilder'));
+const CharacterSheet = lazy(() => import('./components/CharacterSheet'));
+const RoomLobby = lazy(() => import('./components/RoomLobby'));
+const RoomView = lazy(() => import('./components/RoomView'));
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
+
+// Componente de loading reutilizável
+const LoadingFallback = () => (
+  <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
+    <div className="text-center">
+      <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Carregando...</span>
+      </div>
+      <p className="mt-2 text-light">Carregando componente...</p>
+    </div>
+  </div>
+);
 
 function App() {
   const [gameData, setGameData] = useState(null);
@@ -51,8 +65,6 @@ function App() {
         console.error('❌ Erro ao salvar no banco, salvando apenas no localStorage');
         PlayerPersistence.saveAppState(completeState);
       }
-    } else {
-      console.log('⚠️ Não salvando estado - falta room ou player');
     }
   }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer]);
 
@@ -77,26 +89,16 @@ function App() {
     }
   }, [currentView, selectedActor, characterSelections, currentRoom, currentPlayer]);
 
-  // Função para tentar reconectar jogador salvo
+  // Memoizar função de reconexão para evitar recriação
   const handleReconnectPlayer = useCallback(async (savedData, savedAppState, loadedGameData = null) => {
     try {
       setLoading(true);
       setIsRestoringState(true);
       console.log('🔄 INICIANDO RECONEXÃO:', savedData.player.name, 'na sala:', savedData.room.id);
       
-      // Verificar se a sala ainda existe e está ativa
-      const roomsResult = await RoomService.getActiveRooms();
-      if (!roomsResult.success) {
-        console.error('❌ Erro ao verificar salas:', roomsResult.error);
-        // NÃO limpar dados ainda - pode ser erro temporário de rede
-        alert('Erro ao verificar salas. Verifique sua conexão e recarregue a página.');
-        setLoading(false);
-        setIsRestoringState(false);
-        return;
-      }
-      
-      const room = roomsResult.rooms.find(r => r.id === savedData.room.id);
-      if (!room) {
+      // Buscar dados completos da sala diretamente
+      const roomResult = await RoomService.getRoomById(savedData.room.id);
+      if (!roomResult.success || !roomResult.room) {
         console.log('⚠️ Sala não encontrada ou fechada');
         // Limpar dados apenas se sala realmente não existe mais
         PlayerPersistence.clearPlayerData();
@@ -112,8 +114,8 @@ function App() {
       if (reconnectResult.success) {
         console.log('✅ JOGADOR RECONECTADO, dados do banco:', reconnectResult.player);
         
-        // Definir sala e jogador primeiro
-        setCurrentRoom(room);
+        // Definir sala e jogador primeiro (usando dados atualizados)
+        setCurrentRoom(roomResult.room);
         setCurrentPlayer(reconnectResult.player);
         
         // PRIORIDADE: Estado do banco (app_state) > character > localStorage
@@ -226,13 +228,18 @@ function App() {
   // useEffect para salvar estado sempre que mudanças importantes acontecerem
   useEffect(() => {
     if (!isRestoringState) {
-      if (currentRoom && currentPlayer) {
-        // Modo multiplayer - salvar no banco
-        saveCompleteState();
-      } else {
-        // Modo solo - salvar apenas no localStorage
-        saveSoloState();
-      }
+      // Debounce para evitar múltiplos saves em sequência rápida
+      const timeoutId = setTimeout(() => {
+        if (currentRoom && currentPlayer) {
+          // Modo multiplayer - salvar no banco
+          saveCompleteState();
+        } else {
+          // Modo solo - salvar apenas no localStorage
+          saveSoloState();
+        }
+      }, 300); // 300ms de debounce
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer, isRestoringState, saveCompleteState, saveSoloState]);
 
@@ -346,6 +353,17 @@ function App() {
       // Criar jogador para o mestre
       const playerResult = await RoomService.joinRoom(result.room.id, masterName);
       if (playerResult.success) {
+        // Armazenar o relacionamento room.master_player_id para controle de permissões (kick)
+        try {
+          const setMaster = await RoomService.setRoomMasterPlayerId(result.room.id, playerResult.player.id);
+          if (setMaster.success && setMaster.room) {
+            // atualizar o objeto de sala local com o master_player_id
+            result.room.master_player_id = playerResult.player.id;
+          }
+        } catch (e) {
+          console.warn('Não foi possível definir master_player_id no banco:', e);
+        }
+
         setCurrentRoom(result.room);
         setCurrentPlayer(playerResult.player);
         setCurrentView('room');
@@ -366,22 +384,19 @@ function App() {
     const result = await RoomService.joinRoom(roomId, playerName, null, true);
     
     if (result.success) {
-      // Buscar dados da sala
-      const roomsResult = await RoomService.getActiveRooms();
-      if (roomsResult.success) {
-        const room = roomsResult.rooms.find(r => r.id === roomId);
-        if (room) {
-          setCurrentRoom(room);
-          setCurrentPlayer(result.player);
-          setCurrentView('room');
-          setRoomInternalView('lobby'); // Inicializar view interna
-          
-          // Salvar dados para persistência
-          PlayerPersistence.savePlayerData(result.player, room);
-          setTimeout(saveCompleteState, 100);
-        } else {
-          alert('Sala não encontrada ou inativa');
-        }
+      // Buscar dados completos da sala usando getRoomById
+      const roomResult = await RoomService.getRoomById(roomId);
+      if (roomResult.success && roomResult.room) {
+        setCurrentRoom(roomResult.room);
+        setCurrentPlayer(result.player);
+        setCurrentView('room');
+        setRoomInternalView('lobby'); // Inicializar view interna
+        
+        // Salvar dados para persistência
+        PlayerPersistence.savePlayerData(result.player, roomResult.room);
+        setTimeout(saveCompleteState, 100);
+      } else {
+        alert('Sala não encontrada ou inativa');
       }
     } else {
       alert('Erro ao entrar na sala: ' + result.error);
@@ -485,45 +500,49 @@ function App() {
 
       {/* Lobby de Salas */}
       {currentView === 'lobby' && (
-        <RoomLobby
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-          onBack={() => setCurrentView('menu')}
-          localization={localization}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <RoomLobby
+            onCreateRoom={handleCreateRoom}
+            onJoinRoom={handleJoinRoom}
+            onBack={() => setCurrentView('menu')}
+            localization={localization}
+          />
+        </Suspense>
       )}
 
       {/* Sala Multiplayer */}
       {currentView === 'room' && currentRoom && currentPlayer && (
-        <RoomView
-          room={currentRoom}
-          currentPlayer={currentPlayer}
-          gameData={gameData}
-          localization={localization}
-          onLeaveRoom={handleLeaveRoom}
-          // Passar estados do App para o RoomView
-          initialView={roomInternalView}
-          initialSelectedActor={selectedActor}
-          initialCharacterSelections={characterSelections}
-          onViewChange={(view) => {
-            console.log('🔄 View mudou no RoomView:', view);
-            setRoomInternalView(view);
-            // Salvar estado completo quando view muda
-            setTimeout(saveCompleteState, 100);
-          }}
-          onActorChange={(actor) => {
-            console.log('🔄 Actor mudou no RoomView:', actor?.name);
-            setSelectedActor(actor);
-            // Salvar estado completo quando actor muda
-            setTimeout(saveCompleteState, 100);
-          }}
-          onSelectionsChange={(selections) => {
-            console.log('🔄 Selections mudaram no RoomView');
-            setCharacterSelections(selections);
-            // Salvar estado completo quando selections mudam
-            setTimeout(saveCompleteState, 100);
-          }}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <RoomView
+            room={currentRoom}
+            currentPlayer={currentPlayer}
+            gameData={gameData}
+            localization={localization}
+            onLeaveRoom={handleLeaveRoom}
+            // Passar estados do App para o RoomView
+            initialView={roomInternalView}
+            initialSelectedActor={selectedActor}
+            initialCharacterSelections={characterSelections}
+            onViewChange={(view) => {
+              console.log('🔄 View mudou no RoomView:', view);
+              setRoomInternalView(view);
+              // Salvar estado completo quando view muda
+              setTimeout(saveCompleteState, 100);
+            }}
+            onActorChange={(actor) => {
+              console.log('🔄 Actor mudou no RoomView:', actor?.name);
+              setSelectedActor(actor);
+              // Salvar estado completo quando actor muda
+              setTimeout(saveCompleteState, 100);
+            }}
+            onSelectionsChange={(selections) => {
+              console.log('🔄 Selections mudaram no RoomView');
+              setCharacterSelections(selections);
+              // Salvar estado completo quando selections mudam
+              setTimeout(saveCompleteState, 100);
+            }}
+          />
+        </Suspense>
       )}
 
       {/* Modo Solo - Seleção de Personagem */}
@@ -547,34 +566,40 @@ function App() {
               </button>
             </div>
           </div>
-          <CharacterSelection 
-            gameData={gameData}
-            localization={localization}
-            onCharacterSelect={handleCharacterSelect}
-          />
+          <Suspense fallback={<LoadingFallback />}>
+            <CharacterSelection 
+              gameData={gameData}
+              localization={localization}
+              onCharacterSelect={handleCharacterSelect}
+            />
+          </Suspense>
         </>
       )}
 
       {/* Construtor de Personagem */}
       {currentView === 'builder' && (
-        <CharacterBuilder
-          actor={selectedActor}
-          gameData={gameData}
-          localization={localization}
-          onCharacterCreate={handleCharacterCreate}
-          onBack={handleBackToSelection}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <CharacterBuilder
+            actor={selectedActor}
+            gameData={gameData}
+            localization={localization}
+            onCharacterCreate={handleCharacterCreate}
+            onBack={handleBackToSelection}
+          />
+        </Suspense>
       )}
 
       {/* Ficha do Personagem */}
       {currentView === 'sheet' && (
-        <CharacterSheet
-          actor={selectedActor}
-          selections={characterSelections}
-          gameData={gameData}
-          localization={localization}
-          onReset={handleReset}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <CharacterSheet
+            actor={selectedActor}
+            selections={characterSelections}
+            gameData={gameData}
+            localization={localization}
+            onReset={handleReset}
+          />
+        </Suspense>
       )}
 
       {/* Painel de Administração Escondido */}
@@ -595,7 +620,9 @@ function App() {
           
           <div className="row">
             <div className="col-12">
-              <AdminPanel />
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminPanel />
+              </Suspense>
             </div>
           </div>
           

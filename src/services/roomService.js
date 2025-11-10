@@ -1,6 +1,48 @@
 import { supabase } from './supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 
+// Sistema de cache simples para reduzir queries repetidas
+class QueryCache {
+  constructor(ttl = 5000) { // TTL padrão de 5 segundos
+    this.cache = new Map();
+    this.ttl = ttl;
+  }
+
+  get(key) {
+    const cached = this.cache.get(key);
+    if (!cached) return null;
+    
+    if (Date.now() - cached.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return cached.data;
+  }
+
+  set(key, data) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+
+  clear(prefix) {
+    if (prefix) {
+      for (const key of this.cache.keys()) {
+        if (key.startsWith(prefix)) {
+          this.cache.delete(key);
+        }
+      }
+    } else {
+      this.cache.clear();
+    }
+  }
+}
+
+// Cache com TTL de apenas 1 segundo para não bloquear atualizações em tempo real
+const queryCache = new QueryCache(1000);
+
 export class RoomService {
   // Gerar ID de sala com 6 dígitos
   static generateRoomId() {
@@ -63,6 +105,42 @@ export class RoomService {
       return { success: true, room: data };
     } catch (error) {
       console.error('Erro ao criar sala:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Definir o player mestre da sala (armazenar master_player_id)
+  static async setRoomMasterPlayerId(roomId, masterPlayerId) {
+    try {
+      const { data, error } = await supabase
+        .from('rooms')
+        .update({ master_player_id: masterPlayerId })
+        .eq('id', roomId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, room: data };
+    } catch (error) {
+      console.error('Erro ao definir master_player_id na sala:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Obter dados de uma sala específica
+  static async getRoomById(roomId) {
+    try {
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('id', roomId)
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+      return { success: true, room: data };
+    } catch (error) {
+      console.error('Erro ao buscar sala:', error);
       return { success: false, error: error.message };
     }
   }
@@ -131,10 +209,18 @@ export class RoomService {
     }
   }
 
-  // Obter jogadores de uma sala
+  // Obter jogadores de uma sala com cache (cache invalidado por subscriptions)
   static async getRoomPlayers(roomId) {
     try {
+      // Tentar obter do cache primeiro
+      const cacheKey = `players_${roomId}`;
+      const cached = queryCache.get(cacheKey);
+      if (cached) {
+        console.log('🎯 Usando cache para jogadores');
+        return { success: true, players: cached };
+      }
       
+      console.log('🔄 Buscando jogadores do banco');
       const { data, error } = await supabase
         .from('players')
         .select('*')
@@ -143,6 +229,10 @@ export class RoomService {
         .order('joined_at', { ascending: true });
 
       if (error) throw error;
+      
+      // Armazenar no cache por apenas 1 segundo (para evitar múltiplas queries simultâneas)
+      queryCache.set(cacheKey, data);
+      
       return { success: true, players: data };
     } catch (error) {
       console.error('Erro ao buscar jogadores:', error);
@@ -150,11 +240,9 @@ export class RoomService {
     }
   }
 
-  // Atualizar status do jogador
+  // Atualizar status do jogador e limpar cache
   static async updatePlayerStatus(playerId, status, characterName = null) {
     try {
-      
-      
       const updateData = { status };
       if (characterName) {
         updateData.character_name = characterName;
@@ -173,6 +261,12 @@ export class RoomService {
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado ao jogador
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
+      
       return { success: true, player: data };
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
@@ -245,7 +339,7 @@ export class RoomService {
   static subscribeToRoom(roomId, onPlayersChange) {
     const channelName = `room-players-${roomId}`;
     
-    
+    console.log('🔔 Criando subscription para sala:', roomId);
     
     let channel = null;
     let isSubscribed = false;
@@ -253,34 +347,47 @@ export class RoomService {
     const maxReconnectAttempts = 5;
 
     const createSubscription = () => {
-      
+      console.log('🔄 Criando nova subscription');
       
       channel = supabase
-        .channel(channelName)
+        .channel(channelName, {
+          config: {
+            broadcast: { self: true }, // Receber próprias atualizações também
+            presence: { key: '' }
+          }
+        })
         .on(
           'postgres_changes',
           {
-            event: '*',
+            event: '*', // Capturar INSERT, UPDATE, DELETE
             schema: 'public',
             table: 'players',
             filter: `room_id=eq.${roomId}`
           },
           (payload) => {
+            console.log('📡 Mudança detectada na sala:', payload.eventType, payload);
+            
+            // Limpar cache imediatamente quando houver mudança
+            queryCache.clear(`players_${roomId}`);
+            
+            // Notificar componente
             onPlayersChange(payload);
           }
         )
-        .subscribe((status) => {
-          
+        .subscribe((status, err) => {
+          console.log('📡 Status da subscription:', status, err);
           
           if (status === 'SUBSCRIBED') {
             isSubscribed = true;
             reconnectAttempts = 0;
+            console.log('✅ Subscription ativa para sala', roomId);
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
             isSubscribed = false;
             console.warn(`⚠️ Erro na subscription da sala ${roomId}:`, status);
             attemptReconnect();
           } else if (status === 'CLOSED') {
             isSubscribed = false;
+            console.log('🔒 Subscription fechada para sala', roomId);
           }
         });
 
@@ -294,9 +401,9 @@ export class RoomService {
       }
 
       reconnectAttempts++;
+      console.log(`🔄 Tentativa de reconexão ${reconnectAttempts}/${maxReconnectAttempts}`);
       
       setTimeout(() => {
-        
         // Remover subscription anterior se existir
         if (channel) {
           supabase.removeChannel(channel);
@@ -304,7 +411,7 @@ export class RoomService {
         
         // Criar nova subscription
         createSubscription();
-      }, Math.min(reconnectAttempts * 2000, 10000)); // Delay progressivo até 10s
+      }, Math.min(reconnectAttempts * 1000, 5000)); // Delay progressivo até 5s (mais rápido)
     };
 
     // Criar subscription inicial
@@ -364,15 +471,22 @@ export class RoomService {
   // Atualizar contadores do jogador
   static async updatePlayerCounters(playerId, counters) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
-        .update({ counters })
+        .update({ 
+          counters,
+          last_activity: new Date().toISOString() // Atualizar timestamp
+        })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
       
       return { success: true, player: data };
     } catch (error) {
@@ -384,15 +498,22 @@ export class RoomService {
   // Atualizar características do jogador
   static async updatePlayerCharacteristics(playerId, characteristics) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
-        .update({ characteristics })
+        .update({ 
+          characteristics,
+          last_activity: new Date().toISOString()
+        })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
       
       return { success: true, player: data };
     } catch (error) {
@@ -404,15 +525,22 @@ export class RoomService {
   // Atualizar itens usados do jogador
   static async updatePlayerUsedItems(playerId, usedItems) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
-        .update({ used_items: usedItems })
+        .update({ 
+          used_items: usedItems,
+          last_activity: new Date().toISOString()
+        })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
       
       return { success: true, player: data };
     } catch (error) {
@@ -424,15 +552,22 @@ export class RoomService {
   // Atualizar itens desbloqueados do jogador
   static async updatePlayerUnlockedItems(playerId, unlockedItems) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
-        .update({ unlocked_items: unlockedItems })
+        .update({ 
+          unlocked_items: unlockedItems,
+          last_activity: new Date().toISOString()
+        })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
       
       return { success: true, player: data };
     } catch (error) {
@@ -444,15 +579,22 @@ export class RoomService {
   // Atualizar contadores adicionais do jogador
   static async updatePlayerAdditionalCounters(playerId, additionalCounters) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
-        .update({ additional_counters: additionalCounters })
+        .update({ 
+          additional_counters: additionalCounters,
+          last_activity: new Date().toISOString()
+        })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
       
       return { success: true, player: data };
     } catch (error) {
@@ -463,10 +605,12 @@ export class RoomService {
 
   static async updatePlayerSelections(playerId, selections) {
     try {
-
       const { data, error } = await supabase
         .from('players')
-        .update({ selections: selections })
+        .update({ 
+          selections: selections,
+          last_activity: new Date().toISOString()
+        })
         .eq('id', playerId)
         .select()
         .single();
@@ -475,6 +619,12 @@ export class RoomService {
         console.error('❌ Erro SQL ao atualizar seleções:', error);
         throw error;
       }
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
+      
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro geral ao atualizar seleções:', error);
@@ -577,18 +727,24 @@ export class RoomService {
   // Atualizar estado da aplicação de um jogador
   static async updatePlayerAppState(playerId, appState) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
         .update({ 
           app_state: appState,
-          last_seen: new Date().toISOString()
+          last_seen: new Date().toISOString(),
+          last_activity: new Date().toISOString()
         })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
+      
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao atualizar app state:', error);
@@ -656,15 +812,23 @@ export class RoomService {
   // Atualizar cartas expostas do jogador
   static async updatePlayerExposedCards(playerId, exposedCards) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
-        .update({ exposed_cards: exposedCards })
+        .update({ 
+          exposed_cards: exposedCards,
+          last_activity: new Date().toISOString()
+        })
         .eq('id', playerId)
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Limpar cache relacionado
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
+      
       return { success: true, player: data };
     } catch (error) {
       console.error('❌ Erro ao atualizar cartas expostas:', error);

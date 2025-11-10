@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.rooms (
     id VARCHAR(6) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     master_name VARCHAR(50) NOT NULL,
+    master_player_id UUID,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -119,7 +120,11 @@ CREATE POLICY "Allow public insert access on rooms" ON public.rooms
 
 DROP POLICY IF EXISTS "Allow public update access on rooms" ON public.rooms;
 CREATE POLICY "Allow public update access on rooms" ON public.rooms
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public delete access on rooms" ON public.rooms;
+CREATE POLICY "Allow public delete access on rooms" ON public.rooms
+    FOR DELETE USING (true);
 
 -- Política para jogadores: permitir leitura e criação para todos
 DROP POLICY IF EXISTS "Allow public read access on players" ON public.players;
@@ -132,7 +137,11 @@ CREATE POLICY "Allow public insert access on players" ON public.players
 
 DROP POLICY IF EXISTS "Allow public update access on players" ON public.players;
 CREATE POLICY "Allow public update access on players" ON public.players
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public delete access on players" ON public.players;
+CREATE POLICY "Allow public delete access on players" ON public.players
+    FOR DELETE USING (true);
 
 -- Índices para melhorar performance
 CREATE INDEX IF NOT EXISTS idx_rooms_active ON public.rooms(is_active);

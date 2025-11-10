@@ -1346,18 +1346,16 @@ const CombatPanel = ({
                                   isSelected
                                     ? 'border-success bg-success bg-opacity-25'
                                     : 'border-secondary'
-                                } ${!isSelected ? 'cursor-pointer' : ''}`}
-                                style={{ cursor: !isSelected ? 'pointer' : 'default' }}
-                                onClick={!isSelected ? () => setSelectedWeapon(weapon) : undefined}
+                                }`}
                               >
                                 <div className="card-body p-2">
-                                  <div className="d-flex justify-content-between align-items-start">
-                                    <div className="flex-grow-1">
+                                  <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <div style={{ flex: 1 }}>
                                       <h6 className="text-white mb-1 small">{weapon.Name}</h6>
-                                      <div className="text-muted" style={{ fontSize: '11px' }}>
-                                        <span className="me-2">🎲 {weapon.Dices}</span>
-                                        <span className="me-2">⏱️ {weapon.LoadTime}</span>
-                                        <span className="me-2">💥 {weapon.Damage || '0'}</span>
+                                      <div className="d-flex gap-2 flex-wrap">
+                                        <small className="text-muted">🎲 {weapon.Dices}</small>
+                                        <small className="text-muted">⏱️ {weapon.LoadTime}</small>
+                                        <small className="text-muted">💥 {weapon.Damage || '0'}</small>
                                       </div>
                                       {weapon.Description && (
                                         <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>
@@ -1366,27 +1364,135 @@ const CombatPanel = ({
                                       )}
                                       {weapon.Effects && (
                                         <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
-                                          {weapon.Effects}
+                                          ✨ {weapon.Effects}
                                         </small>
-                                      )}
-                                      
-                                      {/* Ajustador de dados - aparece quando selecionado */}
-                                      {isSelected && (
-                                        <DiceAdjuster 
-                                          weapon={selectedWeapon}
-                                          onAdjust={(adjustedWeapon) => setSelectedWeapon(adjustedWeapon)}
-                                          compact={false}
-                                        />
                                       )}
                                     </div>
                                     {isSelected && (
                                       <span className="text-success ms-2">✓</span>
                                     )}
                                   </div>
+                                  
+                                  {/* Ajustador de dados + botão selecionar */}
+                                  <div className="d-flex gap-2 align-items-center">
+                                    <DiceAdjuster 
+                                      weapon={isSelected ? selectedWeapon : weapon}
+                                      onAdjust={(adjustedWeapon) => setSelectedWeapon(adjustedWeapon)}
+                                      compact={true}
+                                    />
+                                    <button
+                                      className="btn btn-sm btn-success flex-grow-1"
+                                      onClick={() => setSelectedWeapon(isSelected ? selectedWeapon : weapon)}
+                                    >
+                                      Selecionar
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             );
                           })}
+                          
+                          {/* Card de Ataque Customizado */}
+                          <div
+                            className={`card border ${
+                              selectedWeapon?.Name === customAttack.Name
+                                ? 'border-warning bg-warning bg-opacity-25'
+                                : 'border-warning'
+                            }`}
+                          >
+                            <div className="card-body p-2">
+                              <div className="d-flex justify-content-between align-items-start mb-2">
+                                <h6 className="text-warning mb-0 small">
+                                  ⚙️ Ataque Personalizado
+                                </h6>
+                                {selectedWeapon?.Name === customAttack.Name && (
+                                  <span className="text-warning">✓</span>
+                                )}
+                              </div>
+                              
+                              {/* Inputs customizados */}
+                              <div className="mt-2">
+                                <div className="mb-2">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                                  <input
+                                    type="text"
+                                    className="form-control form-control-sm"
+                                    value={customAttack.Name}
+                                    onChange={(e) => {
+                                      const updated = {...customAttack, Name: e.target.value};
+                                      setCustomAttack(updated);
+                                      if (selectedWeapon?.Name === customAttack.Name) {
+                                        setSelectedWeapon(updated);
+                                      }
+                                    }}
+                                    placeholder="Nome do ataque"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <div className="row g-2 mb-2">
+                                  <div className="col-4">
+                                    <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                    <input
+                                      type="number"
+                                      className="form-control form-control-sm"
+                                      value={customAttack.Dices}
+                                      onChange={(e) => {
+                                        const updated = {...customAttack, Dices: e.target.value};
+                                        setCustomAttack(updated);
+                                        if (selectedWeapon?.Name === customAttack.Name) {
+                                          setSelectedWeapon(updated);
+                                        }
+                                      }}
+                                      min="1"
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </div>
+                                  <div className="col-4">
+                                    <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                    <input
+                                      type="number"
+                                      className="form-control form-control-sm"
+                                      value={customAttack.LoadTime}
+                                      onChange={(e) => {
+                                        const updated = {...customAttack, LoadTime: e.target.value};
+                                        setCustomAttack(updated);
+                                        if (selectedWeapon?.Name === customAttack.Name) {
+                                          setSelectedWeapon(updated);
+                                        }
+                                      }}
+                                      min="0"
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </div>
+                                  <div className="col-4">
+                                    <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                    <input
+                                      type="number"
+                                      className="form-control form-control-sm"
+                                      value={customAttack.Damage}
+                                      onChange={(e) => {
+                                        const updated = {...customAttack, Damage: e.target.value};
+                                        setCustomAttack(updated);
+                                        if (selectedWeapon?.Name === customAttack.Name) {
+                                          setSelectedWeapon(updated);
+                                        }
+                                      }}
+                                      min="0"
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </div>
+                                </div>
+                                
+                                {/* Botão selecionar */}
+                                <button
+                                  className="btn btn-sm btn-warning w-100"
+                                  onClick={() => setSelectedWeapon({...customAttack})}
+                                >
+                                  Selecionar
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -2218,9 +2324,7 @@ const CombatPanel = ({
                         selectedAttack?.Name === customAttack.Name
                           ? 'border-warning bg-warning bg-opacity-25'
                           : 'border-warning'
-                      } cursor-pointer`}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => setSelectedAttack(customAttack)}
+                      }`}
                     >
                       <div className="card-body p-2">
                         <div className="d-flex justify-content-between align-items-start mb-2">
@@ -2232,66 +2336,63 @@ const CombatPanel = ({
                           )}
                         </div>
                         
-                        {/* Inputs customizados - só aparecem quando selecionado */}
-                        {selectedAttack?.Name === customAttack.Name && (
-                          <div className="mt-2">
-                            <div className="mb-2">
-                              <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                        {/* Inputs customizados */}
+                        <div className="mt-2">
+                          <div className="mb-2">
+                            <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              value={customAttack.Name}
+                              onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
+                              placeholder="Nome do ataque"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          <div className="row g-2 mb-2">
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
                               <input
-                                type="text"
+                                type="number"
                                 className="form-control form-control-sm"
-                                value={customAttack.Name}
-                                onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
-                                placeholder="Nome do ataque"
+                                value={customAttack.Dices}
+                                onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
+                                min="1"
                                 onClick={(e) => e.stopPropagation()}
                               />
                             </div>
-                            <div className="row g-2">
-                              <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={customAttack.Dices}
-                                  onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
-                                  min="1"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                              <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={customAttack.LoadTime}
-                                  onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
-                                  min="0"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                              <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={customAttack.Damage}
-                                  onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
-                                  min="0"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.LoadTime}
+                                onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.Damage}
+                                onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
                             </div>
                           </div>
-                        )}
-                        
-                        {/* Preview quando não selecionado */}
-                        {selectedAttack?.Name !== customAttack.Name && (
-                          <div className="text-muted" style={{ fontSize: '11px' }}>
-                            <span className="me-2">🎲 {customAttack.Dices}</span>
-                            <span className="me-2">⏱️ {customAttack.LoadTime}</span>
-                            <span className="badge bg-warning text-dark">Customizado</span>
-                          </div>
-                        )}
+                          
+                          {/* Botão selecionar */}
+                          <button
+                            className="btn btn-sm btn-warning w-100"
+                            onClick={() => setSelectedAttack({...customAttack})}
+                          >
+                            Selecionar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2306,13 +2407,11 @@ const CombatPanel = ({
                             isSelected
                               ? 'border-success bg-success bg-opacity-25'
                               : 'border-secondary'
-                          } ${!isSelected ? 'cursor-pointer' : ''}`}
-                          style={{ cursor: !isSelected ? 'pointer' : 'default' }}
-                          onClick={!isSelected ? () => setSelectedAttack(attack) : undefined}
+                          }`}
                         >
                           <div className="card-body p-2">
-                            <div className="d-flex justify-content-between align-items-start">
-                              <div className="flex-grow-1">
+                            <div className="d-flex justify-content-between align-items-start mb-2">
+                              <div style={{ flex: 1 }}>
                                 <h6 className="text-white mb-1 small">
                                   {attack.Name}
                                   {(() => {
@@ -2325,11 +2424,11 @@ const CombatPanel = ({
                                     return null;
                                   })()}
                                 </h6>
-                                <div className="text-muted" style={{ fontSize: '11px' }}>
-                                  <span className="me-2">🎲 {attack.Dices || '1'}</span>
-                                  <span className="me-2">⏱️ {attack.LoadTime || '?'}</span>
-                                  <span className="me-2">💥 {attack.Damage || '0'}</span>
-                                  {attack.Distance && <span className="me-2">📏 {attack.Distance}</span>}
+                                <div className="d-flex gap-2 flex-wrap">
+                                  <small className="text-muted">🎲 {attack.Dices || '1'}</small>
+                                  <small className="text-muted">⏱️ {attack.LoadTime || '?'}</small>
+                                  <small className="text-muted">💥 {attack.Damage || '0'}</small>
+                                  {attack.Distance && <small className="text-muted">📏 {attack.Distance}</small>}
                                   <span className="badge bg-secondary">{attack.category}</span>
                                 </div>
                                 {attack.Description && (
@@ -2339,22 +2438,28 @@ const CombatPanel = ({
                                 )}
                                 {attack.Effects && (
                                   <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
-                                    {attack.Effects}
+                                    ✨ {attack.Effects}
                                   </small>
-                                )}
-                                
-                                {/* Ajustador de dados - aparece quando selecionado */}
-                                {isSelected && (
-                                  <DiceAdjuster 
-                                    weapon={selectedAttack}
-                                    onAdjust={(adjustedWeapon) => setSelectedAttack(adjustedWeapon)}
-                                    compact={false}
-                                  />
                                 )}
                               </div>
                               {isSelected && (
                                 <span className="text-success ms-2">✓</span>
                               )}
+                            </div>
+                            
+                            {/* Ajustador de dados + botão selecionar */}
+                            <div className="d-flex gap-2 align-items-center">
+                              <DiceAdjuster 
+                                weapon={isSelected ? selectedAttack : attack}
+                                onAdjust={(adjustedWeapon) => setSelectedAttack(adjustedWeapon)}
+                                compact={true}
+                              />
+                              <button
+                                className="btn btn-sm btn-success flex-grow-1"
+                                onClick={() => setSelectedAttack(isSelected ? selectedAttack : attack)}
+                              >
+                                Selecionar
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -2367,9 +2472,7 @@ const CombatPanel = ({
                         selectedAttack?.Name === customAttack.Name
                           ? 'border-warning bg-warning bg-opacity-25'
                           : 'border-warning'
-                      } cursor-pointer`}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => setSelectedAttack(customAttack)}
+                      }`}
                     >
                       <div className="card-body p-2">
                         <div className="d-flex justify-content-between align-items-start mb-2">
@@ -2381,66 +2484,63 @@ const CombatPanel = ({
                           )}
                         </div>
                         
-                        {/* Inputs customizados - só aparecem quando selecionado */}
-                        {selectedAttack?.Name === customAttack.Name && (
-                          <div className="mt-2">
-                            <div className="mb-2">
-                              <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                        {/* Inputs customizados */}
+                        <div className="mt-2">
+                          <div className="mb-2">
+                            <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              value={customAttack.Name}
+                              onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
+                              placeholder="Nome do ataque"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          <div className="row g-2 mb-2">
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
                               <input
-                                type="text"
+                                type="number"
                                 className="form-control form-control-sm"
-                                value={customAttack.Name}
-                                onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
-                                placeholder="Nome do ataque"
+                                value={customAttack.Dices}
+                                onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
+                                min="1"
                                 onClick={(e) => e.stopPropagation()}
                               />
                             </div>
-                            <div className="row g-2">
-                              <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={customAttack.Dices}
-                                  onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
-                                  min="1"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                              <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={customAttack.LoadTime}
-                                  onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
-                                  min="0"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                              <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={customAttack.Damage}
-                                  onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
-                                  min="0"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.LoadTime}
+                                onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.Damage}
+                                onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
                             </div>
                           </div>
-                        )}
-                        
-                        {/* Preview quando não selecionado */}
-                        {selectedAttack?.Name !== customAttack.Name && (
-                          <div className="text-muted" style={{ fontSize: '11px' }}>
-                            <span className="me-2">🎲 {customAttack.Dices}</span>
-                            <span className="me-2">⏱️ {customAttack.LoadTime}</span>
-                            <span className="badge bg-warning text-dark">Customizado</span>
-                          </div>
-                        )}
+                          
+                          {/* Botão selecionar */}
+                          <button
+                            className="btn btn-sm btn-warning w-100"
+                            onClick={() => setSelectedAttack({...customAttack})}
+                          >
+                            Selecionar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2677,77 +2777,97 @@ const CombatPanel = ({
                   tempWeapon?.Name === customAttack.Name
                     ? 'border-warning bg-warning bg-opacity-25'
                     : 'border-warning'
-                } cursor-pointer`}
-                style={{ cursor: 'pointer' }}
+                }`}
               >
                 <div className="card-body p-2">
-                  <h6 className="text-warning mb-2 small">⚙️ Ataque Personalizado</h6>
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                    {tempWeapon?.Name === customAttack.Name && (
+                      <span className="text-warning">✓</span>
+                    )}
+                  </div>
                   
-                  <div className="mb-2">
-                    <label className="form-label text-white mb-1" style={{ fontSize: '11px' }}>Nome:</label>
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      value={customAttack.Name}
-                      onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-
-                  <div className="row g-2 mb-2">
-                    <div className="col-4">
-                      <label className="form-label text-white mb-1" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                  {/* Inputs customizados */}
+                  <div className="mt-2">
+                    <div className="mb-2">
+                      <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
                       <input
                         type="text"
                         className="form-control form-control-sm"
-                        value={customAttack.Dices}
-                        onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
+                        value={customAttack.Name}
+                        onChange={(e) => {
+                          const updated = {...customAttack, Name: e.target.value};
+                          setCustomAttack(updated);
+                          if (tempWeapon?.Name === customAttack.Name) {
+                            setTempWeapon(updated);
+                          }
+                        }}
+                        placeholder="Nome do ataque"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
-                    <div className="col-4">
-                      <label className="form-label text-white mb-1" style={{ fontSize: '11px' }}>⚡ Recarga:</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        value={customAttack.LoadTime}
-                        onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
-                        onClick={(e) => e.stopPropagation()}
-                      />
+                    <div className="row g-2 mb-2">
+                      <div className="col-4">
+                        <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          value={customAttack.Dices}
+                          onChange={(e) => {
+                            const updated = {...customAttack, Dices: e.target.value};
+                            setCustomAttack(updated);
+                            if (tempWeapon?.Name === customAttack.Name) {
+                              setTempWeapon(updated);
+                            }
+                          }}
+                          min="1"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="col-4">
+                        <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          value={customAttack.LoadTime}
+                          onChange={(e) => {
+                            const updated = {...customAttack, LoadTime: e.target.value};
+                            setCustomAttack(updated);
+                            if (tempWeapon?.Name === customAttack.Name) {
+                              setTempWeapon(updated);
+                            }
+                          }}
+                          min="0"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="col-4">
+                        <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                        <input
+                          type="number"
+                          className="form-control form-control-sm"
+                          value={customAttack.Damage}
+                          onChange={(e) => {
+                            const updated = {...customAttack, Damage: e.target.value};
+                            setCustomAttack(updated);
+                            if (tempWeapon?.Name === customAttack.Name) {
+                              setTempWeapon(updated);
+                            }
+                          }}
+                          min="0"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
                     </div>
-                    <div className="col-4">
-                      <label className="form-label text-white mb-1" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        value={customAttack.Damage}
-                        onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
+                    
+                    {/* Botão usar */}
+                    <button
+                      className="btn btn-sm btn-warning w-100"
+                      onClick={() => confirmWeaponChange({...customAttack})}
+                    >
+                      Usar esta
+                    </button>
                   </div>
-
-                  <div className="mb-2">
-                    <label className="form-label text-white mb-1" style={{ fontSize: '11px' }}>✨ Efeitos:</label>
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      value={customAttack.Effects}
-                      onChange={(e) => setCustomAttack({...customAttack, Effects: e.target.value})}
-                      onClick={(e) => e.stopPropagation()}
-                      placeholder="Opcional"
-                    />
-                  </div>
-
-                  <button
-                    className="btn btn-sm btn-warning w-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      confirmWeaponChange(customAttack);
-                    }}
-                  >
-                    Usar Ataque Personalizado
-                  </button>
                 </div>
               </div>
             </div>
@@ -2864,6 +2984,108 @@ const CombatPanel = ({
                     </div>
                   );
                 })}
+                
+                {/* Card de Ataque Customizado */}
+                <div
+                  className={`card border ${
+                    opportunityWeapon?.Name === customAttack.Name
+                      ? 'border-warning bg-warning bg-opacity-25'
+                      : 'border-warning'
+                  }`}
+                >
+                  <div className="card-body p-2">
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <h6 className="text-warning mb-0 small">
+                        ⚙️ Ataque Personalizado
+                      </h6>
+                      {opportunityWeapon?.Name === customAttack.Name && (
+                        <span className="text-warning">✓</span>
+                      )}
+                    </div>
+                    
+                    {/* Inputs customizados */}
+                    <div className="mt-2">
+                      <div className="mb-2">
+                        <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={customAttack.Name}
+                          onChange={(e) => {
+                            const updated = {...customAttack, Name: e.target.value};
+                            setCustomAttack(updated);
+                            if (opportunityWeapon?.Name === customAttack.Name) {
+                              setOpportunityWeapon(updated);
+                            }
+                          }}
+                          placeholder="Nome do ataque"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                      <div className="row g-2 mb-2">
+                        <div className="col-4">
+                          <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            value={customAttack.Dices}
+                            onChange={(e) => {
+                              const updated = {...customAttack, Dices: e.target.value};
+                              setCustomAttack(updated);
+                              if (opportunityWeapon?.Name === customAttack.Name) {
+                                setOpportunityWeapon(updated);
+                              }
+                            }}
+                            min="1"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                        <div className="col-4">
+                          <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            value={customAttack.LoadTime}
+                            onChange={(e) => {
+                              const updated = {...customAttack, LoadTime: e.target.value};
+                              setCustomAttack(updated);
+                              if (opportunityWeapon?.Name === customAttack.Name) {
+                                setOpportunityWeapon(updated);
+                              }
+                            }}
+                            min="0"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                        <div className="col-4">
+                          <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            value={customAttack.Damage}
+                            onChange={(e) => {
+                              const updated = {...customAttack, Damage: e.target.value};
+                              setCustomAttack(updated);
+                              if (opportunityWeapon?.Name === customAttack.Name) {
+                                setOpportunityWeapon(updated);
+                              }
+                            }}
+                            min="0"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Botão selecionar */}
+                      <button
+                        className="btn btn-sm btn-warning w-100"
+                        onClick={() => setOpportunityWeapon({...customAttack})}
+                      >
+                        Selecionar
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

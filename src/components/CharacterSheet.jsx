@@ -267,49 +267,8 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     setIsSelectingSource(null);
   };
 
-  const handleCounterChange = async (id, value) => {
-    // Criar novos contadores preservando TODOS os valores, especialmente os *_max
-    const newCounters = {
-      ...counters,
-      [id]: value
-    };
-    
-    // GARANTIR que os valores máximos nunca sejam perdidos ou zerados
-    // Se o contador atual não tem *_max definido, usar o valor do initialCounters
-    if (!newCounters.esquiva_max && initialCounters.esquiva_max) {
-      newCounters.esquiva_max = initialCounters.esquiva_max;
-    }
-    if (!newCounters.oport_max && initialCounters.oport_max) {
-      newCounters.oport_max = initialCounters.oport_max;
-    }
-    if (!newCounters.item_max && initialCounters.item_max) {
-      newCounters.item_max = initialCounters.item_max;
-    }
-    if (!newCounters.vida_max) {
-      newCounters.vida_max = initialCounters.vida_max || 20;
-    }
-    
-    setCounters(newCounters);
-    
-    // Lógica especial para o contador de mortes
-    if (id === 'mortes') {
-      if (value > counters.mortes) {
-        // Aumentou mortes - desbloquear habilidades
-        await handleDeathUnlock(value);
-      } else if (value < 2 && currentMode === 'mode2') {
-        // Diminuiu mortes para menos de 2 e está no modo Reivolk - forçar modo normal
-        setCurrentMode('mode1');
-      }
-    }
-    
-    // Sincronizar com o banco de dados
-    if (currentPlayer?.id) {
-      await RoomService.updatePlayerCounters(currentPlayer.id, newCounters);
-    }
-  };
-
   // Função para desbloquear habilidades com base nas mortes
-  const handleDeathUnlock = async (deathCount) => {
+  const handleDeathUnlock = useCallback(async (deathCount) => {
     if (!selections.specials && !selections.passiveSpecials) return;
     
     const newUnlockedItems = new Set(unlockedItems);
@@ -348,16 +307,57 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (deathCount >= 2 && currentDeaths < 2) {
       // modo Reivolk desbloqueado
     }
-  };
+  }, [selections.specials, selections.passiveSpecials, unlockedItems, counters.mortes, currentPlayer?.id]);
 
-  const handleAdditionalCounterChange = async (newAdditionalCounters) => {
+  const handleCounterChange = useCallback(async (id, value) => {
+    // Criar novos contadores preservando TODOS os valores, especialmente os *_max
+    const newCounters = {
+      ...counters,
+      [id]: value
+    };
+    
+    // GARANTIR que os valores máximos nunca sejam perdidos ou zerados
+    // Se o contador atual não tem *_max definido, usar o valor do initialCounters
+    if (!newCounters.esquiva_max && initialCounters.esquiva_max) {
+      newCounters.esquiva_max = initialCounters.esquiva_max;
+    }
+    if (!newCounters.oport_max && initialCounters.oport_max) {
+      newCounters.oport_max = initialCounters.oport_max;
+    }
+    if (!newCounters.item_max && initialCounters.item_max) {
+      newCounters.item_max = initialCounters.item_max;
+    }
+    if (!newCounters.vida_max) {
+      newCounters.vida_max = initialCounters.vida_max || 20;
+    }
+    
+    setCounters(newCounters);
+    
+    // Lógica especial para o contador de mortes
+    if (id === 'mortes') {
+      if (value > counters.mortes) {
+        // Aumentou mortes - desbloquear habilidades
+        await handleDeathUnlock(value);
+      } else if (value < 2 && currentMode === 'mode2') {
+        // Diminuiu mortes para menos de 2 e está no modo Reivolk - forçar modo normal
+        setCurrentMode('mode1');
+      }
+    }
+    
+    // Sincronizar com o banco de dados
+    if (currentPlayer?.id) {
+      await RoomService.updatePlayerCounters(currentPlayer.id, newCounters);
+    }
+  }, [counters, initialCounters, currentPlayer?.id, currentMode, handleDeathUnlock]);
+
+  const handleAdditionalCounterChange = useCallback(async (newAdditionalCounters) => {
     setAdditionalCounters(newAdditionalCounters);
     
     // Sincronizar com o banco de dados
     if (currentPlayer?.id) {
       await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, newAdditionalCounters);
     }
-  };
+  }, [currentPlayer?.id]);
 
   // Memoizar seções de itens
   const itemSections = useMemo(() => [
@@ -370,11 +370,11 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     { key: 'passiveSpecials', title: localization['Characteristic.PassiveSpecialAbility.Title'], color: 'warning', type: 'passiveSpecial' }
   ], [localization]);
 
-  const handleModeChange = (mode) => {
+  const handleModeChange = useCallback((mode) => {
     setCurrentMode(mode);
-  };
+  }, []);
 
-  const handleUseItem = async (itemId) => {
+  const handleUseItem = useCallback(async (itemId) => {
     const newUsedItems = new Set([...usedItems, itemId]);
     setUsedItems(newUsedItems);
     
@@ -382,9 +382,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUsedItems(currentPlayer.id, Array.from(newUsedItems));
     }
-  };
+  }, [usedItems, currentPlayer?.id]);
 
-  const handleUnlockItem = async (itemId) => {
+  const handleUnlockItem = useCallback(async (itemId) => {
     const newUnlockedItems = new Set([...unlockedItems, itemId]);
     setUnlockedItems(newUnlockedItems);
     
@@ -392,9 +392,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
     }
-  };
+  }, [unlockedItems, currentPlayer?.id]);
 
-  const handleRecoverItems = async (type) => {
+  const handleRecoverItems = useCallback(async (type) => {
     const itemsToRecover = selections[type] || [];
     const newUsedItems = new Set(usedItems);
     itemsToRecover.forEach(item => newUsedItems.delete(item.ID));
@@ -405,9 +405,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUsedItems(currentPlayer.id, Array.from(newUsedItems));
     }
-  };
+  }, [selections, usedItems, currentPlayer?.id]);
 
-  const handleLockItems = async (type) => {
+  const handleLockItems = useCallback(async (type) => {
     const itemsToLock = selections[type] || [];
     const newUnlockedItems = new Set(unlockedItems);
     itemsToLock.forEach(item => newUnlockedItems.delete(item.ID));
@@ -418,9 +418,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
     }
-  };
+  }, [selections, unlockedItems, currentPlayer?.id]);
 
-  const handleToggleCardExposure = async (itemId) => {
+  const handleToggleCardExposure = useCallback(async (itemId) => {
     const newExposedCards = new Set(exposedCards);
     
     if (newExposedCards.has(itemId)) {
@@ -452,9 +452,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         }
       }
     }
-  };
+  }, [exposedCards, currentPlayer?.id, actor?.ID, currentPlayer?.app_state]);
 
-  const handleReset = async () => {
+  const handleReset = useCallback(async () => {
     // Limpar cartas expostas antes de fazer reset
     if (currentPlayer?.id) {
       await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
@@ -477,7 +477,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     // Chamar função de reset original
     onReset();
-  };
+  }, [currentPlayer?.id, currentPlayer?.app_state, actor?.ID, onReset]);
 
   const renderItemCard = ({ item, section, isBlocked }) => {
     // Título: se for device, power, special, mostrar TriggerType

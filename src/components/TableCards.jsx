@@ -242,6 +242,15 @@ const TableCards = ({
                               description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';
                             }
                             
+                            // Determinar o título: para device, power, special, mostrar TriggerType
+                            let title = '';
+                            if (foundItem.ID.startsWith('Device.') || foundItem.ID.startsWith('Power.') || 
+                                foundItem.ID.startsWith('SpecialAbility.') || foundItem.ID.startsWith('PassiveSpecialAbility.')) {
+                              title = Utils.createTriggerName(foundItem.ID, foundItem, localization);
+                            } else {
+                              title = localization[foundItem.ID] || foundItem.Name || foundItem.ID;
+                            }
+                            
                             return (
                               <div key={itemId} className="col-12 mb-2">
                                 <div 
@@ -250,7 +259,7 @@ const TableCards = ({
                                 >
                                   <div className="card-body p-2">
                                     <div className={`fw-bold text-${cardColor} mb-1 small`}>
-                                      {localization[foundItem.ID] || foundItem.Name || foundItem.ID}
+                                      {title}
                                     </div>
                                     <div 
                                       className="mb-1 small" 
@@ -414,6 +423,15 @@ const TableCards = ({
                         description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';
                       }
                       
+                      // Determinar o título: para device, power, special, mostrar TriggerType
+                      let title = '';
+                      if (foundItem.ID.startsWith('Device.') || foundItem.ID.startsWith('Power.') || 
+                          foundItem.ID.startsWith('SpecialAbility.') || foundItem.ID.startsWith('PassiveSpecialAbility.')) {
+                        title = Utils.createTriggerName(foundItem.ID, foundItem, localization);
+                      } else {
+                        title = localization[foundItem.ID] || foundItem.Name || foundItem.ID;
+                      }
+                      
                       return (
                         <div key={itemId} className="col-12 mb-2">
                           <div 
@@ -422,7 +440,7 @@ const TableCards = ({
                           >
                             <div className="card-body p-2">
                               <div className={`fw-bold text-${cardColor} mb-1`}>
-                                {localization[foundItem.ID] || foundItem.Name || foundItem.ID}
+                                {title}
                               </div>
                               <div 
                                 className="mb-1" 

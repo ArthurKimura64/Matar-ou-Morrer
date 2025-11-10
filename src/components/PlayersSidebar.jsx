@@ -233,4 +233,4 @@ const PlayersSidebar = ({
   );
 };
 
-export default PlayersSidebar;
+export default React.memo(PlayersSidebar);
