@@ -1813,7 +1813,7 @@
   "PassiveSpecialAbility.Imortal1": "Corpo Perfeito",
   "PassiveSpecialAbility.Imortal1.Description": "Mesmo que sua vida chegue em 0 você não morrerá e poderá continuar jogando mas terá perdido o jogo caso não esteja com a vida cheia até sobrar você e outro jogador.",
   "PassiveSpecialAbility.Imortal2": "Força de um Deus",
-  "PassiveSpecialAbility.Imortal2.Description": "Nas rodadas de técnica tira 12 de vida ao vencer, 7 quando der empate e 3 quando perder.",
+  "PassiveSpecialAbility.Imortal2.Description": "Nas rodadas de técnica tira 7 de vida ao vencer, 4 quando der empate e 2 quando perder.",
   "PassiveSpecialAbility.Imortal3": "Nova Carcaça",
   "PassiveSpecialAbility.Imortal3.Description": "Ao morrer escolherá um personagem na arena e jogará um d6 ao mesmo tempo que o dono do personagem escolhido e se você tirar um número maior que o dele você controlará o personagem dele mas com a ficha do seu personagem e o jogador que você tomou posse do personagem perderá o jogo, enquanto não conseguir fará isso a cada 3 rodadas e depois que conseguir e morrer de novo, poderá continuar e assim vai até o fim da partida.",
   "PassiveSpecialAbility.Gravidade1": "Onda Gravitacional",
