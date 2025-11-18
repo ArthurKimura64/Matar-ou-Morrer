@@ -1685,7 +1685,7 @@
   "Power.Stratton5": "Tempestade Congelante",
   "Power.Stratton5.Description": "Se defender todos os dados de um ataque do inimigo, Você ganha +3 de dano em cada um dos seus dados de ataque ate o fim do combate.",
   "Power.Stratton6": "Clone de Água",
-  "Power.Stratton6.Description": "Pode usar um ataque de oportunidade durante o combate, podendo usar qualquer um de seus ataques para realizar um ataque de oportunidade no final do seu próprio combate contra seu inimigo.",
+  "Power.Stratton6.Description": "Posiciona um clone e pode dar um ataque de oportunidade durante o combate, podendo usar qualquer um de seus ataques respeitando as regras de distancia e pontos de conexão.",
   "SpecialAbility.Impact1": "Velocidade da Luz",
   "SpecialAbility.Impact1.Description": "Ataque um inimigo. Os ataques que ele revidaria se tornam seus, impedindo-o de contra-atacar.",
   "SpecialAbility.Impact2": "Volta ao mundo",
