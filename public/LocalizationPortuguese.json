@@ -727,7 +727,7 @@
   "Passive.Impact3": "Alvo Difícil",
   "Passive.Impact3.Description": "Você pode se mover antes de atacar ou revidar. O movimento é opcional.",
   "Passive.Tecnology1": "Duelista",
-  "Passive.Tecnology1.Description": "Ao inves de defender usando seus dados de defesa você joga a mesma quantidade de dados que o inimigo esta jogando no ataque dele e o atacará ao mesmo tempo que ele esta te atacando nas rodadas que ele revida, em caso de empate o inimigo vence.",
+  "Passive.Tecnology1.Description": "Ao inves de defender usando seus dados de defesa você joga a mesma quantidade de dados que o inimigo esta jogando no ataque dele e o atacará ao mesmo tempo que ele esta te atacando nas rodadas que ele revida, em caso de empate o inimigo vence, se não tiver como revidar o duelista fica desativado, o dano dos seus dados é o do seu ataque.",
   "Passive.Tecnology2": "Egoísta",
   "Passive.Tecnology2.Description": "Ganha +1 ataque em cada combate.",
   "Passive.Tecnology3": "Armas Reforçadas",
