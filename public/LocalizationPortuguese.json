@@ -1608,7 +1608,7 @@
   "Power.AgentedoVazio2": "Vingador Obstinado",
   "Power.AgentedoVazio2.Description": "Assim que você ou o inimigo pular durante um combate pode jogar um dado de ataque com o dano da arma que está usando para atacar o inimigo fazendo-o se defender(não conta como ataque), você o ataque no momento.",
   "Power.MulherFantasma1": "Inimigo Ocultado",
-  "Power.MulherFantasma1.Description": "Quando dois inimigos estiverem em combate, pode usar este poder antes de um deles jogar os primeiros dados para ocultar um deles e o outro que não foi ocultado não poderá revidar e você ganha 3 de escudo por cada dado que o inimigo ocultado acertar no adversário dele, seu escudo dura até ser destruído por completo, funciona assim, dano total do ataque inimigo menos o número do seu escudo e o escudo usado é destruído.",
+  "Power.MulherFantasma1.Description": "Quando dois inimigos entrarem em combate, você pode ocultar um deles para nao receber nenhum dano do outro e você ganha 3 de escudo por cada dado de ataque que o inimigo que você ocultou acertar no inimigo ( deve usar antes de rolarem os primeiros dados do combate ).",
   "Power.MulherFantasma2": "Ataque Oculto",
   "Power.MulherFantasma2.Description": "Ao dar um ataque pode ocultar seu dado de número mais alto, e o inimigo não poderá defendê-lo mesmo se tirar um número igual ou superior a ele. mas seu ataque dará no maximo 5 de dano.",
   "Power.Zyua1": "Monstro feroz",
