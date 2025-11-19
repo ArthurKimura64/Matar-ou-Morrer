@@ -4002,7 +4002,7 @@
       "Damage": 1,
       "MinimumDistance": 1,
       "MaximumDistance": 10,
-      "LoadTime": 1,
+      "LoadTime": 2,
       "Dices": 1,
       "Ambient": [
         "Earth",
