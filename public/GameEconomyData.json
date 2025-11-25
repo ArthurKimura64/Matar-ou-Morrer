@@ -4260,8 +4260,8 @@
     {
       "ID": "Attack.Absinto1",
       "Damage": 10,
-      "MinimumDistance": 1,
-      "MaximumDistance": 500,
+      "MinimumDistance": "Região",
+      "MaximumDistance": "Região",
       "LoadTime": 3,
       "Dices": 1,
       "Ambient": [
@@ -4338,7 +4338,7 @@
       "Damage": 8,
       "MinimumDistance": 3,
       "MaximumDistance": 6,
-      "LoadTime": 1,
+      "LoadTime": "0",
       "Dices": 1,
       "Ambient": [
         "Earth"
