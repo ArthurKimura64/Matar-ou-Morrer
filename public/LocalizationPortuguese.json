@@ -256,7 +256,7 @@
   "Character.Reivolk.Ilusao.Description": "Sempre que iniciar um combate e morrer, irá reaparecer em um ponto de conexão escolhido por você com a quantidade de vida que estava antes de iniciar aquele combate.",
   "Character.Name.Alpha": "Alpha",
   "Character.Title.Alpha": "Dono do Tempo",
-  "Character.Description.Alpha": "Uma vez por combate pode perder 3 de vida para anular um dado de ataque do um inimigo, essa vantagem deve ser usada como (A) ou (D).",
+  "Character.Description.Alpha": "Uma vez por combate pode perder 1 de vida para anular um dado de ataque do um inimigo, essa vantagem deve ser usada como (A) ou (D).",
   "Character.Reivolk.Alpha.Title": "Dono do Espaço Tempo",
   "Character.Reivolk.Alpha.Description": "Recupera todos os pulos e vai gastando 1 pulo por rodada automaticamente, após gastar todos os pulos o tempo irá parar por 3 rodadas deixando todos os inimigos imóveis, sem ação e sem defesa por 3 rodadas, após as 3 rodadas recupera todos os pulos novamente.",
   "Character.Name.ArcoNegro": "Arco Negro",
