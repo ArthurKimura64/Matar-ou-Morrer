@@ -151,7 +151,7 @@
   "Character.Title.Atomico": "Explosão",
   "Character.Description.Atomico": "Os seus dados de ataque com número 6 ganham +5 de dano e durante um combate pode gastar quantos pulos quiser.",
   "Character.Reivolk.Atomico.Title": "Explosão Perfeita",
-  "Character.Reivolk.Atomico.Description": "A cada início de uma rodada passiva sendo sua rodada ou não você se explode e ataca todos os inimigos do mapa com 1 dado dando 10.000 de dano.",
+  "Character.Reivolk.Atomico.Description": "Recupera 1 pulo sempre que chegar sua primeira e segunda rodada passiva e após recuperar um pulo pode decidir se irá se explodir e dar um ataque em todos os inimigos usando todos os pulos acumulados como dados de ataque, exemplo: Se acumulou 5 pulos irá atacar todos os inimigos com 5 dados de ataque. Sua explosão causa 3 de dano por dado e gasta os pulos acumulados.",
   "Character.Name.Caos": "Caos",
   "Character.Title.Caos": "O Devorador",
   "Character.Description.Caos": "Possui ao seu redor uma aura negra que começa em 0 de distância e a cada dado que acertar no inimigo, faz a aura se expandir 1 metro para todas as direções em ambiente T e A, Caos ganha +1 em cada dado de defesa e +2 em cada dado de ataque contra um inimigo que esteja em combate com ele dentro de sua aura.",
