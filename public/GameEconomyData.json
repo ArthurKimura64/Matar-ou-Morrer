@@ -7446,7 +7446,7 @@
     {
       "ID": "Power.Alpha3",
       "TriggerType": [
-        "BeforeAttack"
+        "AfterAttack"
       ],
       "Description": "Power.Alpha3.Description"
     },
