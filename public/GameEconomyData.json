@@ -3117,7 +3117,7 @@
       "ID": "Attack.Impact4",
       "Damage": 2,
       "MinimumDistance": "0",
-      "MaximumDistance": "",
+      "MaximumDistance": "0",
       "LoadTime": "0",
       "Dices": 6,
       "Ambient": [
