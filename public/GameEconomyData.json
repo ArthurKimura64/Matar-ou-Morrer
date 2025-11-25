@@ -3615,7 +3615,7 @@
       "ID": "Attack.Radiacao3",
       "Damage": 1,
       "MinimumDistance": "0",
-      "MaximumDistance": 25,
+      "MaximumDistance": 15,
       "LoadTime": 1,
       "Dices": 3,
       "Ambient": [
