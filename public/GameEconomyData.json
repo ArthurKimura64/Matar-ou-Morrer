@@ -4777,8 +4777,8 @@
     {
       "ID": "Attack.Zyua2",
       "Damage": 1,
-      "MinimumDistance": "0",
-      "MaximumDistance": 1,
+      "MinimumDistance": 2,
+      "MaximumDistance": 10,
       "LoadTime": "0",
       "Dices": 6,
       "Ambient": [
