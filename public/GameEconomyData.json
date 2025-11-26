@@ -519,7 +519,8 @@
         "Passive.Radiacao1",
         "Passive.Radiacao2",
         "Passive.Radiacao3",
-        "Passive.Radiacao4"
+        "Passive.Radiacao4",
+        "Passive.Radiacao5"
       ],
       "PowersData": [
         "Power.Radiacao1",
@@ -2602,6 +2603,10 @@
     {
       "ID": "Passive.Radiacao4",
       "Description": "Passive.Radiacao4.Description"
+    },
+    {
+      "ID": "Passive.Radiacao5",
+      "Description": "Passive.Radiacao5.Description"
     },
     {
       "ID": "Passive.PortadorDasEntidades1",
