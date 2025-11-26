@@ -1551,8 +1551,8 @@
       "Tecnique": {
         "Desert": "d20",
         "City": "d4",
-        "Landfill": "d8",
-        "Mountain": "d12"
+        "Landfill": "d6",
+        "Mountain": "d8"
       },
       "UnlimitedAttacksData": [
         "Attack.SenhordaLuz1",
@@ -1563,7 +1563,8 @@
       "PassivesData": [
         "Passive.SenhordaLuz1",
         "Passive.SenhordaLuz2",
-        "Passive.SenhordaLuz3"
+        "Passive.SenhordaLuz3",
+        "Passive.SenhordaLuz4"
       ],
       "PowersData": [
         "Power.SenhordaLuz1",
@@ -2821,6 +2822,10 @@
     {
       "ID": "Passive.SenhordaLuz3",
       "Description": "Passive.SenhordaLuz3.Description"
+    },
+    {
+      "ID": "Passive.SenhordaLuz4",
+      "Description": "Passive.SenhordaLuz4.Description"
     },
     {
       "ID": "Passive.Dimensao1",
