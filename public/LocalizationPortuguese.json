@@ -813,7 +813,7 @@
   "Passive.Gravidade6": "Sabedoria",
   "Passive.Gravidade6.Description": "Sempre que um inimigo que estiver em um combate contra você tirar um 6 no dado de defesa ou ataque ele se torna 5 automaticamente.",
   "Passive.Gravidade7": "Gravidade Absoluta",
-  "Passive.Gravidade7.Description": "Pode gastar 3 pulos no Inicio de um combate contra você para fazer com que o inimigo que esta te atacando de 0/1 de distância se defenda com apenas 1 dado e recebe -1 no dado de defesa dele (é opcional usar essa passiva).",
+  "Passive.Gravidade7.Description": "Pode gastar 1 pulo no Inicio de um combate contra você para fazer com que o inimigo que esta te atacando de 0/1 de distância se defenda com apenas 1 dado e recebe -1 no dado de defesa dele (é opcional usar essa passiva).",
   "Passive.Gravidade8": "Crescente",
   "Passive.Gravidade8.Description": "Durante um combate contra você, sempre que defender um ataque ganha +1 dado de defesa(dura até o fim do combate).",
   "Passive.Radiacao1": "Radioativo",
