@@ -5158,7 +5158,7 @@
     {
       "ID": "Weapon.Bruce1",
       "Damage": 19,
-      "MinimumDistance": 8,
+      "MinimumDistance": 3,
       "MaximumDistance": 20,
       "LoadTime": 3,
       "Dices": 1,
