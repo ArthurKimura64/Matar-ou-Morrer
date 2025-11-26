@@ -925,7 +925,7 @@
   "Passive.Energz2": "Sobrecarregado",
   "Passive.Energz2.Description": "Enquanto estiver com 10 ou menos de vida, seus P.E e A.O são infinitos e ganha +1 pulo por combate contra ataques que contem 3 ou mais dados.",
   "Passive.SenhordaLuz1": "Mesmo Nível",
-  "Passive.SenhordaLuz1.Description": "Joga o mesmo dado de técnica que seu inimigo.",
+  "Passive.SenhordaLuz1.Description": "Joga o mesmo dado de técnica que seu inimigo e recebe +4 no seu dado de tecnica.",
   "Passive.SenhordaLuz2": "Luz Central",
   "Passive.SenhordaLuz2.Description": "Sempre que você ficar dentro da base central por 2 rodadas, recupera todos os pulos.",
   "Passive.SenhordaLuz3": "Trapaça",
