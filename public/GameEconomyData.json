@@ -126,7 +126,8 @@
         "Passive.Atomico2",
         "Passive.Atomico3",
         "Passive.Atomico4",
-        "Passive.Atomico5"
+        "Passive.Atomico5",
+        "Passive.Atomico6"
       ],
       "PowersData": [],
       "DevicesData": [],
@@ -2440,6 +2441,10 @@
     {
       "ID": "Passive.Atomico5",
       "Description": "Passive.Atomico5.Description"
+    },
+    {
+      "ID": "Passive.Atomico6",
+      "Description": "Passive.Atomico6.Description"
     },
     {
       "ID": "Passive.Caos1",
