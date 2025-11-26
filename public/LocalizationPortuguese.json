@@ -789,7 +789,7 @@
   "Passive.Protetor3": "Proteção Intimidadora",
   "Passive.Protetor3.Description": "Enquanto estiver com 7 ou menos de vida os dados de ataque do inimigo recebem -2 mas essa habilidade passiva não terá efeito nos dados que ele tirar o número 6.",
   "Passive.Protetor4": "Proteção Evolutiva",
-  "Passive.Protetor4.Description": "Sempre que defender todos os dados de ataque do inimigo você ganha +3 de escudo que durará até o fim do combate o escudo funciona assim: dano recebido do ataque menos o número do escudo, se o dano ultrapassar o escudo ele se quebra.",
+  "Passive.Protetor4.Description": "Sempre que defender todos os dados de ataque do inimigo você ganha +3 de escudo que durará até o fim do combate o escudo funciona assim: dano recebido do ataque menos o número do escudo, se o dano ultrapassar o escudo ele se quebra e o dano que restou passa.",
   "Passive.Protetor5": "Proteção de Vigor",
   "Passive.Protetor5.Description": "Durante um combate pode gastar quantos pulos quiser, mas a partir do segundo pulo você não desviará do dado e sim irá retirar 5 do dano total dele.",
   "Passive.Imortal1": "Imortal",
