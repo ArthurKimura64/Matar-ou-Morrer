@@ -5330,7 +5330,7 @@
       "Damage": 10,
       "MinimumDistance": 25,
       "MaximumDistance": 27,
-      "LoadTime": 5,
+      "LoadTime": 3,
       "Dices": 6,
       "Ambient": [
         "Earth",
