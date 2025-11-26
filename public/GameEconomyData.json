@@ -5757,7 +5757,7 @@
       "Damage": 11,
       "MinimumDistance": 1,
       "MaximumDistance": 3,
-      "LoadTime": 2,
+      "LoadTime": 1,
       "Dices": 2,
       "Ambient": [
         "Earth"
