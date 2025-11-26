@@ -172,7 +172,8 @@
       ],
       "PassivesData": [
         "Passive.Caos1",
-        "Passive.Caos2"
+        "Passive.Caos2",
+        "Passive.Caos3"
       ],
       "PowersData": [
         "Power.Caos1",
@@ -2453,6 +2454,10 @@
     {
       "ID": "Passive.Caos2",
       "Description": "Passive.Caos2.Description"
+    },
+    {
+      "ID": "Passive.Caos3",
+      "Description": "Passive.Caos3.Description"
     },
     {
       "ID": "Passive.Ryan1",
