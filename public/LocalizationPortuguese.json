@@ -987,7 +987,7 @@
   "Passive.MulherFantasma3": "Presença Imperceptível",
   "Passive.MulherFantasma3.Description": "Nenhum inimigo poderá te mover, usar algum poder, dispositivo ou habilidade passiva em você até o fim do combate (gasta 3 pulos).",
   "Passive.MulherFantasma4": "Ocultação Aumentada",
-  "Passive.MulherFantasma4.Description": "Após o primeiro ataque do inimigo no combate, você ganhará +1 dado de defesa a cada rodada que se passar, dura até o fim do combate(gasta 1 pulo).",
+  "Passive.MulherFantasma4.Description": "Após o primeiro ataque do inimigo no combate, você ganhará +1 dado de defesa a cada turno que se passar, dura até o fim do combate(gasta 1 pulo).",
   "Passive.Eterno 1": "Fortificado",
   "Passive.Eterno 1.Description": "Em cada combate o primeiro ataque do inimigo contra você recebe -2 em cada dado.",
   "Passive.Eterno 2": "Revanche",
