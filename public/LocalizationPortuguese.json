@@ -1236,7 +1236,7 @@
   "Device.Eterno 2": "Cubo 3 Pilares",
   "Device.Eterno 2.Description": "Pode usar o cubo para selar um poder ou dispositivo que o inimigo usou contra você fazendo com que ele não possa mais recupera-lo após o uso.",
   "Power.Impact1": "Empurro Fatal",
-  "Power.Impact1.Description": "Ao empurrar um inimigo, o inimigo perderá 5 de vida automáticamente.",
+  "Power.Impact1.Description": "Ao empurrar um inimigo durante sua rodada passiva faz ele perder 5 de vida automáticamente.",
   "Power.Impact2": "Velocidade Absurda",
   "Power.Impact2.Description": "Você pode se mover até dois pontos de conexão de distância. O primeiro ponto deve estar conectado ao seu caminho atual, e o segundo, ao primeiro.",
   "Power.Impact3": "Aproveitador",
