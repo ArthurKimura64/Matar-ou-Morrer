@@ -20,7 +20,7 @@ const Counter = ({ id, title, value, min, max, onChange }) => {
 
   return (
     <div className="col-12 col-md-3 mb-2 mb-md-0 d-flex justify-content-center">
-      <div className="card-body p-2 d-flex flex-column align-items-center">
+      <div className="card-body p-2 d-flex flex-column align-items-center numeric-counter-card">
         <div className="fw-bold mb-1" style={{fontSize: '0.95em'}}>
           {title}
         </div>

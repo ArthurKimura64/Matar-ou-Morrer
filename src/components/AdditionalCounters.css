@@ -1,0 +1,190 @@
+
+.squares-counter-wrapper {
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.squares-counter-wrapper:hover {
+  background: rgba(102, 204, 255, 0.06);
+}
+
+.squares-counter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 8px 0 2px 0;
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.square-counter {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #444;
+  background: #181a1b;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: box-shadow 0.15s, border-color 0.15s, background 0.15s;
+  position: relative;
+  font-size: 1.15em;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.12);
+  outline: none;
+  pointer-events: none; /* cliques são capturados pelo wrapper */
+}
+
+.square-counter:focus {
+  border-color: #6cf;
+  box-shadow: 0 0 0 2px #6cf2;
+}
+
+/* Hover preview: mostra X translúcido apenas no primeiro quadrado não marcado */
+.square-counter.hover-preview {
+  border-color: #6cf;
+  background: #23272b;
+}
+
+.square-counter.hover-preview::after {
+  content: '✕';
+  position: absolute;
+  opacity: 0.5;
+  color: #6cf;
+  font-size: 1.1em;
+  pointer-events: none;
+  left: 0; right: 0; top: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInX 0.15s ease;
+}
+
+@keyframes fadeInX {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 0.5; transform: scale(1); }
+}
+
+.square-counter.marked {
+  background: #222e36;
+  border-color: #6cf;
+  color: #6cf;
+  font-weight: bold;
+  box-shadow: 0 2px 6px 0 #6cf2;
+}
+
+.square-counter.marked::after {
+  content: '';
+}
+
+/* Botão de reset */
+.squares-reset-btn {
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.squares-reset-btn:hover {
+  opacity: 1;
+}
+
+/* Novo estilo para ícone de reset discreto */
+.squares-card {
+  position: relative;
+  /* manter conteúdo compacto; botão agora é posicionado fora do card */
+  padding-bottom: 8px;
+}
+
+/* container da coluna que envolve o card; botão ficará absoluto relativo a este elemento */
+.squares-col {
+  position: relative;
+  /* reservar espaço suficiente abaixo para o botão aparecer sem empurrar conteúdo */
+  padding-bottom: 36px;
+}
+
+/* O botão de reset foi reposicionado abaixo dos quadrados; usar .squares-reset-btn para espaçamento */
+.squares-reset-btn {
+  /* absoluto relativo a .squares-col; posicionado abaixo do card para não cobrir a grade */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 6px; /* fica ligeiramente fora do card */
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+.squares-col:hover .squares-reset-btn {
+  opacity: 0.95;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(-1px);
+}
+
+@media (max-width: 576px) {
+  .square-counter { width: 24px; height: 24px; font-size: 1em; }
+  .squares-counter { max-width: 140px; }
+  /* reduzir o espaçamento no topo em telas pequenas para conservar espaço */
+  /* manter espaçamento compacto em mobile */
+  .squares-reset-btn { font-size: 0.9em; bottom: 8px; width: 26px; height: 26px; }
+}
+
+/* ===== Numeric Counter Styles (improve look of + / - counters) ===== */
+.numeric-counter-card {
+  min-width: 160px;
+}
+.numeric-counter-card .fw-bold { color: #e6eef8; }
+.numeric-counter-card .input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.numeric-counter-card .btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.numeric-counter-card .btn-outline-danger {
+  border-color: rgba(220, 80, 80, 0.18);
+  color: #ff8787;
+  background: rgba(200, 30, 30, 0.02);
+}
+.numeric-counter-card .btn-outline-success {
+  border-color: rgba(110, 200, 140, 0.12);
+  color: #9beeb0;
+  background: rgba(20, 120, 60, 0.02);
+}
+.numeric-counter-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.45);
+}
+.numeric-counter-card input.form-control {
+  width: 72px !important;
+  min-width: 56px;
+  background: #0f1314;
+  border: 1px solid #1f2527;
+  color: #dbefff;
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.numeric-counter-card input.form-control:focus {
+  border-color: #5bd1ff;
+  box-shadow: 0 0 0 3px rgba(91,209,255,0.06);
+  outline: none;
+}
+@media (max-width: 767.98px) {
+  .numeric-counter-card .btn { width: 34px; height: 34px; }
+  .numeric-counter-card input.form-control { width: 56px !important; }
+}

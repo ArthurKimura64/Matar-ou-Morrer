@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import PlayerStatusBadge from './PlayerStatusBadge';
+import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
 
 const PlayerDetailedStatus = ({ 
   player, 
@@ -43,10 +44,28 @@ const PlayerDetailedStatus = ({
     };
   }, [player?.counters]);
 
-  // Memoizar contadores adicionais
-  const additionalCounters = useMemo(() => 
-    player?.additional_counters || {}, [player?.additional_counters]
-  );
+  // Memoizar contadores adicionais. Se não houver dados salvos, tentar derivar a partir do actor definitions
+  const additionalCounters = useMemo(() => {
+    if (player?.additional_counters && Object.keys(player.additional_counters).length > 0) {
+      return player.additional_counters;
+    }
+
+    // Se não há contadores salvos, tentar derivar da definição do personagem e retornar com current: 0
+    try {
+      const actorId = player?.character_name;
+      if (!actorId || !gameData) return {};
+      const characterName = actorId;
+      const derived = getCharacterAdditionalCounters(characterName, { actor: gameData.ActorDefinitions?.find(a => a.ID === actorId) || {}, gameData, localization });
+      // Garantir current = 0 para exibição na sidebar
+      const resetDerived = {};
+      Object.entries(derived || {}).forEach(([k, v]) => {
+        resetDerived[k] = { ...v, current: 0 };
+      });
+      return resetDerived;
+    } catch (e) {
+      return {};
+    }
+  }, [player?.additional_counters, player?.character_name, gameData, localization]);
 
   // Memoizar dados de características otimizados
   const characteristicsData = useMemo(() => {

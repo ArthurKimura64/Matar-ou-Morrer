@@ -1,0 +1,38 @@
+.character-sheet-counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0 auto;
+  padding: 6px 4px;
+}
+
+.character-sheet-counters .col-12.col-md-3 {
+  /* Tornar os cartões de contador mais compactos em telas grandes */
+  flex: 0 0 auto;
+  width: auto !important;
+  max-width: 220px;
+}
+
+.character-sheet-counters .card-body.p-2 {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Deixar empilhado no mobile para boa legibilidade */
+@media (max-width: 767.98px) {
+  .character-sheet-counters {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .character-sheet-counters .col-12.col-md-3 {
+    width: 100% !important;
+    max-width: none;
+  }
+}
+
+/* Pequeno ajuste visual para os títulos dentro dos contadores */
+.character-sheet-counters .fw-bold {
+  font-size: 0.92em;
+}

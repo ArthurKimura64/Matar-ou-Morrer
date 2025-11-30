@@ -156,7 +156,8 @@ const TableCards = ({
                 </div>
               ) : (
                 <div className="d-flex flex-column gap-3">
-                  {playersWithExposedCards.map(player => (
+                  {playersWithExposedCards.map(player => {
+                    return (
                     <div key={player.id} className="mb-3">
                       <h6 className="text-primary mb-3 d-flex align-items-center gap-2">
                         <span>👤 {player.name}</span>
@@ -166,6 +167,73 @@ const TableCards = ({
                       </h6>
                       <div className="row g-2">
                         {player.exposed_cards.map(itemId => {
+                            // Verificar se é uma descrição de personagem
+                            if (itemId.startsWith('Description.')) {
+                              const actorId = itemId.replace('Description.', '');
+                              const description = localization[`Character.Description.${actorId}`];
+                              if (!description) return null;
+                              
+                              const characterName = localization[`Character.Name.${actorId}`] || actorId;
+                              
+                              return (
+                                <div key={itemId} className="col-12 mb-2">
+                                  <div 
+                                    className="card border-secondary h-100"
+                                    style={{background: 'var(--bs-gray-800)', color: '#fff'}}
+                                  >
+                                    <div className="card-body p-2">
+                                      <div className="fw-bold text-secondary mb-1 small">
+                                        📖 {localization['UI.TableCards.Description'] || 'Descrição'}: {characterName}
+                                      </div>
+                                      <div 
+                                        className="mb-1 small" 
+                                        style={{ fontSize: '0.85rem' }}
+                                        dangerouslySetInnerHTML={{ __html: description }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            
+                            // Verificar se é um modo Reivolk
+                            if (itemId.startsWith('Reivolk.')) {
+                              const actorId = itemId.replace('Reivolk.', '');
+                              
+                              const characterName = localization[`Character.Name.${actorId}`] || actorId;
+                              const reivalkTitle = localization[`Character.Reivolk.${actorId}.Title`];
+                              const reivalkDescription = localization[`Character.Reivolk.${actorId}.Description`];
+                              
+                              if (!reivalkTitle && !reivalkDescription) return null;
+                              
+                              return (
+                                <div key={itemId} className="col-12 mb-2">
+                                  <div 
+                                    className="card border-info h-100"
+                                    style={{background: 'var(--bs-gray-800)', color: '#fff'}}
+                                  >
+                                    <div className="card-body p-2">
+                                      <div className="fw-bold text-secondary mb-1 small">
+                                        ⚡ {localization['Characteristic.Reivolk.Title'] || 'Reivolk'}: {characterName}
+                                      </div>
+                                      {reivalkTitle && (
+                                        <div className="fw-bold text-info mb-1 small">
+                                          {reivalkTitle}
+                                        </div>
+                                      )}
+                                      {reivalkDescription && (
+                                        <div 
+                                          className="mb-1 small" 
+                                          style={{ fontSize: '0.85rem' }}
+                                          dangerouslySetInnerHTML={{ __html: reivalkDescription }}
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            
                             // Buscar o item em todas as categorias possíveis
                             let foundItem = null;
                             let itemCategory = null;
@@ -273,7 +341,8 @@ const TableCards = ({
                           })}
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -339,7 +408,8 @@ const TableCards = ({
             </div>
           ) : (
             <div className="d-flex flex-column gap-3">
-              {playersWithExposedCards.map(player => (
+              {playersWithExposedCards.map(player => {
+                return (
                 <div key={player.id} className="mb-3">
                   <h6 className="text-primary mb-3 d-flex align-items-center gap-2">
                     <span>👤 {player.name}</span>
@@ -349,6 +419,71 @@ const TableCards = ({
                   </h6>
                   <div className="row g-2">
                     {player.exposed_cards.map(itemId => {
+                      // Verificar se é uma descrição de personagem
+                      if (itemId.startsWith('Description.')) {
+                        const actorId = itemId.replace('Description.', '');
+                        const description = localization[`Character.Description.${actorId}`];
+                        if (!description) return null;
+                        
+                        const characterName = localization[`Character.Name.${actorId}`] || actorId;
+                        
+                        return (
+                          <div key={itemId} className="col-12 mb-2">
+                            <div 
+                              className="card border-secondary h-100"
+                              style={{background: 'var(--bs-gray-800)', color: '#fff'}}
+                            >
+                              <div className="card-body p-2">
+                                <div className="fw-bold text-secondary mb-1">
+                                  📖 {localization['UI.TableCards.Description'] || 'Descrição'}: {characterName}
+                                </div>
+                                <div 
+                                  className="mb-1" 
+                                  dangerouslySetInnerHTML={{ __html: description }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Verificar se é um modo Reivolk
+                      if (itemId.startsWith('Reivolk.')) {
+                        const actorId = itemId.replace('Reivolk.', '');
+                        
+                        const characterName = localization[`Character.Name.${actorId}`] || actorId;
+                        const reivalkTitle = localization[`Character.Reivolk.${actorId}.Title`];
+                        const reivalkDescription = localization[`Character.Reivolk.${actorId}.Description`];
+                        
+                        if (!reivalkTitle && !reivalkDescription) return null;
+                        
+                        return (
+                          <div key={itemId} className="col-12 mb-2">
+                            <div 
+                              className="card border-info h-100"
+                              style={{background: 'var(--bs-gray-800)', color: '#fff'}}
+                            >
+                              <div className="card-body p-2">
+                                <div className="fw-bold text-secondary mb-1">
+                                  ⚡ {localization['Characteristic.Reivolk.Title'] || 'Reivolk'}: {characterName}
+                                </div>
+                                {reivalkTitle && (
+                                  <div className="fw-bold text-info mb-1">
+                                    {reivalkTitle}
+                                  </div>
+                                )}
+                                {reivalkDescription && (
+                                  <div 
+                                    className="mb-1" 
+                                    dangerouslySetInnerHTML={{ __html: reivalkDescription }}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
                       // Buscar o item em todas as categorias possíveis
                       let foundItem = null;
                       let itemCategory = null;
@@ -453,7 +588,8 @@ const TableCards = ({
                     })}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

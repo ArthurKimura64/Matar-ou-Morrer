@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Counter from './Counter';
+import SquaresCounter from './SquaresCounter';
 import CharacteristicCard from './CharacteristicCard';
 import SpecialCharacteristics from './SpecialCharacteristics';
 import AdditionalCounters from './AdditionalCounters';
+import './CharacterSheet.css';
 import { Utils } from '../utils/Utils';
 import { RoomService } from '../services/roomService';
 import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
@@ -113,27 +115,30 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (actor && selections && currentPlayer?.id) {
       // RESTAURAR contadores salvos do banco, ou usar valores iniciais
       if (currentPlayer.counters) {
-        
-        // Mesclar contadores salvos com initialCounters para garantir que *_max existam
+
+        // Mesclar contadores salvos com initialCounters,
+        // MAS garantir que os valores "*_max" sempre venham dos valores iniciais do ator.
+        // Isso evita que valores máximos salvos incorretamente (por versões antigas ou bugs)
+        // substituam os limites reais do personagem.
+        const saved = currentPlayer.counters || {};
         const restoredCounters = {
-          ...initialCounters, // Começar com os valores iniciais (que têm *_max corretos)
-          ...currentPlayer.counters // Sobrescrever com os valores salvos
+          // Começar com os valores salvos (preserva o estado atual do usuário)
+          ...saved,
+          // Garantir que os campos base existam e os *_max corretos sejam aplicados
+          vida: saved.vida !== undefined ? saved.vida : initialCounters.vida,
+          vida_max: initialCounters.vida_max || 20,
+          esquiva: saved.esquiva !== undefined ? saved.esquiva : initialCounters.esquiva,
+          esquiva_max: initialCounters.esquiva_max || 0,
+          oport: saved.oport !== undefined ? saved.oport : initialCounters.oport,
+          oport_max: initialCounters.oport_max || 0,
+          item: saved.item !== undefined ? saved.item : initialCounters.item,
+          item_max: initialCounters.item_max || 0,
+          mortes: saved.mortes !== undefined ? saved.mortes : initialCounters.mortes
         };
-        
-        // Garantir que os valores *_max não sejam perdidos ou zerados
-        if (!restoredCounters.esquiva_max && initialCounters.esquiva_max) {
-          restoredCounters.esquiva_max = initialCounters.esquiva_max;
-        }
-        if (!restoredCounters.oport_max && initialCounters.oport_max) {
-          restoredCounters.oport_max = initialCounters.oport_max;
-        }
-        if (!restoredCounters.item_max && initialCounters.item_max) {
-          restoredCounters.item_max = initialCounters.item_max;
-        }
-        
-  setCounters(restoredCounters);
-        
-        // Atualizar o banco com os valores corrigidos (caso estejam faltando *_max)
+
+        setCounters(restoredCounters);
+
+        // Atualizar o banco com os valores corrigidos (forçar *_max corretos caso estivesse salvo errado)
         RoomService.updatePlayerCounters(currentPlayer.id, restoredCounters);
       } else {
         setCounters(initialCounters);
@@ -159,22 +164,37 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       });
       
       // RESTAURAR contadores adicionais do banco, ou resetar para 0
-      if (currentPlayer.additional_counters && Object.keys(currentPlayer.additional_counters).length > 0) {
-        setAdditionalCounters(currentPlayer.additional_counters);
-      } else {
-        // Na ficha, os contadores especiais devem começar em 0, não no máximo
-        const resetCountersData = {};
-        Object.entries(additionalCountersData).forEach(([key, counter]) => {
-          resetCountersData[key] = {
-            ...counter,
-            current: 0 // Começar sempre em 0 na ficha
-          };
-        });
-        
-  setAdditionalCounters(resetCountersData);
-        
-        // Sincronizar contadores adicionais
-        RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData);
+      {
+        // If player has saved additional_counters, ensure they match the new character's counter keys.
+        const saved = currentPlayer.additional_counters || {};
+        const savedKeys = new Set(Object.keys(saved));
+        const expectedKeys = new Set(Object.keys(additionalCountersData));
+
+        const keysMatch = savedKeys.size === expectedKeys.size &&
+          [...expectedKeys].every(k => savedKeys.has(k));
+
+        if (saved && Object.keys(saved).length > 0 && keysMatch) {
+          // Saved counters match the current character's definitions -> restore them
+          setAdditionalCounters(saved);
+        } else {
+          // Mismatch or no saved counters -> build fresh reset counters from definitions
+          const resetCountersData = {};
+          Object.entries(additionalCountersData).forEach(([key, counter]) => {
+            resetCountersData[key] = {
+              ...counter,
+              current: 0 // Começar sempre em 0 na ficha
+            };
+          });
+
+          setAdditionalCounters(resetCountersData);
+
+          // Persist reset counters to the DB so future reloads don't re-use old counters
+          if (currentPlayer?.id) {
+            RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData).catch(err => {
+              console.error('Erro ao persistir contadores adicionais resetados:', err);
+            });
+          }
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -475,9 +495,27 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // Limpar estado local
     setExposedCards(new Set());
     
+    // Resetar contadores adicionais do personagem atual para 0 (para evitar manter contadores
+    // de uma ficha anterior quando o jogador reinicia/seleciona novamente)
+    try {
+      const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
+      const additionalCountersData = getCharacterAdditionalCounters(characterName, { actor, selections, gameData, localization });
+      const resetAdditional = {};
+      Object.entries(additionalCountersData).forEach(([key, counter]) => {
+        resetAdditional[key] = { ...counter, current: 0 };
+      });
+
+      setAdditionalCounters(resetAdditional);
+      if (currentPlayer?.id) {
+        await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetAdditional);
+      }
+    } catch (err) {
+      console.error('Erro ao resetar contadores adicionais no handleReset:', err);
+    }
+    
     // Chamar função de reset original
     onReset();
-  }, [currentPlayer?.id, currentPlayer?.app_state, actor?.ID, onReset]);
+  }, [currentPlayer?.id, currentPlayer?.app_state, actor?.ID, onReset, selections, gameData, localization]);
 
   const renderItemCard = ({ item, section, isBlocked }) => {
     // Título: se for device, power, special, mostrar TriggerType
@@ -722,10 +760,29 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       </h3>
       
       {localization[`Character.Description.${actor.ID}`] && (
-        <div 
-          className="col-10 mb-4 px-3"
-          dangerouslySetInnerHTML={{ __html: localization[`Character.Description.${actor.ID}`] }}
-        />
+        <div className="col-12 mb-4 px-3">
+          {/* Botão de olho posicionado acima à direita para não cobrir a descrição */}
+          <div className="d-flex justify-content-end mb-2">
+            <button
+              className={`btn btn-sm ${exposedCards.has(`Description.${actor.ID}`) ? 'btn-success' : 'btn-outline-secondary'}`}
+              style={{
+                zIndex: 1,
+                width: '28px',
+                height: '28px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px'
+              }}
+              onClick={() => handleToggleCardExposure(`Description.${actor.ID}`)}
+              title={exposedCards.has(`Description.${actor.ID}`) ? 'Ocultar descrição da mesa' : 'Expor descrição na mesa'}
+            >
+              👁️
+            </button>
+          </div>
+          <div className="col-12" dangerouslySetInnerHTML={{ __html: localization[`Character.Description.${actor.ID}`] }} />
+        </div>
       )}
 
       {Utils.transformationSystem.hasTransformation(actor) && (
@@ -786,7 +843,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         </div>
       )}
 
-      <div className="mb-3 row justify-content-center text-center">
+      <div className="mb-3 character-sheet-counters text-center">
         <Counter
           id="vida"
           title={localization['Characteristic.Health'] || 'Characteristic.Health'}
@@ -795,28 +852,28 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           max={null}
           onChange={(value) => handleCounterChange('vida', value)}
         />
-        <Counter
+        <SquaresCounter
           id="esquiva"
           title={localization['Characteristic.DodgePoints'] || 'Characteristic.DodgePoints'}
           value={counters.esquiva}
           min={0}
-          max={null}
+          max={counters.esquiva_max}
           onChange={(value) => handleCounterChange('esquiva', value)}
         />
-        <Counter
+        <SquaresCounter
           id="oport"
           title={localization['Characteristic.OportunityAttack'] || 'Characteristic.OportunityAttack'}
           value={counters.oport}
           min={0}
-          max={null}
+          max={counters.oport_max}
           onChange={(value) => handleCounterChange('oport', value)}
         />
-        <Counter
+        <SquaresCounter
           id="item"
           title={localization['Characteristic.ExplorationItens'] || 'Characteristic.ExplorationItens'}
           value={counters.item}
           min={0}
-          max={null}
+          max={counters.item_max}
           onChange={(value) => handleCounterChange('item', value)}
         />
         <Counter
@@ -830,7 +887,13 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       </div>
 
       <div className="row justify-content-center">
-        <CharacteristicCard actor={actor} localization={localization} deathCount={counters.mortes} />
+        <CharacteristicCard 
+          actor={actor} 
+          localization={localization} 
+          deathCount={counters.mortes}
+          exposedCards={exposedCards}
+          onToggleCardExposure={handleToggleCardExposure}
+        />
       </div>
 
       <div id="character-items">

@@ -704,13 +704,15 @@ export class RoomService {
   // Reconectar jogador existente
   static async reconnectPlayer(playerId) {
     try {
-      
       const { data, error } = await supabase
         .from('players')
         .update({ 
           is_connected: true,
-          last_activity: new Date().toISOString(),
-          exposed_cards: [] // Limpar cartas expostas na reconexão
+          last_activity: new Date().toISOString()
+          // IMPORTANT: do not clear `exposed_cards` here - we want
+          // players' exposed cards (eye selections) to persist across
+          // reconnects / page reloads. Clearing them on reconnect caused
+          // the UI to lose the "cards on table" state.
         })
         .eq('id', playerId)
         .select()

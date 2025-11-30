@@ -2,15 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
 import './CombatNotifications.css';
 
-/**
- * SISTEMA DE COMBATE COMPLETO - VERSÃO NOVA
- * 
- * Fluxo:
- * 1. weapon_selection: Defensor escolhe arma (se permitido)
- * 2. rolling: Rolagem de dados em rodadas
- * 3. results: Exibição final de todas as rodadas
- */
-
 const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameData, localization, players }) => {
   const [combat, setCombat] = useState(null);
   const [rolling, setRolling] = useState(false);
@@ -49,11 +40,20 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
 
   // ========== SUBSCRIPTION REALTIME ==========
   useEffect(() => {
+    if (!roomId || !currentPlayer?.id) return;
+    
+    console.log('🔔 [CombatNotifications] Iniciando subscription para sala:', roomId);
+    
     loadCombat();
 
-    // Subscrever para atualizações em tempo real
+    // Subscrever para atualizações em tempo real com configuração melhorada
     const channel = supabase
-      .channel(`combat_room_${roomId}`)
+      .channel(`combat_notif_${roomId}_${Date.now()}`, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: currentPlayer.id }
+        }
+      })
       .on(
         'postgres_changes',
         {
@@ -63,6 +63,8 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
           filter: `room_id=eq.${roomId}`
         },
         (payload) => {
+          console.log('🔔 [CombatNotifications] Atualização recebida:', payload.eventType);
+          
           // Verificar se este combate envolve o jogador atual
           const combatData = payload.new || payload.old;
 
@@ -70,18 +72,38 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
             combatData &&
             (combatData.attacker_id === currentPlayer.id || combatData.defender_id === currentPlayer.id)
           ) {
+            console.log('✅ [CombatNotifications] Jogador é participante do combate');
+            
             if (payload.eventType === 'DELETE' || combatData.status === 'cancelled' || combatData.status === 'completed') {
+              console.log('❌ [CombatNotifications] Combate finalizado');
               setCombat(null);
             } else {
+              console.log('🎮 [CombatNotifications] Atualizando combate');
               setCombat(combatData);
             }
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('📡 [CombatNotifications] Status subscription:', status, err);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ [CombatNotifications] Subscription ativa');
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('❌ [CombatNotifications] Erro na subscription:', status);
+          // Recarregar combate manualmente como fallback
+          setTimeout(loadCombat, 1000);
+        }
+      });
+
+    // Polling backup a cada 5 segundos
+    const pollInterval = setInterval(() => {
+      loadCombat();
+    }, 5000);
 
     return () => {
+      console.log('🔕 [CombatNotifications] Removendo subscription');
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [roomId, currentPlayer?.id, loadCombat]);
 

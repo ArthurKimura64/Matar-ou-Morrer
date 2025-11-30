@@ -1,5 +1,7 @@
 import React from 'react';
 import Counter from './Counter';
+import SquaresCounter from './SquaresCounter';
+import './AdditionalCounters.css';
 
 const AdditionalCounters = ({ additionalCounters, onCounterChange, playerId, localization }) => {
   if (!additionalCounters || Object.keys(additionalCounters).length === 0) {
@@ -30,18 +32,38 @@ const AdditionalCounters = ({ additionalCounters, onCounterChange, playerId, loc
   return (
     <div className="mb-3">
       <h5 className="text-white mb-3">{localization['UI.CharacterSheet.AdditionalCounters'] || 'UI.CharacterSheet.AdditionalCounters'}</h5>
-      <div className="row justify-content-center text-center">
-        {Object.entries(additionalCounters).map(([key, counterData]) => (
-          <Counter
-            key={key}
-            id={key}
-            title={`${counterData.icon || '📊'} ${counterData.label || key}`}
-            value={counterData.current || 0}
-            min={counterData.min || 0}
-            max={counterData.max || 10} // Usar o valor máximo definido, não null
-            onChange={(value) => handleCounterChange(key, value)}
-          />
-        ))}
+      <div className="row justify-content-center text-center align-items-start">
+        {Object.entries(additionalCounters).map(([key, counterData]) => {
+          const title = `${counterData.icon || '📊'} ${counterData.label || key}`;
+          const isClassic = key === 'vida' || key === 'mortes' || counterData.type === 'classic';
+
+          if (isClassic) {  
+            return (
+              <Counter
+                key={key}
+                id={key}
+                title={title}
+                value={counterData.current || 0}
+                min={counterData.min || 0}
+                max={counterData.max || 10}
+                onChange={(value) => handleCounterChange(key, value)}
+              />
+            );
+          }
+
+          // Squares-style counter for other types
+          return (
+            <SquaresCounter
+              key={key}
+              id={key}
+              title={title}
+              value={counterData.current || 0}
+              min={counterData.min || 0}
+              max={counterData.max || 10}
+              onChange={(newVal) => handleCounterChange(key, newVal)}
+            />
+          );
+        })}
       </div>
     </div>
   );

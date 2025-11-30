@@ -319,11 +319,21 @@ const CombatPanel = ({
 
   // ========== SUBSCRIPTION REALTIME ==========
   useEffect(() => {
+    if (!roomId || !currentPlayer?.id) return;
+    
+    console.log('🔔 Iniciando subscription de combate para sala:', roomId);
+    
+    // Carregar combate existente primeiro
     loadCombat();
 
-    // Subscrever para atualizações em tempo real
+    // Subscrever para atualizações em tempo real com configuração melhorada
     const channel = supabase
-      .channel(`combat_room_${roomId}`)
+      .channel(`combat_room_${roomId}_${Date.now()}`, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: currentPlayer.id }
+        }
+      })
       .on(
         'postgres_changes',
         {
@@ -333,7 +343,7 @@ const CombatPanel = ({
           filter: `room_id=eq.${roomId}`
         },
         (payload) => {
-          console.log('🔔 Atualização de combate recebida:', payload);
+          console.log('🔔 Atualização de combate recebida:', payload.eventType);
           
           const combatData = payload.new || payload.old;
           console.log('💾 Dados do combate:', combatData);
@@ -384,13 +394,29 @@ const CombatPanel = ({
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('📡 Status da subscription de combate:', status, err);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Subscription de combate ativa para sala:', roomId);
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('❌ Erro na subscription de combate:', status);
+          // Tentar recarregar combate manualmente
+          setTimeout(loadCombat, 1000);
+        }
+      });
+
+    // Polling backup a cada 5 segundos para garantir sincronização
+    const pollInterval = setInterval(() => {
+      loadCombat();
+    }, 5000);
 
     return () => {
+      console.log('🔕 Removendo subscription de combate');
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, currentPlayer?.id, loadCombat]);
+  }, [roomId, currentPlayer?.id, loadCombat, isOpen, onToggle]);
 
   // ========== INICIALIZAR VALORES TEMPORÁRIOS QUANDO COMBATE MUDAR ==========
   useEffect(() => {
