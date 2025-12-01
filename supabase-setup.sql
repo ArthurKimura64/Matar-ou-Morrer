@@ -655,6 +655,13 @@ CREATE TABLE IF NOT EXISTS public.combat_notifications (
 ALTER TABLE public.combat_notifications 
 ADD COLUMN IF NOT EXISTS opportunity_attacks_used JSONB DEFAULT '[]';
 
+-- Adicionar colunas para dados de defesa do atacante e defensor (para sincronização em tempo real)
+ALTER TABLE public.combat_notifications 
+ADD COLUMN IF NOT EXISTS attacker_defense_dices INTEGER;
+
+ALTER TABLE public.combat_notifications 
+ADD COLUMN IF NOT EXISTS defender_defense_dices INTEGER;
+
 -- Adicionar constraint de check para status
 ALTER TABLE public.combat_notifications 
 DROP CONSTRAINT IF EXISTS combat_notifications_status_check;

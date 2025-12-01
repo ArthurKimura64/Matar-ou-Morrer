@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CharacteristicCard = ({ actor, localization, deathCount = 0, exposedCards = new Set(), onToggleCardExposure }) => {
+const CharacteristicCard = ({ actor, localization, deathCount = 0, exposedCards = new Set(), onToggleCardExposure, showReivolk = false }) => {
   return (
     <div className="card col-sm-10 my-3 p-0">
       <div className="row g-0">
@@ -49,8 +49,8 @@ const CharacteristicCard = ({ actor, localization, deathCount = 0, exposedCards 
           </ul>
         </div>
       </div>
-      {/* Só mostrar descrição do Reivolk se houver 2+ mortes */}
-      {deathCount >= 2 && (
+      {/* Mostrar descrição do Reivolk se houver 2+ mortes, ou se for forçado via `showReivolk` */}
+      {(deathCount >= 2 || showReivolk) && (
         <div className="mb-4 border-top px-3 position-relative">
           {/* Botão de olho para expor o modo Reivolk na mesa */}
           {onToggleCardExposure && (

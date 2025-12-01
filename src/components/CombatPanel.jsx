@@ -81,77 +81,6 @@ const CombatPanel = ({
     };
   };
 
-  // ===== COMPONENTE DE AJUSTE DE DADOS =====
-  const DiceAdjuster = ({ weapon, onAdjust, compact = false }) => {
-    if (!weapon) return null;
-    
-    const currentDices = parseInt(weapon.Dices) || 1;
-    const canDecrease = currentDices > 1;
-    const canIncrease = currentDices < 12;
-    
-    console.log('DiceAdjuster render:', { weapon: weapon.Name, currentDices, canDecrease, canIncrease });
-    
-    return (
-      <div 
-        className={`d-flex align-items-center gap-1 ${compact ? '' : 'mt-2'}`}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('DiceAdjuster div clicked - prevented');
-        }}
-      >
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-danger"
-          style={{ width: '28px', height: '28px', padding: '0', fontSize: '14px' }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Decrease button clicked', { canDecrease, currentDices });
-            if (canDecrease && onAdjust) {
-              const adjusted = adjustWeaponDices(weapon, -1);
-              console.log('Calling onAdjust with:', adjusted);
-              onAdjust(adjusted);
-            }
-          }}
-          disabled={!canDecrease}
-          title="Diminuir dados"
-        >
-          −
-        </button>
-        <div className="text-center" style={{ minWidth: '60px' }}>
-          <div className="text-white fw-bold" style={{ fontSize: compact ? '14px' : '16px' }}>
-            🎲 {currentDices}
-          </div>
-          {!compact && (
-            <div className="text-muted" style={{ fontSize: '10px' }}>
-              dados
-            </div>
-          )}
-        </div>
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-success"
-          style={{ width: '28px', height: '28px', padding: '0', fontSize: '14px' }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Increase button clicked', { canIncrease, currentDices });
-            if (canIncrease && onAdjust) {
-              const adjusted = adjustWeaponDices(weapon, 1);
-              console.log('Calling onAdjust with:', adjusted);
-              onAdjust(adjusted);
-            }
-          }}
-          disabled={!canIncrease}
-          title="Aumentar dados"
-        >
-          +
-        </button>
-      </div>
-    );
-  };
-
   // ===== COMPONENTE DE AJUSTE DE RESULTADO DE DADOS (DISCRETO) =====
   const DiceResultAdjuster = ({ diceArray, onAdjust, playerRole }) => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -418,19 +347,35 @@ const CombatPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, currentPlayer?.id, loadCombat, isOpen, onToggle]);
 
-  // ========== INICIALIZAR VALORES TEMPORÁRIOS QUANDO COMBATE MUDAR ==========
+  // ========== INICIALIZAR VALORES TEMPORÁRIOS QUANDO COMBATE INICIAR ==========
   useEffect(() => {
-    if (combat && combat.status === 'in_progress') {
-      // Inicializar tempDefenseDices com o valor do personagem se ainda não foi definido
-      if (tempDefenseDices === null) {
-        setTempDefenseDices(currentPlayerData?.character?.actor?.NumberOfDefenseDices || 0);
+    // Apenas inicializar quando combate muda de status para in_progress
+    // e tempDefenseDices ainda é null
+    if (combat && combat.status === 'in_progress' && tempDefenseDices === null) {
+      // Usar valor do banco se disponível, senão usar valor do personagem
+      const isAttacker = combat.attacker_id === currentPlayer?.id;
+      const isDefender = combat.defender_id === currentPlayer?.id;
+      
+      let initialValue = null;
+      if (isAttacker && combat.attacker_defense_dices !== null && combat.attacker_defense_dices !== undefined) {
+        initialValue = combat.attacker_defense_dices;
+      } else if (isDefender && combat.defender_defense_dices !== null && combat.defender_defense_dices !== undefined) {
+        initialValue = combat.defender_defense_dices;
       }
-    } else {
-      // Reset quando não há combate ativo
+      
+      if (initialValue === null) {
+        initialValue = currentPlayerData?.character?.actor?.NumberOfDefenseDices || 0;
+      }
+      
+      setTempDefenseDices(initialValue);
+    } else if (!combat || combat.status === 'completed' || combat.status === 'cancelled') {
+      // Reset quando não há combate ativo ou combate terminou
       setTempDefenseDices(null);
       setTempWeapon(null);
     }
-  }, [combat, currentPlayerData, tempDefenseDices]);
+    // NÃO incluir tempDefenseDices nas dependências para evitar loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combat?.id, combat?.status, currentPlayer?.id, currentPlayerData]);
 
   // ========== ATUALIZAR QUANDO MODO MUDAR ==========
   useEffect(() => {
@@ -795,8 +740,8 @@ const CombatPanel = ({
     if (actionType === 'attack') {
       // Atacante usa dados da arma, Defensor usa dados de defesa
       if (isAttacker) {
-        // Usar arma temporária se foi alterada
-        diceCount = parseInt(tempWeapon?.Dices || combat.attack_data.Dices) || 0;
+        // Usar arma do banco de dados (já atualizada quando trocada)
+        diceCount = parseInt(combat.attack_data.Dices) || 0;
       } else {
         // Defensor usa dados de defesa (temporário ou original)
         diceCount = getCurrentDefenseDices();
@@ -804,8 +749,8 @@ const CombatPanel = ({
     } else if (actionType === 'counter') {
       // Defensor contra-ataca com arma, Atacante defende com dados de defesa
       if (!isAttacker) {
-        // Usar arma temporária se foi alterada
-        diceCount = parseInt(tempWeapon?.Dices || combat.defender_weapon?.Dices) || 0;
+        // Usar arma do banco de dados (já atualizada quando trocada)
+        diceCount = parseInt(combat.defender_weapon?.Dices) || 0;
       } else {
         // Atacante usa dados de defesa (temporário ou original)
         diceCount = getCurrentDefenseDices();
@@ -1098,10 +1043,25 @@ const CombatPanel = ({
     return weapon.modes[combatMode] || weapon.modes.mode1 || weapon;
   };
   
-  // Obter dados de defesa atuais (temporário ou original)
+  // Obter dados de defesa atuais do jogador (prioriza valor local, depois banco, depois original)
   const getCurrentDefenseDices = () => {
+    // Primeiro, verificar se há um valor temporário local (alterado pelo usuário)
+    // Isso garante feedback imediato antes do banco atualizar
     if (tempDefenseDices !== null) {
       return tempDefenseDices;
+    }
+    
+    const isAttacker = combat?.attacker_id === currentPlayer?.id;
+    const isDefender = combat?.defender_id === currentPlayer?.id;
+    
+    // Se há um combate ativo, usar os dados do banco de dados
+    if (combat && combat.status === 'in_progress') {
+      if (isAttacker && combat.attacker_defense_dices !== null && combat.attacker_defense_dices !== undefined) {
+        return combat.attacker_defense_dices;
+      }
+      if (isDefender && combat.defender_defense_dices !== null && combat.defender_defense_dices !== undefined) {
+        return combat.defender_defense_dices;
+      }
     }
     
     // Considerar modo do personagem para dados de defesa
@@ -1113,11 +1073,75 @@ const CombatPanel = ({
     return actor?.NumberOfDefenseDices || 0;
   };
 
-  // Ajustar dados de defesa temporariamente
+  // Obter dados de defesa de um jogador específico (para exibição)
+  const getPlayerDefenseDices = (playerId) => {
+    if (!combat) return 0;
+    
+    const isPlayerAttacker = playerId === combat.attacker_id;
+    const isPlayerDefender = playerId === combat.defender_id;
+    
+    // Usar dados do banco se disponíveis
+    if (isPlayerAttacker && combat.attacker_defense_dices !== null && combat.attacker_defense_dices !== undefined) {
+      return combat.attacker_defense_dices;
+    }
+    if (isPlayerDefender && combat.defender_defense_dices !== null && combat.defender_defense_dices !== undefined) {
+      return combat.defender_defense_dices;
+    }
+    
+    // Fallback: buscar dados do jogador na lista de players
+    const player = players.find(p => p.id === playerId);
+    return player?.character?.actor?.NumberOfDefenseDices || 0;
+  };
+
+  // Ajustar dados de defesa e sincronizar com banco de dados
   const adjustDefenseDices = (delta) => {
     const current = getCurrentDefenseDices();
     const newValue = Math.max(0, Math.min(8, current + delta)); // Limite entre 0 e 8
+    handleDefenseDicesChange(newValue);
+  };
+
+  // Atualizar dados de defesa localmente E no banco de dados
+  const handleDefenseDicesChange = (newValue) => {
+    // Atualizar estado local PRIMEIRO para feedback imediato
     setTempDefenseDices(newValue);
+    
+    // Depois atualizar no banco de dados (async, em background)
+    syncDefenseDicesToDatabase(newValue);
+  };
+
+  // Sincronizar dados de defesa com o banco de dados (em background)
+  const syncDefenseDicesToDatabase = async (newValue) => {
+    if (combat && combat.id) {
+      try {
+        const isAttacker = combat.attacker_id === currentPlayer?.id;
+        const isDefender = combat.defender_id === currentPlayer?.id;
+        
+        let updateData = {
+          updated_at: new Date().toISOString()
+        };
+        
+        if (isAttacker) {
+          updateData.attacker_defense_dices = newValue;
+          console.log('🛡️ Atualizando dados de defesa do atacante:', newValue);
+        } else if (isDefender) {
+          updateData.defender_defense_dices = newValue;
+          console.log('🛡️ Atualizando dados de defesa do defensor:', newValue);
+        }
+        
+        const { error } = await supabase
+          .from('combat_notifications')
+          .update(updateData)
+          .eq('id', combat.id);
+        
+        if (error) {
+          console.error('Erro ao atualizar dados de defesa:', error);
+        } else {
+          console.log('✅ Dados de defesa atualizados com sucesso');
+        }
+      } catch (err) {
+        console.error('Erro ao sincronizar dados de defesa:', err);
+      }
+    }
   };
 
   // ========== GERENCIAMENTO DE RODADAS ==========
@@ -1198,10 +1222,45 @@ const CombatPanel = ({
     setShowWeaponChange(true);
   };
 
-  // Confirmar troca de arma
-  const confirmWeaponChange = (weapon) => {
+  // Confirmar troca de arma - atualiza localmente E no banco de dados
+  const confirmWeaponChange = async (weapon) => {
     setTempWeapon(weapon);
     setShowWeaponChange(false);
+    
+    // Atualizar no banco de dados para sincronizar com outros jogadores
+    if (combat && combat.id) {
+      try {
+        const isAttacker = combat.attacker_id === currentPlayer?.id;
+        const isDefender = combat.defender_id === currentPlayer?.id;
+        
+        let updateData = {
+          updated_at: new Date().toISOString()
+        };
+        
+        if (isAttacker) {
+          // Atacante trocou de arma - atualizar attack_data
+          updateData.attack_data = weapon;
+          console.log('🔄 Atualizando arma do atacante no banco de dados:', weapon.Name);
+        } else if (isDefender) {
+          // Defensor trocou de arma - atualizar defender_weapon
+          updateData.defender_weapon = weapon;
+          console.log('🔄 Atualizando arma do defensor no banco de dados:', weapon.Name);
+        }
+        
+        const { error } = await supabase
+          .from('combat_notifications')
+          .update(updateData)
+          .eq('id', combat.id);
+        
+        if (error) {
+          console.error('Erro ao atualizar arma no banco de dados:', error);
+        } else {
+          console.log('✅ Arma atualizada com sucesso no banco de dados');
+        }
+      } catch (err) {
+        console.error('Erro ao sincronizar troca de arma:', err);
+      }
+    }
   };
 
   const availableAttacks = getAvailableAttacks();
@@ -1369,10 +1428,10 @@ const CombatPanel = ({
                               <div
                                 key={idx}
                                 className={`card border ${
-                                  isSelected
-                                    ? 'border-success bg-success bg-opacity-25'
-                                    : 'border-secondary'
-                                }`}
+                                  isSelected ? 'border-success bg-success bg-opacity-25' : 'border-secondary'
+                                } cursor-pointer`}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => setSelectedWeapon({ ...weapon })}
                               >
                                 <div className="card-body p-2">
                                   <div className="d-flex justify-content-between align-items-start mb-2">
@@ -1398,127 +1457,146 @@ const CombatPanel = ({
                                       <span className="text-success ms-2">✓</span>
                                     )}
                                   </div>
-                                  
-                                  {/* Ajustador de dados + botão selecionar */}
-                                  <div className="d-flex gap-2 align-items-center">
-                                    <DiceAdjuster 
-                                      weapon={isSelected ? selectedWeapon : weapon}
-                                      onAdjust={(adjustedWeapon) => setSelectedWeapon(adjustedWeapon)}
-                                      compact={true}
-                                    />
-                                    <button
-                                      className="btn btn-sm btn-success flex-grow-1"
-                                      onClick={() => setSelectedWeapon(isSelected ? selectedWeapon : weapon)}
-                                    >
-                                      Selecionar
-                                    </button>
-                                  </div>
+
+                                  {/* Quando selecionado mostramos controles editáveis (dados/tempo/dano) */}
+                                  {isSelected ? (
+                                    <div className="mt-2">
+                                      <div className="row g-2 mb-2">
+                                        <div className="col-4">
+                                          <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                          <input
+                                            type="number"
+                                            className="form-control form-control-sm"
+                                            value={selectedWeapon.Dices}
+                                            onChange={(e) => setSelectedWeapon({ ...selectedWeapon, Dices: e.target.value })}
+                                            min="1"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                        <div className="col-4">
+                                          <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                          <input
+                                            type="number"
+                                            className="form-control form-control-sm"
+                                            value={selectedWeapon.LoadTime}
+                                            onChange={(e) => setSelectedWeapon({ ...selectedWeapon, LoadTime: e.target.value })}
+                                            min="0"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                        <div className="col-4">
+                                          <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                          <input
+                                            type="number"
+                                            className="form-control form-control-sm"
+                                            value={selectedWeapon.Damage}
+                                            onChange={(e) => setSelectedWeapon({ ...selectedWeapon, Damage: e.target.value })}
+                                            min="0"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ) : null}
                                 </div>
                               </div>
                             );
                           })}
                           
                           {/* Card de Ataque Customizado */}
-                          <div
-                            className={`card border ${
-                              selectedWeapon?.Name === customAttack.Name
-                                ? 'border-warning bg-warning bg-opacity-25'
-                                : 'border-warning'
-                            }`}
-                          >
-                            <div className="card-body p-2">
-                              <div className="d-flex justify-content-between align-items-start mb-2">
-                                <h6 className="text-warning mb-0 small">
-                                  ⚙️ Ataque Personalizado
-                                </h6>
-                                {selectedWeapon?.Name === customAttack.Name && (
-                                  <span className="text-warning">✓</span>
-                                )}
-                              </div>
-                              
-                              {/* Inputs customizados */}
-                              <div className="mt-2">
-                                <div className="mb-2">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
-                                  <input
-                                    type="text"
-                                    className="form-control form-control-sm"
-                                    value={customAttack.Name}
-                                    onChange={(e) => {
-                                      const updated = {...customAttack, Name: e.target.value};
-                                      setCustomAttack(updated);
-                                      if (selectedWeapon?.Name === customAttack.Name) {
-                                        setSelectedWeapon(updated);
-                                      }
-                                    }}
-                                    placeholder="Nome do ataque"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
+                          {(() => {
+                            const isCustom = selectedWeapon?.Name === customAttack.Name;
+                            return (
+                              <div
+                                className={`card border ${isCustom ? 'border-warning bg-warning bg-opacity-25' : 'border-warning'} cursor-pointer`}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => setSelectedWeapon({ ...customAttack })}
+                              >
+                                <div className="card-body p-2">
+                                  <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                                    {isCustom && <span className="text-warning">✓</span>}
+                                  </div>
+                                  {!isCustom ? (
+                                    <div>
+                                      <div className="d-flex gap-2 flex-wrap">
+                                        <small className="text-muted">🎲 {customAttack.Dices || '1'}</small>
+                                        <small className="text-muted">⏱️ {customAttack.LoadTime || '?'}</small>
+                                        <small className="text-muted">💥 {customAttack.Damage || '0'}</small>
+                                        <span className="badge bg-secondary">{customAttack.category}</span>
+                                      </div>
+                                      <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>{customAttack.Effects}</small>
+                                    </div>
+                                  ) : (
+                                    <div className="mt-2">
+                                      <div className="mb-2">
+                                        <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                                        <input
+                                          type="text"
+                                          className="form-control form-control-sm"
+                                          value={customAttack.Name}
+                                          onChange={(e) => {
+                                            const updated = { ...customAttack, Name: e.target.value };
+                                            setCustomAttack(updated);
+                                            if (selectedWeapon?.Name === customAttack.Name) setSelectedWeapon(updated);
+                                          }}
+                                          placeholder="Nome do ataque"
+                                          onClick={(e) => e.stopPropagation()}
+                                        />
+                                      </div>
+                                      <div className="row g-2 mb-2">
+                                        <div className="col-4">
+                                          <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                          <input
+                                            type="number"
+                                            className="form-control form-control-sm"
+                                            value={customAttack.Dices}
+                                            onChange={(e) => {
+                                              const updated = { ...customAttack, Dices: e.target.value };
+                                              setCustomAttack(updated);
+                                              if (selectedWeapon?.Name === customAttack.Name) setSelectedWeapon(updated);
+                                            }}
+                                            min="1"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                        <div className="col-4">
+                                          <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                          <input
+                                            type="number"
+                                            className="form-control form-control-sm"
+                                            value={customAttack.LoadTime}
+                                            onChange={(e) => {
+                                              const updated = { ...customAttack, LoadTime: e.target.value };
+                                              setCustomAttack(updated);
+                                              if (selectedWeapon?.Name === customAttack.Name) setSelectedWeapon(updated);
+                                            }}
+                                            min="0"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                        <div className="col-4">
+                                          <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                          <input
+                                            type="number"
+                                            className="form-control form-control-sm"
+                                            value={customAttack.Damage}
+                                            onChange={(e) => {
+                                              const updated = { ...customAttack, Damage: e.target.value };
+                                              setCustomAttack(updated);
+                                              if (selectedWeapon?.Name === customAttack.Name) setSelectedWeapon(updated);
+                                            }}
+                                            min="0"
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                      </div>
+                                      </div>
+                                  )}
                                 </div>
-                                <div className="row g-2 mb-2">
-                                  <div className="col-4">
-                                    <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                                    <input
-                                      type="number"
-                                      className="form-control form-control-sm"
-                                      value={customAttack.Dices}
-                                      onChange={(e) => {
-                                        const updated = {...customAttack, Dices: e.target.value};
-                                        setCustomAttack(updated);
-                                        if (selectedWeapon?.Name === customAttack.Name) {
-                                          setSelectedWeapon(updated);
-                                        }
-                                      }}
-                                      min="1"
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  </div>
-                                  <div className="col-4">
-                                    <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                                    <input
-                                      type="number"
-                                      className="form-control form-control-sm"
-                                      value={customAttack.LoadTime}
-                                      onChange={(e) => {
-                                        const updated = {...customAttack, LoadTime: e.target.value};
-                                        setCustomAttack(updated);
-                                        if (selectedWeapon?.Name === customAttack.Name) {
-                                          setSelectedWeapon(updated);
-                                        }
-                                      }}
-                                      min="0"
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  </div>
-                                  <div className="col-4">
-                                    <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                                    <input
-                                      type="number"
-                                      className="form-control form-control-sm"
-                                      value={customAttack.Damage}
-                                      onChange={(e) => {
-                                        const updated = {...customAttack, Damage: e.target.value};
-                                        setCustomAttack(updated);
-                                        if (selectedWeapon?.Name === customAttack.Name) {
-                                          setSelectedWeapon(updated);
-                                        }
-                                      }}
-                                      min="0"
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  </div>
-                                </div>
-                                
-                                {/* Botão selecionar */}
-                                <button
-                                  className="btn btn-sm btn-warning w-100"
-                                  onClick={() => setSelectedWeapon({...customAttack})}
-                                >
-                                  Selecionar
-                                </button>
                               </div>
-                            </div>
-                          </div>
+                            );
+                          })()}
                         </div>
                       </div>
 
@@ -1591,6 +1669,12 @@ const CombatPanel = ({
                 // Verificar se é rodada de oportunidade
                 const isOpportunityRound = roundInfo.action_type === 'opportunity';
                 
+                // Verificar se o jogador atual é o atacante de oportunidade na rodada atual
+                const isOpportunityAttacker = isOpportunityRound && currentPlayer.id === roundInfo.opportunity_attacker_id;
+                
+                // Determinar se o jogador pode alterar equipamento (participantes + atacante de oportunidade)
+                const canChangeEquipment = !isSpectator || isOpportunityAttacker;
+                
                 // Definir leftPlayer e rightPlayer baseado no tipo de rodada
                 let leftPlayer, rightPlayer;
                 
@@ -1617,10 +1701,8 @@ const CombatPanel = ({
                   };
                 } else if (isAttackerActing) {
                   // Rodada normal de ataque
-                  // Verificar se o atacante trocou de arma (tempWeapon)
-                  const attackerWeaponName = isAttacker && tempWeapon 
-                    ? tempWeapon.Name 
-                    : combat.attack_data.Name;
+                  // Usar arma do banco (attack_data já é atualizada quando atacante troca de arma)
+                  const attackerWeaponName = combat.attack_data.Name;
                   
                   leftPlayer = {
                     name: combat.attacker_name,
@@ -1640,10 +1722,8 @@ const CombatPanel = ({
                   };
                 } else {
                   // Rodada de contra-ataque
-                  // Verificar se o defensor trocou de arma (tempWeapon)
-                  const defenderWeaponName = isDefender && tempWeapon 
-                    ? tempWeapon.Name 
-                    : (combat.defender_weapon?.Name || 'Arma');
+                  // Usar arma do banco (defender_weapon já é atualizada quando defensor troca de arma)
+                  const defenderWeaponName = combat.defender_weapon?.Name || 'Arma';
                   
                   leftPlayer = {
                     name: combat.defender_name,
@@ -1731,7 +1811,7 @@ const CombatPanel = ({
                     </div>
 
                     {/* ========== OPÇÕES DE ALTERAÇÃO (COMPACTO) ========== */}
-                    {!isSpectator && (
+                    {canChangeEquipment && (
                       <div className="weapon-info-panel mb-2">
                         <details className="weapon-details">
                           <summary className="weapon-summary">
@@ -1820,7 +1900,7 @@ const CombatPanel = ({
                                 min="0"
                                 max="8"
                                 value={getCurrentDefenseDices()}
-                                onChange={(e) => setTempDefenseDices(parseInt(e.target.value))}
+                                onChange={(e) => handleDefenseDicesChange(parseInt(e.target.value))}
                                 style={{ width: '100%' }}
                               />
                               
@@ -1836,8 +1916,7 @@ const CombatPanel = ({
                               <div className="d-flex gap-2 mt-2">
                                 <button 
                                   className="btn btn-sm btn-outline-secondary flex-fill"
-                                  onClick={() => setTempDefenseDices(currentPlayerData?.character?.actor?.NumberOfDefenseDices || 0)}
-                                  disabled={tempDefenseDices === null}
+                                  onClick={() => handleDefenseDicesChange(currentPlayerData?.character?.actor?.NumberOfDefenseDices || 0)}
                                 >
                                   ↺ Resetar
                                 </button>
@@ -1925,15 +2004,15 @@ const CombatPanel = ({
                         <div className="weapon-stats-compact">
                           {(() => {
                             // leftPlayer sempre é quem está atacando nesta rodada
-                            // Determinar qual arma está sendo usada
+                            // Usar arma do banco de dados (já atualizada quando trocada)
                             let weapon;
                             
                             if (isAttackerActing) {
                               // Rodada de ataque normal: atacante usa attack_data
-                              weapon = tempWeapon || combat.attack_data;
+                              weapon = combat.attack_data;
                             } else {
                               // Rodada de contra-ataque: defensor usa defender_weapon
-                              weapon = tempWeapon || combat.defender_weapon;
+                              weapon = combat.defender_weapon;
                             }
                             
                             // Aplicar modo se disponível
@@ -1950,9 +2029,6 @@ const CombatPanel = ({
                                 <span className="stat-compact" title="Dano">
                                   💥 {weaponWithMode?.Damage || '0'}
                                 </span>
-                                {tempWeapon && (
-                                  <span className="stat-compact-modified" title="Arma modificada">✅</span>
-                                )}
                               </>
                             );
                           })()}
@@ -2047,16 +2123,59 @@ const CombatPanel = ({
                             // Buscar dados de defesa de quem está defendendo nesta rodada
                             let defenseDices = '?';
                             
-                            if (isAttackerActing) {
+                            if (isOpportunityRound) {
+                              // Rodada de ataque de oportunidade: alvo está defendendo
+                              const targetIsAttacker = roundInfo.opportunity_target === 'attacker';
+                              const targetId = targetIsAttacker ? combat.attacker_id : combat.defender_id;
+                              
+                              if (targetId === currentPlayer?.id) {
+                                // É o próprio jogador - usar valor local
+                                defenseDices = getCurrentDefenseDices();
+                              } else if (targetIsAttacker) {
+                                // Alvo é o atacante original
+                                if (combat.attacker_defense_dices !== null && combat.attacker_defense_dices !== undefined) {
+                                  defenseDices = combat.attacker_defense_dices;
+                                } else {
+                                  const attackerPlayer = players.find(p => p.id === combat.attacker_id);
+                                  defenseDices = attackerPlayer?.character?.actor?.NumberOfDefenseDices || '?';
+                                }
+                              } else {
+                                // Alvo é o defensor original
+                                if (combat.defender_defense_dices !== null && combat.defender_defense_dices !== undefined) {
+                                  defenseDices = combat.defender_defense_dices;
+                                } else {
+                                  const defenderPlayer = players.find(p => p.id === combat.defender_id);
+                                  defenseDices = defenderPlayer?.character?.actor?.NumberOfDefenseDices || '?';
+                                }
+                              }
+                            } else if (isAttackerActing) {
                               // Rodada de ataque normal: defensor (defender_id) está defendendo
-                              // Buscar dados do defensor na lista de players
-                              const defenderPlayer = players.find(p => p.id === combat.defender_id);
-                              defenseDices = defenderPlayer?.character?.actor?.NumberOfDefenseDices || '?';
+                              // Usar dados do banco ou do jogador atual se for o próprio
+                              if (combat.defender_id === currentPlayer?.id) {
+                                // É o próprio jogador - usar valor local
+                                defenseDices = getCurrentDefenseDices();
+                              } else if (combat.defender_defense_dices !== null && combat.defender_defense_dices !== undefined) {
+                                // Usar valor do banco de dados
+                                defenseDices = combat.defender_defense_dices;
+                              } else {
+                                // Fallback: buscar dados do defensor na lista de players
+                                const defenderPlayer = players.find(p => p.id === combat.defender_id);
+                                defenseDices = defenderPlayer?.character?.actor?.NumberOfDefenseDices || '?';
+                              }
                             } else {
                               // Rodada de contra-ataque: atacante (attacker_id) está defendendo
-                              // Buscar dados do atacante na lista de players
-                              const attackerPlayer = players.find(p => p.id === combat.attacker_id);
-                              defenseDices = attackerPlayer?.character?.actor?.NumberOfDefenseDices || '?';
+                              // Usar dados do banco ou do jogador atual se for o próprio
+                              if (combat.attacker_id === currentPlayer?.id) {
+                                // É o próprio jogador - usar valor local
+                                defenseDices = getCurrentDefenseDices();
+                              } else if (combat.attacker_defense_dices !== null && combat.attacker_defense_dices !== undefined) {
+                                // Usar valor do banco de dados
+                                defenseDices = combat.attacker_defense_dices;
+                              } else {
+                                // Fallback: buscar dados do atacante na lista de players
+                                const attackerPlayer = players.find(p => p.id === combat.attacker_id);
+                                defenseDices = attackerPlayer?.character?.actor?.NumberOfDefenseDices || '?';
+                              }
                             }
                             
                             return (
@@ -2337,240 +2456,183 @@ const CombatPanel = ({
                 <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
                   1️⃣ Selecione seu Ataque/Arma
                 </h6>
-                
-                {availableAttacks.length === 0 ? (
-                  <div className="d-flex flex-column gap-2">
+
+                {/* Lista de ataques/armas disponíveis + Ataque Personalizado como opção */}
+                <div className="d-flex flex-column gap-2">
+                  {availableAttacks.length === 0 && (
                     <div className="alert alert-info mb-2">
                       <small>Você não possui ataques ou armas disponíveis.</small>
                     </div>
-                    
-                    {/* Card de Ataque Customizado - sempre disponível */}
-                    <div
-                      className={`card border ${
-                        selectedAttack?.Name === customAttack.Name
-                          ? 'border-warning bg-warning bg-opacity-25'
-                          : 'border-warning'
-                      }`}
-                    >
-                      <div className="card-body p-2">
-                        <div className="d-flex justify-content-between align-items-start mb-2">
-                          <h6 className="text-warning mb-0 small">
-                            ⚙️ Ataque Personalizado
-                          </h6>
-                          {selectedAttack?.Name === customAttack.Name && (
-                            <span className="text-warning">✓</span>
-                          )}
-                        </div>
-                        
-                        {/* Inputs customizados */}
-                        <div className="mt-2">
-                          <div className="mb-2">
-                            <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
-                            <input
-                              type="text"
-                              className="form-control form-control-sm"
-                              value={customAttack.Name}
-                              onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
-                              placeholder="Nome do ataque"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          </div>
-                          <div className="row g-2 mb-2">
-                            <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                value={customAttack.Dices}
-                                onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
-                                min="1"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                            <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                value={customAttack.LoadTime}
-                                onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
-                                min="0"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                            <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                value={customAttack.Damage}
-                                onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
-                                min="0"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                          </div>
-                          
-                          {/* Botão selecionar */}
-                          <button
-                            className="btn btn-sm btn-warning w-100"
-                            onClick={() => setSelectedAttack({...customAttack})}
-                          >
-                            Selecionar
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="d-flex flex-column gap-2">
-                    {availableAttacks.map((attack, idx) => {
-                      const isSelected = selectedAttack?.Name === attack.Name;
-                      return (
-                        <div
-                          key={idx}
-                          className={`card border ${
-                            isSelected
-                              ? 'border-success bg-success bg-opacity-25'
-                              : 'border-secondary'
-                          }`}
-                        >
-                          <div className="card-body p-2">
-                            <div className="d-flex justify-content-between align-items-start mb-2">
-                              <div style={{ flex: 1 }}>
-                                <h6 className="text-white mb-1 small">
-                                  {attack.Name}
-                                  {(() => {
-                                    const actor = currentPlayerData?.character?.actor;
-                                    const hasModes = actor?.mode1 && actor?.mode2;
-                                    if (hasModes && attack.modes) {
-                                      const modeName = localization?.[actor[combatMode]] || actor[combatMode] || combatMode;
-                                      return <span className="weapon-mode-indicator ms-1" style={{ fontSize: '9px', padding: '1px 6px' }}>{modeName}</span>;
-                                    }
-                                    return null;
-                                  })()}
-                                </h6>
-                                <div className="d-flex gap-2 flex-wrap">
-                                  <small className="text-muted">🎲 {attack.Dices || '1'}</small>
-                                  <small className="text-muted">⏱️ {attack.LoadTime || '?'}</small>
-                                  <small className="text-muted">💥 {attack.Damage || '0'}</small>
-                                  {attack.Distance && <small className="text-muted">📏 {attack.Distance}</small>}
-                                  <span className="badge bg-secondary">{attack.category}</span>
-                                </div>
-                                {attack.Description && (
-                                  <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>
-                                    {attack.Description}
-                                  </small>
+                  )}
+
+                  {availableAttacks.map((attack, idx) => {
+                    const isSelected = selectedAttack?.Name === attack.Name;
+                    const actor = currentPlayerData?.character?.actor;
+                    const hasModes = actor?.mode1 && actor?.mode2;
+                    return (
+                      <div
+                        key={idx}
+                        className={`card border ${
+                          isSelected ? 'border-success bg-success bg-opacity-25' : 'border-secondary'
+                        } cursor-pointer`}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setSelectedAttack({ ...attack })}
+                      >
+                        <div className="card-body p-2">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <div style={{ flex: 1 }}>
+                              <h6 className="text-white mb-1 small">
+                                {attack.Name}
+                                {hasModes && attack.modes && (
+                                  <span className="weapon-mode-indicator ms-1" style={{ fontSize: '9px', padding: '1px 6px' }}>{localization?.[actor[combatMode]] || actor[combatMode] || combatMode}</span>
                                 )}
-                                {attack.Effects && (
-                                  <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
-                                    ✨ {attack.Effects}
-                                  </small>
-                                )}
+                              </h6>
+                              <div className="d-flex gap-2 flex-wrap">
+                                <small className="text-muted">🎲 {attack.Dices || '1'}</small>
+                                <small className="text-muted">⏱️ {attack.LoadTime || '?'}</small>
+                                <small className="text-muted">💥 {attack.Damage || '0'}</small>
+                                {attack.Distance && <small className="text-muted">📏 {attack.Distance}</small>}
+                                <span className="badge bg-secondary">{attack.category}</span>
                               </div>
-                              {isSelected && (
-                                <span className="text-success ms-2">✓</span>
+                              {attack.Description && (
+                                <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>
+                                  {attack.Description}
+                                </small>
+                              )}
+                              {attack.Effects && (
+                                <small className="text-warning d-block mt-1" style={{ fontSize: '10px' }}>
+                                  ✨ {attack.Effects}
+                                </small>
                               )}
                             </div>
-                            
-                            {/* Ajustador de dados + botão selecionar */}
-                            <div className="d-flex gap-2 align-items-center">
-                              <DiceAdjuster 
-                                weapon={isSelected ? selectedAttack : attack}
-                                onAdjust={(adjustedWeapon) => setSelectedAttack(adjustedWeapon)}
-                                compact={true}
-                              />
-                              <button
-                                className="btn btn-sm btn-success flex-grow-1"
-                                onClick={() => setSelectedAttack(isSelected ? selectedAttack : attack)}
-                              >
-                                Selecionar
-                              </button>
-                            </div>
+                            {isSelected && <span className="text-success ms-2">✓</span>}
                           </div>
-                        </div>
-                      );
-                    })}
-                    
-                    {/* Card de Ataque Customizado */}
-                    <div
-                      className={`card border ${
-                        selectedAttack?.Name === customAttack.Name
-                          ? 'border-warning bg-warning bg-opacity-25'
-                          : 'border-warning'
-                      }`}
-                    >
-                      <div className="card-body p-2">
-                        <div className="d-flex justify-content-between align-items-start mb-2">
-                          <h6 className="text-warning mb-0 small">
-                            ⚙️ Ataque Personalizado
-                          </h6>
-                          {selectedAttack?.Name === customAttack.Name && (
-                            <span className="text-warning">✓</span>
-                          )}
-                        </div>
-                        
-                        {/* Inputs customizados */}
-                        <div className="mt-2">
-                          <div className="mb-2">
-                            <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
-                            <input
-                              type="text"
-                              className="form-control form-control-sm"
-                              value={customAttack.Name}
-                              onChange={(e) => setCustomAttack({...customAttack, Name: e.target.value})}
-                              placeholder="Nome do ataque"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          </div>
-                          <div className="row g-2 mb-2">
-                            <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                value={customAttack.Dices}
-                                onChange={(e) => setCustomAttack({...customAttack, Dices: e.target.value})}
-                                min="1"
-                                onClick={(e) => e.stopPropagation()}
-                              />
+
+                          {/* Quando selecionado mostramos controles editáveis; caso contrário apenas o resumo */}
+                          {isSelected ? (
+                            <div className="mt-2">
+                              <div className="row g-2 mb-2">
+                                <div className="col-4">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    value={selectedAttack.Dices}
+                                    onChange={(e) => setSelectedAttack({ ...selectedAttack, Dices: e.target.value })}
+                                    min="1"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <div className="col-4">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    value={selectedAttack.LoadTime}
+                                    onChange={(e) => setSelectedAttack({ ...selectedAttack, LoadTime: e.target.value })}
+                                    min="0"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <div className="col-4">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    value={selectedAttack.Damage}
+                                    onChange={(e) => setSelectedAttack({ ...selectedAttack, Damage: e.target.value })}
+                                    min="0"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              </div>
                             </div>
-                            <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                value={customAttack.LoadTime}
-                                onChange={(e) => setCustomAttack({...customAttack, LoadTime: e.target.value})}
-                                min="0"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                            <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                              <input
-                                type="number"
-                                className="form-control form-control-sm"
-                                value={customAttack.Damage}
-                                onChange={(e) => setCustomAttack({...customAttack, Damage: e.target.value})}
-                                min="0"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                          </div>
-                          
-                          {/* Botão selecionar */}
-                          <button
-                            className="btn btn-sm btn-warning w-100"
-                            onClick={() => setSelectedAttack({...customAttack})}
-                          >
-                            Selecionar
-                          </button>
+                          ) : null}
                         </div>
                       </div>
-                    </div>
-                  </div>
-                )}
+                    );
+                  })}
+
+                  {/* Card de Ataque Personalizado - mostra resumo quando não selecionado, inputs quando selecionado */}
+                  {(() => {
+                    const isCustomSelected = selectedAttack?.Name === customAttack.Name;
+                    return (
+                      <div
+                        className={`card border ${isCustomSelected ? 'border-warning bg-warning bg-opacity-25' : 'border-warning'} cursor-pointer`}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setSelectedAttack({ ...customAttack })}
+                      >
+                        <div className="card-body p-2">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                            {isCustomSelected && <span className="text-warning">✓</span>}
+                          </div>
+
+                          {!isCustomSelected ? (
+                            <div>
+                              <div className="d-flex gap-2 flex-wrap">
+                                <small className="text-muted">🎲 {customAttack.Dices || '1'}</small>
+                                <small className="text-muted">⏱️ {customAttack.LoadTime || '?'}</small>
+                                <small className="text-muted">💥 {customAttack.Damage || '0'}</small>
+                                <span className="badge bg-secondary">{customAttack.category}</span>
+                              </div>
+                              <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>{customAttack.Effects}</small>
+                            </div>
+                          ) : (
+                            <div className="mt-2">
+                              <div className="mb-2">
+                                <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                                <input
+                                  type="text"
+                                  className="form-control form-control-sm"
+                                  value={customAttack.Name}
+                                  onChange={(e) => setCustomAttack({ ...customAttack, Name: e.target.value })}
+                                  placeholder="Nome do ataque"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="row g-2 mb-2">
+                                <div className="col-4">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    value={customAttack.Dices}
+                                    onChange={(e) => setCustomAttack({ ...customAttack, Dices: e.target.value })}
+                                    min="1"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <div className="col-4">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    value={customAttack.LoadTime}
+                                    onChange={(e) => setCustomAttack({ ...customAttack, LoadTime: e.target.value })}
+                                    min="0"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                                <div className="col-4">
+                                  <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                  <input
+                                    type="number"
+                                    className="form-control form-control-sm"
+                                    value={customAttack.Damage}
+                                    onChange={(e) => setCustomAttack({ ...customAttack, Damage: e.target.value })}
+                                    min="0"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               {/* Seção: Selecionar Alvos */}
@@ -2751,11 +2813,9 @@ const CombatPanel = ({
                 return (
                   <div
                     key={idx}
-                    className={`card border ${
-                      isSelected
-                        ? 'border-warning bg-warning bg-opacity-25'
-                        : 'border-secondary'
-                    }`}
+                    className={`card border ${isSelected ? 'border-warning bg-warning bg-opacity-25' : 'border-secondary'} cursor-pointer`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setTempWeapon({ ...attack })}
                   >
                     <div className="card-body p-2">
                       <div className="d-flex justify-content-between align-items-start mb-2">
@@ -2770,131 +2830,157 @@ const CombatPanel = ({
                             <small className="text-info d-block mt-1">✨ {attack.Effects}</small>
                           )}
                         </div>
-                        {isSelected && (
-                          <span className="text-warning ms-2">✓</span>
-                        )}
+                        {isSelected && <span className="text-warning ms-2">✓</span>}
                       </div>
-                      
-                      {/* Ajustador de dados + botão confirmar */}
-                      <div className="d-flex gap-2 align-items-center">
-                        <DiceAdjuster 
-                          weapon={isSelected ? tempWeapon : attack}
-                          onAdjust={(adjustedWeapon) => {
-                            // Atualiza a arma temporária e já seleciona
-                            setTempWeapon(adjustedWeapon);
-                          }}
-                          compact={true}
-                        />
-                        <button
-                          className="btn btn-sm btn-warning flex-grow-1"
-                          onClick={() => confirmWeaponChange(isSelected ? tempWeapon : attack)}
-                        >
-                          Usar esta
-                        </button>
-                      </div>
+
+                      {/* Quando selecionada mostramos controles editáveis */}
+                      {isSelected ? (
+                        <div className="mt-2">
+                          <div className="row g-2 mb-2">
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={tempWeapon.Dices}
+                                onChange={(e) => setTempWeapon({ ...tempWeapon, Dices: e.target.value })}
+                                min="1"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={tempWeapon.LoadTime}
+                                onChange={(e) => setTempWeapon({ ...tempWeapon, LoadTime: e.target.value })}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={tempWeapon.Damage}
+                                onChange={(e) => setTempWeapon({ ...tempWeapon, Damage: e.target.value })}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 );
               })}
 
               {/* Ataque Customizado */}
-              <div
-                className={`card border ${
-                  tempWeapon?.Name === customAttack.Name
-                    ? 'border-warning bg-warning bg-opacity-25'
-                    : 'border-warning'
-                }`}
-              >
-                <div className="card-body p-2">
-                  <div className="d-flex justify-content-between align-items-start mb-2">
-                    <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
-                    {tempWeapon?.Name === customAttack.Name && (
-                      <span className="text-warning">✓</span>
-                    )}
-                  </div>
-                  
-                  {/* Inputs customizados */}
-                  <div className="mt-2">
-                    <div className="mb-2">
-                      <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        value={customAttack.Name}
-                        onChange={(e) => {
-                          const updated = {...customAttack, Name: e.target.value};
-                          setCustomAttack(updated);
-                          if (tempWeapon?.Name === customAttack.Name) {
-                            setTempWeapon(updated);
-                          }
-                        }}
-                        placeholder="Nome do ataque"
-                        onClick={(e) => e.stopPropagation()}
-                      />
+              {(() => {
+                const isCustom = tempWeapon?.Name === customAttack.Name;
+                return (
+                  <div
+                    className={`card border ${isCustom ? 'border-warning bg-warning bg-opacity-25' : 'border-warning'} cursor-pointer`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setTempWeapon({ ...customAttack })}
+                  >
+                    <div className="card-body p-2">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                        {isCustom && <span className="text-warning">✓</span>}
+                      </div>
+                      {!isCustom ? (
+                        <div>
+                          <div className="d-flex gap-2 flex-wrap">
+                            <small className="text-muted">🎲 {customAttack.Dices || '1'}</small>
+                            <small className="text-muted">⏱️ {customAttack.LoadTime || '?'}</small>
+                            <small className="text-muted">💥 {customAttack.Damage || '0'}</small>
+                            <span className="badge bg-secondary">{customAttack.category}</span>
+                          </div>
+                          <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>{customAttack.Effects}</small>
+                        </div>
+                      ) : (
+                        <div className="mt-2">
+                          <div className="mb-2">
+                            <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              value={customAttack.Name}
+                              onChange={(e) => {
+                                const updated = { ...customAttack, Name: e.target.value };
+                                setCustomAttack(updated);
+                                if (tempWeapon?.Name === customAttack.Name) setTempWeapon(updated);
+                              }}
+                              placeholder="Nome do ataque"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          <div className="row g-2 mb-2">
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.Dices}
+                                onChange={(e) => {
+                                  const updated = { ...customAttack, Dices: e.target.value };
+                                  setCustomAttack(updated);
+                                  if (tempWeapon?.Name === customAttack.Name) setTempWeapon(updated);
+                                }}
+                                min="1"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.LoadTime}
+                                onChange={(e) => {
+                                  const updated = { ...customAttack, LoadTime: e.target.value };
+                                  setCustomAttack(updated);
+                                  if (tempWeapon?.Name === customAttack.Name) setTempWeapon(updated);
+                                }}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="col-4">
+                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                              <input
+                                type="number"
+                                className="form-control form-control-sm"
+                                value={customAttack.Damage}
+                                onChange={(e) => {
+                                  const updated = { ...customAttack, Damage: e.target.value };
+                                  setCustomAttack(updated);
+                                  if (tempWeapon?.Name === customAttack.Name) setTempWeapon(updated);
+                                }}
+                                min="0"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="row g-2 mb-2">
-                      <div className="col-4">
-                        <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                        <input
-                          type="number"
-                          className="form-control form-control-sm"
-                          value={customAttack.Dices}
-                          onChange={(e) => {
-                            const updated = {...customAttack, Dices: e.target.value};
-                            setCustomAttack(updated);
-                            if (tempWeapon?.Name === customAttack.Name) {
-                              setTempWeapon(updated);
-                            }
-                          }}
-                          min="1"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                      <div className="col-4">
-                        <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                        <input
-                          type="number"
-                          className="form-control form-control-sm"
-                          value={customAttack.LoadTime}
-                          onChange={(e) => {
-                            const updated = {...customAttack, LoadTime: e.target.value};
-                            setCustomAttack(updated);
-                            if (tempWeapon?.Name === customAttack.Name) {
-                              setTempWeapon(updated);
-                            }
-                          }}
-                          min="0"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                      <div className="col-4">
-                        <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                        <input
-                          type="number"
-                          className="form-control form-control-sm"
-                          value={customAttack.Damage}
-                          onChange={(e) => {
-                            const updated = {...customAttack, Damage: e.target.value};
-                            setCustomAttack(updated);
-                            if (tempWeapon?.Name === customAttack.Name) {
-                              setTempWeapon(updated);
-                            }
-                          }}
-                          min="0"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Botão usar */}
-                    <button
-                      className="btn btn-sm btn-warning w-100"
-                      onClick={() => confirmWeaponChange({...customAttack})}
-                    >
-                      Usar esta
-                    </button>
                   </div>
-                </div>
+                );
+              })()}
+
+              {/* Confirm / Cancel actions for weapon change modal */}
+              <div className="d-flex gap-2 mt-3">
+                <button className="btn btn-secondary flex-fill" onClick={() => { setTempWeapon(null); setShowWeaponChange(false); }}>
+                  Cancelar
+                </button>
+                <button className="btn btn-warning flex-fill" onClick={() => { if (tempWeapon) confirmWeaponChange(tempWeapon); }} disabled={!tempWeapon}>
+                  Confirmar troca
+                </button>
               </div>
             </div>
           </div>
@@ -2972,11 +3058,9 @@ const CombatPanel = ({
                   return (
                     <div
                       key={idx}
-                      className={`card border ${
-                        isSelected
-                          ? 'border-warning bg-warning bg-opacity-25'
-                          : 'border-secondary'
-                      }`}
+                      className={`card border ${isSelected ? 'border-warning bg-warning bg-opacity-25' : 'border-secondary'} cursor-pointer`}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setOpportunityWeapon({ ...attack })}
                     >
                       <div className="card-body p-2">
                         <div className="d-flex justify-content-between align-items-start mb-2">
@@ -2987,131 +3071,146 @@ const CombatPanel = ({
                               <small className="text-muted">💥 {attack.Damage}</small>
                             </div>
                           </div>
-                          {isSelected && (
-                            <span className="text-warning ms-2">✓</span>
-                          )}
+                          {isSelected && <span className="text-warning ms-2">✓</span>}
                         </div>
-                        
-                        {/* Ajustador de dados + botão selecionar */}
-                        <div className="d-flex gap-2 align-items-center">
-                          <DiceAdjuster 
-                            weapon={isSelected ? opportunityWeapon : attack}
-                            onAdjust={(adjustedWeapon) => setOpportunityWeapon(adjustedWeapon)}
-                            compact={true}
-                          />
-                          <button
-                            className="btn btn-sm btn-warning flex-grow-1"
-                            onClick={() => setOpportunityWeapon(isSelected ? opportunityWeapon : attack)}
-                          >
-                            Selecionar
-                          </button>
-                        </div>
+
+                        {isSelected ? (
+                          <div className="mt-2">
+                            <div className="row g-2 mb-2">
+                              <div className="col-4">
+                                <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={opportunityWeapon.Dices}
+                                  onChange={(e) => setOpportunityWeapon({ ...opportunityWeapon, Dices: e.target.value })}
+                                  min="1"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="col-4">
+                                <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={opportunityWeapon.LoadTime}
+                                  onChange={(e) => setOpportunityWeapon({ ...opportunityWeapon, LoadTime: e.target.value })}
+                                  min="0"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="col-4">
+                                <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={opportunityWeapon.Damage}
+                                  onChange={(e) => setOpportunityWeapon({ ...opportunityWeapon, Damage: e.target.value })}
+                                  min="0"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   );
                 })}
                 
-                {/* Card de Ataque Customizado */}
-                <div
-                  className={`card border ${
-                    opportunityWeapon?.Name === customAttack.Name
-                      ? 'border-warning bg-warning bg-opacity-25'
-                      : 'border-warning'
-                  }`}
-                >
-                  <div className="card-body p-2">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <h6 className="text-warning mb-0 small">
-                        ⚙️ Ataque Personalizado
-                      </h6>
-                      {opportunityWeapon?.Name === customAttack.Name && (
-                        <span className="text-warning">✓</span>
-                      )}
-                    </div>
-                    
-                    {/* Inputs customizados */}
-                    <div className="mt-2">
-                      <div className="mb-2">
-                        <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
-                        <input
-                          type="text"
-                          className="form-control form-control-sm"
-                          value={customAttack.Name}
-                          onChange={(e) => {
-                            const updated = {...customAttack, Name: e.target.value};
-                            setCustomAttack(updated);
-                            if (opportunityWeapon?.Name === customAttack.Name) {
-                              setOpportunityWeapon(updated);
-                            }
-                          }}
-                          placeholder="Nome do ataque"
-                          onClick={(e) => e.stopPropagation()}
-                        />
+                {(() => {
+                  const isCustom = opportunityWeapon?.Name === customAttack.Name;
+                  return (
+                    <div
+                      className={`card border ${isCustom ? 'border-warning bg-warning bg-opacity-25' : 'border-warning'} cursor-pointer`}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setOpportunityWeapon({ ...customAttack })}
+                    >
+                      <div className="card-body p-2">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                          {isCustom && <span className="text-warning">✓</span>}
+                        </div>
+                        {!isCustom ? (
+                          <div>
+                            <div className="d-flex gap-2 flex-wrap">
+                              <small className="text-muted">🎲 {customAttack.Dices || '1'}</small>
+                              <small className="text-muted">⏱️ {customAttack.LoadTime || '?'}</small>
+                              <small className="text-muted">💥 {customAttack.Damage || '0'}</small>
+                              <span className="badge bg-secondary">{customAttack.category}</span>
+                            </div>
+                            <small className="text-info d-block mt-1" style={{ fontSize: '10px' }}>{customAttack.Effects}</small>
+                          </div>
+                        ) : (
+                          <div className="mt-2">
+                            <div className="mb-2">
+                              <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                              <input
+                                type="text"
+                                className="form-control form-control-sm"
+                                value={customAttack.Name}
+                                onChange={(e) => {
+                                  const updated = { ...customAttack, Name: e.target.value };
+                                  setCustomAttack(updated);
+                                  if (opportunityWeapon?.Name === customAttack.Name) setOpportunityWeapon(updated);
+                                }}
+                                placeholder="Nome do ataque"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="row g-2 mb-2">
+                              <div className="col-4">
+                                <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={customAttack.Dices}
+                                  onChange={(e) => {
+                                    const updated = { ...customAttack, Dices: e.target.value };
+                                    setCustomAttack(updated);
+                                    if (opportunityWeapon?.Name === customAttack.Name) setOpportunityWeapon(updated);
+                                  }}
+                                  min="1"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="col-4">
+                                <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={customAttack.LoadTime}
+                                  onChange={(e) => {
+                                    const updated = { ...customAttack, LoadTime: e.target.value };
+                                    setCustomAttack(updated);
+                                    if (opportunityWeapon?.Name === customAttack.Name) setOpportunityWeapon(updated);
+                                  }}
+                                  min="0"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="col-4">
+                                <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={customAttack.Damage}
+                                  onChange={(e) => {
+                                    const updated = { ...customAttack, Damage: e.target.value };
+                                    setCustomAttack(updated);
+                                    if (opportunityWeapon?.Name === customAttack.Name) setOpportunityWeapon(updated);
+                                  }}
+                                  min="0"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="row g-2 mb-2">
-                        <div className="col-4">
-                          <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
-                          <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            value={customAttack.Dices}
-                            onChange={(e) => {
-                              const updated = {...customAttack, Dices: e.target.value};
-                              setCustomAttack(updated);
-                              if (opportunityWeapon?.Name === customAttack.Name) {
-                                setOpportunityWeapon(updated);
-                              }
-                            }}
-                            min="1"
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                        <div className="col-4">
-                          <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
-                          <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            value={customAttack.LoadTime}
-                            onChange={(e) => {
-                              const updated = {...customAttack, LoadTime: e.target.value};
-                              setCustomAttack(updated);
-                              if (opportunityWeapon?.Name === customAttack.Name) {
-                                setOpportunityWeapon(updated);
-                              }
-                            }}
-                            min="0"
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                        <div className="col-4">
-                          <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
-                          <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            value={customAttack.Damage}
-                            onChange={(e) => {
-                              const updated = {...customAttack, Damage: e.target.value};
-                              setCustomAttack(updated);
-                              if (opportunityWeapon?.Name === customAttack.Name) {
-                                setOpportunityWeapon(updated);
-                              }
-                            }}
-                            min="0"
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Botão selecionar */}
-                      <button
-                        className="btn btn-sm btn-warning w-100"
-                        onClick={() => setOpportunityWeapon({...customAttack})}
-                      >
-                        Selecionar
-                      </button>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
 

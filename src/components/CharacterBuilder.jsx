@@ -178,7 +178,8 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
       </div>
 
       <div className="row justify-content-center">
-        <CharacteristicCard actor={actor} localization={localization} deathCount={0} />
+        {/* Mostrar informações de Reivolk também na tela de seleção (ajuda na escolha de poderes) */}
+        <CharacteristicCard actor={actor} localization={localization} deathCount={0} showReivolk={true} />
       </div>
 
       {Object.entries(selectionConfigs).map(([type, config]) => (

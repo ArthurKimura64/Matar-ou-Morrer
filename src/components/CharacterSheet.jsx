@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Counter from './Counter';
 import SquaresCounter from './SquaresCounter';
 import CharacteristicCard from './CharacteristicCard';
@@ -40,6 +40,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   const [exposedCards, setExposedCards] = useState(new Set()); // Estado para cartas expostas na mesa
   const [copycatAssignments, setCopycatAssignments] = useState({}); // slots ocupados pelo Copiador
   const [isSelectingSource, setIsSelectingSource] = useState(null); // {slotKey, type} quando escolhendo a origem
+  
+  // Ref para rastrear o último actor.ID processado - usado para detectar troca de personagem
+  const lastProcessedActorIdRef = useRef(null);
 
   // Memoizar contadores iniciais
   const initialCounters = useMemo(() => ({
@@ -109,6 +112,58 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       setExposedCards(new Set(currentPlayer.exposed_cards));
     }
   }, [currentPlayer?.exposed_cards]);
+
+  // Quando o actor mudar, resetar estados específicos da ficha para o novo personagem
+  // Isso evita que contadores, cartas expostas, itens usados/desbloqueados e contadores
+  // adicionais do personagem anterior permaneçam na ficha quando o jogador escolher outro personagem.
+  useEffect(() => {
+    if (!currentPlayer?.id || !actor?.ID) return;
+    
+    // Se é o mesmo personagem que já processamos, não resetar
+    // (isso evita resetar ao recarregar a página com o mesmo personagem)
+    if (lastProcessedActorIdRef.current === actor.ID) return;
+    
+    // Se é a primeira vez (lastProcessedActorIdRef.current é null), apenas marcar como processado
+    // sem resetar - permite restaurar do banco na primeira carga
+    if (lastProcessedActorIdRef.current === null) {
+      lastProcessedActorIdRef.current = actor.ID;
+      return;
+    }
+
+    // Estamos trocando de personagem - resetar tudo
+    const resetForNewActor = async () => {
+      try {
+        // Resetar contadores base para os valores iniciais do novo actor
+        setCounters(initialCounters);
+        await RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
+
+        // Limpar cartas expostas e itens usados/desbloqueados
+        setExposedCards(new Set());
+        setUsedItems(new Set());
+        setUnlockedItems(new Set());
+        await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
+        await RoomService.updatePlayerUsedItems(currentPlayer.id, []);
+        await RoomService.updatePlayerUnlockedItems(currentPlayer.id, []);
+
+        // Resetar contadores adicionais conforme definição do novo personagem
+        const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
+        const additionalCountersData = getCharacterAdditionalCounters(characterName, { actor, selections, gameData, localization });
+        const resetAdditional = {};
+        Object.entries(additionalCountersData).forEach(([key, counter]) => {
+          resetAdditional[key] = { ...counter, current: 0 };
+        });
+        setAdditionalCounters(resetAdditional);
+        await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetAdditional);
+        
+        // Marcar o novo actor como processado
+        lastProcessedActorIdRef.current = actor.ID;
+      } catch (err) {
+        console.error('Erro ao resetar estado ao trocar de personagem:', err);
+      }
+    };
+
+    resetForNewActor();
+  }, [actor, currentPlayer?.id, initialCounters, localization, selections, gameData]);
 
   // Calcular características do personagem criado - Otimizado
   useEffect(() => {
@@ -515,7 +570,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     // Chamar função de reset original
     onReset();
-  }, [currentPlayer?.id, currentPlayer?.app_state, actor?.ID, onReset, selections, gameData, localization]);
+  }, [currentPlayer?.id, currentPlayer?.app_state, actor, onReset, selections, gameData, localization]);
 
   const renderItemCard = ({ item, section, isBlocked }) => {
     // Título: se for device, power, special, mostrar TriggerType
