@@ -96,8 +96,37 @@ const CombatPanel = ({
       }
     };
 
+    const adjustAllDice = (delta) => {
+      const newDice = diceArray.map(die => {
+        const newValue = die + delta;
+        return Math.max(1, Math.min(6, newValue));
+      });
+      onAdjust(newDice);
+    };
+
+    const removeDie = (index) => {
+      if (diceArray.length <= 1) return;
+      const newDice = diceArray.filter((_, i) => i !== index);
+      onAdjust(newDice);
+    };
+
+    const canIncreaseAll = diceArray.some(die => die < 6);
+    const canDecreaseAll = diceArray.some(die => die > 1);
+
     return (
       <div className="dice-result-inline">
+        <button
+          type="button"
+          className="dice-all-btn dice-all-down"
+          onClick={(e) => {
+            e.stopPropagation();
+            adjustAllDice(-1);
+          }}
+          disabled={!canDecreaseAll}
+          title="Diminuir todos os dados"
+        >
+          −
+        </button>
         {diceArray.map((die, i) => (
           <div 
             key={i}
@@ -131,11 +160,36 @@ const CombatPanel = ({
                 >
                   ▼
                 </button>
+                {diceArray.length > 1 && (
+                  <button
+                    type="button"
+                    className="die-adjust-btn die-adjust-remove"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeDie(i);
+                    }}
+                    title="Remover dado"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             )}
             <span className="die-number">{die}</span>
           </div>
         ))}
+        <button
+          type="button"
+          className="dice-all-btn dice-all-up"
+          onClick={(e) => {
+            e.stopPropagation();
+            adjustAllDice(1);
+          }}
+          disabled={!canIncreaseAll}
+          title="Aumentar todos os dados"
+        >
+          +
+        </button>
       </div>
     );
   };
@@ -1217,6 +1271,73 @@ const CombatPanel = ({
     }
   };
 
+  // Mover rodada para a esquerda (trocar com a rodada anterior)
+  const moveRoundLeft = useCallback(async (roundIndex) => {
+    if (!combat || roundIndex <= 0) return;
+    
+    const roundData = [...(combat.round_data || [])];
+    const currentRoundNum = combat.current_round;
+    
+    // Não permitir mover rodadas já completadas ou a rodada atual
+    if (roundIndex < currentRoundNum || roundIndex - 1 < currentRoundNum - 1) {
+      return;
+    }
+    
+    // Trocar posições
+    const temp = roundData[roundIndex];
+    roundData[roundIndex] = roundData[roundIndex - 1];
+    roundData[roundIndex - 1] = temp;
+    
+    // Atualizar números das rodadas
+    roundData.forEach((r, idx) => {
+      r.round = idx + 1;
+    });
+    
+    // Atualizar no Supabase
+    await supabase
+      .from('combat_notifications')
+      .update({
+        round_data: roundData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', combat.id);
+  }, [combat]);
+
+  // Mover rodada para a direita (trocar com a rodada seguinte)
+  const moveRoundRight = useCallback(async (roundIndex) => {
+    if (!combat) return;
+    
+    const roundData = [...(combat.round_data || [])];
+    const currentRoundNum = combat.current_round;
+    
+    // Verificar se pode mover (não é a última rodada)
+    if (roundIndex >= roundData.length - 1) return;
+    
+    // Não permitir mover rodadas já completadas ou a rodada atual
+    if (roundIndex < currentRoundNum - 1) {
+      return;
+    }
+    
+    // Trocar posições
+    const temp = roundData[roundIndex];
+    roundData[roundIndex] = roundData[roundIndex + 1];
+    roundData[roundIndex + 1] = temp;
+    
+    // Atualizar números das rodadas
+    roundData.forEach((r, idx) => {
+      r.round = idx + 1;
+    });
+    
+    // Atualizar no Supabase
+    await supabase
+      .from('combat_notifications')
+      .update({
+        round_data: roundData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', combat.id);
+  }, [combat]);
+
   // Abrir modal de seleção de arma
   const openWeaponChange = () => {
     setShowWeaponChange(true);
@@ -1776,7 +1897,7 @@ const CombatPanel = ({
                       </>
                     )}
                     
-                    {/* Header da rodada com indicador visual */}
+                    {/* Header da rodada com indicador visual INTERATIVO */}
                     <div className="combat-round-header mb-2">
                       <div className="round-info">
                         <span className="round-label">Rodada {currentRound}/{totalRounds}</span>
@@ -1784,27 +1905,46 @@ const CombatPanel = ({
                       <div className="round-indicators">
                         {combat.round_data.map((r, idx) => {
                           // Determinar classe de cor baseada no tipo de ação
-                          let colorClass = 'round-dot-attack'; // Padrão: vermelho
+                          let colorClass = 'round-dot-attack';
                           let actionLabel = 'Ataque';
                           
                           if (r.action_type === 'opportunity') {
                             colorClass = 'round-dot-opportunity';
-                            actionLabel = 'Ataque de Oportunidade';
+                            actionLabel = 'Oportunidade';
                           } else if (r.action_type === 'counter') {
                             colorClass = 'round-dot-counter';
-                            actionLabel = 'Contra-ataque';
+                            actionLabel = 'Contra';
                           }
                           
+                          const isCompleted = r.completed;
+                          const isCurrent = idx + 1 === currentRound;
+                          const canMove = !isCompleted && !isCurrent && idx >= currentRound;
+                          const canMoveLeft = canMove && idx > 0 && idx > currentRound - 1 && !combat.round_data[idx - 1]?.completed;
+                          const canMoveRight = canMove && idx < combat.round_data.length - 1;
+                          
                           return (
-                            <div
-                              key={idx}
-                              className={`round-dot ${colorClass} ${
-                                idx + 1 === currentRound ? 'round-dot-active' : ''
-                              } ${
-                                r.completed ? 'round-dot-completed' : ''
-                              }`}
-                              title={`Rodada ${idx + 1}: ${actionLabel}`}
-                            />
+                            <div key={idx} className="round-dot-container">
+                              {canMoveLeft && (
+                                <button
+                                  className="round-dot-move-btn move-left"
+                                  onClick={() => moveRoundLeft(idx)}
+                                >◀</button>
+                              )}
+                              
+                              <div
+                                className={`round-dot ${colorClass} ${isCurrent ? 'round-dot-active' : ''} ${isCompleted ? 'round-dot-completed' : ''}`}
+                                title={`${idx + 1}: ${actionLabel}`}
+                              >
+                                <span className="round-dot-number">{idx + 1}</span>
+                              </div>
+                              
+                              {canMoveRight && (
+                                <button
+                                  className="round-dot-move-btn move-right"
+                                  onClick={() => moveRoundRight(idx)}
+                                >▶</button>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
@@ -1981,7 +2121,7 @@ const CombatPanel = ({
                               </button>
                               
                               <small className="text-muted d-block mt-2 text-center" style={{ fontSize: '10px' }}>
-                                💡 Adicione rodadas de ataque ou contra-ataque, ou remova a última
+                                💡 Arraste os indicadores de rodada acima para reordenar
                               </small>
                             </div>
                           </div>
