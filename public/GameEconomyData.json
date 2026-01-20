@@ -2394,6 +2394,66 @@
         "SpecialCustom.Copiador1",
         "SpecialCustom.Copiador2"
       ]
+    },
+    {
+      "ID": "Omega",
+      "DodgePoints": 8,
+      "OportunityAttacks": 5,
+      "ExplorationItens": 3,
+      "NumberOfDefenseDices": 2,
+      "NumberOfUnlimitedAttacks": 1,
+      "NumberOfWeapons": 0,
+      "NumberOfPassives": 2,
+      "NumberOfPowers": 2,
+      "NumberOfDevices": 2,
+      "NumberOfSpecialAbilities": 2,
+      "NumberOfPassiveSpecialAbilities": 2,
+      "Tecnique": {
+        "Desert": "d20",
+        "City": "d6",
+        "Landfill": "d12",
+        "Mountain": "d20"
+      },
+      "UnlimitedAttacksData": [
+        "Attack.Omega1",
+        "Attack.Omega2",
+        "Attack.Omega3",
+        "Attack.Omega4"
+      ],
+      "WeaponsData": [],
+      "PassivesData": [
+        "Passive.Omega1",
+        "Passive.Omega2",
+        "Passive.Omega3",
+        "Passive.Omega4",
+        "Passive.Omega5",
+        "Passive.Omega6"
+      ],
+      "PowersData": [
+        "Power.Omega1",
+        "Power.Omega2",
+        "Power.Omega3",
+        "Power.Omega4"
+      ],
+      "DevicesData": [
+        "Device.Omega1",
+        "Device.Omega2",
+        "Device.Omega3",
+        "Device.Omega4"
+      ],
+      "SpecialAbilitiesData": [
+        "SpecialAbility.Omega1",
+        "SpecialAbility.Omega2",
+        "SpecialAbility.Omega3",
+        "SpecialAbility.Omega4"
+      ],
+      "PassiveSpecialAbilitiesData": [
+        "PassiveSpecialAbility.Omega1",
+        "PassiveSpecialAbility.Omega2",
+        "PassiveSpecialAbility.Omega3",
+        "PassiveSpecialAbility.Omega4"
+      ],
+      "SpecialCharacteristics": []
     }
   ],
   "PassiveDefinitions": [
@@ -2952,6 +3012,30 @@
       "Description": "Passive.Eterno 3.Description"
     },
     {
+      "ID": "Passive.Omega1",
+      "Description": "Passive.Omega1.Description"
+    },
+    {
+      "ID": "Passive.Omega2",
+      "Description": "Passive.Omega2.Description"
+    },
+    {
+      "ID": "Passive.Omega3",
+      "Description": "Passive.Omega3.Description"
+    },
+    {
+      "ID": "Passive.Omega4",
+      "Description": "Passive.Omega4.Description"
+    },
+    {
+      "ID": "Passive.Omega5",
+      "Description": "Passive.Omega5.Description"
+    },
+    {
+      "ID": "Passive.Omega6",
+      "Description": "Passive.Omega6.Description"
+    },
+    {
       "ID": "PassiveSpecialAbility.Atomico1",
       "Description": "PassiveSpecialAbility.Atomico1.Description"
     },
@@ -3094,6 +3178,22 @@
     {
       "ID": "PassiveSpecialAbility.Stratton2",
       "Description": "PassiveSpecialAbility.Stratton2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Omega1",
+      "Description": "PassiveSpecialAbility.Omega1.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Omega2",
+      "Description": "PassiveSpecialAbility.Omega2.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Omega3",
+      "Description": "PassiveSpecialAbility.Omega3.Description"
+    },
+    {
+      "ID": "PassiveSpecialAbility.Omega4",
+      "Description": "PassiveSpecialAbility.Omega4.Description"
     }
   ],
   "AttackDefinitions": [
@@ -5002,6 +5102,55 @@
       ]
     },
     {
+      "ID": "Attack.Omega1",
+      "Damage": 10,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Attack.Omega2",
+      "Damage": 5,
+      "MinimumDistance": 3,
+      "MaximumDistance": 5,
+      "LoadTime": 1,
+      "Dices": 5,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Attack.Omega2.SpecialDescription"
+    },
+    {
+      "ID": "Attack.Omega3",
+      "Damage": 2,
+      "MinimumDistance": 1,
+      "MaximumDistance": 10,
+      "LoadTime": "0",
+      "Dices": 5,
+      "Ambient": [
+        null
+      ]
+    },
+    {
+      "ID": "Attack.Omega4",
+      "Damage": 15,
+      "MinimumDistance": 3,
+      "MaximumDistance": 7,
+      "LoadTime": "0",
+      "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air",
+        "Space"
+      ],
+      "SpecialDescription": "Attack.Omega4.SpecialDescription"
+    },
+    {
       "ID": "Weapon.Caos1",
       "Damage": 1,
       "MinimumDistance": 2,
@@ -6723,6 +6872,34 @@
       "Description": "Device.Eterno 2.Description"
     },
     {
+      "ID": "Device.Omega1",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Device.Omega1.Description"
+    },
+    {
+      "ID": "Device.Omega2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Omega2.Description"
+    },
+    {
+      "ID": "Device.Omega3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Omega3.Description"
+    },
+    {
+      "ID": "Device.Omega4",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Omega4.Description"
+    },
+    {
       "ID": "Power.Impact1",
       "TriggerType": [
         "Passive"
@@ -8351,6 +8528,34 @@
       "Description": "Power.Stratton6.Description"
     },
     {
+      "ID": "Power.Omega1",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Omega1.Description"
+    },
+    {
+      "ID": "Power.Omega2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Omega2.Description"
+    },
+    {
+      "ID": "Power.Omega3",
+      "TriggerType": [
+        "AfterAttack"
+      ],
+      "Description": "Power.Omega3.Description"
+    },
+    {
+      "ID": "Power.Omega4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Omega4.Description"
+    },
+    {
       "ID": "SpecialAbility.Impact1",
       "TriggerType": [
         "Passive"
@@ -8740,6 +8945,34 @@
         "Passive"
       ],
       "Description": "SpecialAbility.Stratton2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Omega1",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Omega1.Description"
+    },
+    {
+      "ID": "SpecialAbility.Omega2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Omega2.Description"
+    },
+    {
+      "ID": "SpecialAbility.Omega3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "SpecialAbility.Omega3.Description"
+    },
+    {
+      "ID": "SpecialAbility.Omega4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "SpecialAbility.Omega4.Description"
     }
   ],
   "SpecialDefinitions": [
