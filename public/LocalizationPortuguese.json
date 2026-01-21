@@ -1128,7 +1128,7 @@
   "Device.Bruce6": "Kit Médico",
   "Device.Bruce6.Description": "Enche 10 de vida.",
   "Device.Bruce7": "Rastreador",
-  "Device.Bruce7.Description": "Deixa um rastreador no inimigo e toda vez que ele for te atacar você o atacará primeiro.",
+  "Device.Bruce7.Description": "Deixa um rastreador no inimigo que esta em um combate contra você e toda vez que ele for te atacar você dará o primeiro ataque do combate.",
   "Device.Bruce8": "Satélite Desabilitador",
   "Device.Bruce8.Description": "Desabilita os Poderes e dispositivos do inimigo até o fim do combate.",
   "Device.Bruce9": "Tranquilizante",
