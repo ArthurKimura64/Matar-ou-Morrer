@@ -5116,7 +5116,7 @@
       "ID": "Attack.Omega2",
       "Damage": 5,
       "MinimumDistance": 3,
-      "MaximumDistance": 5,
+      "MaximumDistance": 3,
       "LoadTime": 2,
       "Dices": 5,
       "Ambient": [
