@@ -5133,7 +5133,8 @@
       "LoadTime": "0",
       "Dices": 5,
       "Ambient": [
-        null
+        "Earth",
+        "Air"
       ]
     },
     {
