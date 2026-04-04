@@ -5129,8 +5129,8 @@
       "ID": "Attack.Omega3",
       "Damage": 2,
       "MinimumDistance": 1,
-      "MaximumDistance": 10,
-      "LoadTime": "0",
+      "MaximumDistance": 3,
+      "LoadTime": 1,
       "Dices": 5,
       "Ambient": [
         "Earth",
