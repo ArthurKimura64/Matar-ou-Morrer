@@ -1256,7 +1256,9 @@
         "SpecialAbility.Alpha2"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Alpha1"
+      ]
     },
     {
       "ID": "ArcoNegro",
@@ -9046,6 +9048,11 @@
       "ID": "SpecialCustom.Pax1",
       "Type": "counter",
       "Title": "SpecialCustom.Pax1.Title"
+    },
+    {
+      "ID": "SpecialCustom.Alpha1",
+      "Type": "textbox",
+      "Title": "SpecialCustom.Alpha1.Title"
     }
   ]
 }
