@@ -1440,7 +1440,7 @@
   "Power.Pax1": "Impacto de Voo",
   "Power.Pax1.Description": "Voa e pousa em um ponto de conexão a sua escolha, atingindo todos os inimigos que estejam a até 5 metros de onde você pousou, Impacto de Voo: Dano 3 / Dados 3.",
   "Power.Pax2": "Fonte de Poder",
-  "Power.Pax2.Description": "Quando estiver em cima de um ponto de conexão pode voar por 1 rodada e atinge todos os inimigos a até 3 metros do ponto de conexão com a Fonte do Poder e ao ativar a fonte de poder pode gastar pulos e cada pulo gasto aumenta +3 metros de distância, Fonte do Poder: Dano 5 / Dados 2.",
+  "Power.Pax2.Description": "Quando estiver em cima de um ponto de conexão pode voar por 1 rodada e atinge todos os inimigos a até 3 metros de um ponto de conexão com a Fonte do Poder e ao ativar a fonte de poder pode gastar pulos e cada pulo gasto aumenta +3 metros de distância, Fonte do Poder: Dano 5 / Dados 2.",
   "Power.Pax3": "Atração de Energia",
   "Power.Pax3.Description": "Faz um inimigo que esteja ligado ao mesmo caminho que você ser atraído para um ponto de conexão ligado ao caminho que ele está.",
   "Power.Pax4": "Energia Destruidora",
