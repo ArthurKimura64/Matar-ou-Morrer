@@ -14,18 +14,21 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
   const hasData = !!(config.data && config.data.length);
 
   const handleItemToggle = useCallback((item, isSelected) => {
-    let newSelection;
-    if (isSelected) {
-      newSelection = [...selectedItems, item];
-    } else {
-      newSelection = selectedItems.filter(selected => selected.ID !== item.ID);
-    }
-    // Limitar seleção ao número máximo
-    if (newSelection.length <= config.number) {
-      setSelectedItems(newSelection);
-      onSelectionChange(newSelection);
-    }
-  }, [selectedItems, config.number, onSelectionChange]);
+    setSelectedItems(prev => {
+      let newSelection;
+      if (isSelected) {
+        newSelection = [...prev, item];
+      } else {
+        newSelection = prev.filter(selected => selected.ID !== item.ID);
+      }
+      // Limitar seleção ao número máximo
+      if (newSelection.length <= config.number) {
+        onSelectionChange(newSelection);
+        return newSelection;
+      }
+      return prev;
+    });
+  }, [config.number, onSelectionChange]);
 
   const isSelected = useCallback((item) => selectedItems.some(selected => selected.ID === item.ID), [selectedItems]);
 

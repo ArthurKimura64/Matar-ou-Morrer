@@ -33,8 +33,10 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
         }
       } else {
         const data = await authService.signInWithEmail(email, password);
-        onAuthSuccess(data.user);
-        onClose();
+        if (data.user) {
+          onAuthSuccess(data.user);
+          onClose();
+        }
       }
     } catch (err) {
       const messages = {

@@ -2,6 +2,23 @@ import React, { useMemo } from 'react';
 import PlayerStatusBadge from './PlayerStatusBadge';
 import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
 
+// Estilos estáticos extraídos para evitar recriação a cada render
+const STYLES = {
+  card: { transition: 'all 0.2s ease-in-out', minWidth: 0 },
+  cardFallback: { transition: 'all 0.2s ease-in-out' },
+  cardBody: { minWidth: 0 },
+  section: { background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' },
+  counterDot: (color) => ({ width: '6px', height: '6px', borderRadius: '2px', background: color }),
+  rowBorder: { borderBottom: '1px solid rgba(255,255,255,0.08)' },
+  rowBorderLight: { borderBottom: '1px solid rgba(255,255,255,0.1)' },
+  fallbackBox: { background: 'rgba(108,117,125,0.1)', border: '1px solid rgba(108,117,125,0.3)', borderRadius: '6px', padding: '8px 12px' },
+  placeholderBox: { background: 'rgba(13,110,253,0.1)', border: '1px solid rgba(13,110,253,0.3)', borderRadius: '6px', padding: '12px 16px' },
+  kickBtn: { width: '24px', height: '24px', fontSize: '10px', padding: '0', borderRadius: '50%' },
+  dimmed: { opacity: 0.5 },
+  iconColor: { color: '#17a2b8' },
+  charIconColor: { color: '#ffc107' },
+};
+
 const PlayerDetailedStatus = ({ 
   player, 
   isCurrentPlayer = false, 
@@ -54,10 +71,9 @@ const PlayerDetailedStatus = ({
 
     // Se não há contadores salvos, tentar derivar da definição do personagem e retornar com current: 0
     try {
-      const charActorId = player?.character?.actor?.ID;
-      if (!charActorId || !gameData) return {};
-      const characterName = player?.character_name || charActorId;
-      const derived = getCharacterAdditionalCounters(characterName, { actor: gameData.ActorDefinitions?.find(a => a.ID === charActorId) || {}, gameData, localization });
+      if (!actorData || !gameData) return {};
+      const characterName = player?.character_name || actorId;
+      const derived = getCharacterAdditionalCounters(characterName, { actor: actorData, gameData, localization });
       // Garantir current = 0 para exibição na sidebar
       const resetDerived = {};
       Object.entries(derived || {}).forEach(([k, v]) => {
@@ -67,7 +83,7 @@ const PlayerDetailedStatus = ({
     } catch (e) {
       return {};
     }
-  }, [player?.additional_counters, player?.character?.actor?.ID, player?.character_name, gameData, localization]);
+  }, [player?.additional_counters, actorId, actorData, player?.character_name, gameData, localization]);
 
   // Memoizar dados de características otimizados
   const characteristicsData = useMemo(() => {
@@ -83,20 +99,15 @@ const PlayerDetailedStatus = ({
       passiveSpecials: { total: 0, available: 0 }
     };
     
-    // Obter dados do ActorDefinitions (primeira prioridade)
-    const charActorId = player.character?.actor?.ID;
-    if (charActorId && gameData?.ActorDefinitions) {
-      const actorData = gameData.ActorDefinitions.find(actor => actor.ID === charActorId);
-      
-      if (actorData) {
-        data.attacks.total = actorData.NumberOfUnlimitedAttacks || 0;
-        data.weapons.total = actorData.NumberOfWeapons || 0;
-        data.passives.total = actorData.NumberOfPassives || 0;
-        data.devices.total = actorData.NumberOfDevices || 0;
-        data.powers.total = actorData.NumberOfPowers || 0;
-        data.specials.total = actorData.NumberOfSpecialAbilities || 0;
-        data.passiveSpecials.total = actorData.NumberOfPassiveSpecialAbilities || 0;
-      }
+    // Obter dados do ActorDefinitions (reutiliza actorData já memoizado)
+    if (actorData) {
+      data.attacks.total = actorData.NumberOfUnlimitedAttacks || 0;
+      data.weapons.total = actorData.NumberOfWeapons || 0;
+      data.passives.total = actorData.NumberOfPassives || 0;
+      data.devices.total = actorData.NumberOfDevices || 0;
+      data.powers.total = actorData.NumberOfPowers || 0;
+      data.specials.total = actorData.NumberOfSpecialAbilities || 0;
+      data.passiveSpecials.total = actorData.NumberOfPassiveSpecialAbilities || 0;
     }
     
     // Fallback para características salvas
@@ -160,7 +171,7 @@ const PlayerDetailedStatus = ({
     }
     
     return data;
-  }, [player, gameData, counters.mortes]);
+  }, [player?.characteristics, player?.selections, player?.used_items, player?.unlocked_items, actorData, counters.mortes]);
 
   // Memoizar labels para evitar recalcular
   const getCharacteristicLabel = useMemo(() => {
@@ -194,18 +205,23 @@ const PlayerDetailedStatus = ({
     return max && max > 0 ? `${current}/${max}` : current.toString();
   }, []);
 
+  // Memoizar array de contadores básicos para evitar recriação a cada render
+  const counterItems = useMemo(() => [
+    { key: 'vida', label: localization['Characteristic.Health'] || 'Vida', value: formatCounter(counters.vida, counters.vida_max), color: '#dc3545' },
+    { key: 'esquiva', label: localization['Characteristic.DodgePoints'] || 'Esquiva', value: formatCounter(counters.esquiva, counters.esquiva_max), color: '#28a745' },
+    { key: 'oport', label: localization['Characteristic.OportunityAttack'] || 'Oport.', value: formatCounter(counters.oport, counters.oport_max), color: '#ffc107' },
+    { key: 'itens', label: localization['Characteristic.ExplorationItens'] || 'Itens', value: formatCounter(counters.item, counters.item_max), color: '#6c757d' },
+    { key: 'mortes', label: localization['Characteristic.Deaths'] || 'Mortes', value: counters.mortes || 0, color: '#8b0000' },
+    { key: 'defesa', label: localization['Characteristic.DefenseDices'] || 'Dados de defesa', value: actorData?.NumberOfDefenseDices ?? 2, color: '#6610f2' }
+  ], [counters, actorData?.NumberOfDefenseDices, localization, formatCounter]);
+
   // Validação após hooks
   if (!player?.name) {
     return (
-      <div className="card bg-dark border-light h-100" style={{ transition: 'all 0.2s ease-in-out' }}>
+      <div className="card bg-dark border-light h-100" style={STYLES.cardFallback}>
         <div className="card-body p-2 d-flex align-items-center justify-content-center">
           <div className="text-center">
-            <div className="text-muted small" style={{ 
-              background: 'rgba(108,117,125,0.1)', 
-              border: '1px solid rgba(108,117,125,0.3)',
-              borderRadius: '6px',
-              padding: '8px 12px'
-            }}>
+            <div className="text-muted small" style={STYLES.fallbackBox}>
               Dados não disponíveis
             </div>
           </div>
@@ -214,29 +230,11 @@ const PlayerDetailedStatus = ({
     );
   }
 
-  // Se não há dados válidos, exibir mensagem de fallback
-  if (!player || !player.name) {
-    return (
-      <div className="card bg-dark border-light h-100" style={{ transition: 'all 0.2s ease-in-out' }}>
-        <div className="card-body p-2 d-flex align-items-center justify-content-center">
-          <div className="text-center">
-            <div className="text-muted small" style={{ 
-              background: 'rgba(108,117,125,0.1)', 
-              border: '1px solid rgba(108,117,125,0.3)',
-              borderRadius: '6px',
-              padding: '8px 12px'
-            }}>
-              Dados não disponíveis
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="card bg-dark border-light" style={{ transition: 'all 0.2s ease-in-out', minWidth: 0 }}>
-      <div className="card-body p-2" style={{ minWidth: 0 }}>
+    <div className="card bg-dark border-light" style={STYLES.card}>
+      <div className="card-body p-2" style={STYLES.cardBody}>
         {/* Header com Nome e Status - Mais Compacto */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className="d-flex align-items-center flex-grow-1 min-width-0">
@@ -246,7 +244,7 @@ const PlayerDetailedStatus = ({
               </span>
             )}
             <h6 className="card-title text-white mb-0 me-2 text-truncate" 
-                style={player.is_alive === false && matchStatus === 'in_progress' ? { opacity: 0.5 } : {}}>
+                style={player.is_alive === false && matchStatus === 'in_progress' ? STYLES.dimmed : undefined}>
               {player.name}
             </h6>
           </div>
@@ -265,13 +263,7 @@ const PlayerDetailedStatus = ({
               <button
                 onClick={() => onKickPlayer(player)}
                 className="btn btn-outline-danger btn-sm"
-                style={{ 
-                  width: '24px', 
-                  height: '24px',
-                  fontSize: '10px',
-                  padding: '0',
-                  borderRadius: '50%'
-                }}
+                style={STYLES.kickBtn}
                 title={localization['UI.Room.KickPlayer'] || 'Expulsar jogador'}
               >
                 ✕
@@ -293,23 +285,16 @@ const PlayerDetailedStatus = ({
         {player.status === 'ready' && (
           <>
             {/* Contadores Básicos - Linhas Horizontais */}
-            <div className="mb-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' }}>
+            <div className="mb-2" style={STYLES.section}>
               <h6 className="text-light mb-2 fw-bold d-flex align-items-center small">
-                <span className="me-2" style={{ color: '#17a2b8' }}>⚡</span>
+                <span className="me-2" style={STYLES.iconColor}>⚡</span>
                 {localization['UI.Counters.Special'] || 'Contadores'}
               </h6>
               <div className="small">
-                {[
-                  { key: 'vida', label: localization['Characteristic.Health'] || 'Vida', value: formatCounter(counters.vida, counters.vida_max), color: '#dc3545' },
-                  { key: 'esquiva', label: localization['Characteristic.DodgePoints'] || 'Esquiva', value: formatCounter(counters.esquiva, counters.esquiva_max), color: '#28a745' },
-                  { key: 'oport', label: localization['Characteristic.OportunityAttack'] || 'Oport.', value: formatCounter(counters.oport, counters.oport_max), color: '#ffc107' },
-                  { key: 'itens', label: localization['Characteristic.ExplorationItens'] || 'Itens', value: formatCounter(counters.item, counters.item_max), color: '#6c757d' },
-                  { key: 'mortes', label: localization['Characteristic.Deaths'] || 'Mortes', value: counters.mortes || 0, color: '#8b0000' },
-                  { key: 'defesa', label: localization['Characteristic.DefenseDices'] || 'Dados de defesa', value: actorData?.NumberOfDefenseDices ?? 2, color: '#6610f2' }
-                ].map(({ key, label, value, color }) => (
-                  <div key={key} className="d-flex justify-content-between align-items-center py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                {counterItems.map(({ key, label, value, color }) => (
+                  <div key={key} className="d-flex justify-content-between align-items-center py-1" style={STYLES.rowBorder}>
                     <span className="d-flex align-items-center text-truncate me-2" style={{ maxWidth: '65%' }}>
-                      <span className="me-2 flex-shrink-0" style={{ width: '6px', height: '6px', borderRadius: '2px', background: color }} />
+                      <span className="me-2 flex-shrink-0" style={STYLES.counterDot(color)} />
                       <span className="text-muted text-truncate" style={{ fontSize: '0.8rem' }}>{label}</span>
                     </span>
                     <span className="text-white fw-bold flex-shrink-0" style={{ fontSize: '0.85rem' }}>{value}</span>
@@ -320,9 +305,9 @@ const PlayerDetailedStatus = ({
 
             {/* Contadores Adicionais - Otimizado */}
             {Object.keys(additionalCounters).length > 0 && (
-              <div className="mb-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' }}>
+              <div className="mb-2" style={STYLES.section}>
                 <h6 className="text-light mb-2 fw-bold d-flex align-items-center small">
-                  <span className="me-2" style={{ color: '#17a2b8' }}>📊</span>
+                  <span className="me-2" style={STYLES.iconColor}>📊</span>
                   {localization['UI.AdditionalCounters.Title'] || 'Contadores Especiais'}
                 </h6>
                 <div className="small">
@@ -337,10 +322,10 @@ const PlayerDetailedStatus = ({
                     }
                     const label = counter.label || key.replace('SpecialCustom.', '').replace(/\d+$/, '');
                     return (
-                      <div key={key} className="d-flex justify-content-between align-items-center py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div key={key} className="d-flex justify-content-between align-items-center py-1" style={STYLES.rowBorder}>
                         <span className="d-flex align-items-center text-truncate me-2" style={{ maxWidth: '65%' }}>
                           {counter.icon && <span className="me-1 flex-shrink-0" style={{ fontSize: '0.9em' }}>{counter.icon}</span>}
-                          <span className="me-2 flex-shrink-0" style={{ width: '6px', height: '6px', borderRadius: '2px', background: color }} />
+                          <span className="me-2 flex-shrink-0" style={STYLES.counterDot(color)} />
                           <span className="text-muted text-truncate" style={{ fontSize: '0.75rem' }} title={label}>{label}</span>
                         </span>
                         <span className="fw-bold flex-shrink-0" style={{ fontSize: '0.8rem', color }}>{displayText}</span>
@@ -352,9 +337,9 @@ const PlayerDetailedStatus = ({
             )}
 
             {/* Características - Otimizado */}
-            <div className="mb-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '8px' }}>
+            <div className="mb-2" style={STYLES.section}>
               <h6 className="text-light mb-2 fw-bold d-flex align-items-center small">
-                <span className="me-2" style={{ color: '#ffc107' }}>🎯</span>
+                <span className="me-2" style={STYLES.charIconColor}>🎯</span>
                 {localization['Characteristic.Title'] || 'Características'}
               </h6>
               
@@ -392,7 +377,7 @@ const PlayerDetailedStatus = ({
                     
                     return (
                       <div key={key} className="d-flex justify-content-between align-items-center py-1" 
-                           style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                           style={STYLES.rowBorderLight}>
                         <span className="text-muted text-truncate me-2" style={{ fontSize: '0.8rem', maxWidth: '65%' }} title={characteristicLabel}>
                           <span className="d-inline d-sm-none">{shortLabel}</span>
                           <span className="d-none d-sm-inline">{characteristicLabel}</span>
@@ -415,12 +400,7 @@ const PlayerDetailedStatus = ({
         {/* Placeholder para outros status */}
         {player.status !== 'ready' && (
           <div className="text-center py-4">
-            <div className="text-muted" style={{ 
-              background: 'rgba(13,110,253,0.1)', 
-              border: '1px solid rgba(13,110,253,0.3)',
-              borderRadius: '6px',
-              padding: '12px 16px'
-            }}>
+            <div className="text-muted" style={STYLES.placeholderBox}>
               {player.status === 'creating' ? 
                 (localization['UI.PlayerStatus.CreatingCharacter'] || 'Criando personagem') : 
                 (localization['UI.PlayerStatus.WaitingSelection'] || 'Aguardando seleção')
@@ -433,4 +413,4 @@ const PlayerDetailedStatus = ({
   );
 };
 
-export default PlayerDetailedStatus;
+export default React.memo(PlayerDetailedStatus);

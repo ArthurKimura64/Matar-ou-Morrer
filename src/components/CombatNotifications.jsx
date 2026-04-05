@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../services/supabaseClient';
 import './CombatNotifications.css';
 
@@ -7,6 +7,12 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
   const [rolling, setRolling] = useState(false);
   const [diceAnimation, setDiceAnimation] = useState([]);
   const [selectedWeapon, setSelectedWeapon] = useState(null);
+  const mountedRef = useRef(true);
+
+  // Cleanup ref on unmount
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
 
   // ========== CARREGAR COMBATE ATIVO ==========
   const loadCombat = useCallback(async () => {
@@ -303,7 +309,11 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
 
     const isAttacker = currentPlayer.id === combat.attacker_id;
     const currentRound = combat.current_round;
-    const roundData = [...(combat.round_data || [])];
+    const roundData = (combat.round_data || []).map(r => ({
+      ...r,
+      attacker: { ...r.attacker },
+      defender: { ...r.defender }
+    }));
     
     if (currentRound < 1 || currentRound > roundData.length) {
       console.error('Rodada inválida');
@@ -369,6 +379,7 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
 
     // ========== ANIMAÇÃO: 10 frames de 100ms cada ==========
     for (let frame = 0; frame < 10; frame++) {
+      if (!mountedRef.current) return;
       const tempDice = [];
       for (let i = 0; i < diceCount; i++) {
         tempDice.push(1 + Math.floor(Math.random() * 6));
@@ -376,6 +387,8 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
       setDiceAnimation(tempDice);
       await new Promise(resolve => setTimeout(resolve, 100));
     }
+
+    if (!mountedRef.current) return;
 
     // Resultado final
     const finalDice = [];
@@ -493,6 +506,43 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
     }
   };
 
+  // ========== AUTO-START: Combate sem revidar ==========
+  // Movido para useEffect para evitar side-effect durante render
+  const autoStartTriggeredRef = useRef(null);
+  useEffect(() => {
+    if (
+      combat &&
+      combat.combat_phase === 'weapon_selection' &&
+      !combat.allow_counter_attack &&
+      combat.status === 'pending' &&
+      autoStartTriggeredRef.current !== combat.id
+    ) {
+      autoStartTriggeredRef.current = combat.id;
+      const autoStart = async () => {
+        const { totalRounds, rounds } = calculateRounds(combat.attack_data.LoadTime || 0, 0);
+        const roundData = rounds.map(r => ({
+          ...r,
+          attacker: { rolled: false, roll: [], total: 0 },
+          defender: { rolled: false, roll: [], total: 0 },
+          completed: false
+        }));
+
+        await supabase
+          .from('combat_notifications')
+          .update({
+            total_rounds: totalRounds,
+            current_round: 1,
+            combat_phase: 'rolling',
+            round_data: roundData,
+            status: 'in_progress',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', combat.id);
+      };
+      autoStart();
+    }
+  }, [combat?.id, combat?.combat_phase, combat?.allow_counter_attack, combat?.status, combat?.attack_data?.LoadTime]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ========== RENDERIZAÇÃO ==========
   if (!combat) return null;
 
@@ -502,31 +552,7 @@ const CombatNotifications = ({ currentPlayer, currentPlayerData, roomId, gameDat
   // ========== FASE 1: SELEÇÃO DE ARMA ==========
   if (combat.combat_phase === 'weapon_selection') {
     if (!combat.allow_counter_attack) {
-      // Sem revidar - iniciar automaticamente
-      if (combat.status === 'pending') {
-        const autoStart = async () => {
-          const { totalRounds, rounds } = calculateRounds(combat.attack_data.LoadTime || 0, 0);
-          const roundData = rounds.map(r => ({
-            ...r,
-            attacker: { rolled: false, roll: [], total: 0 },
-            defender: { rolled: false, roll: [], total: 0 },
-            completed: false
-          }));
-
-          await supabase
-            .from('combat_notifications')
-            .update({
-              total_rounds: totalRounds,
-              current_round: 1,
-              combat_phase: 'rolling',
-              round_data: roundData,
-              status: 'in_progress',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', combat.id);
-        };
-        autoStart();
-      }
+      // Sem revidar - autoStart tratado pelo useEffect acima
       return null;
     }
 

@@ -157,7 +157,7 @@ const PlayersSidebar = ({
         </div>
       </div>
 
-      {/* Sidebar Mobile - Fullscreen */}}
+      {/* Sidebar Mobile - Fullscreen */}
       <div
         className="position-fixed bg-dark d-block d-md-none"
         style={{
