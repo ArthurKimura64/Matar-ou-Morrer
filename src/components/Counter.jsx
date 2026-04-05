@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-const Counter = ({ id, title, value, min, max, onChange }) => {
+const Counter = ({ id, title, value, min, max, onChange, readOnly }) => {
   const handleDecrement = useCallback(() => {
     onChange(Math.max(value - 1, min));
   }, [value, min, onChange]);
@@ -24,6 +24,13 @@ const Counter = ({ id, title, value, min, max, onChange }) => {
         <div className="fw-bold mb-1" style={{fontSize: '0.95em'}}>
           {title}
         </div>
+        {readOnly ? (
+          <div className="d-flex align-items-center justify-content-center">
+            <span className="fw-bold" style={{ fontSize: '1.4em' }}>
+              {value}
+            </span>
+          </div>
+        ) : (
         <div className="input-group flex-nowrap justify-content-center">
           <button 
             className="btn btn-outline-danger btn-sm" 
@@ -49,6 +56,7 @@ const Counter = ({ id, title, value, min, max, onChange }) => {
             +
           </button>
         </div>
+        )}
       </div>
     </div>
   );

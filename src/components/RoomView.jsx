@@ -6,6 +6,7 @@ import CharacterSheet from './CharacterSheet';
 import PlayersSidebar from './PlayersSidebar';
 import TableCards from './TableCards';
 import CombatPanel from './CombatPanel';
+import MatchBar from './MatchBar';
 import { usePlayerStatus } from '../hooks/usePlayerStatus';
 
 const RoomView = ({ 
@@ -34,6 +35,10 @@ const RoomView = ({
   
   // Controle centralizado das sidebars - apenas uma aberta por vez
   const [openSidebar, setOpenSidebar] = useState(null); // 'players', 'table', 'combat' ou null
+  
+  // Estado da partida (match)
+  const [matchStatus, setMatchStatus] = useState(null); // null = sem partida, 'in_progress' = partida ativa
+  const [roomData, setRoomData] = useState(room); // Room data atualizada via subscription
   
   // Usar useRef para controlar se já aplicou estado inicial
   const hasAppliedInitialState = useRef(false);
@@ -88,14 +93,12 @@ const RoomView = ({
         
         const result = await RoomService.getRoomPlayers(room.id);
         if (result.success && isMounted) {
-          console.log('🔄 Jogadores atualizados:', result.players.length);
           setPlayers(result.players);
           lastUpdateTime = Date.now();
 
           // Se o jogador atual não estiver mais na lista, foi expulso
           // Sair imediatamente da sala sem mostrar alert
           if (currentPlayer && !result.players.find(p => p.id === currentPlayer.id)) {
-            console.log('🚪 Jogador expulso da sala, saindo automaticamente...');
             if (onLeaveRoom) onLeaveRoom();
           }
         }
@@ -112,12 +115,9 @@ const RoomView = ({
     
     // Configurar subscription para mudanças em tempo real com monitoramento
     const handlePlayersChange = (payload) => {
-      console.log('📡 Mudança detectada, atualizando jogadores...', payload.eventType);
-      
       // Evitar múltiplas atualizações muito próximas (debounce de 200ms)
       const timeSinceLastUpdate = Date.now() - lastUpdateTime;
       if (timeSinceLastUpdate < 200) {
-        console.log('⏱️ Aguardando para evitar múltiplas atualizações...');
         setTimeout(() => loadPlayersData(true), 200);
       } else {
         // Recarregar dados imediatamente com flag de forceRefresh
@@ -131,27 +131,13 @@ const RoomView = ({
     // Verificar periodicamente se a subscription está ativa (a cada 30 segundos)
     const connectionCheckInterval = setInterval(() => {
       if (sub && !RoomService.checkAndReconnectSubscription(sub)) {
-        console.log('⚠️ Subscription inativa, recarregando dados...');
         loadPlayersData(true);
       }
     }, 30000); // 30 segundos
 
-    // Limpeza automática de dados antigos a cada 15 minutos (reduzido frequência)
-    const cleanupInterval = setInterval(async () => {
-      try {
-        const result = await RoomService.cleanupOldData();
-        if (result.success) {
-          // Silencioso
-        }
-      } catch (error) {
-        console.error('❌ Erro na limpeza automática:', error);
-      }
-    }, 15 * 60 * 1000); // Aumentado para 15 minutos
-
     // Listener para quando a página fica visível novamente
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('👁️ Página visível novamente, atualizando...');
         loadPlayersData(true);
         
         // Verificar se a subscription precisa ser reconectada
@@ -170,10 +156,30 @@ const RoomView = ({
         RoomService.unsubscribeFromRoom(sub);
       }
       clearInterval(connectionCheckInterval);
-      clearInterval(cleanupInterval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [room.id, currentPlayer, onLeaveRoom]);
+
+  // Subscription para mudanças no status da sala (match_status)
+  useEffect(() => {
+    // Carregar match_status inicial
+    setMatchStatus(room.match_status || null);
+
+    const roomSub = RoomService.subscribeToRoomStatus(room.id, (updatedRoom) => {
+      setMatchStatus(updatedRoom.match_status || null);
+      setRoomData(prev => ({ ...prev, ...updatedRoom }));
+    });
+
+    return () => {
+      if (roomSub) {
+        RoomService.unsubscribeFromRoom(roomSub);
+      }
+    };
+  }, [room.id, room.match_status]);
+
+  // Dados do jogador atual derivados dos players
+  const currentPlayerData = players.find(p => p.id === currentPlayer?.id);
+  const isAlive = currentPlayerData?.is_alive !== false;
 
   const handleCharacterSelect = async (actor) => {
     setSelectedActor(actor);
@@ -221,7 +227,11 @@ const RoomView = ({
   };
 
   const handleBackToLobby = async () => {
-    
+    // Bloquear se partida ativa e jogador está vivo
+    if (matchStatus === 'in_progress' && isAlive) {
+      alert('Você precisa se declarar eliminado antes de trocar de personagem!');
+      return;
+    }
     
     // Limpar TODOS os dados do personagem no banco de dados
     if (currentPlayer?.id) {
@@ -230,7 +240,7 @@ const RoomView = ({
       await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
       
       // Limpar contadores (resetar para valores padrão)
-      await RoomService.updatePlayerCounters(currentPlayer.id, {
+      const resetCounters = {
         vida: 20,
         vida_max: 20,
         esquiva: 0,
@@ -239,8 +249,9 @@ const RoomView = ({
         oport_max: 0,
         item: 0,
         item_max: 0,
-        mortes: 0
-      });
+        mortes: currentPlayerData?.counters?.mortes || 0
+      };
+      await RoomService.updatePlayerCounters(currentPlayer.id, resetCounters);
       
       // Limpar itens usados
       await RoomService.updatePlayerUsedItems(currentPlayer.id, []);
@@ -250,6 +261,9 @@ const RoomView = ({
       
       // Limpar contadores adicionais
       await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, {});
+      
+      // Limpar seleções (inclui copycatAssignments do Copiador)
+      await RoomService.updatePlayerSelections(currentPlayer.id, {});
       
       // Limpar personagem
       await RoomService.updatePlayerCharacter(currentPlayer.id, null, null);
@@ -274,21 +288,27 @@ const RoomView = ({
   };
 
   // Quando o jogador trocar de personagem (voltar ao lobby e escolher outro), limpar completamente o histórico ever_exposed_cards
+  const prevSelectedActorRef = useRef(selectedActor);
   useEffect(() => {
-    const clearHistoryIfNoActor = async () => {
-      try {
-        if (!selectedActor && currentPlayer?.id && currentView === 'lobby') {
-          const appState = currentPlayer.app_state || {};
-          if (appState.ever_exposed_cards && Object.keys(appState.ever_exposed_cards).length) {
-            await RoomService.updatePlayerAppState(currentPlayer.id, { ...appState, ever_exposed_cards: {} });
+    // Só executar quando selectedActor mudar para null (saiu do personagem)
+    if (prevSelectedActorRef.current && !selectedActor && currentPlayer?.id && currentView === 'lobby') {
+      const clearHistory = async () => {
+        try {
+          const playerResult = await RoomService.getPlayer(currentPlayer.id);
+          if (playerResult.success && playerResult.player) {
+            const appState = playerResult.player.app_state || {};
+            if (appState.ever_exposed_cards && Object.keys(appState.ever_exposed_cards).length) {
+              await RoomService.updatePlayerAppState(currentPlayer.id, { ...appState, ever_exposed_cards: {} });
+            }
           }
+        } catch (e) {
+          console.error('Erro ao limpar histórico de exposição ao trocar de personagem:', e);
         }
-      } catch (e) {
-        console.error('Erro ao limpar histórico de exposição ao trocar de personagem:', e);
-      }
-    };
-    clearHistoryIfNoActor();
-  }, [selectedActor, currentView, currentPlayer?.id, currentPlayer?.app_state]);
+      };
+      clearHistory();
+    }
+    prevSelectedActorRef.current = selectedActor;
+  }, [selectedActor, currentView, currentPlayer?.id]);
 
   const handleLeaveRoom = async () => {
     await RoomService.leaveRoom(currentPlayer.id);
@@ -389,6 +409,19 @@ const RoomView = ({
         </div>
       </div>
 
+      {/* Barra de Partida */}
+      <MatchBar
+        matchStatus={matchStatus}
+        players={players}
+        currentPlayer={currentPlayer}
+        isAlive={isAlive}
+        roomId={room.id}
+        room={roomData}
+        currentUser={currentPlayer?.user_id || null}
+        localization={localization}
+        onMatchEnd={() => setMatchStatus(null)}
+      />
+
       {currentView === 'lobby' && (
         <>
           {/* Criar Personagem */}
@@ -440,6 +473,7 @@ const RoomView = ({
                 localization={localization}
                 onCharacterCreate={handleCharacterCreate}
                 onBack={handleBackToLobby}
+                matchStatus={matchStatus}
               />
             </div>
           </div>
@@ -468,6 +502,8 @@ const RoomView = ({
                 onReset={handleBackToLobby}
                 currentPlayer={currentPlayer}
                 players={players}
+                matchStatus={matchStatus}
+                isAlive={isAlive}
               />
             </div>
           </div>
@@ -484,6 +520,7 @@ const RoomView = ({
         onKickPlayer={handleKickPlayer}
         isOpen={openSidebar === 'players'}
         onToggle={handleTogglePlayers}
+        matchStatus={matchStatus}
       />
 
       {/* Cartas na mesa - sempre visível */}

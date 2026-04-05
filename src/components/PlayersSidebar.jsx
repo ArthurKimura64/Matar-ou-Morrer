@@ -10,7 +10,8 @@ const PlayersSidebar = ({
   room = null,
   onKickPlayer = null,
   isOpen: isOpenProp,
-  onToggle
+  onToggle,
+  matchStatus = null
 }) => {
   // Usar estado local apenas se não for controlado externamente
   const [isOpenLocal, setIsOpenLocal] = useState(false);
@@ -147,6 +148,7 @@ const PlayersSidebar = ({
                     canKick={isCurrentPlayerMaster}
                     onKickPlayer={onKickPlayer}
                     isMaster={room && player.id === room.master_player_id}
+                    matchStatus={matchStatus}
                   />
                 </div>
               ))
@@ -155,7 +157,7 @@ const PlayersSidebar = ({
         </div>
       </div>
 
-      {/* Sidebar Mobile - Fullscreen */}
+      {/* Sidebar Mobile - Fullscreen */}}
       <div
         className="position-fixed bg-dark d-block d-md-none"
         style={{
@@ -222,6 +224,7 @@ const PlayersSidebar = ({
                     canKick={isCurrentPlayerMaster}
                     onKickPlayer={onKickPlayer}
                     isMaster={room && player.id === room.master_player_id}
+                    matchStatus={matchStatus}
                   />
                 </div>
               ))

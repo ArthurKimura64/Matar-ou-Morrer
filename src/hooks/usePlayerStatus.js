@@ -25,14 +25,12 @@ export const usePlayerStatus = (playerId, currentView, selectedActor, characterS
           break;
         case 'builder':
           newStatus = 'creating';
-          // Usar nome localizado do personagem
           characterName = localization && selectedActor?.ID 
             ? localization[`Character.Name.${selectedActor.ID}`] || selectedActor.ID
             : selectedActor?.name || selectedActor?.ID;
           break;
         case 'sheet':
           newStatus = 'ready';
-          // Usar nome localizado do personagem
           characterName = localization && selectedActor?.ID 
             ? localization[`Character.Name.${selectedActor.ID}`] || selectedActor.ID
             : selectedActor?.name || selectedActor?.ID;
@@ -49,7 +47,7 @@ export const usePlayerStatus = (playerId, currentView, selectedActor, characterS
     };
 
     updateStatus();
-  }, [playerId, currentView, selectedActor?.ID, selectedActor?.name, characterSelections, localization]);
+  }, [playerId, currentView, selectedActor?.ID, selectedActor?.name, localization]);
 };
 
 export default usePlayerStatus;

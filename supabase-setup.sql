@@ -828,6 +828,39 @@ COMMENT ON FUNCTION get_combat_stats() IS 'Retorna estatísticas detalhadas sobr
 -- FROM public.combat_notifications
 -- WHERE id = 'uuid-do-combate';
 
+-- ================================
+-- SISTEMA DE PARTIDAS (MATCH)
+-- ================================
+
+-- Adicionar coluna de status da partida na sala
+ALTER TABLE public.rooms 
+ADD COLUMN IF NOT EXISTS match_status VARCHAR(20) DEFAULT NULL;
+
+-- Adicionar constraint para match_status
+ALTER TABLE public.rooms 
+DROP CONSTRAINT IF EXISTS rooms_match_status_check;
+
+ALTER TABLE public.rooms 
+ADD CONSTRAINT rooms_match_status_check 
+CHECK (match_status IS NULL OR match_status IN ('in_progress'));
+
+-- Adicionar coluna is_alive nos jogadores (para rastrear eliminações durante partida)
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS is_alive BOOLEAN DEFAULT true;
+
+-- Adicionar coluna killed_by_player_id nos jogadores
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS killed_by_player_id UUID DEFAULT NULL;
+
+-- Índices para o sistema de partidas
+CREATE INDEX IF NOT EXISTS idx_rooms_match_status ON public.rooms(match_status);
+CREATE INDEX IF NOT EXISTS idx_players_is_alive ON public.players(is_alive);
+
+-- Comentários
+COMMENT ON COLUMN public.rooms.match_status IS 'Status da partida: NULL = sem partida ativa, in_progress = partida em andamento';
+COMMENT ON COLUMN public.players.is_alive IS 'Se o jogador está vivo na partida atual';
+COMMENT ON COLUMN public.players.killed_by_player_id IS 'ID do jogador que eliminou este jogador (NULL se não foi eliminado ou se morreu sem assassino)';
+
 -- EXEMPLO 4: Listar todas as rodadas de um combate (incluindo ataques de oportunidade)
 -- SELECT 
 --     id,
@@ -867,3 +900,279 @@ COMMENT ON FUNCTION get_combat_stats() IS 'Retorna estatísticas detalhadas sobr
 -- AND (round_data -> (current_round - 1) ->> 'action_type') = 'opportunity';
 
 SELECT 'SETUP CONCLUÍDO!' as status;
+
+-- ================================
+-- SISTEMA DE LOGIN E ESTATÍSTICAS
+-- ================================
+
+-- Adicionar coluna user_id na tabela de jogadores (liga jogador de sessão a conta)
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS user_id UUID DEFAULT NULL;
+
+-- Adicionar coluna elimination_order na tabela de jogadores (ordem de eliminação na partida)
+ALTER TABLE public.players 
+ADD COLUMN IF NOT EXISTS elimination_order INTEGER DEFAULT NULL;
+
+-- Adicionar coluna match_started_at na tabela de salas (quando a partida atual começou)
+ALTER TABLE public.rooms 
+ADD COLUMN IF NOT EXISTS match_started_at TIMESTAMPTZ DEFAULT NULL;
+
+-- Índice para buscar jogadores por user_id
+CREATE INDEX IF NOT EXISTS idx_players_user_id ON public.players(user_id);
+
+-- Tabela de perfis de usuário (ligada a auth.users do Supabase)
+CREATE TABLE IF NOT EXISTS public.user_profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    display_name VARCHAR(50) NOT NULL,
+    avatar_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Tabela de estatísticas acumuladas por usuário
+CREATE TABLE IF NOT EXISTS public.user_stats (
+    user_id UUID PRIMARY KEY REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    total_matches INTEGER DEFAULT 0,
+    total_wins INTEGER DEFAULT 0,
+    total_eliminations INTEGER DEFAULT 0,
+    total_survival_points INTEGER DEFAULT 0,
+    favorite_character VARCHAR(100),
+    win_rate DECIMAL(5,2) DEFAULT 0,
+    composite_score DECIMAL(10,2) DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Tabela de histórico de partidas
+CREATE TABLE IF NOT EXISTS public.match_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    room_id VARCHAR(6),
+    room_name VARCHAR(100),
+    started_at TIMESTAMP WITH TIME ZONE,
+    ended_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    winner_user_id UUID REFERENCES public.user_profiles(id) ON DELETE SET NULL,
+    winner_player_name VARCHAR(50),
+    total_players INTEGER NOT NULL
+);
+
+-- Tabela de participantes de cada partida
+CREATE TABLE IF NOT EXISTS public.match_participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    match_id UUID REFERENCES public.match_history(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.user_profiles(id) ON DELETE SET NULL,
+    player_name VARCHAR(50) NOT NULL,
+    character_name VARCHAR(100),
+    elimination_order INTEGER,
+    killed_by_user_id UUID REFERENCES public.user_profiles(id) ON DELETE SET NULL,
+    killed_by_player_name VARCHAR(50),
+    survival_points INTEGER DEFAULT 0,
+    is_winner BOOLEAN DEFAULT false
+);
+
+-- Índices para estatísticas e ranking
+CREATE INDEX IF NOT EXISTS idx_user_stats_composite ON public.user_stats(composite_score DESC);
+CREATE INDEX IF NOT EXISTS idx_user_stats_wins ON public.user_stats(total_wins DESC);
+CREATE INDEX IF NOT EXISTS idx_user_stats_eliminations ON public.user_stats(total_eliminations DESC);
+CREATE INDEX IF NOT EXISTS idx_user_stats_survival ON public.user_stats(total_survival_points DESC);
+CREATE INDEX IF NOT EXISTS idx_match_history_ended ON public.match_history(ended_at DESC);
+CREATE INDEX IF NOT EXISTS idx_match_participants_user ON public.match_participants(user_id);
+CREATE INDEX IF NOT EXISTS idx_match_participants_match ON public.match_participants(match_id);
+CREATE INDEX IF NOT EXISTS idx_match_history_room ON public.match_history(room_id);
+
+-- Habilitar RLS nas novas tabelas
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_stats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.match_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.match_participants ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de user_profiles: leitura pública, escrita apenas no próprio perfil
+DROP POLICY IF EXISTS "Public read user_profiles" ON public.user_profiles;
+CREATE POLICY "Public read user_profiles" ON public.user_profiles
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.user_profiles;
+CREATE POLICY "Users can insert own profile" ON public.user_profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON public.user_profiles;
+CREATE POLICY "Users can update own profile" ON public.user_profiles
+    FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- Políticas de user_stats: leitura pública, sem escrita direta (atualizado via função)
+DROP POLICY IF EXISTS "Public read user_stats" ON public.user_stats;
+CREATE POLICY "Public read user_stats" ON public.user_stats
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "System can insert user_stats" ON public.user_stats;
+CREATE POLICY "System can insert user_stats" ON public.user_stats
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "System can update user_stats" ON public.user_stats;
+CREATE POLICY "System can update user_stats" ON public.user_stats
+    FOR UPDATE USING (true);
+
+-- Políticas de match_history: leitura pública, inserção por qualquer autenticado
+DROP POLICY IF EXISTS "Public read match_history" ON public.match_history;
+CREATE POLICY "Public read match_history" ON public.match_history
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Authenticated insert match_history" ON public.match_history;
+CREATE POLICY "Authenticated insert match_history" ON public.match_history
+    FOR INSERT WITH CHECK (true);
+
+-- Políticas de match_participants: leitura pública, inserção por qualquer autenticado
+DROP POLICY IF EXISTS "Public read match_participants" ON public.match_participants;
+CREATE POLICY "Public read match_participants" ON public.match_participants
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Authenticated insert match_participants" ON public.match_participants;
+CREATE POLICY "Authenticated insert match_participants" ON public.match_participants
+    FOR INSERT WITH CHECK (true);
+
+-- Função para calcular composite score
+CREATE OR REPLACE FUNCTION calculate_composite_score(
+    p_wins INTEGER,
+    p_eliminations INTEGER,
+    p_survival_points INTEGER,
+    p_matches INTEGER
+) RETURNS DECIMAL(10,2) AS $$
+DECLARE
+    v_win_rate DECIMAL(5,2);
+BEGIN
+    IF p_matches > 0 THEN
+        v_win_rate := (p_wins::DECIMAL / p_matches::DECIMAL) * 100;
+    ELSE
+        v_win_rate := 0;
+    END IF;
+    
+    RETURN (p_wins * 50) + (p_eliminations * 10) + (p_survival_points * 5) + (v_win_rate * 100);
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Função para criar perfil automaticamente quando um usuário se registra
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.user_profiles (id, display_name, avatar_url, created_at, updated_at)
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data ->> 'display_name', NEW.raw_user_meta_data ->> 'name', split_part(NEW.email, '@', 1)),
+        COALESCE(NEW.raw_user_meta_data ->> 'avatar_url', NEW.raw_user_meta_data ->> 'picture'),
+        NOW(),
+        NOW()
+    );
+    
+    INSERT INTO public.user_stats (user_id, updated_at)
+    VALUES (NEW.id, NOW());
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger: criar perfil ao registrar novo usuário
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_new_user();
+
+-- Função atômica para registrar resultado de uma partida
+CREATE OR REPLACE FUNCTION record_match_result(
+    p_room_id VARCHAR(6),
+    p_room_name VARCHAR(100),
+    p_started_at TIMESTAMPTZ,
+    p_winner_user_id UUID,
+    p_winner_player_name VARCHAR(50),
+    p_total_players INTEGER,
+    p_participants JSONB
+) RETURNS UUID AS $$
+DECLARE
+    v_match_id UUID;
+    v_participant JSONB;
+    v_user_id UUID;
+    v_char_counts JSONB DEFAULT '{}';
+    v_max_char VARCHAR(100);
+    v_max_count INTEGER DEFAULT 0;
+    v_current_count INTEGER;
+BEGIN
+    -- Inserir registro da partida
+    INSERT INTO public.match_history (room_id, room_name, started_at, ended_at, winner_user_id, winner_player_name, total_players)
+    VALUES (p_room_id, p_room_name, p_started_at, NOW(), p_winner_user_id, p_winner_player_name, p_total_players)
+    RETURNING id INTO v_match_id;
+
+    -- Inserir participantes
+    FOR v_participant IN SELECT * FROM jsonb_array_elements(p_participants)
+    LOOP
+        INSERT INTO public.match_participants (
+            match_id, user_id, player_name, character_name,
+            elimination_order, killed_by_user_id, killed_by_player_name,
+            survival_points, is_winner
+        ) VALUES (
+            v_match_id,
+            NULLIF(v_participant ->> 'user_id', '')::UUID,
+            v_participant ->> 'player_name',
+            v_participant ->> 'character_name',
+            (v_participant ->> 'elimination_order')::INTEGER,
+            NULLIF(v_participant ->> 'killed_by_user_id', '')::UUID,
+            v_participant ->> 'killed_by_player_name',
+            COALESCE((v_participant ->> 'survival_points')::INTEGER, 0),
+            COALESCE((v_participant ->> 'is_winner')::BOOLEAN, false)
+        );
+
+        -- Atualizar user_stats se o participante tem conta
+        v_user_id := NULLIF(v_participant ->> 'user_id', '')::UUID;
+        IF v_user_id IS NOT NULL THEN
+            UPDATE public.user_stats SET
+                total_matches = total_matches + 1,
+                total_wins = total_wins + CASE WHEN (v_participant ->> 'is_winner')::BOOLEAN THEN 1 ELSE 0 END,
+                total_eliminations = total_eliminations + COALESCE((v_participant ->> 'eliminations_made')::INTEGER, 0),
+                total_survival_points = total_survival_points + COALESCE((v_participant ->> 'survival_points')::INTEGER, 0),
+                win_rate = CASE 
+                    WHEN (total_matches + 1) > 0 
+                    THEN ((total_wins + CASE WHEN (v_participant ->> 'is_winner')::BOOLEAN THEN 1 ELSE 0 END)::DECIMAL / (total_matches + 1)::DECIMAL) * 100
+                    ELSE 0 
+                END,
+                composite_score = calculate_composite_score(
+                    total_wins + CASE WHEN (v_participant ->> 'is_winner')::BOOLEAN THEN 1 ELSE 0 END,
+                    total_eliminations + COALESCE((v_participant ->> 'eliminations_made')::INTEGER, 0),
+                    total_survival_points + COALESCE((v_participant ->> 'survival_points')::INTEGER, 0),
+                    total_matches + 1
+                ),
+                updated_at = NOW()
+            WHERE user_id = v_user_id;
+
+            -- Atualizar personagem favorito
+            -- Buscar contagem de cada personagem usado
+            SELECT COALESCE(
+                (SELECT mp.character_name 
+                 FROM public.match_participants mp
+                 WHERE mp.user_id = v_user_id AND mp.character_name IS NOT NULL
+                 GROUP BY mp.character_name
+                 ORDER BY COUNT(*) DESC
+                 LIMIT 1),
+                v_participant ->> 'character_name'
+            ) INTO v_max_char;
+            
+            IF v_max_char IS NOT NULL THEN
+                UPDATE public.user_stats SET favorite_character = v_max_char WHERE user_id = v_user_id;
+            END IF;
+        END IF;
+    END LOOP;
+
+    RETURN v_match_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Comentários das novas tabelas
+COMMENT ON TABLE public.user_profiles IS 'Perfis de usuários registrados (vinculados a auth.users)';
+COMMENT ON TABLE public.user_stats IS 'Estatísticas acumuladas de cada usuário';
+COMMENT ON TABLE public.match_history IS 'Histórico de partidas concluídas';
+COMMENT ON TABLE public.match_participants IS 'Participantes e resultados de cada partida';
+
+COMMENT ON COLUMN public.players.user_id IS 'ID do usuário autenticado (NULL se jogador sem conta)';
+COMMENT ON COLUMN public.players.elimination_order IS 'Ordem de eliminação na partida atual (1 = primeiro eliminado, NULL = vivo/vencedor)';
+
+COMMENT ON FUNCTION calculate_composite_score IS 'Calcula score composto: (wins*50) + (eliminations*10) + (survival*5) + (win_rate*100)';
+COMMENT ON FUNCTION handle_new_user IS 'Cria user_profiles e user_stats automaticamente ao registrar novo usuário';
+COMMENT ON FUNCTION record_match_result IS 'Registra resultado de partida atomicamente (match_history + participants + stats)';
+
+SELECT 'SISTEMA DE LOGIN E ESTATÍSTICAS CONFIGURADO!' as status;

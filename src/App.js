@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { RoomService } from './services/roomService';
 import { PlayerPersistence } from './utils/playerPersistence';
+import authService from './services/authService';
+import AuthModal from './components/AuthModal';
+import UserMenu from './components/UserMenu';
 import './App.css';
 
 // Lazy loading para componentes grandes
@@ -10,6 +13,8 @@ const CharacterSheet = lazy(() => import('./components/CharacterSheet'));
 const RoomLobby = lazy(() => import('./components/RoomLobby'));
 const RoomView = lazy(() => import('./components/RoomView'));
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
+const ProfilePage = lazy(() => import('./components/ProfilePage'));
+const RankingPage = lazy(() => import('./components/RankingPage'));
 
 // Componente de loading reutilizável
 const LoadingFallback = () => (
@@ -36,6 +41,11 @@ function App() {
   const [roomInternalView, setRoomInternalView] = useState('lobby');
   const [isRestoringState, setIsRestoringState] = useState(false);
 
+  // Estado de autenticação
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   // Função para salvar estado completo no banco (modo multiplayer)
   const saveCompleteState = useCallback(async () => {
     if (currentRoom && currentPlayer) {
@@ -47,22 +57,12 @@ function App() {
         timestamp: new Date().toISOString()
       };
       
-      console.log('💾 SALVANDO ESTADO NO BANCO:', {
-        playerId: currentPlayer.id,
-        view: completeState.currentView,
-        internalView: completeState.roomInternalView,
-        actor: completeState.selectedActor?.ID || completeState.selectedActor?.name || 'null',
-        hasSelections: !!completeState.characterSelections
-      });
-      
       // Salvar no banco E no localStorage como backup
       const result = await RoomService.updatePlayerAppState(currentPlayer.id, completeState);
       if (result.success) {
-        console.log('✅ Estado salvo no banco com sucesso');
-        // Também salvar no localStorage como backup
         PlayerPersistence.saveAppState(completeState);
       } else {
-        console.error('❌ Erro ao salvar no banco, salvando apenas no localStorage');
+        console.warn('Erro ao salvar estado no banco, usando localStorage como fallback');
         PlayerPersistence.saveAppState(completeState);
       }
     }
@@ -70,7 +70,7 @@ function App() {
 
   // Função para salvar estado no modo solo (apenas localStorage)
   const saveSoloState = useCallback(() => {
-    if (!currentRoom && !currentPlayer) {
+    if (!currentRoom && !currentPlayer && currentView !== 'menu' && currentView !== 'lobby' && currentView !== 'profile' && currentView !== 'ranking') {
       const soloState = {
         currentView: currentView,
         selectedActor: selectedActor,
@@ -78,12 +78,6 @@ function App() {
         timestamp: new Date().toISOString(),
         isSoloMode: true
       };
-      
-      console.log('💾 SALVANDO ESTADO SOLO:', {
-        view: soloState.currentView,
-        actor: soloState.selectedActor?.ID || soloState.selectedActor?.name || 'null',
-        hasSelections: !!soloState.characterSelections
-      });
       
       PlayerPersistence.saveAppState(soloState);
     }
@@ -94,12 +88,10 @@ function App() {
     try {
       setLoading(true);
       setIsRestoringState(true);
-      console.log('🔄 INICIANDO RECONEXÃO:', savedData.player.name, 'na sala:', savedData.room.id);
       
       // Buscar dados completos da sala diretamente
       const roomResult = await RoomService.getRoomById(savedData.room.id);
       if (!roomResult.success || !roomResult.room) {
-        console.log('⚠️ Sala não encontrada ou fechada');
         // Limpar dados apenas se sala realmente não existe mais
         PlayerPersistence.clearPlayerData();
         setCurrentView('menu');
@@ -112,8 +104,6 @@ function App() {
       // Tentar reconectar o jogador
       const reconnectResult = await RoomService.reconnectPlayer(savedData.player.id);
       if (reconnectResult.success) {
-        console.log('✅ JOGADOR RECONECTADO, dados do banco:', reconnectResult.player);
-        
         // Definir sala e jogador primeiro (usando dados atualizados)
         setCurrentRoom(roomResult.room);
         setCurrentPlayer(reconnectResult.player);
@@ -123,12 +113,10 @@ function App() {
         
         if (reconnectResult.player.app_state && 
             reconnectResult.player.app_state.timestamp) {
-          console.log('🎯 USANDO ESTADO DO BANCO (app_state):', reconnectResult.player.app_state);
           stateToRestore = reconnectResult.player.app_state;
         } else if (reconnectResult.player.character && 
                    (reconnectResult.player.character.actor || reconnectResult.player.character.selections)) {
           // Se tem character salvo mas não tem app_state, criar state do character
-          console.log('🎯 USANDO CHARACTER DO BANCO:', reconnectResult.player.character);
           stateToRestore = {
             selectedActor: reconnectResult.player.character.actor,
             characterSelections: reconnectResult.player.character.selections,
@@ -136,13 +124,10 @@ function App() {
             currentView: 'room'
           };
         } else if (savedAppState) {
-          console.log('📦 USANDO ESTADO DO LOCALSTORAGE:', savedAppState);
           stateToRestore = savedAppState;
         }
         
         if (stateToRestore) {
-          console.log('🔄 RESTAURANDO ESTADO:', stateToRestore);
-          
           // Usar gameData carregado ou do estado
           const gameDataToUse = loadedGameData || gameData;
           
@@ -150,58 +135,41 @@ function App() {
             // Restaurar actor procurando pelo ID no gameData
             if (stateToRestore.selectedActor) {
               const actorId = stateToRestore.selectedActor.ID || stateToRestore.selectedActor.id;
-              console.log('📖 PROCURANDO ACTOR COM ID:', actorId);
               
               if (actorId && gameDataToUse.ActorDefinitions) {
                 const foundActor = gameDataToUse.ActorDefinitions.find(a => a.ID === actorId);
                 if (foundActor) {
-                  console.log('📖 ACTOR ENCONTRADO:', foundActor.ID);
                   setSelectedActor(foundActor);
                 } else {
-                  console.warn('⚠️ Actor não encontrado no gameData:', actorId);
                   setSelectedActor(stateToRestore.selectedActor);
                 }
               } else {
-                console.log('📖 DEFININDO ACTOR DIRETAMENTE');
                 setSelectedActor(stateToRestore.selectedActor);
               }
             }
             
             if (stateToRestore.characterSelections) {
-              console.log('📖 DEFININDO SELECTIONS');
               setCharacterSelections(stateToRestore.characterSelections);
             }
           } else {
             // Se gameData ainda não carregou, apenas definir os estados
             if (stateToRestore.selectedActor) {
-              console.log('📖 DEFININDO ACTOR (gameData ainda não carregado)');
               setSelectedActor(stateToRestore.selectedActor);
             }
             
             if (stateToRestore.characterSelections) {
-              console.log('📖 DEFININDO SELECTIONS');
               setCharacterSelections(stateToRestore.characterSelections);
             }
           }
           
           // Definir views
           if (stateToRestore.roomInternalView) {
-            console.log('📖 DEFININDO INTERNAL VIEW:', stateToRestore.roomInternalView);
             setRoomInternalView(stateToRestore.roomInternalView);
           }
           
           // Sempre ir para 'room' no App, o RoomView controla internamente
-          console.log('📖 DEFININDO CURRENT VIEW: room');
           setCurrentView('room');
-          
-          console.log('✅ ESTADO RESTAURADO:', {
-            view: 'room',
-            internalView: stateToRestore.roomInternalView,
-            actor: stateToRestore.selectedActor?.ID || stateToRestore.selectedActor?.name,
-            hasSelections: !!stateToRestore.characterSelections
-          });
         } else {
-          console.log('📭 NENHUM ESTADO ENCONTRADO - indo para lobby');
           setRoomInternalView('lobby');
           setCurrentView('room');
         }
@@ -209,14 +177,13 @@ function App() {
         // Atualizar dados salvos com informações mais recentes
         PlayerPersistence.updatePlayerData(reconnectResult.player);
       } else {
-        console.log('❌ Falha ao reconectar jogador');
         // Não limpar automaticamente - pode ser erro temporário
         alert('Não foi possível reconectar. Voltando ao menu principal.');
         PlayerPersistence.clearPlayerData();
         setCurrentView('menu');
       }
     } catch (error) {
-      console.error('❌ Erro na reconexão:', error);
+      console.error('Erro na reconexão:', error);
       alert('Erro ao tentar reconectar. Verifique sua conexão.');
       // Não limpar dados em caso de erro de rede
     } finally {
@@ -243,10 +210,55 @@ function App() {
     }
   }, [currentView, roomInternalView, selectedActor, characterSelections, currentRoom, currentPlayer, isRestoringState, saveCompleteState, saveSoloState]);
 
+  // Inicializar auth listener
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProfile = async (user) => {
+      if (!isMounted) return;
+      try {
+        const profile = await authService.getProfile(user.id);
+        if (isMounted) setUserProfile(profile);
+      } catch (err) {
+        console.warn('Perfil ainda não disponível:', err);
+      }
+    };
+
+    // Verificar sessão existente primeiro (síncrono com cache)
+    authService.getSession().then((session) => {
+      if (session?.user && isMounted) {
+        setCurrentUser(session.user);
+        loadProfile(session.user);
+      }
+    });
+
+    // Listener para mudanças futuras (login, logout, token refresh)
+    const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      // Ignorar INITIAL_SESSION — já tratado por getSession acima
+      if (event === 'INITIAL_SESSION') return;
+
+      if (session?.user) {
+        setCurrentUser(session.user);
+        loadProfile(session.user);
+      } else {
+        setCurrentUser(null);
+        setUserProfile(null);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
+  }, []);
+
   useEffect(() => {
     // Verificar se a URL contém "admin" para mostrar o painel escondido
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('admin') === 'true' || window.location.pathname.includes('admin')) {
+    const adminKey = process.env.REACT_APP_ADMIN_KEY || '';
+    if ((urlParams.get('admin') === 'true' || window.location.pathname.includes('admin')) && 
+        (!adminKey || urlParams.get('key') === adminKey)) {
       setCurrentView('admin');
       return;
     }
@@ -269,72 +281,54 @@ function App() {
       const savedAppState = PlayerPersistence.getAppState();
       
       if (savedData && PlayerPersistence.validateSavedData()) {
-        console.log('🔄 Dados salvos encontrados, tentando reconectar...');
         // Reconectar passando o gameData carregado
         handleReconnectPlayer(savedData, savedAppState, loadedGameData);
       } else if (savedAppState && savedAppState.isSoloMode) {
         // Restaurar estado do modo solo
-        console.log('🔄 RESTAURANDO ESTADO SOLO:', savedAppState);
         setIsRestoringState(true);
         
         if (savedAppState.selectedActor) {
           const actorId = savedAppState.selectedActor.ID || savedAppState.selectedActor.id;
-          console.log('📖 PROCURANDO ACTOR SOLO COM ID:', actorId);
           
           if (actorId && loadedGameData.ActorDefinitions) {
             const foundActor = loadedGameData.ActorDefinitions.find(a => a.ID === actorId);
             if (foundActor) {
-              console.log('📖 ACTOR SOLO ENCONTRADO:', foundActor.ID);
               setSelectedActor(foundActor);
             } else {
-              console.warn('⚠️ Actor solo não encontrado no gameData:', actorId);
               setSelectedActor(savedAppState.selectedActor);
             }
           } else {
-            console.log('📖 DEFININDO ACTOR SOLO DIRETAMENTE');
             setSelectedActor(savedAppState.selectedActor);
           }
         }
         
         if (savedAppState.characterSelections) {
-          console.log('📖 DEFININDO SELECTIONS SOLO');
           setCharacterSelections(savedAppState.characterSelections);
         }
         
         if (savedAppState.currentView) {
-          console.log('📖 DEFININDO VIEW SOLO:', savedAppState.currentView);
           setCurrentView(savedAppState.currentView);
         }
         
         setTimeout(() => setIsRestoringState(false), 100);
-        console.log('✅ ESTADO SOLO RESTAURADO');
       }
     }).catch(error => {
       console.error('Erro ao carregar dados:', error);
     });
-    
-    // Salvar configurações do Supabase no localStorage para o painel de admin
-    if (process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY) {
-      localStorage.setItem('supabase_url', process.env.REACT_APP_SUPABASE_URL);
-      localStorage.setItem('supabase_key', process.env.REACT_APP_SUPABASE_ANON_KEY);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Executar apenas uma vez na montagem
 
   const handleCharacterSelect = (actor) => {
-    console.log('🎯 SELECIONANDO PERSONAGEM:', actor.name);
     setSelectedActor(actor);
     setCurrentView('builder');
   };
 
   const handleCharacterCreate = (selections) => {
-    console.log('🎯 CRIANDO PERSONAGEM');
     setCharacterSelections(selections);
     setCurrentView('sheet');
   };
 
   const handleReset = () => {
-    console.log('🔄 RESETANDO APLICAÇÃO');
     setCurrentView('menu');
     setSelectedActor(null);
     setCharacterSelections(null);
@@ -345,13 +339,43 @@ function App() {
     PlayerPersistence.clearAppState();
   };
 
+  const handleAuthSuccess = async (user) => {
+    setCurrentUser(user);
+    // Pequeno delay para garantir que o trigger do DB criou o perfil
+    const fetchProfile = async (retries = 3) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const profile = await authService.getProfile(user.id);
+          setUserProfile(profile);
+          return;
+        } catch (err) {
+          if (i < retries - 1) {
+            await new Promise(r => setTimeout(r, 500));
+          } else {
+            console.warn('Perfil ainda carregando:', err);
+          }
+        }
+      }
+    };
+    fetchProfile();
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setUserProfile(null);
+  };
+
+  const handleNavigate = (view) => {
+    setCurrentView(view);
+  };
+
   const handleCreateRoom = async (roomName, masterName) => {
     setLoading(true);
     const result = await RoomService.createRoom(roomName, masterName);
     
     if (result.success) {
       // Criar jogador para o mestre
-      const playerResult = await RoomService.joinRoom(result.room.id, masterName);
+      const playerResult = await RoomService.joinRoom(result.room.id, masterName, null, false, currentUser?.id || null);
       if (playerResult.success) {
         // Armazenar o relacionamento room.master_player_id para controle de permissões (kick)
         try {
@@ -381,7 +405,7 @@ function App() {
   const handleJoinRoom = async (roomId, playerName) => {
     setLoading(true);
     // Forçar criação de novo jogador sempre que entrar manualmente na sala
-    const result = await RoomService.joinRoom(roomId, playerName, null, true);
+    const result = await RoomService.joinRoom(roomId, playerName, null, true, currentUser?.id || null);
     
     if (result.success) {
       // Buscar dados completos da sala usando getRoomById
@@ -394,7 +418,6 @@ function App() {
         
         // Salvar dados para persistência
         PlayerPersistence.savePlayerData(result.player, roomResult.room);
-        setTimeout(saveCompleteState, 100);
       } else {
         alert('Sala não encontrada ou inativa');
       }
@@ -407,7 +430,6 @@ function App() {
   const handleLeaveRoom = async () => {
     // Remover jogador do banco de dados quando sair definitivamente
     if (currentPlayer) {
-      console.log('🚪 Jogador saindo da sala:', currentPlayer.id);
       await RoomService.leaveRoom(currentPlayer.id);
     }
     
@@ -419,16 +441,14 @@ function App() {
     setSelectedActor(null);
     setCharacterSelections(null);
     setRoomInternalView('lobby');
-    setCurrentView('lobby');
+    setCurrentView('menu');
   };
 
   const handleSoloPlay = () => {
-    console.log('🎮 INICIANDO MODO SOLO');
     setCurrentView('selection');
   };
 
   const handleBackToSelection = () => {
-    console.log('🔄 VOLTANDO PARA SELEÇÃO - limpando personagem selecionado');
     setSelectedActor(null);
     setCharacterSelections(null);
     setCurrentView('selection');
@@ -462,9 +482,36 @@ function App() {
 
   return (
     <div className="container-fluid">
+      {/* Auth Modal */}
+      <AuthModal 
+        show={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
+
       {/* Menu Principal */}
       {currentView === 'menu' && (
         <>
+          {/* Auth bar */}
+          <div className="row">
+            <div className="col-12 d-flex justify-content-end py-2">
+              {currentUser ? (
+                <UserMenu 
+                  user={currentUser} 
+                  profile={userProfile} 
+                  onLogout={handleLogout} 
+                  onNavigate={handleNavigate}
+                />
+              ) : (
+                <button 
+                  className="btn btn-outline-light btn-sm"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  🔑 Entrar / Criar Conta
+                </button>
+              )}
+            </div>
+          </div>
           <div className="row">
             <div className="col-12 text-center">
               <img 
@@ -491,6 +538,12 @@ function App() {
                   onClick={handleSoloPlay}
                 >
                   👤 Modo Solo
+                </button>
+                <button 
+                  className="btn btn-outline-warning btn-lg"
+                  onClick={() => setCurrentView('ranking')}
+                >
+                  🏆 Ranking
                 </button>
               </div>
             </div>
@@ -524,22 +577,13 @@ function App() {
             initialSelectedActor={selectedActor}
             initialCharacterSelections={characterSelections}
             onViewChange={(view) => {
-              console.log('🔄 View mudou no RoomView:', view);
               setRoomInternalView(view);
-              // Salvar estado completo quando view muda
-              setTimeout(saveCompleteState, 100);
             }}
             onActorChange={(actor) => {
-              console.log('🔄 Actor mudou no RoomView:', actor?.name);
               setSelectedActor(actor);
-              // Salvar estado completo quando actor muda
-              setTimeout(saveCompleteState, 100);
             }}
             onSelectionsChange={(selections) => {
-              console.log('🔄 Selections mudaram no RoomView');
               setCharacterSelections(selections);
-              // Salvar estado completo quando selections mudam
-              setTimeout(saveCompleteState, 100);
             }}
           />
         </Suspense>
@@ -598,6 +642,28 @@ function App() {
             gameData={gameData}
             localization={localization}
             onReset={handleReset}
+          />
+        </Suspense>
+      )}
+
+      {/* Perfil do Jogador */}
+      {currentView === 'profile' && currentUser && (
+        <Suspense fallback={<LoadingFallback />}>
+          <ProfilePage
+            user={currentUser}
+            onBack={() => setCurrentView('menu')}
+            localization={localization}
+          />
+        </Suspense>
+      )}
+
+      {/* Ranking */}
+      {currentView === 'ranking' && (
+        <Suspense fallback={<LoadingFallback />}>
+          <RankingPage
+            user={currentUser}
+            onBack={() => setCurrentView('menu')}
+            localization={localization}
           />
         </Suspense>
       )}

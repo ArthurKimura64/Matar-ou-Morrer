@@ -7,14 +7,13 @@ export const Utils = {
   // Resolve a value through localization if it's a string key (com cache)
   resolveLocalizedValue: (value, localization) => {
     if (typeof value === 'string') {
-      const cacheKey = `${value}_${JSON.stringify(localization).substring(0, 50)}`;
-      
-      if (localizationCache.has(cacheKey)) {
-        return localizationCache.get(cacheKey);
+      // O objeto localization é o mesmo durante toda a sessão, então só precisamos da key
+      if (localizationCache.has(value)) {
+        return localizationCache.get(value);
       }
       
       const result = localization[value] || value;
-      localizationCache.set(cacheKey, result);
+      localizationCache.set(value, result);
       
       // Limitar tamanho do cache
       if (localizationCache.size > 500) {

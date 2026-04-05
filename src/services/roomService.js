@@ -40,8 +40,24 @@ class QueryCache {
   }
 }
 
-// Cache com TTL de apenas 1 segundo para não bloquear atualizações em tempo real
-const queryCache = new QueryCache(1000);
+// Cache com TTL de 3 segundos — invalidado por subscriptions em tempo real
+const queryCache = new QueryCache(3000);
+
+// Helper para retry em operações de escrita
+async function withRetry(operation, maxRetries = 2) {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastError;
+}
 
 export class RoomService {
   // Gerar ID de sala com 6 dígitos
@@ -146,7 +162,7 @@ export class RoomService {
   }
 
   // Entrar em uma sala
-  static async joinRoom(roomId, playerName, character = null, forceNewPlayer = false) {
+  static async joinRoom(roomId, playerName, character = null, forceNewPlayer = false, userId = null) {
     try {
       
       // Se não forçar novo jogador, verificar se o jogador já existe (apenas para reconexão automática)
@@ -163,28 +179,29 @@ export class RoomService {
       
       const playerId = uuidv4();
       
+      const playerData = {
+        id: playerId,
+        room_id: roomId,
+        name: playerName,
+        character: character,
+        status: 'selecting',
+        character_name: null,
+        is_connected: true,
+        joined_at: new Date().toISOString(),
+        last_activity: new Date().toISOString()
+      };
+      if (userId) playerData.user_id = userId;
+      
       const { data, error } = await supabase
         .from('players')
-        .insert([
-          {
-            id: playerId,
-            room_id: roomId,
-            name: playerName,
-            character: character,
-            status: 'selecting',
-            character_name: null,
-            is_connected: true,
-            joined_at: new Date().toISOString(),
-            last_activity: new Date().toISOString()
-          }
-        ])
+        .insert([playerData])
         .select()
         .single();
 
       if (error) throw error;
       return { success: true, player: data };
     } catch (error) {
-      console.error('❌ Erro ao entrar na sala:', error);
+      console.error('Erro ao entrar na sala:', error);
       return { success: false, error: error.message };
     }
   }
@@ -216,11 +233,9 @@ export class RoomService {
       const cacheKey = `players_${roomId}`;
       const cached = queryCache.get(cacheKey);
       if (cached) {
-        console.log('🎯 Usando cache para jogadores');
         return { success: true, players: cached };
       }
       
-      console.log('🔄 Buscando jogadores do banco');
       const { data, error } = await supabase
         .from('players')
         .select('*')
@@ -314,7 +329,7 @@ export class RoomService {
       if (error) throw error;
       return { success: true };
     } catch (error) {
-      console.error('❌ Erro ao sair da sala:', error);
+      console.error('Erro ao sair da sala:', error);
       return { success: false, error: error.message };
     }
   }
@@ -339,7 +354,7 @@ export class RoomService {
   static subscribeToRoom(roomId, onPlayersChange) {
     const channelName = `room-players-${roomId}`;
     
-    console.log('🔔 Criando subscription para sala:', roomId);
+    console.log('Criando subscription para sala:', roomId);
     
     let channel = null;
     let isSubscribed = false;
@@ -347,7 +362,7 @@ export class RoomService {
     const maxReconnectAttempts = 5;
 
     const createSubscription = () => {
-      console.log('🔄 Criando nova subscription');
+      console.log('Criando nova subscription');
       
       channel = supabase
         .channel(channelName, {
@@ -365,8 +380,6 @@ export class RoomService {
             filter: `room_id=eq.${roomId}`
           },
           (payload) => {
-            console.log('📡 Mudança detectada na sala:', payload.eventType, payload);
-            
             // Limpar cache imediatamente quando houver mudança
             queryCache.clear(`players_${roomId}`);
             
@@ -375,19 +388,19 @@ export class RoomService {
           }
         )
         .subscribe((status, err) => {
-          console.log('📡 Status da subscription:', status, err);
+          console.log('Status da subscription:', status, err);
           
           if (status === 'SUBSCRIBED') {
             isSubscribed = true;
             reconnectAttempts = 0;
-            console.log('✅ Subscription ativa para sala', roomId);
+            console.log('Subscription ativa para sala', roomId);
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
             isSubscribed = false;
-            console.warn(`⚠️ Erro na subscription da sala ${roomId}:`, status);
+            console.warn(`Erro na subscription da sala ${roomId}:`, status);
             attemptReconnect();
           } else if (status === 'CLOSED') {
             isSubscribed = false;
-            console.log('🔒 Subscription fechada para sala', roomId);
+            console.log('Subscription fechada para sala', roomId);
           }
         });
 
@@ -396,12 +409,12 @@ export class RoomService {
 
     const attemptReconnect = () => {
       if (reconnectAttempts >= maxReconnectAttempts) {
-        console.error(`❌ Máximo de tentativas de reconexão atingido para sala ${roomId}`);
+        console.error(`Máximo de tentativas de reconexão atingido para sala ${roomId}`);
         return;
       }
 
       reconnectAttempts++;
-      console.log(`🔄 Tentativa de reconexão ${reconnectAttempts}/${maxReconnectAttempts}`);
+      console.log(`Tentativa de reconexão ${reconnectAttempts}/${maxReconnectAttempts}`);
       
       setTimeout(() => {
         // Remover subscription anterior se existir
@@ -457,13 +470,13 @@ export class RoomService {
       const latency = Date.now() - start;
       
       if (error) {
-        console.error('❌ Teste de conexão falhou:', error);
+        console.error('Teste de conexão falhou:', error);
         return { connected: false, error: error.message, latency: null };
       }
       
   return { connected: true, error: null, latency };
     } catch (error) {
-      console.error('❌ Erro no teste de conexão:', error);
+      console.error('Erro no teste de conexão:', error);
       return { connected: false, error: error.message, latency: null };
     }
   }
@@ -471,17 +484,19 @@ export class RoomService {
   // Atualizar contadores do jogador
   static async updatePlayerCounters(playerId, counters) {
     try {
-      const { data, error } = await supabase
-        .from('players')
-        .update({ 
-          counters,
-          last_activity: new Date().toISOString() // Atualizar timestamp
-        })
-        .eq('id', playerId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const { data } = await withRetry(async () => {
+        const result = await supabase
+          .from('players')
+          .update({ 
+            counters,
+            last_activity: new Date().toISOString()
+          })
+          .eq('id', playerId)
+          .select()
+          .single();
+        if (result.error) throw result.error;
+        return result;
+      });
       
       // Limpar cache relacionado
       if (data?.room_id) {
@@ -616,7 +631,7 @@ export class RoomService {
         .single();
 
       if (error) {
-        console.error('❌ Erro SQL ao atualizar seleções:', error);
+        console.error('Erro SQL ao atualizar seleções:', error);
         throw error;
       }
       
@@ -627,7 +642,7 @@ export class RoomService {
       
       return { success: true, player: data };
     } catch (error) {
-      console.error('❌ Erro geral ao atualizar seleções:', error);
+      console.error('Erro geral ao atualizar seleções:', error);
       return { success: false, error: error.message };
     }
   }
@@ -696,7 +711,7 @@ export class RoomService {
 
       return { success: true, player: data };
     } catch (error) {
-      console.error('❌ Erro ao verificar jogador existente:', error);
+      console.error('Erro ao verificar jogador existente:', error);
       return { success: false, error: error.message };
     }
   }
@@ -721,7 +736,7 @@ export class RoomService {
       if (error) throw error;
       return { success: true, player: data };
     } catch (error) {
-      console.error('❌ Erro ao reconectar jogador:', error);
+      console.error('Erro ao reconectar jogador:', error);
       return { success: false, error: error.message };
     }
   }
@@ -729,18 +744,20 @@ export class RoomService {
   // Atualizar estado da aplicação de um jogador
   static async updatePlayerAppState(playerId, appState) {
     try {
-      const { data, error } = await supabase
-        .from('players')
-        .update({ 
-          app_state: appState,
-          last_seen: new Date().toISOString(),
-          last_activity: new Date().toISOString()
-        })
-        .eq('id', playerId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const { data } = await withRetry(async () => {
+        const result = await supabase
+          .from('players')
+          .update({ 
+            app_state: appState,
+            last_seen: new Date().toISOString(),
+            last_activity: new Date().toISOString()
+          })
+          .eq('id', playerId)
+          .select()
+          .single();
+        if (result.error) throw result.error;
+        return result;
+      });
       
       // Limpar cache relacionado
       if (data?.room_id) {
@@ -749,7 +766,7 @@ export class RoomService {
       
       return { success: true, player: data };
     } catch (error) {
-      console.error('❌ Erro ao atualizar app state:', error);
+      console.error('Erro ao atualizar app state:', error);
       return { success: false, error: error.message };
     }
   }
@@ -806,7 +823,7 @@ export class RoomService {
       
       return { success: true };
     } catch (error) {
-      console.error('❌ Erro ao expulsar jogador:', error);
+      console.error('Erro ao expulsar jogador:', error);
       return { success: false, error: error.message };
     }
   }
@@ -814,17 +831,19 @@ export class RoomService {
   // Atualizar cartas expostas do jogador
   static async updatePlayerExposedCards(playerId, exposedCards) {
     try {
-      const { data, error } = await supabase
-        .from('players')
-        .update({ 
-          exposed_cards: exposedCards,
-          last_activity: new Date().toISOString()
-        })
-        .eq('id', playerId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const { data } = await withRetry(async () => {
+        const result = await supabase
+          .from('players')
+          .update({ 
+            exposed_cards: exposedCards,
+            last_activity: new Date().toISOString()
+          })
+          .eq('id', playerId)
+          .select()
+          .single();
+        if (result.error) throw result.error;
+        return result;
+      });
       
       // Limpar cache relacionado
       if (data?.room_id) {
@@ -833,8 +852,162 @@ export class RoomService {
       
       return { success: true, player: data };
     } catch (error) {
-      console.error('❌ Erro ao atualizar cartas expostas:', error);
+      console.error('Erro ao atualizar cartas expostas:', error);
       return { success: false, error: error.message };
     }
+  }
+
+  // ================================
+  // SISTEMA DE PARTIDAS (MATCH)
+  // ================================
+
+  // Iniciar uma partida na sala
+  static async startMatch(roomId) {
+    try {
+      const matchStartedAt = new Date().toISOString();
+
+      // Atualizar status da sala para partida em andamento
+      const { error: roomError } = await supabase
+        .from('rooms')
+        .update({ 
+          match_status: 'in_progress',
+          match_started_at: matchStartedAt,
+          last_activity: matchStartedAt
+        })
+        .eq('id', roomId);
+
+      if (roomError) throw roomError;
+
+      // Marcar todos os jogadores conectados e prontos como vivos, resetar elimination_order
+      const { error: playersError } = await supabase
+        .from('players')
+        .update({ 
+          is_alive: true, 
+          killed_by_player_id: null,
+          elimination_order: null,
+          last_activity: matchStartedAt
+        })
+        .eq('room_id', roomId)
+        .eq('status', 'ready')
+        .eq('is_connected', true);
+
+      if (playersError) throw playersError;
+
+      // Limpar cache
+      queryCache.clear(`players_${roomId}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao iniciar partida:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Declarar eliminação de um jogador
+  static async declareElimination(playerId, killerPlayerId = null) {
+    try {
+      // Buscar room_id para limpar cache depois
+      const { data: player, error: fetchError } = await supabase
+        .from('players')
+        .select('room_id')
+        .eq('id', playerId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Contar quantos jogadores já foram eliminados para determinar a ordem
+      const { count, error: countError } = await supabase
+        .from('players')
+        .select('id', { count: 'exact', head: true })
+        .eq('room_id', player.room_id)
+        .eq('is_alive', false)
+        .not('elimination_order', 'is', null);
+
+      if (countError) throw countError;
+
+      const eliminationOrder = (count || 0) + 1;
+
+      // Marcar jogador como eliminado com ordem de eliminação
+      const { error: updateError } = await supabase
+        .from('players')
+        .update({ 
+          is_alive: false, 
+          killed_by_player_id: killerPlayerId,
+          elimination_order: eliminationOrder,
+          last_activity: new Date().toISOString()
+        })
+        .eq('id', playerId);
+
+      if (updateError) throw updateError;
+
+      // Limpar cache
+      queryCache.clear(`players_${player.room_id}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao declarar eliminação:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Declarar vitória e encerrar a partida
+  static async declareVictory(roomId) {
+    try {
+      // Encerrar a partida (match_status volta a NULL)
+      const { error: roomError } = await supabase
+        .from('rooms')
+        .update({ 
+          match_status: null,
+          match_started_at: null,
+          last_activity: new Date().toISOString()
+        })
+        .eq('id', roomId);
+
+      if (roomError) throw roomError;
+
+      // Resetar is_alive, killed_by e elimination_order de todos os jogadores da sala
+      const { error: playersError } = await supabase
+        .from('players')
+        .update({ 
+          is_alive: true, 
+          killed_by_player_id: null,
+          elimination_order: null,
+          last_activity: new Date().toISOString()
+        })
+        .eq('room_id', roomId);
+
+      if (playersError) throw playersError;
+
+      // Limpar cache
+      queryCache.clear(`players_${roomId}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao declarar vitória:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Subscrever para mudanças na sala (match_status, etc.)
+  static subscribeToRoomStatus(roomId, onRoomChange) {
+    const channelName = `room-status-${roomId}-${Date.now()}`;
+
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'rooms',
+          filter: `id=eq.${roomId}`
+        },
+        (payload) => {
+          onRoomChange(payload.new);
+        }
+      )
+      .subscribe();
+
+    return channel;
   }
 }

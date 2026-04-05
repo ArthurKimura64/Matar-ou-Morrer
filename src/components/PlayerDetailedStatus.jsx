@@ -9,16 +9,18 @@ const PlayerDetailedStatus = ({
   gameData,
   canKick = false,
   onKickPlayer = null,
-  isMaster = false
+  isMaster = false,
+  matchStatus = null
 }) => {
   // Memoizar contadores para evitar recalcular
   // Buscar dados do personagem (actorData) para acessar NumberOfDefenseDices
+  const actorId = player?.character?.actor?.ID;
   const actorData = useMemo(() => {
-    if (player?.character_name && gameData?.ActorDefinitions) {
-      return gameData.ActorDefinitions.find(actor => actor.ID === player.character_name);
+    if (actorId && gameData?.ActorDefinitions) {
+      return gameData.ActorDefinitions.find(actor => actor.ID === actorId);
     }
     return null;
-  }, [player?.character_name, gameData]);
+  }, [actorId, gameData]);
 
   const counters = useMemo(() => {
     const vida = player?.counters?.vida ?? 20;
@@ -52,10 +54,10 @@ const PlayerDetailedStatus = ({
 
     // Se não há contadores salvos, tentar derivar da definição do personagem e retornar com current: 0
     try {
-      const actorId = player?.character_name;
-      if (!actorId || !gameData) return {};
-      const characterName = actorId;
-      const derived = getCharacterAdditionalCounters(characterName, { actor: gameData.ActorDefinitions?.find(a => a.ID === actorId) || {}, gameData, localization });
+      const charActorId = player?.character?.actor?.ID;
+      if (!charActorId || !gameData) return {};
+      const characterName = player?.character_name || charActorId;
+      const derived = getCharacterAdditionalCounters(characterName, { actor: gameData.ActorDefinitions?.find(a => a.ID === charActorId) || {}, gameData, localization });
       // Garantir current = 0 para exibição na sidebar
       const resetDerived = {};
       Object.entries(derived || {}).forEach(([k, v]) => {
@@ -65,7 +67,7 @@ const PlayerDetailedStatus = ({
     } catch (e) {
       return {};
     }
-  }, [player?.additional_counters, player?.character_name, gameData, localization]);
+  }, [player?.additional_counters, player?.character?.actor?.ID, player?.character_name, gameData, localization]);
 
   // Memoizar dados de características otimizados
   const characteristicsData = useMemo(() => {
@@ -82,8 +84,9 @@ const PlayerDetailedStatus = ({
     };
     
     // Obter dados do ActorDefinitions (primeira prioridade)
-    if (player.character_name && gameData?.ActorDefinitions) {
-      const actorData = gameData.ActorDefinitions.find(actor => actor.ID === player.character_name);
+    const charActorId = player.character?.actor?.ID;
+    if (charActorId && gameData?.ActorDefinitions) {
+      const actorData = gameData.ActorDefinitions.find(actor => actor.ID === charActorId);
       
       if (actorData) {
         data.attacks.total = actorData.NumberOfUnlimitedAttacks || 0;
@@ -237,7 +240,13 @@ const PlayerDetailedStatus = ({
         {/* Header com Nome e Status - Mais Compacto */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className="d-flex align-items-center flex-grow-1 min-width-0">
-            <h6 className="card-title text-white mb-0 me-2 text-truncate">
+            {matchStatus === 'in_progress' && (
+              <span className="me-1 flex-shrink-0" title={player.is_alive !== false ? 'Vivo' : 'Eliminado'}>
+                {player.is_alive !== false ? '🟢' : '💀'}
+              </span>
+            )}
+            <h6 className="card-title text-white mb-0 me-2 text-truncate" 
+                style={player.is_alive === false && matchStatus === 'in_progress' ? { opacity: 0.5 } : {}}>
               {player.name}
             </h6>
           </div>

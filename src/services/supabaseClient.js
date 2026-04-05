@@ -1,12 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Você precisará criar uma conta no Supabase e obter essas credenciais
-// Depois, configure as variáveis de ambiente no Vercel
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'your_supabase_url';
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'your_supabase_anon_key';
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Variáveis de ambiente REACT_APP_SUPABASE_URL e REACT_APP_SUPABASE_ANON_KEY são obrigatórias.');
+}
 
 // Configurar Supabase com reconexão automática e otimizações
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   realtime: {
     params: {
       eventsPerSecond: 10,
@@ -15,7 +17,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     reconnectAfterMs: (tries) => Math.min(tries * 1500, 30000), // Reconexão progressiva mais suave
   },
   auth: {
-    persistSession: false
+    persistSession: true,
+    autoRefreshToken: true
   },
   // Adicionar configurações de pool para melhor performance
   db: {
@@ -83,7 +86,7 @@ class ConnectionMonitor {
       return;
     }
 
-  this.reconnectAttempts++;
+    this.reconnectAttempts++;
 
     try {
       const { error } = await supabase

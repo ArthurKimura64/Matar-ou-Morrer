@@ -3,7 +3,7 @@ import CharacteristicCard from './CharacteristicCard';
 import SelectionSection from './SelectionSection';
 import { Utils } from '../utils/Utils';
 
-const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, onBack }) => {
+const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, onBack, matchStatus }) => {
   const [selections, setSelections] = useState({});
   const [isComplete, setIsComplete] = useState(false);
 
@@ -197,10 +197,13 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
       <div className="row justify-content-center my-4">
         <button 
           className="btn btn-lg btn-success col-8"
-          disabled={!isComplete}
+          disabled={!isComplete || matchStatus === 'in_progress'}
           onClick={handleCreateCharacter}
+          title={matchStatus === 'in_progress' ? 'Aguarde a partida terminar para confirmar o personagem' : ''}
         >
-          {localization['UI.CharacterBuilder.CreateCharacter'] || 'UI.CharacterBuilder.CreateCharacter'}
+          {matchStatus === 'in_progress' 
+            ? '⏳ Aguarde a partida terminar' 
+            : (localization['UI.CharacterBuilder.CreateCharacter'] || 'UI.CharacterBuilder.CreateCharacter')}
         </button>
       </div>
     </div>

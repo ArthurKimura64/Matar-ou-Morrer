@@ -66,21 +66,6 @@ const CombatPanel = ({
   const [opportunityWeapon, setOpportunityWeapon] = useState(null);
   const [opportunityTarget, setOpportunityTarget] = useState(null); // 'attacker' ou 'defender'
 
-  // ===== FUNÇÃO HELPER PARA AJUSTAR DADOS DE ARMAS =====
-  const adjustWeaponDices = (weapon, delta) => {
-    if (!weapon) return weapon;
-    
-    const currentDices = parseInt(weapon.Dices) || 1;
-    const newDices = Math.max(1, Math.min(12, currentDices + delta));
-    
-    console.log('adjustWeaponDices:', { weapon: weapon.Name, currentDices, delta, newDices });
-    
-    return {
-      ...weapon,
-      Dices: newDices.toString()
-    };
-  };
-
   // ===== COMPONENTE DE AJUSTE DE RESULTADO DE DADOS (DISCRETO) =====
   const DiceResultAdjuster = ({ diceArray, onAdjust, playerRole }) => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -266,6 +251,29 @@ const CombatPanel = ({
         const processed = processItem(weapon, 'Armas', 'weapon');
         if (processed) attacks.push(processed);
       });
+    }
+
+    // Buscar em copycatAssignments (Copiador) - itens copiados de outros jogadores
+    const copycatData = selections.copycatAssignments || currentPlayerData?.selections?.copycatAssignments;
+    if (copycatData) {
+      // Processar ataques copiados
+      if (copycatData.attacks) {
+        Object.values(copycatData.attacks).forEach(item => {
+          if (item) {
+            const processed = processItem(item, 'Copiado - Ataques', 'attack');
+            if (processed) attacks.push(processed);
+          }
+        });
+      }
+      // Processar armas copiadas
+      if (copycatData.weapons) {
+        Object.values(copycatData.weapons).forEach(item => {
+          if (item) {
+            const processed = processItem(item, 'Copiado - Armas', 'weapon');
+            if (processed) attacks.push(processed);
+          }
+        });
+      }
     }
 
     return attacks;
@@ -508,6 +516,37 @@ const CombatPanel = ({
           weapons.push(normalizedWeapon);
         }
       });
+    }
+
+    // Buscar em copycatAssignments (Copiador) - itens copiados de outros jogadores
+    const copycatData = selections.copycatAssignments || currentPlayerData?.selections?.copycatAssignments;
+    if (copycatData) {
+      const pushCopycatItems = (items, type) => {
+        if (!items) return;
+        Object.values(items).forEach(item => {
+          if (item && (item.Name || item.ID)) {
+            const itemId = item.ID || item.Name;
+            const itemName = item.Name || localization?.[itemId] || itemId || type;
+            const normalized = {
+              ID: String(item.ID || item.Name || ''),
+              Name: String(itemName),
+              Dices: typeof item.Dices === 'object' ? JSON.stringify(item.Dices) : String(item.Dices || '?'),
+              LoadTime: typeof item.LoadTime === 'object' ? '0' : String(item.LoadTime || '0'),
+              Damage: typeof item.Damage === 'object' ? '0' : String(item.Damage || '0'),
+              Effects: typeof item.Effects === 'object' ? JSON.stringify(item.Effects) : String(item.Effects || ''),
+              type: type === 'Ataque' ? 'attack' : 'weapon'
+            };
+            Object.keys(item).forEach(key => {
+              if (typeof item[key] !== 'object' || item[key] === null) {
+                normalized[key] = item[key];
+              }
+            });
+            weapons.push(normalized);
+          }
+        });
+      };
+      pushCopycatItems(copycatData.attacks, 'Ataque');
+      pushCopycatItems(copycatData.weapons, 'Arma');
     }
 
     return weapons;
@@ -1125,26 +1164,6 @@ const CombatPanel = ({
     }
     
     return actor?.NumberOfDefenseDices || 0;
-  };
-
-  // Obter dados de defesa de um jogador específico (para exibição)
-  const getPlayerDefenseDices = (playerId) => {
-    if (!combat) return 0;
-    
-    const isPlayerAttacker = playerId === combat.attacker_id;
-    const isPlayerDefender = playerId === combat.defender_id;
-    
-    // Usar dados do banco se disponíveis
-    if (isPlayerAttacker && combat.attacker_defense_dices !== null && combat.attacker_defense_dices !== undefined) {
-      return combat.attacker_defense_dices;
-    }
-    if (isPlayerDefender && combat.defender_defense_dices !== null && combat.defender_defense_dices !== undefined) {
-      return combat.defender_defense_dices;
-    }
-    
-    // Fallback: buscar dados do jogador na lista de players
-    const player = players.find(p => p.id === playerId);
-    return player?.character?.actor?.NumberOfDefenseDices || 0;
   };
 
   // Ajustar dados de defesa e sincronizar com banco de dados
@@ -2147,7 +2166,10 @@ const CombatPanel = ({
                             // Usar arma do banco de dados (já atualizada quando trocada)
                             let weapon;
                             
-                            if (isAttackerActing) {
+                            if (isOpportunityRound) {
+                              // Rodada de oportunidade: usar arma do atacante de oportunidade
+                              weapon = roundInfo.opportunity_weapon;
+                            } else if (isAttackerActing) {
                               // Rodada de ataque normal: atacante usa attack_data
                               weapon = combat.attack_data;
                             } else {

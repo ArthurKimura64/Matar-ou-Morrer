@@ -20,7 +20,7 @@ const TYPE_KEY_MAP = {
   passiveSpecials: 'passiveSpecials'
 };
 
-const CharacterSheet = ({ actor, selections, gameData, localization, onReset, currentPlayer, players = [] }) => {
+const CharacterSheet = ({ actor, selections, gameData, localization, onReset, currentPlayer, players = [], matchStatus, isAlive }) => {
   const [counters, setCounters] = useState({
     vida: 20,
     vida_max: 20,
@@ -113,6 +113,14 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     }
   }, [currentPlayer?.exposed_cards]);
 
+  // Restaurar copycatAssignments salvos do banco (dentro de selections)
+  useEffect(() => {
+    if (currentPlayer?.selections?.copycatAssignments) {
+      setCopycatAssignments(currentPlayer.selections.copycatAssignments);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPlayer?.id]);
+
   // Quando o actor mudar, resetar estados específicos da ficha para o novo personagem
   // Isso evita que contadores, cartas expostas, itens usados/desbloqueados e contadores
   // adicionais do personagem anterior permaneçam na ficha quando o jogador escolher outro personagem.
@@ -154,6 +162,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         });
         setAdditionalCounters(resetAdditional);
         await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetAdditional);
+
+        // Limpar assignments do Copiador ao trocar de personagem
+        setCopycatAssignments({});
         
         // Marcar o novo actor como processado
         lastProcessedActorIdRef.current = actor.ID;
@@ -271,11 +282,16 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     };
   }, [isCopycat, actor]);
 
-  // Persistir assignments do Copiador
+  // Persistir assignments do Copiador (salvar dentro de selections no banco)
+  const copycatAssignmentsRef = useRef(copycatAssignments);
+  copycatAssignmentsRef.current = copycatAssignments;
   useEffect(() => {
     if (!isCopycat || !currentPlayer?.id) return;
-    RoomService.updatePlayerSelections(currentPlayer.id, { ...selections, copycatAssignments });
-  }, [copycatAssignments, isCopycat, currentPlayer?.id, selections]);
+    // Só salvar quando copycatAssignments realmente mudar (não quando selections muda)
+    const toSave = { ...selections, copycatAssignments: copycatAssignmentsRef.current };
+    RoomService.updatePlayerSelections(currentPlayer.id, toSave);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [copycatAssignments, isCopycat, currentPlayer?.id]);
 
   // Memoize assigned item IDs across all copycat slots
   const assignedIds = useMemo(() => {
@@ -342,32 +358,28 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     setIsSelectingSource(null);
   };
 
-  // Função para desbloquear habilidades com base nas mortes
+  // Função para desbloquear habilidades com base nas mortes (sequencial, não aleatório)
   const handleDeathUnlock = useCallback(async (deathCount) => {
     if (!selections.specials && !selections.passiveSpecials) return;
     
     const newUnlockedItems = new Set(unlockedItems);
     const currentDeaths = counters.mortes;
     
-    // Para cada nova morte, desbloquear uma habilidade especial e uma passiva especial
+    // Para cada nova morte, desbloquear a próxima habilidade especial e passiva especial na ordem
     for (let i = currentDeaths; i < deathCount; i++) {
       // Obter habilidades especiais não desbloqueadas
       const availableSpecials = (selections.specials || []).filter(item => !newUnlockedItems.has(item.ID));
       // Obter habilidades passivas especiais não desbloqueadas
       const availablePassiveSpecials = (selections.passiveSpecials || []).filter(item => !newUnlockedItems.has(item.ID));
       
-      // Desbloquear uma habilidade especial se disponível
+      // Desbloquear a próxima habilidade especial na ordem (determinístico)
       if (availableSpecials.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableSpecials.length);
-        const selectedSpecial = availableSpecials[randomIndex];
-  newUnlockedItems.add(selectedSpecial.ID);
+        newUnlockedItems.add(availableSpecials[0].ID);
       }
       
-      // Desbloquear uma habilidade passiva especial se disponível
+      // Desbloquear a próxima habilidade passiva especial na ordem (determinístico)
       if (availablePassiveSpecials.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availablePassiveSpecials.length);
-        const selectedPassiveSpecial = availablePassiveSpecials[randomIndex];
-  newUnlockedItems.add(selectedPassiveSpecial.ID);
+        newUnlockedItems.add(availablePassiveSpecials[0].ID);
       }
     }
     
@@ -376,11 +388,6 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // Sincronizar com o banco de dados
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
-    }
-    
-    // Mostrar notificação se alcançou 2 mortes
-    if (deathCount >= 2 && currentDeaths < 2) {
-      // modo Reivolk desbloqueado
     }
   }, [selections.specials, selections.passiveSpecials, unlockedItems, counters.mortes, currentPlayer?.id]);
 
@@ -527,7 +534,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         }
       }
     }
-  }, [exposedCards, currentPlayer?.id, actor?.ID, currentPlayer?.app_state]);
+  // app_state is only used as fallback — fresh data is fetched from DB via getPlayer()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exposedCards, currentPlayer?.id, actor?.ID]);
 
   const handleReset = useCallback(async () => {
     // Limpar cartas expostas antes de fazer reset
@@ -536,7 +545,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       // Remover histórico apenas do personagem atual (reinício da ficha)
       try {
         const actorId = actor?.ID;
-        const appState = currentPlayer.app_state || {};
+        // Fetch latest state from DB to avoid overwriting concurrent changes
+        const latest = await RoomService.getPlayer(currentPlayer.id);
+        const appState = (latest.success && latest.player && latest.player.app_state) ? latest.player.app_state : {};
         const ever = { ...(appState.ever_exposed_cards || {}) };
         if (actorId && ever[actorId]) {
           delete ever[actorId];
@@ -549,6 +560,14 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     // Limpar estado local
     setExposedCards(new Set());
+    
+    // Limpar assignments do Copiador
+    setCopycatAssignments({});
+    // Remover copycatAssignments das selections no banco
+    if (currentPlayer?.id && selections) {
+      const { copycatAssignments: _removed, ...cleanSelections } = selections;
+      await RoomService.updatePlayerSelections(currentPlayer.id, cleanSelections);
+    }
     
     // Resetar contadores adicionais do personagem atual para 0 (para evitar manter contadores
     // de uma ficha anterior quando o jogador reinicia/seleciona novamente)
@@ -570,7 +589,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     // Chamar função de reset original
     onReset();
-  }, [currentPlayer?.id, currentPlayer?.app_state, actor, onReset, selections, gameData, localization]);
+  }, [currentPlayer?.id, actor, onReset, selections, gameData, localization]);
 
   const renderItemCard = ({ item, section, isBlocked }) => {
     // Título: se for device, power, special, mostrar TriggerType
@@ -727,7 +746,29 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
             const assigned = assignedByType[slotKey];
             return (
               <div key={slotKey} className="col-12 col-md-3">
-                <div className={`card border-${section.color} h-100`} style={{background: 'var(--bs-gray-800)', color: '#fff'}}>
+                <div className={`card border-${section.color} h-100${assigned && exposedCards.has(assigned.ID) ? ' card-exposed' : ''} position-relative`} style={{background: 'var(--bs-gray-800)', color: '#fff'}}>
+                  {/* Ícone de olho para cartas copiadas atribuídas */}
+                  {assigned && (
+                    <button 
+                      className={`btn btn-sm position-absolute ${exposedCards.has(assigned.ID) ? 'btn-success' : 'btn-outline-secondary'}`}
+                      style={{ 
+                        top: '5px', 
+                        right: '5px', 
+                        zIndex: 1,
+                        width: '24px',
+                        height: '24px',
+                        padding: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px'
+                      }}
+                      onClick={() => handleToggleCardExposure(assigned.ID)}
+                      title={exposedCards.has(assigned.ID) ? 'Ocultar da mesa' : 'Expor na mesa'}
+                    >
+                      👁️
+                    </button>
+                  )}
                   <div className="card-body p-2">
                     {!assigned ? (
                       <>
@@ -931,14 +972,6 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           max={counters.item_max}
           onChange={(value) => handleCounterChange('item', value)}
         />
-        <Counter
-          id="mortes"
-          title={localization['Characteristic.Deaths'] || 'Mortes'}
-          value={counters.mortes}
-          min={0}
-          max={null}
-          onChange={(value) => handleCounterChange('mortes', value)}
-        />
       </div>
 
       <div className="row justify-content-center">
@@ -976,9 +1009,13 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       />
 
       <div className="text-center mt-4">
-        <button className="btn btn-secondary" onClick={handleReset}>
-          Reiniciar
-        </button>
+        {matchStatus === 'in_progress' && isAlive ? (
+          <span className="text-muted small">⚔️ Partida em andamento — declare eliminação para trocar de personagem</span>
+        ) : (
+          <button className="btn btn-secondary" onClick={handleReset}>
+            Reiniciar
+          </button>
+        )}
       </div>
     </div>
   );

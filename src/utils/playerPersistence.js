@@ -6,6 +6,9 @@ const STORAGE_KEYS = {
   SESSION_ID: 'killOrDie_sessionId'
 };
 
+// Usar sessionStorage para controlar sessão por aba (não compartilhado entre abas)
+const SESSION_STORAGE_KEY = 'killOrDie_tabSessionId';
+
 export class PlayerPersistence {
   // Salvar dados do jogador
   static savePlayerData(player, room) {
@@ -13,7 +16,7 @@ export class PlayerPersistence {
       localStorage.setItem(STORAGE_KEYS.CURRENT_PLAYER, JSON.stringify(player));
       localStorage.setItem(STORAGE_KEYS.CURRENT_ROOM, JSON.stringify(room));
     } catch (error) {
-      console.error('❌ Erro ao salvar dados do jogador:', error);
+      console.error('Erro ao salvar dados do jogador:', error);
     }
   }
 
@@ -26,7 +29,7 @@ export class PlayerPersistence {
       };
       localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(stateToSave));
     } catch (error) {
-      console.error('❌ Erro ao salvar estado da aplicação:', error);
+      console.error('Erro ao salvar estado da aplicação:', error);
     }
   }
 
@@ -38,24 +41,23 @@ export class PlayerPersistence {
         const parsed = JSON.parse(stateData);
         return parsed;
       }
-  return null;
+      return null;
     } catch (error) {
-      console.error('❌ Erro ao recuperar estado da aplicação:', error);
+      console.error('Erro ao recuperar estado da aplicação:', error);
       return null;
     }
   }
 
-  // Gerar ID de sessão único para cada aba
+  // Gerar ID de sessão único para cada aba (usa sessionStorage)
   static generateSessionId() {
     const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem(STORAGE_KEYS.SESSION_ID, sessionId);
+    sessionStorage.setItem(SESSION_STORAGE_KEY, sessionId);
     return sessionId;
   }
 
-  // Verificar se é a mesma sessão (mesmo navegador, mesma aba)
+  // Verificar se é a mesma sessão (mesma aba do navegador)
   static isSameSession() {
-    const currentSessionId = localStorage.getItem(STORAGE_KEYS.SESSION_ID);
-    return currentSessionId !== null;
+    return sessionStorage.getItem(SESSION_STORAGE_KEY) !== null;
   }
 
   // Recuperar dados do jogador
@@ -71,9 +73,9 @@ export class PlayerPersistence {
         };
         return parsed;
       }
-  return null;
+      return null;
     } catch (error) {
-      console.error('❌ Erro ao recuperar dados do jogador:', error);
+      console.error('Erro ao recuperar dados do jogador:', error);
       // Se houver erro, limpar dados corrompidos
       this.clearPlayerData();
       return null;
@@ -83,16 +85,13 @@ export class PlayerPersistence {
   // Limpar dados salvos
   static clearPlayerData() {
     try {
-      const hadData = this.hasPlayerData();
       localStorage.removeItem(STORAGE_KEYS.CURRENT_PLAYER);
       localStorage.removeItem(STORAGE_KEYS.CURRENT_ROOM);
       localStorage.removeItem(STORAGE_KEYS.APP_STATE);
       localStorage.removeItem(STORAGE_KEYS.SESSION_ID);
-      
-      if (hadData) {
-      }
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
     } catch (error) {
-      console.error('❌ Erro ao limpar dados do jogador:', error);
+      console.error('Erro ao limpar dados do jogador:', error);
     }
   }
 
@@ -105,7 +104,7 @@ export class PlayerPersistence {
       if (hadState) {
       }
     } catch (error) {
-      console.error('❌ Erro ao limpar estado da aplicação:', error);
+      console.error('Erro ao limpar estado da aplicação:', error);
     }
   }
 
@@ -124,7 +123,7 @@ export class PlayerPersistence {
         
       }
     } catch (error) {
-      console.error('❌ Erro ao atualizar dados do jogador:', error);
+      console.error('Erro ao atualizar dados do jogador:', error);
     }
   }
 
@@ -156,7 +155,7 @@ export class PlayerPersistence {
       
       return true;
     } catch (error) {
-      console.error('❌ Erro ao validar dados salvos:', error);
+      console.error('Erro ao validar dados salvos:', error);
       this.clearPlayerData();
       return false;
     }
