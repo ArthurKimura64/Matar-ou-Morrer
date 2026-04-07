@@ -162,18 +162,51 @@ const RoomView = ({
 
   // Subscription para mudanças no status da sala (match_status)
   useEffect(() => {
+    let isMounted = true;
+
     // Carregar match_status inicial
     setMatchStatus(room.match_status || null);
 
+    // Função para buscar match_status diretamente do banco (fallback)
+    const fetchRoomStatus = async () => {
+      try {
+        const result = await RoomService.getRoomById(room.id);
+        if (result.success && result.room && isMounted) {
+          setMatchStatus(result.room.match_status || null);
+          setRoomData(prev => ({ ...prev, ...result.room }));
+        }
+      } catch (err) {
+        console.error('Erro ao buscar status da sala:', err);
+      }
+    };
+
     const roomSub = RoomService.subscribeToRoomStatus(room.id, (updatedRoom) => {
-      setMatchStatus(updatedRoom.match_status || null);
-      setRoomData(prev => ({ ...prev, ...updatedRoom }));
+      if (isMounted) {
+        setMatchStatus(updatedRoom.match_status || null);
+        setRoomData(prev => ({ ...prev, ...updatedRoom }));
+      }
     });
 
+    // Verificar periodicamente se a subscription ainda está ativa (a cada 15s)
+    const statusCheckInterval = setInterval(() => {
+      fetchRoomStatus();
+    }, 15000);
+
+    // Re-buscar status quando a aba fica visível novamente
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchRoomStatus();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
+      isMounted = false;
       if (roomSub) {
         RoomService.unsubscribeFromRoom(roomSub);
       }
+      clearInterval(statusCheckInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [room.id, room.match_status]);
 

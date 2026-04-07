@@ -906,10 +906,10 @@ export class RoomService {
   // Declarar eliminação de um jogador
   static async declareElimination(playerId, killerPlayerId = null) {
     try {
-      // Buscar room_id para limpar cache depois
+      // Buscar room_id e contadores atuais para atualizar mortes
       const { data: player, error: fetchError } = await supabase
         .from('players')
-        .select('room_id')
+        .select('room_id, counters')
         .eq('id', playerId)
         .single();
 
@@ -927,13 +927,21 @@ export class RoomService {
 
       const eliminationOrder = (count || 0) + 1;
 
-      // Marcar jogador como eliminado com ordem de eliminação
+      // Incrementar mortes nos contadores
+      const currentCounters = player.counters || {};
+      const updatedCounters = {
+        ...currentCounters,
+        mortes: (currentCounters.mortes || 0) + 1
+      };
+
+      // Marcar jogador como eliminado com ordem de eliminação E incrementar mortes
       const { error: updateError } = await supabase
         .from('players')
         .update({ 
           is_alive: false, 
           killed_by_player_id: killerPlayerId,
           elimination_order: eliminationOrder,
+          counters: updatedCounters,
           last_activity: new Date().toISOString()
         })
         .eq('id', playerId);

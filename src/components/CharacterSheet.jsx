@@ -266,6 +266,16 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actor?.ID, selections, currentPlayer?.id, initialCounters]);
 
+  // Sincronizar mortes quando atualizado externamente (ex.: declareElimination)
+  useEffect(() => {
+    const dbMortes = currentPlayer?.counters?.mortes;
+    if (dbMortes != null && dbMortes > counters.mortes) {
+      setCounters(prev => ({ ...prev, mortes: dbMortes }));
+      handleDeathUnlock(dbMortes);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPlayer?.counters?.mortes]);
+
   // Determinar se é o Copiador e preparar slots vazios
   const isCopycat = useMemo(() => actor?.ID?.toLowerCase() === 'copiador', [actor?.ID]);
 
