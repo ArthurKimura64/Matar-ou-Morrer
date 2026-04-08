@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHtml } from '../utils/sanitize';
 
 const CharacteristicCard = ({ actor, localization, deathCount = 0, exposedCards = new Set(), onToggleCardExposure, showReivolk = false }) => {
   return (
@@ -83,7 +84,7 @@ const CharacteristicCard = ({ actor, localization, deathCount = 0, exposedCards 
           {localization[`Character.Reivolk.${actor.ID}.Description`] && (
             <div 
               className="col-12 text-light text-center"
-              dangerouslySetInnerHTML={{ __html: localization[`Character.Reivolk.${actor.ID}.Description`] }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(localization[`Character.Reivolk.${actor.ID}.Description`]) }}
             />
           )}
         </div>

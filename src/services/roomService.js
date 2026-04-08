@@ -1,5 +1,32 @@
 import { supabase } from './supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+import { validatePlayerName, validateRoomName, validateRoomId, validateJsonData } from '../utils/validation';
+
+// Rate limiter simples para prevenir spam de requests
+class RateLimiter {
+  constructor() {
+    this.actions = new Map();
+  }
+
+  /**
+   * Verifica se a ação pode ser executada.
+   * @param {string} key - Identificador da ação (ex: 'createRoom', 'joinRoom')
+   * @param {number} cooldownMs - Tempo mínimo entre chamadas em milissegundos
+   * @returns {{ allowed: boolean, retryAfterMs?: number }}
+   */
+  check(key, cooldownMs) {
+    const now = Date.now();
+    const lastCall = this.actions.get(key) || 0;
+    const elapsed = now - lastCall;
+    if (elapsed < cooldownMs) {
+      return { allowed: false, retryAfterMs: cooldownMs - elapsed };
+    }
+    this.actions.set(key, now);
+    return { allowed: true };
+  }
+}
+
+const rateLimiter = new RateLimiter();
 
 // Sistema de cache simples para reduzir queries repetidas
 class QueryCache {
@@ -85,6 +112,22 @@ export class RoomService {
   // Criar uma nova sala
   static async createRoom(roomName, masterName) {
     try {
+      // Rate limit: máximo 1 criação de sala a cada 5 segundos
+      const rl = rateLimiter.check('createRoom', 5000);
+      if (!rl.allowed) {
+        return { success: false, error: `Aguarde ${Math.ceil(rl.retryAfterMs / 1000)}s antes de criar outra sala.` };
+      }
+
+      // Validar entradas
+      const roomNameResult = validateRoomName(roomName);
+      if (!roomNameResult.valid) {
+        return { success: false, error: roomNameResult.error };
+      }
+      const masterNameResult = validatePlayerName(masterName);
+      if (!masterNameResult.valid) {
+        return { success: false, error: masterNameResult.error };
+      }
+
       const roomId = this.generateRoomId();
       
       const { data, error } = await supabase
@@ -92,8 +135,8 @@ export class RoomService {
         .insert([
           {
             id: roomId,
-            name: roomName,
-            master_name: masterName,
+            name: roomNameResult.sanitized,
+            master_name: masterNameResult.sanitized,
             is_active: true,
             created_at: new Date().toISOString()
           }
@@ -167,10 +210,31 @@ export class RoomService {
   // Entrar em uma sala
   static async joinRoom(roomId, playerName, character = null, forceNewPlayer = false, userId = null) {
     try {
-      
+      // Rate limit: máximo 1 entrada a cada 3 segundos
+      const rl = rateLimiter.check('joinRoom', 3000);
+      if (!rl.allowed) {
+        return { success: false, error: `Aguarde ${Math.ceil(rl.retryAfterMs / 1000)}s antes de tentar novamente.` };
+      }
+
+      // Validar entradas
+      const nameResult = validatePlayerName(playerName);
+      if (!nameResult.valid) {
+        return { success: false, error: nameResult.error };
+      }
+      const roomIdResult = validateRoomId(roomId);
+      if (!roomIdResult.valid) {
+        return { success: false, error: roomIdResult.error };
+      }
+      if (character) {
+        const jsonResult = validateJsonData(character);
+        if (!jsonResult.valid) {
+          return { success: false, error: jsonResult.error };
+        }
+      }
+
       // Se não forçar novo jogador, verificar se o jogador já existe (apenas para reconexão automática)
       if (!forceNewPlayer) {
-        const existingResult = await this.findExistingPlayer(roomId, playerName);
+        const existingResult = await this.findExistingPlayer(roomIdResult.sanitized, nameResult.sanitized);
         
         if (existingResult.success && existingResult.player) {
           // Reconectar jogador existente
@@ -179,13 +243,21 @@ export class RoomService {
       }
       
       // Se não existe ou está forçando novo jogador, criar novo jogador
+      // Obter user_id do auth session para garantir integridade
+      let authenticatedUserId = userId;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) authenticatedUserId = user.id;
+      } catch (e) {
+        // Se não tem auth, continuar sem user_id
+      }
       
       const playerId = uuidv4();
       
       const playerData = {
         id: playerId,
-        room_id: roomId,
-        name: playerName,
+        room_id: roomIdResult.sanitized,
+        name: nameResult.sanitized,
         character: character,
         status: 'selecting',
         character_name: null,
@@ -193,7 +265,7 @@ export class RoomService {
         joined_at: new Date().toISOString(),
         last_activity: new Date().toISOString()
       };
-      if (userId) playerData.user_id = userId;
+      if (authenticatedUserId) playerData.user_id = authenticatedUserId;
       
       const { data, error } = await supabase
         .from('players')
@@ -479,6 +551,12 @@ export class RoomService {
   // Atualizar contadores do jogador
   static async updatePlayerCounters(playerId, counters) {
     try {
+      // Rate limit: máximo 1 atualização a cada 500ms
+      const rl = rateLimiter.check(`counters_${playerId}`, 500);
+      if (!rl.allowed) {
+        return { success: false, error: 'Atualizando muito rápido, aguarde.' };
+      }
+
       const { data } = await withRetry(async () => {
         const result = await supabase
           .from('players')
@@ -615,6 +693,12 @@ export class RoomService {
 
   static async updatePlayerSelections(playerId, selections) {
     try {
+      // Rate limit: máximo 1 atualização a cada 500ms
+      const rl = rateLimiter.check(`selections_${playerId}`, 500);
+      if (!rl.allowed) {
+        return { success: false, error: 'Atualizando muito rápido, aguarde.' };
+      }
+
       const { data, error } = await supabase
         .from('players')
         .update({ 
@@ -785,35 +869,21 @@ export class RoomService {
   }
 
   // Expulsar jogador da sala (apenas para o mestre da sala)
+  // Usa RPC SECURITY DEFINER para bypassar RLS
   static async kickPlayer(roomId, playerId, masterPlayerId) {
     try {
-      
-      // Verificar se quem está expulsando é realmente o mestre da sala
-      const { data: room, error: roomError } = await supabase
-        .from('rooms')
-        .select('master_player_id')
-        .eq('id', roomId)
-        .single();
-
-      if (roomError) throw roomError;
-
-      if (room.master_player_id !== masterPlayerId) {
-        throw new Error('Apenas o mestre da sala pode expulsar jogadores');
-      }
-
       // Não permitir que o mestre expulse a si mesmo
       if (playerId === masterPlayerId) {
         throw new Error('O mestre não pode expulsar a si mesmo');
       }
 
-      // Remover o jogador da sala
-      const { error: deleteError } = await supabase
-        .from('players')
-        .delete()
-        .eq('id', playerId)
-        .eq('room_id', roomId);
+      // Chamar função SECURITY DEFINER no banco
+      const { error } = await supabase.rpc('master_kick_player', {
+        p_room_id: roomId,
+        p_player_id: playerId
+      });
 
-      if (deleteError) throw deleteError;
+      if (error) throw error;
       
       return { success: true };
     } catch (error) {

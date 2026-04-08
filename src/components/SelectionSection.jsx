@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { sanitizeHtml } from '../utils/sanitize';
 
 const SelectionSection = ({ type, config, actor, localization, onSelectionChange, globalSelectedIds = new Set(), initialSelected = [] }) => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -67,7 +68,7 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
           <div key={id} className={cardClass} style={itemSelected ? { background: 'var(--bs-gray-800)', color: '#fff' } : {}}>
             <div className="card-body">
               <h5 className={`card-title text-${config.color}`}>{name}</h5>
-              <div className="card-text" dangerouslySetInnerHTML={{ __html: desc }} />
+              <div className="card-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(desc) }} />
               <button
                 className={`btn btn-outline-${config.color} select-btn w-100 mt-2${itemSelected ? ' active' : ''}`}
                 disabled={alreadySelectedElsewhere || (!itemSelected && maxSelected)}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sanitizeHtml } from '../utils/sanitize';
 
 const SpecialCharacteristics = ({ actor, gameData, localization }) => {
   const [textboxValues, setTextboxValues] = useState({});
@@ -35,7 +36,7 @@ const SpecialCharacteristics = ({ actor, gameData, localization }) => {
             <div className="card-body p-2 d-flex flex-column align-items-center">
               <div 
                 className="fw-bold mb-1"
-                dangerouslySetInnerHTML={{ __html: title }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(title) }}
               />
               <div className="input-group flex-nowrap justify-content-center">
                 <textarea

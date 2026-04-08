@@ -9,6 +9,16 @@ const STORAGE_KEYS = {
 // Usar sessionStorage para controlar sessão por aba (não compartilhado entre abas)
 const SESSION_STORAGE_KEY = 'killOrDie_tabSessionId';
 
+// Importar supabase para validação de sessão no servidor
+let _supabase = null;
+async function getSupabase() {
+  if (!_supabase) {
+    const mod = await import('../services/supabaseClient');
+    _supabase = mod.supabase;
+  }
+  return _supabase;
+}
+
 export class PlayerPersistence {
   // Salvar dados do jogador
   static savePlayerData(player, room) {
@@ -158,6 +168,50 @@ export class PlayerPersistence {
       console.error('Erro ao validar dados salvos:', error);
       this.clearPlayerData();
       return false;
+    }
+  }
+
+  // Validar sessão no servidor: garante que o player_id do localStorage pertence ao usuário autenticado
+  static async validateSessionWithServer() {
+    try {
+      const data = this.getPlayerData();
+      if (!data || !data.player?.id) return false;
+
+      const supabase = await getSupabase();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Se não está autenticado, sessão inválida
+      if (!user) {
+        console.warn('Sessão inválida: usuário não autenticado');
+        this.clearPlayerData();
+        return false;
+      }
+
+      // Verificar se o player no banco pertence a este usuário
+      const { data: player, error } = await supabase
+        .from('players')
+        .select('id, user_id, room_id, is_connected')
+        .eq('id', data.player.id)
+        .single();
+
+      if (error || !player) {
+        console.warn('Sessão inválida: jogador não encontrado no servidor');
+        this.clearPlayerData();
+        return false;
+      }
+
+      // Se o player tem user_id definido, verificar se corresponde ao usuário atual
+      if (player.user_id && player.user_id !== user.id) {
+        console.warn('Sessão inválida: jogador pertence a outro usuário');
+        this.clearPlayerData();
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao validar sessão com servidor:', error);
+      // Em caso de erro de rede, manter dados (não punir por problemas de conexão)
+      return true;
     }
   }
 }

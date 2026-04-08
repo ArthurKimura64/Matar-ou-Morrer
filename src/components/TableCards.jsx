@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Utils } from '../utils/Utils';
+import { sanitizeHtml } from '../utils/sanitize';
 
 const TableCards = ({ 
   players = [], 
@@ -188,7 +189,7 @@ const TableCards = ({
                                       <div 
                                         className="mb-1 small" 
                                         style={{ fontSize: '0.85rem' }}
-                                        dangerouslySetInnerHTML={{ __html: description }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
                                       />
                                     </div>
                                   </div>
@@ -225,7 +226,7 @@ const TableCards = ({
                                         <div 
                                           className="mb-1 small" 
                                           style={{ fontSize: '0.85rem' }}
-                                          dangerouslySetInnerHTML={{ __html: reivalkDescription }}
+                                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(reivalkDescription) }}
                                         />
                                       )}
                                     </div>
@@ -332,7 +333,7 @@ const TableCards = ({
                                     <div 
                                       className="mb-1 small" 
                                       style={{ fontSize: '0.85rem' }}
-                                      dangerouslySetInnerHTML={{ __html: description }}
+                                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
                                     />
                                   </div>
                                 </div>
@@ -439,7 +440,7 @@ const TableCards = ({
                                 </div>
                                 <div 
                                   className="mb-1" 
-                                  dangerouslySetInnerHTML={{ __html: description }}
+                                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
                                 />
                               </div>
                             </div>
@@ -475,7 +476,7 @@ const TableCards = ({
                                 {reivalkDescription && (
                                   <div 
                                     className="mb-1" 
-                                    dangerouslySetInnerHTML={{ __html: reivalkDescription }}
+                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(reivalkDescription) }}
                                   />
                                 )}
                               </div>

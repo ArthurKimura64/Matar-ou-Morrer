@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { RoomService } from './services/roomService';
 import { PlayerPersistence } from './utils/playerPersistence';
 import authService from './services/authService';
+import { supabase } from './services/supabaseClient';
 import AuthModal from './components/AuthModal';
 import UserMenu from './components/UserMenu';
 import './App.css';
@@ -254,13 +255,31 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Verificar se a URL contém "admin" para mostrar o painel escondido
-    const urlParams = new URLSearchParams(window.location.search);
-    const adminKey = process.env.REACT_APP_ADMIN_KEY || '';
-    if ((urlParams.get('admin') === 'true' || window.location.pathname.includes('admin')) && 
-        (!adminKey || urlParams.get('key') === adminKey)) {
-      setCurrentView('admin');
-      return;
+    // Verificar se a URL contém "admin" para mostrar o painel de administração
+    const isAdminUrl = window.location.pathname.includes('admin') || 
+      new URLSearchParams(window.location.search).get('admin') === 'true';
+    
+    if (isAdminUrl) {
+      // Verificar autenticação + permissão de admin via RPC (server-side)
+      (async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            console.warn('Acesso admin negado: usuário não autenticado');
+            // Não redirecionar — continua carregamento normal do menu
+          } else {
+            const { data: isAdmin, error } = await supabase.rpc('is_user_admin', { p_user_id: user.id });
+            if (error || !isAdmin) {
+              console.warn('Acesso admin negado: usuário não é administrador');
+            } else {
+              setCurrentView('admin');
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('Erro ao verificar acesso admin:', err);
+        }
+      })();
     }
     
     // Gerar ID de sessão para controlar múltiplas abas
@@ -281,8 +300,14 @@ function App() {
       const savedAppState = PlayerPersistence.getAppState();
       
       if (savedData && PlayerPersistence.validateSavedData()) {
-        // Reconectar passando o gameData carregado
-        handleReconnectPlayer(savedData, savedAppState, loadedGameData);
+        // Validar sessão no servidor antes de reconectar
+        PlayerPersistence.validateSessionWithServer().then(isValid => {
+          if (isValid) {
+            handleReconnectPlayer(savedData, savedAppState, loadedGameData);
+          } else {
+            console.warn('Sessão inválida no servidor, dados limpos.');
+          }
+        });
       } else if (savedAppState && savedAppState.isSoloMode) {
         // Restaurar estado do modo solo
         setIsRestoringState(true);

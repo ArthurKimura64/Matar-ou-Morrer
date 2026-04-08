@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import CharacteristicCard from './CharacteristicCard';
 import SelectionSection from './SelectionSection';
 import { Utils } from '../utils/Utils';
+import { sanitizeHtml } from '../utils/sanitize';
 
 const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, onBack, matchStatus }) => {
   const [selections, setSelections] = useState({});
@@ -172,7 +173,7 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
         {localization[`Character.Description.${actor.ID}`] && (
           <div 
             className="col-10 mb-3 px-3 text-light"
-            dangerouslySetInnerHTML={{ __html: localization[`Character.Description.${actor.ID}`] }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(localization[`Character.Description.${actor.ID}`]) }}
           />
         )}
       </div>

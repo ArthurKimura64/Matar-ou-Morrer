@@ -8,6 +8,7 @@ import './CharacterSheet.css';
 import { Utils } from '../utils/Utils';
 import { RoomService } from '../services/roomService';
 import { getCharacterAdditionalCounters } from '../utils/AdditionalCountersConfig';
+import { sanitizeHtml } from '../utils/sanitize';
 
 // Map from sheet section key to selections key in player data
 const TYPE_KEY_MAP = {
@@ -661,7 +662,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
             </div>
             <div 
               className="mb-2" 
-              dangerouslySetInnerHTML={{ __html: desc }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(desc) }}
             />
             {/* Botões para habilidades passivas especiais */}
             {isPassiveSpecial && !isBlocked && (
@@ -805,7 +806,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                                         <div className={`card border-${section.color}`} style={{background: 'var(--bs-gray-900)', color: '#fff'}}>
                                           <div className="card-body p-2">
                                             <div className={`fw-bold text-${section.color} mb-1`}>{title}</div>
-                                            <div className="mb-2" dangerouslySetInnerHTML={{ __html: desc }} />
+                                            <div className="mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(desc) }} />
                                             <button
                                               className={`btn btn-sm btn-${section.color}`}
                                               onClick={() => handleAssignCopy(slotKey, section.key, it)}
@@ -834,14 +835,14 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                     ) : (
                       <>
                         <div className={`fw-bold text-${section.color} mb-1`}>{localization[assigned.ID] || assigned.ID}</div>
-                        <div className="mb-2" dangerouslySetInnerHTML={{ __html: (['attack','weapon'].includes(section.type)
+                        <div className="mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml((['attack','weapon'].includes(section.type)
                           ? (Utils.modeSystem.hasModes(actor) && assigned.modes
                               ? Utils.createDualModeDescription(assigned, localization, actor)
                               : Utils.createAttackDescription(assigned, localization, currentMode))
                           : (Utils.modeSystem.hasModes(actor) && ['power', 'passive', 'special', 'passiveSpecial'].includes(section.type)
                               ? Utils.createModeRestrictedDescription(assigned, localization, actor)
                               : localization[assigned.Description] || "")
-                        ) }} />
+                        )) }} />
                       </>
                     )}
                   </div>
@@ -883,7 +884,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
               👁️
             </button>
           </div>
-          <div className="col-12" dangerouslySetInnerHTML={{ __html: localization[`Character.Description.${actor.ID}`] }} />
+          <div className="col-12" dangerouslySetInnerHTML={{ __html: sanitizeHtml(localization[`Character.Description.${actor.ID}`]) }} />
         </div>
       )}
 
