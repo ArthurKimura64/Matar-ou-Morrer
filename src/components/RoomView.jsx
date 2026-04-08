@@ -43,6 +43,12 @@ const RoomView = ({
   // Usar useRef para controlar se já aplicou estado inicial
   const hasAppliedInitialState = useRef(false);
   
+  // Refs para callbacks/dados usados dentro do useEffect (evitar re-subscriptions)
+  const onLeaveRoomRef = useRef(onLeaveRoom);
+  onLeaveRoomRef.current = onLeaveRoom;
+  const currentPlayerRef = useRef(currentPlayer);
+  currentPlayerRef.current = currentPlayer;
+  
   // Funções de toggle das sidebars com useCallback para estabilidade
   const handleTogglePlayers = useCallback(() => {
     setOpenSidebar(prev => prev === 'players' ? null : 'players');
@@ -82,133 +88,102 @@ const RoomView = ({
 
   useEffect(() => {
     let isMounted = true;
-    let lastUpdateTime = Date.now();
     
-    const loadPlayersData = async (forceRefresh = false) => {
+    // Carregamento inicial completo (único fetch obrigatório)
+    const loadInitial = async () => {
       try {
-        // Se forceRefresh, aguardar um pouco para garantir que o banco atualizou
-        if (forceRefresh) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        
-        const result = await RoomService.getRoomPlayers(room.id);
-        if (result.success && isMounted) {
-          setPlayers(result.players);
-          lastUpdateTime = Date.now();
-
-          // Se o jogador atual não estiver mais na lista, foi expulso
-          // Sair imediatamente da sala sem mostrar alert
-          if (currentPlayer && !result.players.find(p => p.id === currentPlayer.id)) {
-            if (onLeaveRoom) onLeaveRoom();
+        const [playersResult, roomResult] = await Promise.all([
+          RoomService.getRoomPlayers(room.id),
+          RoomService.getRoomById(room.id)
+        ]);
+        if (!isMounted) return;
+        if (playersResult.success) {
+          setPlayers(playersResult.players);
+          if (currentPlayerRef.current && !playersResult.players.find(p => p.id === currentPlayerRef.current.id)) {
+            if (onLeaveRoomRef.current) onLeaveRoomRef.current();
           }
         }
+        if (roomResult.success && roomResult.room) {
+          setMatchStatus(roomResult.room.match_status || null);
+          setRoomData(prev => ({ ...prev, ...roomResult.room }));
+        }
       } catch (error) {
-        console.error('Erro ao carregar jogadores:', error);
+        console.error('Erro ao carregar dados iniciais:', error);
       }
-      if (isMounted) {
-        setLoading(false);
-      }
+      if (isMounted) setLoading(false);
     };
 
-    // Carregar dados iniciais
-    loadPlayersData();
-    
-    // Configurar subscription para mudanças em tempo real com monitoramento
-    const handlePlayersChange = (payload) => {
-      // Evitar múltiplas atualizações muito próximas (debounce de 200ms)
-      const timeSinceLastUpdate = Date.now() - lastUpdateTime;
-      if (timeSinceLastUpdate < 200) {
-        setTimeout(() => loadPlayersData(true), 200);
-      } else {
-        // Recarregar dados imediatamente com flag de forceRefresh
-        loadPlayersData(true);
-      }
-    };
-
-    const sub = RoomService.subscribeToRoom(room.id, handlePlayersChange);
-    setSubscription(sub);
-
-    // Verificar periodicamente se a subscription está ativa (a cada 30 segundos)
-    const connectionCheckInterval = setInterval(() => {
-      if (sub && !RoomService.checkAndReconnectSubscription(sub)) {
-        loadPlayersData(true);
-      }
-    }, 30000); // 30 segundos
-
-    // Listener para quando a página fica visível novamente
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadPlayersData(true);
-        
-        // Verificar se a subscription precisa ser reconectada
-        if (sub) {
-          RoomService.checkAndReconnectSubscription(sub);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Cleanup
-    return () => {
-      isMounted = false;
-      if (sub) {
-        RoomService.unsubscribeFromRoom(sub);
-      }
-      clearInterval(connectionCheckInterval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [room.id, currentPlayer, onLeaveRoom]);
-
-  // Subscription para mudanças no status da sala (match_status)
-  useEffect(() => {
-    let isMounted = true;
-
-    // Carregar match_status inicial
     setMatchStatus(room.match_status || null);
+    loadInitial();
 
-    // Função para buscar match_status diretamente do banco (fallback)
-    const fetchRoomStatus = async () => {
-      try {
-        const result = await RoomService.getRoomById(room.id);
-        if (result.success && result.room && isMounted) {
-          setMatchStatus(result.room.match_status || null);
-          setRoomData(prev => ({ ...prev, ...result.room }));
+    // --- Subscription de jogadores: usar payload diretamente ---
+    const playersSub = RoomService.subscribeToRoom(room.id, (payload) => {
+      if (!isMounted) return;
+      const { eventType, new: newRecord, old: oldRecord } = payload;
+
+      setPlayers(prev => {
+        let updated;
+        if (eventType === 'INSERT') {
+          // Novo jogador — adicionar se não existir
+          if (prev.some(p => p.id === newRecord.id)) return prev;
+          updated = [...prev, newRecord];
+        } else if (eventType === 'UPDATE') {
+          // Jogador atualizado — substituir no array
+          const idx = prev.findIndex(p => p.id === newRecord.id);
+          if (idx === -1) {
+            // Jogador reconectado que não estava na lista
+            if (newRecord.is_connected) {
+              updated = [...prev, newRecord];
+            } else {
+              return prev;
+            }
+          } else {
+            // Se o jogador desconectou, remover da lista
+            if (!newRecord.is_connected) {
+              updated = prev.filter(p => p.id !== newRecord.id);
+            } else {
+              updated = [...prev];
+              updated[idx] = newRecord;
+            }
+          }
+        } else if (eventType === 'DELETE') {
+          updated = prev.filter(p => p.id !== (oldRecord?.id || newRecord?.id));
+        } else {
+          return prev;
         }
-      } catch (err) {
-        console.error('Erro ao buscar status da sala:', err);
-      }
-    };
 
+        // Verificar se jogador atual foi removido
+        if (currentPlayerRef.current && !updated.find(p => p.id === currentPlayerRef.current.id)) {
+          setTimeout(() => { if (isMounted && onLeaveRoomRef.current) onLeaveRoomRef.current(); }, 0);
+        }
+        return updated;
+      });
+    });
+    setSubscription(playersSub);
+
+    // --- Subscription de status da sala: usar payload diretamente ---
     const roomSub = RoomService.subscribeToRoomStatus(room.id, (updatedRoom) => {
-      if (isMounted) {
-        setMatchStatus(updatedRoom.match_status || null);
-        setRoomData(prev => ({ ...prev, ...updatedRoom }));
-      }
+      if (!isMounted) return;
+      setMatchStatus(updatedRoom.match_status || null);
+      setRoomData(prev => ({ ...prev, ...updatedRoom }));
     });
 
-    // Verificar periodicamente se a subscription ainda está ativa (a cada 15s)
-    const statusCheckInterval = setInterval(() => {
-      fetchRoomStatus();
-    }, 15000);
-
-    // Re-buscar status quando a aba fica visível novamente
+    // Visibility change: re-fetch completo apenas ao voltar à aba
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchRoomStatus();
+      if (!document.hidden && isMounted) {
+        loadInitial();
+        if (playersSub) RoomService.checkAndReconnectSubscription(playersSub);
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       isMounted = false;
-      if (roomSub) {
-        RoomService.unsubscribeFromRoom(roomSub);
-      }
-      clearInterval(statusCheckInterval);
+      if (playersSub) RoomService.unsubscribeFromRoom(playersSub);
+      if (roomSub) RoomService.unsubscribeFromRoom(roomSub);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [room.id, room.match_status]);
+  }, [room.id]);
 
   // Dados do jogador atual derivados dos players
   const currentPlayerData = players.find(p => p.id === currentPlayer?.id);
@@ -266,45 +241,9 @@ const RoomView = ({
       return;
     }
     
-    // Limpar TODOS os dados do personagem no banco de dados
+    // Limpar TODOS os dados do personagem no banco de dados (operação única)
     if (currentPlayer?.id) {
-      
-      // Limpar cartas expostas
-      await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
-      
-      // Limpar contadores (resetar para valores padrão)
-      const resetCounters = {
-        vida: 20,
-        vida_max: 20,
-        esquiva: 0,
-        esquiva_max: 0,
-        oport: 0,
-        oport_max: 0,
-        item: 0,
-        item_max: 0,
-        mortes: currentPlayerData?.counters?.mortes || 0
-      };
-      await RoomService.updatePlayerCounters(currentPlayer.id, resetCounters);
-      
-      // Limpar itens usados
-      await RoomService.updatePlayerUsedItems(currentPlayer.id, []);
-      
-      // Limpar itens desbloqueados
-      await RoomService.updatePlayerUnlockedItems(currentPlayer.id, []);
-      
-      // Limpar contadores adicionais
-      await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, {});
-      
-      // Limpar seleções (inclui copycatAssignments do Copiador)
-      await RoomService.updatePlayerSelections(currentPlayer.id, {});
-      
-      // Limpar personagem
-      await RoomService.updatePlayerCharacter(currentPlayer.id, null, null);
-      
-      // Atualizar status para 'selecting'
-      await RoomService.updatePlayerStatus(currentPlayer.id, 'selecting', null);
-      
-      
+      await RoomService.resetPlayerForLobby(currentPlayer.id);
     }
     
     // Limpar estados locais do RoomView
@@ -453,6 +392,7 @@ const RoomView = ({
         currentUser={currentPlayer?.user_id || null}
         localization={localization}
         onMatchEnd={() => setMatchStatus(null)}
+        onMatchStart={() => setMatchStatus('in_progress')}
       />
 
       {currentView === 'lobby' && (

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../services/supabaseClient';
+import DiceResultAdjuster from './DiceResultAdjuster';
 import './CombatNotifications.css';
 
 /**
@@ -51,12 +52,15 @@ const CombatPanel = ({
 
   // ===== ESTADOS DO COMBATE ATIVO =====
   const [combat, setCombat] = useState(null);
+  const [combatGroup, setCombatGroup] = useState([]); // Array de todos os combates de um grupo multi-defensor
+  const [activeCombatId, setActiveCombatId] = useState(null); // ID do combate individual selecionado (para contra-ataque)
   const [rolling, setRolling] = useState(false);
   const [diceAnimation, setDiceAnimation] = useState([]);
   const [selectedWeapon, setSelectedWeapon] = useState(null);
   
   // Estados para alterações temporárias durante o combate
   const [showWeaponChange, setShowWeaponChange] = useState(false);
+  const [showDefenderSwap, setShowDefenderSwap] = useState(false);
   const [tempDefenseDices, setTempDefenseDices] = useState(null);
   const [tempWeapon, setTempWeapon] = useState(null);
   const [combatMode, setCombatMode] = useState('mode1'); // Modo atual do personagem no combate
@@ -66,121 +70,8 @@ const CombatPanel = ({
   const [opportunityWeapon, setOpportunityWeapon] = useState(null);
   const [opportunityTarget, setOpportunityTarget] = useState(null); // 'attacker' ou 'defender'
 
-  // ===== COMPONENTE DE AJUSTE DE RESULTADO DE DADOS (DISCRETO) =====
-  const DiceResultAdjuster = ({ diceArray, onAdjust, playerRole }) => {
-    const [hoveredIndex, setHoveredIndex] = useState(null);
-
-    const adjustDie = (index, delta) => {
-      const newDice = [...diceArray];
-      const currentValue = newDice[index];
-      const newValue = Math.max(1, Math.min(6, currentValue + delta));
-      
-      if (newValue !== currentValue) {
-        newDice[index] = newValue;
-        onAdjust(newDice);
-      }
-    };
-
-    const adjustAllDice = (delta) => {
-      const newDice = diceArray.map(die => {
-        const newValue = die + delta;
-        return Math.max(1, Math.min(6, newValue));
-      });
-      onAdjust(newDice);
-    };
-
-    const removeDie = (index) => {
-      if (diceArray.length <= 1) return;
-      const newDice = diceArray.filter((_, i) => i !== index);
-      onAdjust(newDice);
-    };
-
-    const canIncreaseAll = diceArray.some(die => die < 6);
-    const canDecreaseAll = diceArray.some(die => die > 1);
-
-    return (
-      <div className="dice-result-inline">
-        <button
-          type="button"
-          className="dice-all-btn dice-all-down"
-          onClick={(e) => {
-            e.stopPropagation();
-            adjustAllDice(-1);
-          }}
-          disabled={!canDecreaseAll}
-          title="Diminuir todos os dados"
-        >
-          −
-        </button>
-        {diceArray.map((die, i) => (
-          <div 
-            key={i}
-            className="die-adjustable-wrapper"
-            onMouseEnter={() => setHoveredIndex(i)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            {hoveredIndex === i && (
-              <div className="die-adjust-controls">
-                <button
-                  type="button"
-                  className="die-adjust-btn die-adjust-up"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    adjustDie(i, 1);
-                  }}
-                  disabled={die >= 6}
-                  title="Aumentar"
-                >
-                  ▲
-                </button>
-                <button
-                  type="button"
-                  className="die-adjust-btn die-adjust-down"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    adjustDie(i, -1);
-                  }}
-                  disabled={die <= 1}
-                  title="Diminuir"
-                >
-                  ▼
-                </button>
-                {diceArray.length > 1 && (
-                  <button
-                    type="button"
-                    className="die-adjust-btn die-adjust-remove"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeDie(i);
-                    }}
-                    title="Remover dado"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            )}
-            <span className="die-number">{die}</span>
-          </div>
-        ))}
-        <button
-          type="button"
-          className="dice-all-btn dice-all-up"
-          onClick={(e) => {
-            e.stopPropagation();
-            adjustAllDice(1);
-          }}
-          disabled={!canIncreaseAll}
-          title="Aumentar todos os dados"
-        >
-          +
-        </button>
-      </div>
-    );
-  };
-
-  // Buscar ataques/armas disponíveis do jogador atual
-  const getAvailableAttacks = () => {
+  // Buscar ataques/armas disponíveis do jogador atual (memoizado)
+  const getAvailableAttacks = useMemo(() => {
     const attacks = [];
     const selections = currentPlayerData?.character?.selections;
     const actor = currentPlayerData?.character?.actor;
@@ -277,8 +168,7 @@ const CombatPanel = ({
     }
 
     return attacks;
-  };
-
+  }, [currentPlayerData, combatMode, localization]);
   // ========== CARREGAR COMBATE ATIVO ==========
   const loadCombat = useCallback(async () => {
     if (!currentPlayer?.id || !roomId) return;
@@ -290,8 +180,7 @@ const CombatPanel = ({
         .select('*')
         .eq('room_id', roomId)
         .in('status', ['pending', 'in_progress'])
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Erro ao carregar combate:', error);
@@ -299,9 +188,28 @@ const CombatPanel = ({
       }
 
       if (data && data.length > 0) {
-        setCombat(data[0]);
+        // Verificar se há um grupo multi-defensor
+        const firstCombat = data[0];
+        const groupId = firstCombat.combat_group_id;
+
+        if (groupId) {
+          // Multi-defensor: carregar todos do grupo
+          const groupCombats = data.filter(c => c.combat_group_id === groupId);
+          setCombatGroup(groupCombats);
+
+          // Se atacante: combat = primeiro do grupo (para compatibilidade)
+          // Se defensor: combat = registro onde sou defensor
+          const myDefenderCombat = groupCombats.find(c => c.defender_id === currentPlayer.id);
+          const myAttackerCombat = groupCombats.find(c => c.attacker_id === currentPlayer.id);
+          setCombat(myDefenderCombat || myAttackerCombat || groupCombats[0]);
+        } else {
+          // Combate 1v1 normal
+          setCombatGroup([firstCombat]);
+          setCombat(firstCombat);
+        }
       } else {
         setCombat(null);
+        setCombatGroup([]);
       }
     } catch (err) {
       console.error('Erro ao buscar combate:', err);
@@ -337,25 +245,18 @@ const CombatPanel = ({
           console.log('🔔 Atualização de combate recebida:', payload.eventType);
           
           const combatData = payload.new || payload.old;
-          console.log('💾 Dados do combate:', combatData);
-          console.log('👤 ID do jogador atual:', currentPlayer?.id);
           
           if (combatData) {
             const isParticipant = combatData.attacker_id === currentPlayer.id || 
                                   combatData.defender_id === currentPlayer.id;
             
             if (isParticipant) {
-              console.log('✅ Você está participando deste combate!');
-              
               // Se é um novo combate e este jogador é o defensor, abrir sidebar
               if (
                 payload.eventType === 'INSERT' &&
                 combatData.defender_id === currentPlayer.id &&
                 combatData.status === 'pending'
               ) {
-                console.log('🚨 VOCÊ FOI DESAFIADO PARA COMBATE!');
-                
-                // Tocar som de alerta (se disponível)
                 try {
                   const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuFzvLZiToIFl631+mhTxENUKfk77RgGgU7k9n0yHorBSh+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdTx0H0vBSh+zPDVhjkIFmG3596fUA8NUKfj7rFfGgU7k9n0yHorBSh+zPDVhjkIFmG3596fUA8NUKfj7rFfGgU7k9n0yHorBSh+zPDVhjkIFmG3596fUA8NUKfj7rFfGgU7k9n0yHorBSh+');
                   audio.volume = 0.5;
@@ -364,23 +265,47 @@ const CombatPanel = ({
                   console.log('Áudio não disponível');
                 }
                 
-                // Abrir sidebar automaticamente
                 if (!isOpen && onToggle) {
                   onToggle();
                 } else if (!isOpen) {
                   setIsOpenLocal(true);
                 }
               }
-            } else {
-              console.log('👁️ Você é espectador deste combate.');
             }
             
             if (payload.eventType === 'DELETE' || combatData.status === 'cancelled' || combatData.status === 'completed') {
-              console.log('❌ Combate cancelado/completado, removendo...');
-              setCombat(null);
+              // Se faz parte de um grupo, recarregar o grupo inteiro
+              if (combatData.combat_group_id) {
+                loadCombat();
+              } else {
+                setCombat(null);
+                setCombatGroup([]);
+              }
             } else {
-              console.log('🎮 Atualizando estado do combate...');
-              setCombat(combatData);
+              // Atualizar estado: se faz parte de um grupo, atualizar o grupo
+              if (combatData.combat_group_id) {
+                setCombatGroup(prev => {
+                  const idx = prev.findIndex(c => c.id === combatData.id);
+                  if (idx >= 0) {
+                    const updated = [...prev];
+                    updated[idx] = combatData;
+                    return updated;
+                  } else if (payload.eventType === 'INSERT') {
+                    return [...prev, combatData];
+                  }
+                  return prev;
+                });
+                // Atualizar combat se este registro é o ativo
+                setCombat(prev => {
+                  if (!prev || prev.id === combatData.id) return combatData;
+                  // Se sou defensor deste registro, trocar para ele
+                  if (combatData.defender_id === currentPlayer.id) return combatData;
+                  return prev;
+                });
+              } else {
+                setCombat(combatData);
+                setCombatGroup([combatData]);
+              }
             }
           }
         }
@@ -672,11 +597,10 @@ const CombatPanel = ({
         completed: false
       }));
 
-      console.log('Updating combat with:', {
-        defender_weapon: skipRetaliation ? null : selectedWeapon,
-        total_rounds: totalRounds,
-        roundData
-      });
+      // Se o atacante já rolou (multi-defensor), pré-preencher round 1
+      if (combat.attacker_shared_roll && combat.attacker_shared_roll.rolled && roundData.length > 0 && roundData[0].action_type === 'attack') {
+        roundData[0].attacker = { ...combat.attacker_shared_roll };
+      }
 
       const { error } = await supabase
         .from('combat_notifications')
@@ -899,16 +823,55 @@ const CombatPanel = ({
     setRolling(false);
 
     // Salvar o estado atual (não avança automaticamente)
-    const { error } = await supabase
-      .from('combat_notifications')
-      .update({
-        round_data: roundData,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', combat.id);
+    const isGroupedCombat = combat.combat_group_id != null;
+    const isFirstAttackRound = isAttacker && roundInfo.action_type === 'attack' && currentRound === 1;
 
-    if (error) {
-      console.error('Erro ao salvar dados:', error);
+    if (isGroupedCombat && isFirstAttackRound) {
+      // Multi-defensor: compartilhar rolagem do atacante com TODOS os registros do grupo
+      const sharedRoll = { rolled: true, roll: finalDice, total: total };
+
+      // Atualizar todos os registros do grupo com attacker_shared_roll
+      const { error: groupError } = await supabase
+        .from('combat_notifications')
+        .update({
+          attacker_shared_roll: sharedRoll,
+          updated_at: new Date().toISOString()
+        })
+        .eq('combat_group_id', combat.combat_group_id);
+
+      if (groupError) {
+        console.error('Erro ao compartilhar rolagem do atacante:', groupError);
+      }
+
+      // Também atualizar round_data dos registros que já estão em fase rolling
+      for (const groupCombat of combatGroup) {
+        if (groupCombat.combat_phase === 'rolling' && groupCombat.round_data?.length > 0) {
+          const gRoundData = groupCombat.round_data.map(r => ({ ...r, attacker: { ...r.attacker }, defender: { ...r.defender } }));
+          if (gRoundData[0].action_type === 'attack') {
+            gRoundData[0].attacker = sharedRoll;
+            if (gRoundData[0].defender.rolled) {
+              gRoundData[0].completed = true;
+            }
+            await supabase
+              .from('combat_notifications')
+              .update({ round_data: gRoundData, updated_at: new Date().toISOString() })
+              .eq('id', groupCombat.id);
+          }
+        }
+      }
+    } else {
+      // Combate normal 1v1 ou rodadas de contra-ataque: salvar apenas este registro
+      const { error } = await supabase
+        .from('combat_notifications')
+        .update({
+          round_data: roundData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', combat.id);
+
+      if (error) {
+        console.error('Erro ao salvar dados:', error);
+      }
     }
   };
 
@@ -1001,31 +964,116 @@ const CombatPanel = ({
     if (!combat) return;
 
     try {
-      const { error } = await supabase
-        .from('combat_notifications')
-        .update({
-          status: 'cancelled',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', combat.id);
+      // Se faz parte de um grupo, cancelar TODOS os registros do grupo
+      if (combat.combat_group_id) {
+        const { error } = await supabase
+          .from('combat_notifications')
+          .update({
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('combat_group_id', combat.combat_group_id);
 
-      if (error) {
-        console.error('Erro ao encerrar combate:', error);
+        if (error) {
+          console.error('Erro ao encerrar grupo de combate:', error);
+        } else {
+          setCombat(null);
+          setCombatGroup([]);
+        }
       } else {
-        setCombat(null);
+        const { error } = await supabase
+          .from('combat_notifications')
+          .update({
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', combat.id);
+
+        if (error) {
+          console.error('Erro ao encerrar combate:', error);
+        } else {
+          setCombat(null);
+          setCombatGroup([]);
+        }
       }
     } catch (err) {
       console.error('Erro ao encerrar combate:', err);
     }
   };
 
+  // Encerrar combate individual (para multi-defensor, encerrar apenas um registro)
+  const endSingleCombat = async (combatId) => {
+    try {
+      const { error } = await supabase
+        .from('combat_notifications')
+        .update({
+          status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', combatId);
+
+      if (error) {
+        console.error('Erro ao encerrar combate individual:', error);
+      }
+    } catch (err) {
+      console.error('Erro ao encerrar combate individual:', err);
+    }
+  };
+
   // Filtrar jogadores disponíveis (excluir o próprio jogador e apenas com personagem criado)
-  const getAvailableTargets = () => {
+  const getAvailableTargets = useMemo(() => {
     return players.filter(player => 
       player.id !== currentPlayer?.id && 
       player.character?.selections &&
       player.status !== 'offline'
     );
+  }, [players, currentPlayer?.id]);
+
+  // Jogadores disponíveis para trocar o defensor (exclui defensores já no grupo)
+  const getSwapTargets = useMemo(() => {
+    const groupDefenderIds = combatGroup.map(gc => gc.defender_id);
+    return players.filter(p =>
+      p.id !== currentPlayer?.id &&
+      p.id !== combat?.defender_id &&
+      !groupDefenderIds.includes(p.id) &&
+      p.character?.selections &&
+      p.status !== 'offline'
+    );
+  }, [players, currentPlayer?.id, combat?.defender_id, combatGroup]);
+
+  // Trocar defensor in-place (mantém attacker_shared_roll, reseta estado do defensor)
+  const swapDefender = async (newDefenderId) => {
+    if (!combat) return;
+    const newDefender = players.find(p => p.id === newDefenderId);
+    if (!newDefender) return;
+
+    try {
+      const { error } = await supabase
+        .from('combat_notifications')
+        .update({
+          defender_id: newDefenderId,
+          defender_name: newDefender.name,
+          defender_weapon: null,
+          defender_defense_dices: null,
+          combat_phase: 'weapon_selection',
+          current_round: 0,
+          total_rounds: 0,
+          round_data: [],
+          status: 'pending',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', combat.id);
+
+      if (error) {
+        console.error('Erro ao trocar defensor:', error);
+        alert('Erro ao trocar defensor. Tente novamente.');
+      } else {
+        setShowDefenderSwap(false);
+      }
+    } catch (err) {
+      console.error('Erro ao trocar defensor:', err);
+      alert('Erro inesperado: ' + err.message);
+    }
   };
 
   // Toggle seleção de defensor
@@ -1080,6 +1128,9 @@ const CombatPanel = ({
     setLoading(true);
 
     try {
+      // Gerar combat_group_id se houver múltiplos defensores
+      const groupId = selectedDefenders.length > 1 ? crypto.randomUUID() : null;
+
       // Criar notificação para cada defensor selecionado
       const notifications = selectedDefenders.map(defenderId => {
         const defender = players.find(p => p.id === defenderId);
@@ -1092,12 +1143,14 @@ const CombatPanel = ({
           attack_data: selectedAttack,
           allow_counter_attack: allowCounterAttack,
           allow_opportunity_attacks: allowOpportunityAttacks,
-          opportunity_attacks_used: [], // Array de IDs de jogadores que já usaram
+          opportunity_attacks_used: [],
           status: 'pending',
           combat_phase: 'weapon_selection',
           current_round: 0,
           total_rounds: 0,
-          round_data: []
+          round_data: [],
+          combat_group_id: groupId,
+          attacker_shared_roll: null
         };
       });
 
@@ -1130,14 +1183,14 @@ const CombatPanel = ({
   // ========== FUNÇÕES DE ALTERAÇÃO DURANTE COMBATE ==========
   
   // Obter arma/ataque com modo aplicado
-  const getWeaponWithMode = (weapon) => {
+  const getWeaponWithMode = useCallback((weapon) => {
     if (!weapon) return null;
     if (!weapon.modes) return weapon;
     return weapon.modes[combatMode] || weapon.modes.mode1 || weapon;
-  };
+  }, [combatMode]);
   
   // Obter dados de defesa atuais do jogador (prioriza valor local, depois banco, depois original)
-  const getCurrentDefenseDices = () => {
+  const getCurrentDefenseDices = useCallback(() => {
     // Primeiro, verificar se há um valor temporário local (alterado pelo usuário)
     // Isso garante feedback imediato antes do banco atualizar
     if (tempDefenseDices !== null) {
@@ -1164,7 +1217,7 @@ const CombatPanel = ({
     }
     
     return actor?.NumberOfDefenseDices || 0;
-  };
+  }, [tempDefenseDices, combat, currentPlayer?.id, currentPlayerData, combatMode]);
 
   // Ajustar dados de defesa e sincronizar com banco de dados
   const adjustDefenseDices = (delta) => {
@@ -1173,13 +1226,21 @@ const CombatPanel = ({
     handleDefenseDicesChange(newValue);
   };
 
-  // Atualizar dados de defesa localmente E no banco de dados
+  // Ref para debounce do slider de dados de defesa
+  const defenseDiceDebounceRef = useRef(null);
+
+  // Atualizar dados de defesa localmente E no banco de dados (com debounce)
   const handleDefenseDicesChange = (newValue) => {
     // Atualizar estado local PRIMEIRO para feedback imediato
     setTempDefenseDices(newValue);
     
-    // Depois atualizar no banco de dados (async, em background)
-    syncDefenseDicesToDatabase(newValue);
+    // Debounce: atrasa a atualização no banco para evitar chamadas a cada pixel do slider
+    if (defenseDiceDebounceRef.current) {
+      clearTimeout(defenseDiceDebounceRef.current);
+    }
+    defenseDiceDebounceRef.current = setTimeout(() => {
+      syncDefenseDicesToDatabase(newValue);
+    }, 300);
   };
 
   // Sincronizar dados de defesa com o banco de dados (em background)
@@ -1403,8 +1464,37 @@ const CombatPanel = ({
     }
   };
 
-  const availableAttacks = getAvailableAttacks();
-  const availableTargets = getAvailableTargets();
+  const availableAttacks = getAvailableAttacks;
+  const availableTargets = getAvailableTargets;
+  const swapTargets = getSwapTargets;
+
+  // Helper de UI para seção de trocar defensor (reutilizado em 5 locais)
+  const renderSwapDefenderSection = ({ btnClass = 'btn-outline-warning', wrapperClass = '', listClass = 'mb-2' } = {}) => (
+    <>
+      <button
+        className={`btn btn-sm ${btnClass} w-100 ${wrapperClass ? '' : 'mb-2'}`}
+        onClick={() => setShowDefenderSwap(!showDefenderSwap)}
+      >
+        🔄 Trocar Defensor
+      </button>
+      {showDefenderSwap && (
+        <div className={listClass} style={{ maxHeight: '150px', overflowY: 'auto' }}>
+          {swapTargets.length === 0 ? (
+            <small className="text-muted d-block text-center">Nenhum jogador disponível</small>
+          ) : swapTargets.map(p => (
+            <button
+              key={p.id}
+              className="btn btn-sm btn-outline-light w-100 mb-1 text-start"
+              onClick={() => swapDefender(p.id)}
+            >
+              🛡️ {p.name}
+              <small className="text-muted ms-2">{p.character?.actor?.Name || ''}</small>
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
 
   // Verificar se há combate ativo (destaque durante todo o combate)
   const hasActiveCombat = combat && 
@@ -1755,13 +1845,85 @@ const CombatPanel = ({
                         ❌ Não Retaliar
                       </button>
 
+                      {/* Trocar Defensor */}
+                      {renderSwapDefenderSection()}
+
                       <button className="btn btn-danger w-100" onClick={endCombat}>
                         Encerrar Combate
                       </button>
                     </>
                   );
                 } else if (isAttacker) {
-                  // Atacante aguarda defensor escolher
+                  // Atacante aguarda defensor(es) escolher
+                  const isMultiDefender = combatGroup.length > 1;
+                  
+                  if (isMultiDefender) {
+                    return (
+                      <>
+                        <div className="alert alert-info">
+                          <h6>⚔️ Combate Multi-Alvo</h6>
+                          <p className="mb-1"><strong>{combat.attack_data.Name}</strong> vs {combatGroup.length} defensores</p>
+                        </div>
+
+                        {/* Status de cada defensor */}
+                        <div className="d-flex flex-column gap-2 mb-3">
+                          {combatGroup.map(gc => {
+                            const statusLabel = gc.status === 'cancelled' ? '❌ Cancelado' 
+                              : gc.combat_phase === 'weapon_selection' ? '⏳ Escolhendo arma...'
+                              : gc.combat_phase === 'rolling' ? (gc.round_data?.[0]?.defender?.rolled ? '✅ Defendeu' : '🎲 Aguardando defesa')
+                              : gc.combat_phase === 'results' ? '📊 Finalizado'
+                              : '⏳';
+                            const bgClass = gc.status === 'cancelled' ? 'bg-secondary' 
+                              : gc.combat_phase === 'rolling' && gc.round_data?.[0]?.defender?.rolled ? 'bg-success bg-opacity-25'
+                              : 'bg-dark';
+                            
+                            return (
+                              <div key={gc.id} className={`card border-secondary ${bgClass}`}>
+                                <div className="card-body p-2">
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <span className="text-white small fw-bold">🛡️ {gc.defender_name}</span>
+                                    <span className="text-muted small">{statusLabel}</span>
+                                  </div>
+                                  {gc.combat_phase === 'rolling' && gc.round_data?.[0]?.defender?.rolled && (
+                                    <div className="mt-1">
+                                      <small className="text-info">
+                                        Defesa: {gc.round_data[0].defender.roll.map(d => `🎲${d}`).join(' ')} = {gc.round_data[0].defender.total}
+                                      </small>
+                                    </div>
+                                  )}
+                                  {gc.defender_weapon && (
+                                    <small className="text-warning d-block">Arma: {gc.defender_weapon.Name}</small>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Info: atacante pode rolar a qualquer momento */}
+                        {!combat.attacker_shared_roll?.rolled && (
+                          <div className="alert alert-warning py-2">
+                            <small>Você pode rolar seu ataque a qualquer momento. A rolagem será aplicada a todos os defensores.</small>
+                          </div>
+                        )}
+
+                        {combat.attacker_shared_roll?.rolled && (
+                          <div className="alert alert-success py-2">
+                            <small>✅ Ataque rolado: {combat.attacker_shared_roll.roll.map(d => `🎲${d}`).join(' ')} = {combat.attacker_shared_roll.total}</small>
+                          </div>
+                        )}
+
+                        <button className="btn btn-danger w-100" onClick={endCombat}>
+                          Encerrar Todos os Combates
+                        </button>
+
+                        {/* Trocar Defensor (por defensor) — multi-alvo weapon_selection */}
+                        {renderSwapDefenderSection({ listClass: 'mt-2' })}
+                      </>
+                    );
+                  }
+
+                  // 1v1: Atacante aguarda defensor escolher
                   return (
                     <>
                       <div className="alert alert-info">
@@ -1769,6 +1931,9 @@ const CombatPanel = ({
                         <p className="mb-0">Aguardando <strong>{combat.defender_name}</strong> escolher sua arma...</p>
                         <div className="text-center mt-2">⏳</div>
                       </div>
+
+                      {/* Trocar Defensor */}
+                      {renderSwapDefenderSection()}
 
                       <button className="btn btn-danger w-100" onClick={endCombat}>
                         Encerrar Combate
@@ -1881,6 +2046,338 @@ const CombatPanel = ({
                     icon: '🛡️',
                     className: 'defender'
                   };
+                }
+
+                // ===== MULTI-DEFENDER ATTACKER VIEW (rolling phase) =====
+                if (isAttacker && combatGroup.length > 1) {
+                  const sharedRoll = combat.attacker_shared_roll;
+                  const attackerHasRolled = sharedRoll?.rolled || roundInfo.attacker?.rolled || false;
+                  const allDefendersInRolling = combatGroup.filter(gc => gc.combat_phase === 'rolling' && gc.status !== 'cancelled');
+                  const allDefendersRolled = allDefendersInRolling.length > 0 && allDefendersInRolling.every(gc => gc.round_data?.[0]?.defender?.rolled);
+
+                  // If we're in round 1 (shared attack) or no active counter-attack selected
+                  if (currentRound === 1 && roundInfo.action_type === 'attack') {
+                    return (
+                      <>
+                        <div className="alert alert-info mb-2">
+                          <h6 className="mb-1">⚔️ Combate Multi-Alvo — Rodada 1</h6>
+                          <p className="mb-0"><strong>{combat.attack_data.Name}</strong></p>
+                        </div>
+
+                        {/* Attacker roll section */}
+                        <div className="combatant-card attacker-card mb-2">
+                          <div className="combatant-header">
+                            <span className="combatant-icon">⚔️</span>
+                            <h6 className="combatant-name">{combat.attacker_name}</h6>
+                          </div>
+                          <div className="combatant-weapon">{combat.attack_data.Name}</div>
+                          <div className="weapon-stats-compact">
+                            {(() => {
+                              const weaponWithMode = getWeaponWithMode(combat.attack_data) || combat.attack_data;
+                              return (
+                                <>
+                                  <span className="stat-compact" title="Dados de Ataque">🎲 {weaponWithMode?.Dices || '?'}</span>
+                                  <span className="stat-compact" title="Tempo de Recarga">⚡ {weaponWithMode?.LoadTime || '?'}</span>
+                                  <span className="stat-compact" title="Dano">💥 {weaponWithMode?.Damage || '0'}</span>
+                                </>
+                              );
+                            })()}
+                          </div>
+
+                          {/* Rolling animation */}
+                          {rolling && (
+                            <div className="dice-animation-inline">
+                              <div className="dice-rolling-inline">
+                                {diceAnimation.map((die, i) => (
+                                  <span key={`${die}-${i}`} className="die-animated-inline">{die}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {attackerHasRolled ? (
+                            <div className="combatant-result">
+                              <DiceResultAdjuster
+                                diceArray={sharedRoll?.roll || roundInfo.attacker?.roll || []}
+                                onAdjust={(newDice) => adjustDiceResult(newDice, true)}
+                                playerRole="left"
+                              />
+                            </div>
+                          ) : !rolling && (
+                            <button className="btn-combat-roll-inline" onClick={rollDice}>
+                              <span className="btn-icon">🎲</span>
+                              <span className="btn-text">Rolar Ataque (Todos)</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Defender status cards */}
+                        <div className="d-flex flex-column gap-2 mb-2">
+                          {combatGroup.map(gc => {
+                            if (gc.status === 'cancelled') return null;
+                            const gRound = gc.round_data?.[0];
+                            const defRolled = gRound?.defender?.rolled;
+                            const defRoll = gRound?.defender?.roll;
+                            const defTotal = gRound?.defender?.total;
+                            const inRolling = gc.combat_phase === 'rolling';
+                            const inWeaponSel = gc.combat_phase === 'weapon_selection';
+
+                            return (
+                              <div key={gc.id} className={`card border-secondary ${defRolled ? 'bg-success bg-opacity-25' : 'bg-dark'}`}>
+                                <div className="card-body p-2">
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <span className="text-white small fw-bold">🛡️ {gc.defender_name}</span>
+                                    <span className="text-muted small">
+                                      {inWeaponSel ? '⏳ Escolhendo arma...' : defRolled ? '✅ Defendeu' : inRolling ? '🎲 Aguardando defesa' : gc.combat_phase}
+                                    </span>
+                                  </div>
+                                  {defRolled && defRoll && (
+                                    <div className="mt-1">
+                                      <small className="text-info">
+                                        Defesa: {defRoll.map(d => `🎲${d}`).join(' ')} = {defTotal}
+                                      </small>
+                                    </div>
+                                  )}
+                                  {gc.defender_weapon && (
+                                    <small className="text-warning d-block">Arma: {gc.defender_weapon.Name}</small>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Advance: only when attacker + all rolling defenders have rolled */}
+                        {attackerHasRolled && allDefendersRolled && !rolling && (
+                          <div className="d-flex flex-column gap-2 mb-2">
+                            {allDefendersInRolling.map(gc => {
+                              const gRound = gc.round_data?.[0];
+                              const bothRolled = gRound?.attacker?.rolled && gRound?.defender?.rolled;
+                              if (!bothRolled) return null;
+                              const hasMoreRounds = gc.current_round < gc.total_rounds;
+                              return (
+                                <button 
+                                  key={gc.id}
+                                  className="btn btn-sm btn-outline-success"
+                                  onClick={async () => {
+                                    // Advance this specific defender's combat
+                                    if (gc.current_round >= gc.total_rounds) {
+                                      await supabase.from('combat_notifications').update({ combat_phase: 'results', updated_at: new Date().toISOString() }).eq('id', gc.id);
+                                    } else {
+                                      await supabase.from('combat_notifications').update({ current_round: gc.current_round + 1, updated_at: new Date().toISOString() }).eq('id', gc.id);
+                                    }
+                                  }}
+                                >
+                                  {hasMoreRounds ? `➡️ Contra-Ataque: ${gc.defender_name}` : `✅ Ver Resultado: ${gc.defender_name}`}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Equipment change */}
+                        <div className="weapon-info-panel mb-2">
+                          <details className="weapon-details">
+                            <summary className="weapon-summary">
+                              <span className="weapon-icon">🔄</span>
+                              <span className="weapon-label">Alterar Equipamento</span>
+                              <span className="toggle-icon">▼</span>
+                            </summary>
+                            <div className="weapon-details-content">
+                              <div className="weapon-change-section">
+                                <button className="btn btn-sm btn-outline-warning w-100 mb-2" onClick={openWeaponChange} title="Trocar arma">
+                                  ⚔️ Trocar Arma {tempWeapon && '(Alterada)'}
+                                </button>
+                                <div className="defense-adjustment">
+                                  <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <label className="form-label text-white mb-0" style={{ fontSize: '13px' }}>🛡️ Dados de Defesa</label>
+                                    <span className="badge bg-primary" style={{ fontSize: '16px', padding: '6px 12px' }}>{getCurrentDefenseDices()}</span>
+                                  </div>
+                                  <input type="range" className="form-range defense-slider" min="0" max="8" value={getCurrentDefenseDices()} onChange={(e) => handleDefenseDicesChange(parseInt(e.target.value))} style={{ width: '100%' }} />
+                                </div>
+
+                                {/* Trocar Defensor */}
+                                <div className="defender-swap-section mt-3">
+                                  {renderSwapDefenderSection({ btnClass: 'btn-outline-danger', listClass: 'swap-targets-list' })}
+                                </div>
+                              </div>
+                            </div>
+                          </details>
+                        </div>
+
+                        <button className="btn btn-danger w-100" onClick={endCombat}>
+                          🚫 Encerrar Todos os Combates
+                        </button>
+                      </>
+                    );
+                  }
+
+                  // Round 2+ (counter-attack rounds) — show per-defender navigation
+                  // The attacker needs to handle each defender's counter-attack individually
+                  // Find defenders that are in counter-attack rounds (round 2+)
+                  const activeCounterAttacks = combatGroup.filter(gc => 
+                    gc.status !== 'cancelled' && gc.combat_phase === 'rolling' && gc.current_round > 1
+                  );
+                  const finishedDefenders = combatGroup.filter(gc => 
+                    gc.status !== 'cancelled' && (gc.combat_phase === 'results' || (gc.combat_phase === 'rolling' && gc.total_rounds === 1 && gc.round_data?.[0]?.completed))
+                  );
+                  const stillInRound1 = combatGroup.filter(gc =>
+                    gc.status !== 'cancelled' && gc.combat_phase === 'rolling' && gc.current_round === 1 && !gc.round_data?.[0]?.completed
+                  );
+
+                  // Select the active counter-attack combat to show
+                  const selectedCounterCombat = activeCombatId 
+                    ? combatGroup.find(gc => gc.id === activeCombatId) 
+                    : activeCounterAttacks[0];
+
+                  return (
+                    <>
+                      <div className="alert alert-info mb-2">
+                        <h6 className="mb-1">⚔️ Contra-Ataques</h6>
+                        <p className="mb-0 small">Gerencie cada contra-ataque individualmente</p>
+                      </div>
+
+                      {/* Defender navigation tabs */}
+                      <div className="d-flex flex-wrap gap-1 mb-2">
+                        {combatGroup.filter(gc => gc.status !== 'cancelled').map(gc => {
+                          const isSelected = selectedCounterCombat?.id === gc.id;
+                          const isFinished = gc.combat_phase === 'results';
+                          const inCounterRound = gc.combat_phase === 'rolling' && gc.current_round > 1;
+                          const waitingRound1 = gc.combat_phase === 'rolling' && gc.current_round === 1;
+                          const btnClass = isFinished ? 'btn-secondary' : isSelected ? 'btn-primary' : inCounterRound ? 'btn-outline-warning' : waitingRound1 ? 'btn-outline-info' : 'btn-outline-secondary';
+                          return (
+                            <button
+                              key={gc.id}
+                              className={`btn btn-sm ${btnClass}`}
+                              onClick={() => {
+                                setActiveCombatId(gc.id);
+                                setCombat(gc);
+                              }}
+                              disabled={isFinished}
+                            >
+                              {gc.defender_name} {isFinished ? '📊' : inCounterRound ? `R${gc.current_round}` : waitingRound1 ? '⏳' : ''}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Show selected combat's 1v1 counter-attack view */}
+                      {selectedCounterCombat && selectedCounterCombat.current_round > 1 && (() => {
+                        const sc = selectedCounterCombat;
+                        const scRound = sc.round_data?.[sc.current_round - 1] || {};
+                        const scIsCounterAttack = scRound.action_type === 'counter';
+                        const scAttackerRolled = scRound.attacker?.rolled || false;
+                        const scDefenderRolled = scRound.defender?.rolled || false;
+                        
+                        const scLeftPlayer = scIsCounterAttack ? {
+                          name: sc.defender_name, weapon: sc.defender_weapon?.Name || 'Arma',
+                          rolled: scDefenderRolled, data: scRound.defender, icon: '⚔️', className: 'attacker'
+                        } : {
+                          name: sc.attacker_name, weapon: sc.attack_data?.Name || combat.attack_data.Name,
+                          rolled: scAttackerRolled, data: scRound.attacker, icon: '⚔️', className: 'attacker'
+                        };
+                        const scRightPlayer = scIsCounterAttack ? {
+                          name: sc.attacker_name, weapon: 'Defesa',
+                          rolled: scAttackerRolled, data: scRound.attacker, icon: '🛡️', className: 'defender'
+                        } : {
+                          name: sc.defender_name, weapon: 'Defesa',
+                          rolled: scDefenderRolled, data: scRound.defender, icon: '🛡️', className: 'defender'
+                        };
+
+                        return (
+                          <>
+                            <div className="combat-round-header mb-2">
+                              <div className="round-info">
+                                <span className="round-label">vs {sc.defender_name} — Rodada {sc.current_round}/{sc.total_rounds}</span>
+                              </div>
+                            </div>
+
+                            <div className="combatants-container mb-2">
+                              <div className="combatant-card attacker-card">
+                                <div className="combatant-header">
+                                  <span className="combatant-icon">{scLeftPlayer.icon}</span>
+                                  <h6 className="combatant-name">{scLeftPlayer.name}</h6>
+                                </div>
+                                <div className="combatant-weapon">{scLeftPlayer.weapon}</div>
+                                {rolling && scIsCounterAttack && !isAttacker && (
+                                  <div className="dice-animation-inline"><div className="dice-rolling-inline">
+                                    {diceAnimation.map((die, i) => <span key={`${die}-${i}`} className="die-animated-inline">{die}</span>)}
+                                  </div></div>
+                                )}
+                                {scLeftPlayer.rolled && scLeftPlayer.data ? (
+                                  <div className="combatant-result">
+                                    <div className="dice-result-inline">
+                                      {scLeftPlayer.data.roll.map((die, i) => <span key={i} className="die-number">{die}</span>)}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="combatant-waiting"><span className="waiting-spinner">⏳</span><span>Aguardando...</span></div>
+                                )}
+                              </div>
+
+                              <div className="vs-divider"><span className="vs-text">VS</span></div>
+
+                              <div className="combatant-card defender-card">
+                                <div className="combatant-header">
+                                  <span className="combatant-icon">{scRightPlayer.icon}</span>
+                                  <h6 className="combatant-name">{scRightPlayer.name}</h6>
+                                </div>
+                                <div className="combatant-weapon">{scRightPlayer.weapon}</div>
+                                {rolling && !scIsCounterAttack && (
+                                  <div className="dice-animation-inline"><div className="dice-rolling-inline">
+                                    {diceAnimation.map((die, i) => <span key={`${die}-${i}`} className="die-animated-inline">{die}</span>)}
+                                  </div></div>
+                                )}
+                                {scRightPlayer.rolled && scRightPlayer.data ? (
+                                  <div className="combatant-result">
+                                    <div className="dice-result-inline">
+                                      {scRightPlayer.data.roll.map((die, i) => <span key={i} className="die-number">{die}</span>)}
+                                    </div>
+                                  </div>
+                                ) : !rolling && scIsCounterAttack && (
+                                  <button className="btn-combat-roll-inline" onClick={rollDice}>
+                                    <span className="btn-icon">🎲</span><span className="btn-text">Rolar Defesa</span>
+                                  </button>
+                                )}
+                                {!scRightPlayer.rolled && !rolling && !scIsCounterAttack && (
+                                  <div className="combatant-waiting"><span className="waiting-spinner">⏳</span><span>Aguardando...</span></div>
+                                )}
+                              </div>
+                            </div>
+
+                            {scAttackerRolled && scDefenderRolled && !rolling && (
+                              <button className="btn-combat-advance mb-2" onClick={async () => {
+                                if (sc.current_round >= sc.total_rounds) {
+                                  await supabase.from('combat_notifications').update({ combat_phase: 'results', updated_at: new Date().toISOString() }).eq('id', sc.id);
+                                } else {
+                                  await supabase.from('combat_notifications').update({ current_round: sc.current_round + 1, updated_at: new Date().toISOString() }).eq('id', sc.id);
+                                }
+                              }}>
+                                <span className="btn-icon">{sc.current_round >= sc.total_rounds ? '✅' : '➡️'}</span>
+                                <span className="btn-text">{sc.current_round >= sc.total_rounds ? 'Ver Resultados' : 'Avançar Rodada'}</span>
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
+
+                      {/* Summary of other defenders */}
+                      {stillInRound1.length > 0 && (
+                        <div className="alert alert-secondary py-1 px-2 mb-2">
+                          <small>⏳ Aguardando defesa de rodada 1: {stillInRound1.map(gc => gc.defender_name).join(', ')}</small>
+                        </div>
+                      )}
+                      {finishedDefenders.length > 0 && (
+                        <div className="alert alert-success py-1 px-2 mb-2">
+                          <small>📊 Finalizados: {finishedDefenders.map(gc => gc.defender_name).join(', ')}</small>
+                        </div>
+                      )}
+
+                      <button className="btn btn-danger w-100" onClick={endCombat}>
+                        🚫 Encerrar Todos os Combates
+                      </button>
+                    </>
+                  );
                 }
 
                 return (
@@ -2143,6 +2640,13 @@ const CombatPanel = ({
                                 💡 Arraste os indicadores de rodada acima para reordenar
                               </small>
                             </div>
+
+                            {/* Trocar Defensor (atacante ou defensor) */}
+                            {(isAttacker || isDefender) && (
+                              <div className="defender-swap-section mt-3">
+                                {renderSwapDefenderSection({ btnClass: 'btn-outline-danger', listClass: 'swap-targets-list' })}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </details>
@@ -2452,6 +2956,60 @@ const CombatPanel = ({
               {/* FASE 3: RESULTADOS */}
               {combat.combat_phase === 'results' && (() => {
                 const roundData = combat.round_data || [];
+                const isAttacker = currentPlayer.id === combat.attacker_id;
+                const isMultiGroup = combatGroup.length > 1;
+
+                // Multi-defender group results for attacker
+                if (isMultiGroup && isAttacker) {
+                  return (
+                    <>
+                      <div className="combat-results-header mb-3">
+                        <div className="results-title">
+                          <span className="results-icon">📊</span>
+                          <h5 className="mb-0">Resultados — Multi-Alvo</h5>
+                        </div>
+                      </div>
+
+                      <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                        {combatGroup.filter(gc => gc.status !== 'cancelled').map(gc => {
+                          const gcRounds = gc.round_data || [];
+                          return (
+                            <div key={gc.id} className="card bg-dark border-secondary mb-2">
+                              <div className="card-header py-1 px-2">
+                                <strong className="text-white small">{combat.attacker_name} ⚔️ vs 🛡️ {gc.defender_name}</strong>
+                                <span className={`badge ms-2 ${gc.combat_phase === 'results' ? 'bg-success' : 'bg-warning text-dark'}`}>
+                                  {gc.combat_phase === 'results' ? 'Finalizado' : gc.combat_phase}
+                                </span>
+                              </div>
+                              <div className="card-body p-2">
+                                {gcRounds.map((round, idx) => {
+                                  const atkRoll = round.attacker?.roll || [];
+                                  const defRoll = round.defender?.roll || [];
+                                  const label = round.action_type === 'counter' ? 'Contra' : round.action_type === 'opportunity' ? 'Oportunidade' : 'Ataque';
+                                  return (
+                                    <div key={idx} className="mb-1 small text-white">
+                                      <span className="text-muted">R{round.round} ({label}):</span>
+                                      {' '}⚔️ [{atkRoll.join(',')}]={round.attacker?.total || 0}
+                                      {' '}🛡️ [{defRoll.join(',')}]={round.defender?.total || 0}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <button className="btn btn-danger w-100 mt-3" onClick={endCombat}>
+                        <span className="me-2">✅</span>
+                        Encerrar Todos os Combates
+                      </button>
+                    </>
+                  );
+                }
+
+                // eslint-disable-next-line no-unused-vars
+                const _endSingleCombat = endSingleCombat; // available for future per-defender cancel
 
                 return (
                   <>
@@ -3215,7 +3773,7 @@ const CombatPanel = ({
             <div className="mb-3">
               <label className="text-white mb-2 small"><strong>2️⃣ Escolha sua Arma:</strong></label>
               <div className="d-flex flex-column gap-2">
-                {getAvailableAttacks().map((attack, idx) => {
+                {availableAttacks.map((attack, idx) => {
                   const isSelected = opportunityWeapon?.Name === attack.Name;
                   return (
                     <div

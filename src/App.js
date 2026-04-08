@@ -427,7 +427,7 @@ function App() {
     setLoading(false);
   };
 
-  const handleLeaveRoom = async () => {
+  const handleLeaveRoom = useCallback(async () => {
     // Remover jogador do banco de dados quando sair definitivamente
     if (currentPlayer) {
       await RoomService.leaveRoom(currentPlayer.id);
@@ -442,7 +442,19 @@ function App() {
     setCharacterSelections(null);
     setRoomInternalView('lobby');
     setCurrentView('menu');
-  };
+  }, [currentPlayer]);
+
+  const handleViewChange = useCallback((view) => {
+    setRoomInternalView(view);
+  }, []);
+
+  const handleActorChange = useCallback((actor) => {
+    setSelectedActor(actor);
+  }, []);
+
+  const handleSelectionsChange = useCallback((selections) => {
+    setCharacterSelections(selections);
+  }, []);
 
   const handleSoloPlay = () => {
     setCurrentView('selection');
@@ -576,15 +588,9 @@ function App() {
             initialView={roomInternalView}
             initialSelectedActor={selectedActor}
             initialCharacterSelections={characterSelections}
-            onViewChange={(view) => {
-              setRoomInternalView(view);
-            }}
-            onActorChange={(actor) => {
-              setSelectedActor(actor);
-            }}
-            onSelectionsChange={(selections) => {
-              setCharacterSelections(selections);
-            }}
+            onViewChange={handleViewChange}
+            onActorChange={handleActorChange}
+            onSelectionsChange={handleSelectionsChange}
           />
         </Suspense>
       )}

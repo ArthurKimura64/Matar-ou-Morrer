@@ -85,23 +85,7 @@ export class RoomService {
   // Criar uma nova sala
   static async createRoom(roomName, masterName) {
     try {
-      let roomId = this.generateRoomId();
-      let attempts = 0;
-      
-      // Verificar se o ID já existe e gerar um novo se necessário
-      while (attempts < 5) {
-        const { data: existingRoom } = await supabase
-          .from('rooms')
-          .select('id')
-          .eq('id', roomId)
-          .eq('is_active', true)
-          .single();
-          
-        if (!existingRoom) break;
-        
-        roomId = this.generateRoomId();
-        attempts++;
-      }
+      const roomId = this.generateRoomId();
       
       const { data, error } = await supabase
         .from('rooms')
@@ -117,7 +101,26 @@ export class RoomService {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Se houver conflito de ID (improvável), tentar uma vez com novo ID
+        if (error.code === '23505') {
+          const retryId = this.generateRoomId();
+          const { data: retryData, error: retryError } = await supabase
+            .from('rooms')
+            .insert([{
+              id: retryId,
+              name: roomName,
+              master_name: masterName,
+              is_active: true,
+              created_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+          if (retryError) throw retryError;
+          return { success: true, room: retryData };
+        }
+        throw error;
+      }
       return { success: true, room: data };
     } catch (error) {
       console.error('Erro ao criar sala:', error);
@@ -245,7 +248,7 @@ export class RoomService {
 
       if (error) throw error;
       
-      // Armazenar no cache por apenas 1 segundo (para evitar múltiplas queries simultâneas)
+      // Armazenar no cache (usa TTL global de 3s para evitar múltiplas queries simultâneas)
       queryCache.set(cacheKey, data);
       
       return { success: true, players: data };
@@ -365,25 +368,17 @@ export class RoomService {
       console.log('Criando nova subscription');
       
       channel = supabase
-        .channel(channelName, {
-          config: {
-            broadcast: { self: true }, // Receber próprias atualizações também
-            presence: { key: '' }
-          }
-        })
+        .channel(channelName)
         .on(
           'postgres_changes',
           {
-            event: '*', // Capturar INSERT, UPDATE, DELETE
+            event: '*',
             schema: 'public',
             table: 'players',
             filter: `room_id=eq.${roomId}`
           },
           (payload) => {
-            // Limpar cache imediatamente quando houver mudança
             queryCache.clear(`players_${roomId}`);
-            
-            // Notificar componente
             onPlayersChange(payload);
           }
         )
@@ -749,7 +744,6 @@ export class RoomService {
           .from('players')
           .update({ 
             app_state: appState,
-            last_seen: new Date().toISOString(),
             last_activity: new Date().toISOString()
           })
           .eq('id', playerId)
@@ -906,10 +900,10 @@ export class RoomService {
   // Declarar eliminação de um jogador
   static async declareElimination(playerId, killerPlayerId = null) {
     try {
-      // Buscar room_id e contadores atuais para atualizar mortes
+      // Buscar room_id do jogador
       const { data: player, error: fetchError } = await supabase
         .from('players')
-        .select('room_id, counters')
+        .select('room_id')
         .eq('id', playerId)
         .single();
 
@@ -927,21 +921,13 @@ export class RoomService {
 
       const eliminationOrder = (count || 0) + 1;
 
-      // Incrementar mortes nos contadores
-      const currentCounters = player.counters || {};
-      const updatedCounters = {
-        ...currentCounters,
-        mortes: (currentCounters.mortes || 0) + 1
-      };
-
-      // Marcar jogador como eliminado com ordem de eliminação E incrementar mortes
+      // Marcar jogador como eliminado com ordem de eliminação
       const { error: updateError } = await supabase
         .from('players')
         .update({ 
           is_alive: false, 
           killed_by_player_id: killerPlayerId,
           elimination_order: eliminationOrder,
-          counters: updatedCounters,
           last_activity: new Date().toISOString()
         })
         .eq('id', playerId);
@@ -998,7 +984,7 @@ export class RoomService {
 
   // Subscrever para mudanças na sala (match_status, etc.)
   static subscribeToRoomStatus(roomId, onRoomChange) {
-    const channelName = `room-status-${roomId}-${Date.now()}`;
+    const channelName = `room-status-${roomId}`;
 
     const channel = supabase
       .channel(channelName)
@@ -1017,5 +1003,43 @@ export class RoomService {
       .subscribe();
 
     return channel;
+  }
+
+  // Resetar jogador para o lobby em uma única operação (batch)
+  static async resetPlayerForLobby(playerId) {
+    try {
+      const { data } = await withRetry(async () => {
+        const result = await supabase
+          .from('players')
+          .update({
+            character: null,
+            character_name: null,
+            status: 'selecting',
+            counters: null,
+            characteristics: null,
+            additional_counters: null,
+            used_items: null,
+            unlocked_items: null,
+            selections: null,
+            exposed_cards: [],
+            app_state: null,
+            last_activity: new Date().toISOString()
+          })
+          .eq('id', playerId)
+          .select()
+          .single();
+        if (result.error) throw result.error;
+        return result;
+      });
+
+      if (data?.room_id) {
+        queryCache.clear(`players_${data.room_id}`);
+      }
+
+      return { success: true, player: data };
+    } catch (error) {
+      console.error('Erro ao resetar jogador para lobby:', error);
+      return { success: false, error: error.message };
+    }
   }
 }

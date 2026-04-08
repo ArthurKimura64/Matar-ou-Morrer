@@ -27,7 +27,8 @@ const PlayerDetailedStatus = ({
   canKick = false,
   onKickPlayer = null,
   isMaster = false,
-  matchStatus = null
+  matchStatus = null,
+  players = []
 }) => {
   // Memoizar contadores para evitar recalcular
   // Buscar dados do personagem (actorData) para acessar NumberOfDefenseDices
@@ -57,11 +58,15 @@ const PlayerDetailedStatus = ({
       oport,
       oport_max,
       item,
-      item_max,
-      mortes: player?.counters?.mortes ?? 0
-      // defesa removido daqui
+      item_max
     };
   }, [player?.counters]);
+
+  // Calcular kills a partir dos jogadores eliminados
+  const killCount = useMemo(() => {
+    if (!player?.id) return 0;
+    return players.filter(p => p.killed_by_player_id === player.id).length;
+  }, [players, player?.id]);
 
   // Memoizar contadores adicionais. Se não houver dados salvos, tentar derivar a partir do actor definitions
   const additionalCounters = useMemo(() => {
@@ -137,7 +142,7 @@ const PlayerDetailedStatus = ({
             }).length;
             
             // Calcular disponíveis baseado nas mortes (1 por morte)
-            const deathCount = counters.mortes || 0;
+            const deathCount = killCount;
             const maxAvailableByDeaths = Math.min(deathCount, data[key].total);
             data[key].available = Math.min(unlockedCount, maxAvailableByDeaths);
           } else if (key === 'specials') {
@@ -148,7 +153,7 @@ const PlayerDetailedStatus = ({
             }).length;
             
             // Calcular disponíveis baseado nas mortes (1 por morte)
-            const deathCount = counters.mortes || 0;
+            const deathCount = killCount;
             const maxAvailableByDeaths = Math.min(deathCount, data[key].total);
             const availableByUsage = selectedItems.length - usedCount;
             data[key].available = Math.min(availableByUsage, maxAvailableByDeaths);
@@ -171,7 +176,7 @@ const PlayerDetailedStatus = ({
     }
     
     return data;
-  }, [player?.characteristics, player?.selections, player?.used_items, player?.unlocked_items, actorData, counters.mortes]);
+  }, [player, actorData, killCount]);
 
   // Memoizar labels para evitar recalcular
   const getCharacteristicLabel = useMemo(() => {
@@ -211,9 +216,9 @@ const PlayerDetailedStatus = ({
     { key: 'esquiva', label: localization['Characteristic.DodgePoints'] || 'Esquiva', value: formatCounter(counters.esquiva, counters.esquiva_max), color: '#28a745' },
     { key: 'oport', label: localization['Characteristic.OportunityAttack'] || 'Oport.', value: formatCounter(counters.oport, counters.oport_max), color: '#ffc107' },
     { key: 'itens', label: localization['Characteristic.ExplorationItens'] || 'Itens', value: formatCounter(counters.item, counters.item_max), color: '#6c757d' },
-    { key: 'mortes', label: localization['Characteristic.Deaths'] || 'Mortes', value: counters.mortes || 0, color: '#8b0000' },
+    { key: 'mortes', label: localization['Characteristic.Kills'] || 'Abates', value: killCount, color: '#8b0000' },
     { key: 'defesa', label: localization['Characteristic.DefenseDices'] || 'Dados de defesa', value: actorData?.NumberOfDefenseDices ?? 2, color: '#6610f2' }
-  ], [counters, actorData?.NumberOfDefenseDices, localization, formatCounter]);
+  ], [counters, actorData?.NumberOfDefenseDices, localization, formatCounter, killCount]);
 
   // Validação após hooks
   if (!player?.name) {

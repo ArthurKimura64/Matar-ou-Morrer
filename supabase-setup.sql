@@ -662,6 +662,13 @@ ADD COLUMN IF NOT EXISTS attacker_defense_dices INTEGER;
 ALTER TABLE public.combat_notifications 
 ADD COLUMN IF NOT EXISTS defender_defense_dices INTEGER;
 
+-- Adicionar colunas para combate multi-defensor
+ALTER TABLE public.combat_notifications 
+ADD COLUMN IF NOT EXISTS combat_group_id UUID;
+
+ALTER TABLE public.combat_notifications 
+ADD COLUMN IF NOT EXISTS attacker_shared_roll JSONB;
+
 -- Adicionar constraint de check para status
 ALTER TABLE public.combat_notifications 
 DROP CONSTRAINT IF EXISTS combat_notifications_status_check;
@@ -686,6 +693,7 @@ CREATE INDEX IF NOT EXISTS idx_combat_defender ON public.combat_notifications(de
 CREATE INDEX IF NOT EXISTS idx_combat_created_at ON public.combat_notifications(created_at);
 CREATE INDEX IF NOT EXISTS idx_combat_round_data ON public.combat_notifications USING GIN (round_data);
 CREATE INDEX IF NOT EXISTS idx_combat_opportunity_attacks ON public.combat_notifications USING GIN (opportunity_attacks_used);
+CREATE INDEX IF NOT EXISTS idx_combat_group_id ON public.combat_notifications(combat_group_id);
 
 -- Comentários para documentação da tabela de combate
 COMMENT ON TABLE public.combat_notifications IS 'Tabela que armazena os combates entre jogadores, incluindo sistema de espectadores e ataques de oportunidade';

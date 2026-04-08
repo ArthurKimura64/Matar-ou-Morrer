@@ -7,18 +7,20 @@ export const Utils = {
   // Resolve a value through localization if it's a string key (com cache)
   resolveLocalizedValue: (value, localization) => {
     if (typeof value === 'string') {
-      // O objeto localization é o mesmo durante toda a sessão, então só precisamos da key
       if (localizationCache.has(value)) {
-        return localizationCache.get(value);
+        // LRU: mover para o final (mais recente)
+        const cached = localizationCache.get(value);
+        localizationCache.delete(value);
+        localizationCache.set(value, cached);
+        return cached;
       }
       
       const result = localization[value] || value;
       localizationCache.set(value, result);
       
-      // Limitar tamanho do cache
+      // Limitar tamanho do cache (LRU: remover mais antigo)
       if (localizationCache.size > 500) {
-        const firstKey = localizationCache.keys().next().value;
-        localizationCache.delete(firstKey);
+        localizationCache.delete(localizationCache.keys().next().value);
       }
       
       return result;
@@ -35,7 +37,11 @@ export const Utils = {
     const cacheKey = `attack_${def.ID}_${mode}`;
     
     if (descriptionCache.has(cacheKey)) {
-      return descriptionCache.get(cacheKey);
+      // LRU: mover para o final (mais recente)
+      const cached = descriptionCache.get(cacheKey);
+      descriptionCache.delete(cacheKey);
+      descriptionCache.set(cacheKey, cached);
+      return cached;
     }
     
     const modeData = Utils.modeSystem.getActiveMode(def, mode);
@@ -52,10 +58,9 @@ export const Utils = {
   // Armazenar no cache
   descriptionCache.set(cacheKey, result);
   
-  // Limitar tamanho do cache
+  // Limitar tamanho do cache (LRU: remover mais antigo)
   if (descriptionCache.size > 200) {
-    const firstKey = descriptionCache.keys().next().value;
-    descriptionCache.delete(firstKey);
+    descriptionCache.delete(descriptionCache.keys().next().value);
   }
   
   return result;

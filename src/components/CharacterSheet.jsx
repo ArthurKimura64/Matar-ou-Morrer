@@ -29,8 +29,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     oport: 0,
     oport_max: 0,
     item: 0,
-    item_max: 0,
-    mortes: 0
+    item_max: 0
   });
   
   const [currentMode, setCurrentMode] = useState('mode1');
@@ -45,6 +44,12 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   const lastProcessedActorIdRef = useRef(null);
 
   // Memoizar contadores iniciais
+  // Calcular mortes (kills) a partir dos jogadores eliminados que apontam este jogador como killer
+  const killCount = useMemo(() => {
+    if (!currentPlayer?.id) return 0;
+    return players.filter(p => p.killed_by_player_id === currentPlayer.id).length;
+  }, [players, currentPlayer?.id]);
+
   const initialCounters = useMemo(() => ({
     vida: 20,
     vida_max: 20,
@@ -53,8 +58,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     oport: 0,
     oport_max: actor?.OportunityAttacks || 0,
     item: 0,
-    item_max: actor?.ExplorationItens || 0,
-    mortes: 0
+    item_max: actor?.ExplorationItens || 0
   }), [actor]);
 
   // Memoizar características calculadas
@@ -199,7 +203,6 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           oport_max: initialCounters.oport_max || 0,
           item: saved.item !== undefined ? saved.item : initialCounters.item,
           item_max: initialCounters.item_max || 0,
-          mortes: saved.mortes !== undefined ? saved.mortes : initialCounters.mortes
         };
 
         setCounters(restoredCounters);
@@ -266,15 +269,19 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actor?.ID, selections, currentPlayer?.id, initialCounters]);
 
-  // Sincronizar mortes quando atualizado externamente (ex.: declareElimination)
+  // Reagir a mudanças no killCount para desbloquear habilidades especiais
+  const prevKillCountRef = useRef(killCount);
   useEffect(() => {
-    const dbMortes = currentPlayer?.counters?.mortes;
-    if (dbMortes != null && dbMortes > counters.mortes) {
-      setCounters(prev => ({ ...prev, mortes: dbMortes }));
-      handleDeathUnlock(dbMortes);
+    if (killCount > prevKillCountRef.current) {
+      handleDeathUnlock(killCount);
     }
+    // Se killCount diminuiu para < 2 e está no modo Reivolk, forçar modo normal
+    if (killCount < 2 && currentMode === 'mode2') {
+      setCurrentMode('mode1');
+    }
+    prevKillCountRef.current = killCount;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPlayer?.counters?.mortes]);
+  }, [killCount]);
 
   // Determinar se é o Copiador e preparar slots vazios
   const isCopycat = useMemo(() => actor?.ID?.toLowerCase() === 'copiador', [actor?.ID]);
@@ -373,10 +380,10 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (!selections.specials && !selections.passiveSpecials) return;
     
     const newUnlockedItems = new Set(unlockedItems);
-    const currentDeaths = counters.mortes;
+    const currentKills = prevKillCountRef.current;
     
-    // Para cada nova morte, desbloquear a próxima habilidade especial e passiva especial na ordem
-    for (let i = currentDeaths; i < deathCount; i++) {
+    // Para cada novo kill, desbloquear a próxima habilidade especial e passiva especial na ordem
+    for (let i = currentKills; i < deathCount; i++) {
       // Obter habilidades especiais não desbloqueadas
       const availableSpecials = (selections.specials || []).filter(item => !newUnlockedItems.has(item.ID));
       // Obter habilidades passivas especiais não desbloqueadas
@@ -399,7 +406,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     if (currentPlayer?.id) {
       await RoomService.updatePlayerUnlockedItems(currentPlayer.id, Array.from(newUnlockedItems));
     }
-  }, [selections.specials, selections.passiveSpecials, unlockedItems, counters.mortes, currentPlayer?.id]);
+  }, [selections.specials, selections.passiveSpecials, unlockedItems, currentPlayer?.id]);
 
   const handleCounterChange = useCallback(async (id, value) => {
     // Criar novos contadores preservando TODOS os valores, especialmente os *_max
@@ -425,22 +432,11 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
     
     setCounters(newCounters);
     
-    // Lógica especial para o contador de mortes
-    if (id === 'mortes') {
-      if (value > counters.mortes) {
-        // Aumentou mortes - desbloquear habilidades
-        await handleDeathUnlock(value);
-      } else if (value < 2 && currentMode === 'mode2') {
-        // Diminuiu mortes para menos de 2 e está no modo Reivolk - forçar modo normal
-        setCurrentMode('mode1');
-      }
-    }
-    
     // Sincronizar com o banco de dados
     if (currentPlayer?.id) {
       await RoomService.updatePlayerCounters(currentPlayer.id, newCounters);
     }
-  }, [counters, initialCounters, currentPlayer?.id, currentMode, handleDeathUnlock]);
+  }, [counters, initialCounters, currentPlayer?.id]);
 
   const handleAdditionalCounterChange = useCallback(async (newAdditionalCounters) => {
     setAdditionalCounters(newAdditionalCounters);
@@ -982,13 +978,21 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           max={counters.item_max}
           onChange={(value) => handleCounterChange('item', value)}
         />
+        <Counter
+          id="mortes"
+          title={localization['Characteristic.Kills'] || 'Abates'}
+          value={killCount}
+          min={0}
+          max={null}
+          readOnly
+        />
       </div>
 
       <div className="row justify-content-center">
         <CharacteristicCard 
           actor={actor} 
           localization={localization} 
-          deathCount={counters.mortes}
+          deathCount={killCount}
           exposedCards={exposedCards}
           onToggleCardExposure={handleToggleCardExposure}
         />

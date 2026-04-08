@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { RoomService } from '../services/roomService';
 import authService from '../services/authService';
 
-const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, currentUser, localization, onMatchEnd }) => {
+const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, currentUser, localization, onMatchEnd, onMatchStart }) => {
   const [showEliminationModal, setShowEliminationModal] = useState(false);
   const [selectedKiller, setSelectedKiller] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,10 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
   const handleStartMatch = async () => {
     setLoading(true);
     try {
-      await RoomService.startMatch(roomId);
+      const result = await RoomService.startMatch(roomId);
+      if (result.success && onMatchStart) {
+        onMatchStart();
+      }
     } catch (err) {
       console.error('Erro ao iniciar partida:', err);
     }
