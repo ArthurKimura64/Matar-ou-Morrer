@@ -7,6 +7,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Variáveis de ambiente REACT_APP_SUPABASE_URL e REACT_APP_SUPABASE_ANON_KEY são obrigatórias.');
 }
 
+// Salvar no localStorage para uso pelo admin.html (são chaves públicas, não secretas)
+if (supabaseUrl && supabaseAnonKey) {
+  localStorage.setItem('supabase_url', supabaseUrl);
+  localStorage.setItem('supabase_key', supabaseAnonKey);
+}
+
 // Configurar Supabase com reconexão automática e otimizações
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   realtime: {

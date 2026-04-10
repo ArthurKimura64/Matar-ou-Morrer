@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import authService from '../services/authService';
 
-const UserMenu = ({ user, profile, onLogout, onNavigate }) => {
+const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -76,6 +76,12 @@ const UserMenu = ({ user, profile, onLogout, onNavigate }) => {
               onClick={() => { setOpen(false); onNavigate('ranking'); }}
             >
               🏆 Ranking
+            </button>
+            <button 
+              className="btn btn-sm btn-outline-light w-100 text-start mb-1"
+              onClick={() => { setOpen(false); onChangePassword && onChangePassword(); }}
+            >
+              🔐 Mudar Senha
             </button>
             <button 
               className="btn btn-sm btn-outline-danger w-100 text-start"

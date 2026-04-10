@@ -4,6 +4,11 @@ class AuthService {
   // ==================== AUTENTICAÇÃO ====================
 
   async signUpWithEmail(email, password, displayName) {
+    // Verificar se cadastro está aberto
+    const { data: regOpen, error: regErr } = await supabase.rpc('get_app_setting', { p_key: 'registration_open' });
+    if (regErr) throw new Error('Erro ao verificar cadastro');
+    if (regOpen !== 'true') throw new Error('Novos cadastros estão desativados no momento.');
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -46,6 +51,12 @@ class AuthService {
   }
 
   // ==================== PERFIL ====================
+
+  async isRegistrationOpen() {
+    const { data, error } = await supabase.rpc('get_app_setting', { p_key: 'registration_open' });
+    if (error) return true; // em caso de erro, permitir
+    return data === 'true';
+  }
 
   async getProfile(userId) {
     const { data, error } = await supabase
@@ -185,6 +196,32 @@ class AuthService {
     });
     if (error) throw error;
     return data;
+  }
+
+  // ==================== VERIFICAÇÃO DE BAN ====================
+
+  async checkBanStatus(userId) {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('banned_at, ban_reason')
+      .eq('id', userId)
+      .single();
+    if (error) return null;
+    return data?.banned_at ? { banned: true, reason: data.ban_reason, bannedAt: data.banned_at } : { banned: false };
+  }
+
+  // ==================== SENHA ====================
+
+  async resetPasswordForEmail(email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin
+    });
+    if (error) throw error;
+  }
+
+  async updatePassword(newPassword) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
   }
 }
 

@@ -46,6 +46,8 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Função para salvar estado completo no banco (modo multiplayer)
   const saveCompleteState = useCallback(async () => {
@@ -228,8 +230,21 @@ function App() {
     // Verificar sessão existente primeiro (síncrono com cache)
     authService.getSession().then((session) => {
       if (session?.user && isMounted) {
-        setCurrentUser(session.user);
-        loadProfile(session.user);
+        // Verificar ban antes de aceitar sessão
+        authService.checkBanStatus(session.user.id).then(banStatus => {
+          if (!isMounted) return;
+          if (banStatus?.banned) {
+            authService.signOut();
+            alert(`Sua conta foi banida.\nMotivo: ${banStatus.reason || 'Não especificado'}`);
+            setAuthLoading(false);
+          } else {
+            setCurrentUser(session.user);
+            loadProfile(session.user);
+            setAuthLoading(false);
+          }
+        });
+      } else if (isMounted) {
+        setAuthLoading(false);
       }
     });
 
@@ -240,8 +255,17 @@ function App() {
       if (event === 'INITIAL_SESSION') return;
 
       if (session?.user) {
-        setCurrentUser(session.user);
-        loadProfile(session.user);
+        // Verificar ban no login
+        authService.checkBanStatus(session.user.id).then(banStatus => {
+          if (!isMounted) return;
+          if (banStatus?.banned) {
+            authService.signOut();
+            alert(`Sua conta foi banida.\nMotivo: ${banStatus.reason || 'Não especificado'}`);
+          } else {
+            setCurrentUser(session.user);
+            loadProfile(session.user);
+          }
+        });
       } else {
         setCurrentUser(null);
         setUserProfile(null);
@@ -366,6 +390,11 @@ function App() {
 
   const handleAuthSuccess = async (user) => {
     setCurrentUser(user);
+    // Ao logar, sempre ir para o menu principal
+    setCurrentView('menu');
+    setSelectedActor(null);
+    setCharacterSelections(null);
+    PlayerPersistence.clearAppState();
     // Pequeno delay para garantir que o trigger do DB criou o perfil
     const fetchProfile = async (retries = 3) => {
       for (let i = 0; i < retries; i++) {
@@ -491,7 +520,7 @@ function App() {
     setCurrentView('selection');
   };
 
-  if (!gameData || !localization) {
+  if (!gameData || !localization || authLoading) {
     return (
       <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
         <div className="text-center">
@@ -517,13 +546,54 @@ function App() {
     );
   }
 
+  // Se não está autenticado, mostrar tela de login obrigatória
+  if (!currentUser) {
+    return (
+      <div className="container-fluid">
+        <AuthModal
+          show={showAuthModal}
+          onClose={() => { setShowAuthModal(false); setAuthModalMode('login'); }}
+          onAuthSuccess={handleAuthSuccess}
+          initialMode={authModalMode}
+        />
+        <div className="row justify-content-center align-items-center vh-100">
+          <div className="col-md-6 col-lg-4 text-center">
+            <img
+              src="KillOrDieLogo.png"
+              alt="Kill or Die"
+              className="img-fluid rounded mx-auto d-block mb-4"
+              style={{maxHeight: '250px'}}
+            />
+            <h1 className="text-white mb-2">Kill or Die</h1>
+            <p className="text-secondary mb-4">Faça login ou crie uma conta para jogar</p>
+            <div className="d-grid gap-2">
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={() => { setAuthModalMode('login'); setShowAuthModal(true); }}
+              >
+                🔑 Entrar
+              </button>
+              <button
+                className="btn btn-outline-light btn-lg"
+                onClick={() => { setAuthModalMode('register'); setShowAuthModal(true); }}
+              >
+                📝 Criar Conta
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container-fluid">
       {/* Auth Modal */}
       <AuthModal 
         show={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
+        onClose={() => { setShowAuthModal(false); setAuthModalMode('login'); }}
         onAuthSuccess={handleAuthSuccess}
+        initialMode={authModalMode}
       />
 
       {/* Menu Principal */}
@@ -532,21 +602,13 @@ function App() {
           {/* Auth bar */}
           <div className="row">
             <div className="col-12 d-flex justify-content-end py-2">
-              {currentUser ? (
-                <UserMenu 
-                  user={currentUser} 
-                  profile={userProfile} 
-                  onLogout={handleLogout} 
-                  onNavigate={handleNavigate}
-                />
-              ) : (
-                <button 
-                  className="btn btn-outline-light btn-sm"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  🔑 Entrar / Criar Conta
-                </button>
-              )}
+              <UserMenu 
+                user={currentUser} 
+                profile={userProfile} 
+                onLogout={handleLogout} 
+                onNavigate={handleNavigate}
+                onChangePassword={() => { setAuthModalMode('changePassword'); setShowAuthModal(true); }}
+              />
             </div>
           </div>
           <div className="row">

@@ -12,10 +12,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && node obfuscate.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "vercel-build": "npm run build"
+    "vercel-build": "react-scripts build && node obfuscate.js"
   },
   "eslintConfig": {
     "extends": [
@@ -38,5 +38,8 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "homepage": "."
+  "homepage": ".",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.4.1"
+  }
 }

@@ -1,554 +1,1233 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Kill or Die</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --bg-main: #0f1118;
+            --bg-card: #1a1d2e;
+            --bg-card-hover: #222640;
+            --border-color: #2d3154;
+            --accent: #6c5ce7;
+            --accent-hover: #7c6ff7;
+            --text-muted: #8590a5;
+        }
+        body { background: var(--bg-main); font-family: 'Segoe UI', system-ui, sans-serif; }
+        .sidebar {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 240px;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 100;
+            transition: transform 0.3s;
         }
-        .admin-container {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            margin: 20px;
-        }
-        .stats-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 10px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .stat-label {
-            color: #666;
+        .sidebar .nav-link {
+            color: var(--text-muted);
+            border-radius: 8px;
+            margin: 2px 8px;
+            padding: 10px 14px;
             font-size: 0.9rem;
+            transition: all 0.15s;
         }
-        .warning-banner {
-            background: rgba(255, 193, 7, 0.9);
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            color: #856404;
+        .sidebar .nav-link:hover { background: var(--bg-card-hover); color: #fff; }
+        .sidebar .nav-link.active { background: var(--accent); color: #fff; }
+        .main-content { margin-left: 240px; padding: 24px; }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.2s;
+        }
+        .stat-card:hover { border-color: var(--accent); }
+        .stat-card .stat-value { font-size: 1.8rem; font-weight: 700; }
+        .stat-card .stat-label { color: var(--text-muted); font-size: 0.85rem; }
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .table-dark { --bs-table-bg: transparent; --bs-table-border-color: var(--border-color); }
+        .table-dark th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom-width: 2px; }
+        .table-dark td { vertical-align: middle; font-size: 0.9rem; }
+        .badge-status { font-size: 0.75rem; padding: 4px 8px; }
+        .btn-action { padding: 4px 8px; font-size: 0.85rem; border-radius: 6px; }
+        .search-input {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 14px;
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(108,92,231,0.2); background: var(--bg-main); color: #fff; }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); }
+        .toast-container { z-index: 9999; }
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15,17,24,0.8);
+            z-index: 9998;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-sm { height: 32px; margin-right: 10px; }
+        .user-detail-header { border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px; }
+        .stat-edit-input { width: 90px; background: var(--bg-main); border: 1px solid var(--border-color); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 0.9rem; text-align: center; }
+        .stat-edit-input:focus { border-color: var(--accent); outline: none; }
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover td { color: #fff !important; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12 text-center mb-4 mt-3">
-                <img src="/KillOrDieLogo.png" alt="Kill or Die" class="img-fluid rounded mx-auto d-block mb-3" style="max-height: 200px;">
-                <h2 class="text-white">${t('UI.AdminHTML.PanelTitle', '🛠️ Painel de Administração')}</h2>
-                <p class="text-light">${t('UI.AdminHTML.Description', 'Sistema de monitoramento e limpeza automática')}</p>
-            </div>
-        </div>
-        
-        <div class="admin-container">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <button id="btnRefresh" class="btn btn-primary">📊 Atualizar Estatísticas</button>
-                        <button id="btnCleanup" class="btn btn-danger">🧹 Executar Limpeza</button>
-                        <button id="btnTest" class="btn btn-warning">🧪 Testar Sistema</button>
-                        <button id="btnDebug" class="btn btn-info">🔍 Debug Salas</button>
-                        <button id="btnUpdateDB" class="btn btn-success">🔄 Atualizar BD</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="loading" class="text-center text-white d-none">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Carregando...</span>
-                </div>
-                <p class="mt-2">Processando...</p>
-            </div>
-            
-            <div id="stats" class="row">
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card text-center">
-                        <div id="totalPlayers" class="stat-number text-primary">-</div>
-                        <div class="stat-label">Total de Jogadores</div>
-                        <small id="connectedPlayers" class="text-muted">(-)</small>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card text-center">
-                        <div id="totalRooms" class="stat-number text-success">-</div>
-                        <div class="stat-label">Total de Salas</div>
-                        <small id="activeRooms" class="text-muted">(-)</small>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card text-center">
-                        <div id="inactivePlayers" class="stat-number text-warning">-</div>
-                        <div class="stat-label">Jogadores Inativos (&gt;2h)</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card text-center">
-                        <div id="inactiveRooms" class="stat-number text-danger">-</div>
-                        <div class="stat-label">Salas para Remover</div>
-                        <small id="emptyRooms" class="text-muted">(-)</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="results" class="row mt-4 d-none">
-                <div class="col-12">
-                    <div class="stats-card">
-                        <h5>📋 Resultado da Operação</h5>
-                        <div id="resultContent"></div>
-                    </div>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="p-3 border-bottom" style="border-color: var(--border-color) !important;">
+            <div class="d-flex align-items-center">
+                <img src="/KillOrDieLogo.png" alt="" class="logo-sm rounded" onerror="this.style.display='none'">
+                <div>
+                    <div class="text-white fw-bold" style="font-size:0.95rem;">Kill or Die</div>
+                    <small class="text-muted" style="font-size:0.7rem;">Painel Admin</small>
                 </div>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <a href="/" class="btn btn-outline-light btn-lg">← Voltar ao Jogo Principal</a>
+        <div class="p-2 mt-2">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link active" href="#" data-tab="dashboard">📊 Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-tab="users">👥 Usuários</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-tab="rooms">🚪 Salas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-tab="logs">📋 Auditoria</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-tab="tools">🧰 Ferramentas</a></li>
+            </ul>
+        </div>
+        <div class="p-3 mt-auto position-absolute bottom-0 w-100 border-top" style="border-color: var(--border-color) !important;">
+            <a href="/" class="btn btn-outline-light btn-sm w-100">← Voltar ao Jogo</a>
+        </div>
+    </nav>
+
+    <!-- Mobile toggle -->
+    <button class="btn btn-outline-light d-md-none position-fixed" style="top:10px;left:10px;z-index:101;" onclick="document.getElementById('sidebar').classList.toggle('show')">☰</button>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Dashboard Tab -->
+        <div class="tab-content" id="tab-dashboard">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-white mb-0">📊 Dashboard</h4>
+                <button class="btn btn-sm btn-outline-light" onclick="loadDashboard()">🔄 Atualizar</button>
+            </div>
+            <div class="row g-3 mb-4" id="statsRow">
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-value text-primary" id="statUsers">—</div><div class="stat-label">Usuários</div></div></div>
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-value text-success" id="statRooms">—</div><div class="stat-label">Salas Ativas</div></div></div>
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-value text-warning" id="statMatches">—</div><div class="stat-label">Partidas</div></div></div>
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-value text-info" id="statConnected">—</div><div class="stat-label">Conectados Agora</div></div></div>
+            </div>
+            <!-- Registration Toggle -->
+            <div class="panel-card mb-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-white mb-1">📝 Novos Cadastros</h6>
+                    <small class="text-muted" id="regStatusText">Carregando...</small>
+                </div>
+                <div class="form-check form-switch" style="transform: scale(1.4);">
+                    <input class="form-check-input" type="checkbox" id="regToggle" onchange="toggleRegistration()" disabled>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="panel-card">
+                        <h6 class="text-white mb-3">🏆 Top Jogadores</h6>
+                        <div id="topPlayers"><small class="text-muted">Carregando...</small></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel-card">
+                        <h6 class="text-white mb-3">⚡ Atividade Recente</h6>
+                        <div id="recentActivity"><small class="text-muted">Carregando...</small></div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="warning-banner">
-            <strong>⚠️ Página Restrita:</strong> Esta página é destinada apenas para administradores do sistema.
-            As operações de limpeza são irreversíveis. Use com cuidado.
+
+        <!-- Users Tab -->
+        <div class="tab-content d-none" id="tab-users">
+            <!-- User List View -->
+            <div id="userListView">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="text-white mb-0">👥 Usuários <span class="badge bg-secondary" id="userCount">0</span></h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-success" onclick="toggleCreateUser()">➕ Criar Conta</button>
+                        <button class="btn btn-sm btn-outline-light" onclick="loadUsers()">🔄</button>
+                    </div>
+                </div>
+                <div class="panel-card mb-3 d-none" id="createUserForm">
+                    <h6 class="text-white mb-3">Criar Nova Conta</h6>
+                    <form onsubmit="createUser(event)">
+                        <div class="row g-2">
+                            <div class="col-md-4"><input type="text" class="form-control form-control-sm search-input" id="newUserName" placeholder="Nome de exibição" required minlength="2" maxlength="50"></div>
+                            <div class="col-md-4"><input type="email" class="form-control form-control-sm search-input" id="newUserEmail" placeholder="Email" required></div>
+                            <div class="col-md-3"><input type="password" class="form-control form-control-sm search-input" id="newUserPass" placeholder="Senha (min. 6)" required minlength="6"></div>
+                            <div class="col-md-1"><button type="submit" class="btn btn-success btn-sm w-100">✓</button></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-8"><input type="text" class="form-control form-control-sm search-input" id="userSearch" placeholder="Buscar por nome..." oninput="debounceLoadUsers()"></div>
+                    <div class="col-md-4 d-flex align-items-center gap-2">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="bannedOnly" onchange="loadUsers()">
+                            <label class="form-check-label text-light small" for="bannedOnly">Apenas banidos</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-card p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead><tr><th>Nome</th><th>Partidas</th><th>Vitórias</th><th>Elim.</th><th>Score</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+                            <tbody id="usersTableBody"><tr><td colspan="8" class="text-center text-muted py-4">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Detail View -->
+            <div id="userDetailView" class="d-none">
+                <button class="btn btn-sm btn-outline-light mb-3" onclick="closeUserDetail()">← Voltar à lista</button>
+                <div class="panel-card mb-3">
+                    <div class="user-detail-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="text-white mb-1" id="detailUserName">—</h5>
+                            <small class="text-muted" id="detailUserId">—</small>
+                        </div>
+                        <div class="d-flex gap-2" id="detailActions"></div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Criado em</div>
+                            <div class="text-light" id="detailCreated">—</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Status</div>
+                            <div id="detailStatus">—</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Ban Motivo</div>
+                            <div class="text-light" id="detailBanReason">—</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Personagem Favorito</div>
+                            <div class="text-light" id="detailFavChar">—</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Win Rate</div>
+                            <div class="text-light" id="detailWinRate">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Editable Stats -->
+                    <h6 class="text-white mb-2">📊 Estatísticas <small class="text-muted">(clique para editar)</small></h6>
+                    <form onsubmit="saveUserStats(event)" id="statsEditForm">
+                        <div class="row g-3 mb-3">
+                            <div class="col-6 col-md-2 text-center">
+                                <label class="text-muted small d-block">Partidas</label>
+                                <input type="number" class="stat-edit-input" id="editMatches" min="0">
+                            </div>
+                            <div class="col-6 col-md-2 text-center">
+                                <label class="text-muted small d-block">Vitórias</label>
+                                <input type="number" class="stat-edit-input" id="editWins" min="0">
+                            </div>
+                            <div class="col-6 col-md-2 text-center">
+                                <label class="text-muted small d-block">Eliminações</label>
+                                <input type="number" class="stat-edit-input" id="editEliminations" min="0">
+                            </div>
+                            <div class="col-6 col-md-2 text-center">
+                                <label class="text-muted small d-block">Pts Sobrevivência</label>
+                                <input type="number" class="stat-edit-input" id="editSurvival" min="0">
+                            </div>
+                            <div class="col-6 col-md-2 text-center">
+                                <label class="text-muted small d-block">Score</label>
+                                <input type="number" class="stat-edit-input" id="editScore" min="0" step="0.01">
+                            </div>
+                            <div class="col-6 col-md-2 d-flex align-items-end justify-content-center">
+                                <button type="submit" class="btn btn-sm btn-primary">💾 Salvar Stats</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Editable Profile -->
+                    <h6 class="text-white mb-2">✏️ Perfil</h6>
+                    <form onsubmit="saveUserProfile(event)" class="d-flex gap-2 align-items-end mb-2">
+                        <div>
+                            <label class="text-muted small d-block">Nome de Exibição</label>
+                            <input type="text" class="search-input" id="editDisplayName" style="width:250px;" minlength="2" maxlength="50" required>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">💾 Salvar Nome</button>
+                    </form>
+                </div>
+
+                <!-- User Match History -->
+                <div class="panel-card">
+                    <h6 class="text-white mb-3">🎮 Partidas Recentes</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-sm mb-0">
+                            <thead><tr><th>Sala</th><th>Personagem</th><th>Resultado</th><th>Eliminado por</th><th>Pts</th><th>Data</th><th>Ações</th></tr></thead>
+                            <tbody id="userMatchesBody"><tr><td colspan="7" class="text-center text-muted py-3">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rooms Tab -->
+        <div class="tab-content d-none" id="tab-rooms">
+            <!-- Room List View -->
+            <div id="roomListView">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="text-white mb-0">🚪 Salas <span class="badge bg-secondary" id="roomCount">0</span></h4>
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showInactive" onchange="loadRooms()">
+                            <label class="form-check-label text-light small" for="showInactive">Mostrar inativas</label>
+                        </div>
+                        <button class="btn btn-sm btn-outline-light" onclick="loadRooms()">🔄</button>
+                    </div>
+                </div>
+                <div class="panel-card p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead><tr><th>ID</th><th>Nome</th><th>Mestre</th><th>Jogadores</th><th>Status</th><th>Criada em</th><th>Ações</th></tr></thead>
+                            <tbody id="roomsTableBody"><tr><td colspan="7" class="text-center text-muted py-4">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Detail View -->
+            <div id="roomDetailView" class="d-none">
+                <button class="btn btn-sm btn-outline-light mb-3" onclick="closeRoomDetail()">← Voltar à lista</button>
+                <div class="panel-card mb-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3" style="border-bottom:1px solid var(--border-color);padding-bottom:16px;">
+                        <div>
+                            <h5 class="text-white mb-1" id="roomDetailName">—</h5>
+                            <small class="text-muted" id="roomDetailId">—</small>
+                        </div>
+                        <div class="d-flex gap-2" id="roomDetailActions"></div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="text-muted small">Mestre</div>
+                            <div class="text-light" id="roomDetailMaster">—</div>
+                        </div>
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="text-muted small">Status</div>
+                            <div id="roomDetailStatus">—</div>
+                        </div>
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="text-muted small">Criada em</div>
+                            <div class="text-light" id="roomDetailCreated">—</div>
+                        </div>
+                        <div class="col-6 col-md-3 text-center">
+                            <div class="text-muted small">Última atividade</div>
+                            <div class="text-light" id="roomDetailActivity">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <h6 class="text-white mb-3">👥 Jogadores na Sala</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-sm mb-0">
+                            <thead><tr><th>Nome</th><th>Conta</th><th>Personagem</th><th>Status</th><th>Conectado</th><th>Entrou em</th><th>Ações</th></tr></thead>
+                            <tbody id="roomPlayersBody"><tr><td colspan="7" class="text-center text-muted py-3">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Log Tab -->
+        <div class="tab-content d-none" id="tab-logs">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="text-white mb-0">📋 Log de Auditoria</h4>
+                <button class="btn btn-sm btn-outline-light" onclick="loadAuditLog()">🔄 Atualizar</button>
+            </div>
+            <div class="panel-card p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover table-sm mb-0">
+                        <thead><tr><th>Admin</th><th>Ação</th><th>Alvo</th><th>Detalhes</th><th>Data</th></tr></thead>
+                        <tbody id="auditLogBody"><tr><td colspan="5" class="text-center text-muted py-4">Carregando...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mt-3 gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="logPrevBtn" onclick="loadAuditLog('prev')" disabled>← Anterior</button>
+                <span class="text-muted small align-self-center" id="logPageInfo">—</span>
+                <button class="btn btn-sm btn-outline-secondary" id="logNextBtn" onclick="loadAuditLog('next')">Próximo →</button>
+            </div>
+        </div>
+
+        <!-- Tools Tab -->
+        <div class="tab-content d-none" id="tab-tools">
+            <h4 class="text-white mb-4">🧰 Ferramentas</h4>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="panel-card text-center">
+                        <div style="font-size:2rem;">🧹</div>
+                        <h6 class="text-white mt-2">Limpeza</h6>
+                        <p class="text-muted small">Remover jogadores e salas inativas</p>
+                        <button class="btn btn-danger btn-sm" onclick="executeCleanup()">Executar Limpeza</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel-card text-center">
+                        <div style="font-size:2rem;">🧪</div>
+                        <h6 class="text-white mt-2">Teste do Sistema</h6>
+                        <p class="text-muted small">Verificar integridade das funções</p>
+                        <button class="btn btn-warning btn-sm" onclick="testSystem()">Testar</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel-card text-center">
+                        <div style="font-size:2rem;">🔍</div>
+                        <h6 class="text-white mt-2">Debug Salas</h6>
+                        <p class="text-muted small">Inspecionar estado das salas</p>
+                        <button class="btn btn-info btn-sm" onclick="debugRooms()">Inspecionar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-card d-none" id="toolResult">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-white mb-0">📋 Resultado</h6>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('toolResult').classList.add('d-none')">✕</button>
+                </div>
+                <div id="toolResultContent"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Configuração do Supabase -->
-    <script type="module">
-        // Variável global para localização
-        let localization = {};
-        
-        // Função para carregar localização
-        async function loadLocalization() {
-            try {
-                const response = await fetch('/LocalizationPortuguese.json');
-                if (response.ok) {
-                    localization = await response.json();
-                    console.log('Localização carregada:', Object.keys(localization).length, 'chaves');
-                } else {
-                    console.warn('Erro ao carregar localização, usando textos padrão');
-                }
-            } catch (error) {
-                console.warn('Erro ao carregar localização:', error);
-            }
-        }
-        
-        // Função helper para obter texto localizado
-        function t(key, defaultValue = '') {
-            return localization[key] || defaultValue;
-        }
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="d-none">
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;"></div>
+            <p class="text-light mt-3">Processando...</p>
+        </div>
+    </div>
 
-        // Função para buscar configurações do ambiente
-        async function getSupabaseConfig() {
-            try {
-                // Tentar buscar do mesmo local que a aplicação React
-                const response = await fetch('/env-config.json');
-                if (response.ok) {
-                    const config = await response.json();
-                    return {
-                        url: config.REACT_APP_SUPABASE_URL,
-                        key: config.REACT_APP_SUPABASE_ANON_KEY
-                    };
-                }
-            } catch (error) {
-                console.log('Arquivo de configuração não encontrado, usando variáveis padrão');
-            }
-            
-            // Fallback: buscar das variáveis de ambiente do processo (se disponível)
-            if (typeof process !== 'undefined' && process.env) {
-                return {
-                    url: process.env.REACT_APP_SUPABASE_URL,
-                    key: process.env.REACT_APP_SUPABASE_ANON_KEY
-                };
-            }
-            
-            // Último fallback: tentar buscar do localStorage (se a aplicação React já salvou)
-            const storedUrl = localStorage.getItem('supabase_url');
-            const storedKey = localStorage.getItem('supabase_key');
-            
-            if (storedUrl && storedKey) {
-                return { url: storedUrl, key: storedKey };
-            }
-            
-            // Se nada funcionar, retornar null para mostrar mensagem de configuração
-            return null;
-        }
-        
-        // Inicializar aplicação
+    <!-- Ban Modal -->
+    <div class="modal fade" id="banModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header border-secondary"><h5 class="modal-title text-white">🚫 Banir Usuário</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p class="text-light">Banir <strong id="banUserName"></strong>?</p>
+                <label class="form-label text-light">Motivo:</label>
+                <textarea class="form-control search-input" id="banReason" rows="3">Violação das regras</textarea>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-danger" id="banConfirmBtn">Banir</button>
+            </div>
+        </div></div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header border-secondary"><h5 class="modal-title text-white">🔑 Mudar Senha</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p class="text-light">Nova senha para <strong id="passUserName"></strong>:</p>
+                <input type="password" class="form-control search-input" id="newPassword" placeholder="Mínimo 6 caracteres" minlength="6">
+            </div>
+            <div class="modal-footer border-secondary">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" id="passConfirmBtn">Alterar Senha</button>
+            </div>
+        </div></div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-body d-flex align-items-center gap-2">
+                <span id="toastIcon"></span>
+                <span id="toastMsg"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        let supabase = null;
+        let currentUser = null;
+        let debounceTimer = null;
+        let currentDetailUserId = null;
+
+        // ========== INIT ==========
         async function initApp() {
-            // Carregar localização primeiro
-            await loadLocalization();
-            
-            const config = await getSupabaseConfig();
-            
-            if (!config || !config.url || !config.key || 
-                config.url.includes('your-project') || config.key.includes('your-anon-key')) {
-                
-                document.body.innerHTML = `
-                    <div class="container-fluid text-center mt-5">
-                        <div class="alert alert-warning" role="alert">
-                            <h4 class="alert-heading">⚠️ Configuração Necessária</h4>
-                            <p>Para usar o painel de administração, você precisa configurar suas credenciais do Supabase.</p>
-                            <hr>
-                            <div class="text-start">
-                                <p><strong>Opção 1 - Arquivo de configuração (Recomendado):</strong></p>
-                                <ol>
-                                    <li>Crie um arquivo <code>public/env-config.json</code></li>
-                                    <li>Adicione suas credenciais:
-                                        <pre>{
-  "REACT_APP_SUPABASE_URL": "https://sua-url.supabase.co",
-  "REACT_APP_SUPABASE_ANON_KEY": "sua-chave-anon"
-}</pre>
-                                    </li>
-                                    <li>Recarregue a página</li>
-                                </ol>
-                                
-                                <p><strong>Opção 2 - Usar mesmo .env da aplicação:</strong></p>
-                                <ol>
-                                    <li>Execute a aplicação React primeiro</li>
-                                    <li>As credenciais serão salvas automaticamente</li>
-                                    <li>Recarregue esta página</li>
-                                </ol>
-                            </div>
-                        </div>
-                        <a href="/" class="btn btn-primary">← Voltar ao Jogo</a>
-                    </div>
-                `;
+            var storedUrl = localStorage.getItem('supabase_url');
+            var storedKey = localStorage.getItem('supabase_key');
+            if (!storedUrl || !storedKey) {
+                document.getElementById('mainContent').innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height:80vh"><div class="text-center"><h4 class="text-white mb-3">⚠️ Configuração Necessária</h4><p class="text-muted">Acesse a aplicação principal primeiro e faça login.</p><a href="/" class="btn btn-primary mt-2">Ir ao Jogo</a></div></div>';
                 return;
             }
-            
-            // Salvar configurações no localStorage para próximas visitas
-            localStorage.setItem('supabase_url', config.url);
-            localStorage.setItem('supabase_key', config.key);
-            
-            // Importar Supabase via CDN
-            const { createClient } = await import('https://cdn.skypack.dev/@supabase/supabase-js@2');
-            const supabase = createClient(config.url, config.key);
-            // Elementos DOM
-            const btnRefresh = document.getElementById('btnRefresh');
-            const btnCleanup = document.getElementById('btnCleanup');
-            const btnTest = document.getElementById('btnTest');
-            const btnDebug = document.getElementById('btnDebug');
-            const btnUpdateDB = document.getElementById('btnUpdateDB');
-            const loading = document.getElementById('loading');
-            const stats = document.getElementById('stats');
-            const results = document.getElementById('results');
-            const resultContent = document.getElementById('resultContent');
-            
-            // Elementos de estatísticas
-            const totalPlayers = document.getElementById('totalPlayers');
-            const totalRooms = document.getElementById('totalRooms');
-            const inactivePlayers = document.getElementById('inactivePlayers');
-            const inactiveRooms = document.getElementById('inactiveRooms');
-            const connectedPlayers = document.getElementById('connectedPlayers');
-            const activeRooms = document.getElementById('activeRooms');
-            const emptyRooms = document.getElementById('emptyRooms');
-            
-            // Função para mostrar loading
-            function showLoading() {
-                loading.classList.remove('d-none');
-                stats.classList.add('d-none');
-            }
-            
-            // Função para esconder loading
-            function hideLoading() {
-                loading.classList.add('d-none');
-                stats.classList.remove('d-none');
-            }
-            
-            // Função para mostrar resultado
-            function showResult(content) {
-                resultContent.innerHTML = content;
-                results.classList.remove('d-none');
-            }
-            
-            // Carregar estatísticas
-            async function loadStats() {
-                showLoading();
-                try {
-                    const { data, error } = await supabase.rpc('get_system_stats');
-                    
-                    if (error) throw error;
-                    
-                    if (data) {
-                        totalPlayers.textContent = data.total_players || 0;
-                        totalRooms.textContent = data.total_rooms || 0;
-                        inactivePlayers.textContent = data.inactive_players_2h || 0;
-                        inactiveRooms.textContent = data.inactive_rooms_2h || 0;
-                        
-                        // Informações adicionais
-                        connectedPlayers.textContent = `(${data.connected_players || 0} conectados)`;
-                        activeRooms.textContent = `(${data.active_rooms || 0} ativas)`;
-                        emptyRooms.textContent = `(${data.empty_rooms || 0} vazias, ${data.rooms_with_null_activity || 0} sem atividade)`;
-                    }
-                    
-                    showResult(`
-                        <div class="alert alert-success">
-                            ✅ Estatísticas atualizadas em ${new Date().toLocaleString()}
-                        </div>
-                    `);
-                } catch (error) {
-                    console.error('Erro ao carregar estatísticas:', error);
-                    showResult(`
-                        <div class="alert alert-danger">
-                            ❌ Erro ao carregar estatísticas: ${error.message}
-                        </div>
-                    `);
-                } finally {
-                    hideLoading();
+            var { createClient } = await import('https://cdn.skypack.dev/@supabase/supabase-js@2');
+            supabase = createClient(storedUrl, storedKey);
+
+            var { data: { user } } = await supabase.auth.getUser();
+            if (!user) { showAccessDenied('Faça login primeiro na aplicação principal.'); return; }
+            currentUser = user;
+
+            var { data: isAdmin, error: adminErr } = await supabase.rpc('is_user_admin', { p_user_id: user.id });
+            if (adminErr || !isAdmin) { showAccessDenied('Você não tem permissão de administrador.'); return; }
+
+            setupTabs();
+            loadDashboard();
+        }
+
+        function showAccessDenied(msg) {
+            document.getElementById('mainContent').innerHTML = '<div class="d-flex justify-content-center align-items-center" style="min-height:80vh"><div class="text-center"><h4 class="text-danger mb-3">🔒 Acesso Negado</h4><p class="text-muted">' + escapeHtml(msg) + '</p><a href="/" class="btn btn-primary mt-2">Voltar ao Jogo</a></div></div>';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function formatDate(d) { return d ? new Date(d).toLocaleString('pt-BR') : '—'; }
+
+        async function getToken() {
+            var session = await supabase.auth.getSession();
+            return session.data.session?.access_token;
+        }
+
+        // ========== TABS ==========
+        function setupTabs() {
+            document.querySelectorAll('[data-tab]').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var tab = link.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.add('d-none'); });
+                    document.getElementById('tab-' + tab).classList.remove('d-none');
+                    document.querySelectorAll('[data-tab]').forEach(function(l) { l.classList.remove('active'); });
+                    link.classList.add('active');
+                    if (tab === 'users') { closeUserDetail(); loadUsers(); }
+                    if (tab === 'rooms') { closeRoomDetail(); loadRooms(); }
+                    if (tab === 'dashboard') loadDashboard();
+                    if (tab === 'logs') loadAuditLog('reset');
+                    document.getElementById('sidebar').classList.remove('show');
+                });
+            });
+        }
+
+        // ========== TOAST ==========
+        function showToast(msg, type) {
+            type = type || 'success';
+            var icons = { success: '✅', danger: '❌', warning: '⚠️', info: 'ℹ️' };
+            document.getElementById('toastIcon').textContent = icons[type] || '';
+            document.getElementById('toastMsg').textContent = msg;
+            var t = document.getElementById('toast');
+            t.className = 'toast text-bg-' + type;
+            bootstrap.Toast.getOrCreateInstance(t, { delay: 4000 }).show();
+        }
+
+        function showLoading() { document.getElementById('loadingOverlay').classList.remove('d-none'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.add('d-none'); }
+
+        // ========== DASHBOARD ==========
+        window.loadDashboard = async function() {
+            try {
+                var result = await supabase.rpc('admin_get_dashboard');
+                if (result.error) throw result.error;
+                var data = result.data;
+                document.getElementById('statUsers').textContent = data.total_users || 0;
+                document.getElementById('statRooms').textContent = data.active_rooms || 0;
+                document.getElementById('statMatches').textContent = data.total_matches || 0;
+                document.getElementById('statConnected').textContent = data.connected_players || 0;
+
+                // Load registration toggle
+                loadRegistrationStatus();
+
+                // Top players
+                var topHtml = '';
+                if (data.top_players && data.top_players.length) {
+                    var medals = ['🥇','🥈','🥉'];
+                    topHtml = '<div class="list-group list-group-flush">';
+                    data.top_players.slice(0,5).forEach(function(p, i) {
+                        topHtml += '<div class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between"><span>' + (medals[i]||'  ') + ' ' + escapeHtml(p.display_name||'?') + '</span><span class="badge bg-primary">' + (p.composite_score||0) + ' pts</span></div>';
+                    });
+                    topHtml += '</div>';
+                } else {
+                    topHtml = '<p class="text-muted small">Nenhum jogador ainda.</p>';
                 }
+                document.getElementById('topPlayers').innerHTML = topHtml;
+
+                // Recent activity
+                var actHtml = '';
+                if (data.recent_matches && data.recent_matches.length) {
+                    actHtml = '<div class="list-group list-group-flush">';
+                    data.recent_matches.slice(0,5).forEach(function(m) {
+                        actHtml += '<div class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between"><span>🎮 ' + escapeHtml(m.room_name||'Sala') + '</span><small class="text-muted">' + formatDate(m.ended_at||m.started_at) + '</small></div>';
+                    });
+                    actHtml += '</div>';
+                } else {
+                    actHtml = '<p class="text-muted small">Nenhuma partida recente.</p>';
+                }
+                document.getElementById('recentActivity').innerHTML = actHtml;
+            } catch (e) {
+                showToast('Erro ao carregar dashboard: ' + e.message, 'danger');
             }
-            
-            // Executar limpeza
-            async function executeCleanup() {
-                if (!confirm('Tem certeza que deseja executar a limpeza? Esta operação é irreversível.')) {
+        };
+
+        // ========== REGISTRATION TOGGLE ==========
+        async function loadRegistrationStatus() {
+            try {
+                var result = await supabase.rpc('get_app_setting', { p_key: 'registration_open' });
+                if (result.error) throw result.error;
+                var isOpen = result.data === 'true';
+                var toggle = document.getElementById('regToggle');
+                toggle.checked = isOpen;
+                toggle.disabled = false;
+                document.getElementById('regStatusText').textContent = isOpen
+                    ? '✅ Cadastros estão abertos — novos usuários podem se registrar.'
+                    : '🚫 Cadastros estão fechados — nenhum novo usuário pode se registrar.';
+                document.getElementById('regStatusText').className = isOpen ? 'text-success small' : 'text-danger small';
+            } catch (e) {
+                document.getElementById('regStatusText').textContent = 'Erro ao carregar status.';
+            }
+        }
+
+        window.toggleRegistration = async function() {
+            var toggle = document.getElementById('regToggle');
+            var newValue = toggle.checked ? 'true' : 'false';
+            var action = toggle.checked ? 'abrir' : 'fechar';
+            toggle.disabled = true;
+            try {
+                var result = await supabase.rpc('admin_update_setting', { p_key: 'registration_open', p_value: newValue });
+                if (result.error) throw result.error;
+                showToast(toggle.checked ? 'Cadastros abertos!' : 'Cadastros fechados!');
+                loadRegistrationStatus();
+            } catch (e) {
+                toggle.checked = !toggle.checked; // Revert
+                toggle.disabled = false;
+                showToast('Erro ao ' + action + ' cadastros: ' + e.message, 'danger');
+            }
+        };
+
+        // ========== USERS LIST ==========
+        window.debounceLoadUsers = function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(loadUsers, 400);
+        };
+
+        window.loadUsers = async function() {
+            try {
+                var search = document.getElementById('userSearch').value || null;
+                var bannedOnly = document.getElementById('bannedOnly').checked;
+                var result = await supabase.rpc('admin_list_users', { p_search: search, p_banned_only: bannedOnly, p_limit: 100 });
+                if (result.error) throw result.error;
+                var data = result.data;
+                var users = data.users || [];
+                document.getElementById('userCount').textContent = data.total || 0;
+                var tbody = document.getElementById('usersTableBody');
+                if (!users.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Nenhum usuário encontrado.</td></tr>'; return; }
+                tbody.innerHTML = users.map(function(u) {
+                    var eName = escapeHtml(u.display_name||'');
+                    var rowClass = u.banned_at ? 'table-danger' : '';
+                    var adminBadge = u.is_admin ? ' <span class="badge bg-warning">👑</span>' : '';
+                    var statusBadge = u.banned_at
+                        ? '<span class="badge badge-status bg-danger">Banido</span>'
+                        : '<span class="badge badge-status bg-success">Ativo</span>';
+                    var actions = '<button class="btn btn-outline-primary btn-action me-1" title="Ver detalhes" onclick="event.stopPropagation();openUserDetail(\'' + u.id + '\')">👁️</button>';
+                    if (!u.is_admin) {
+                        var banBtn = u.banned_at
+                            ? '<button class="btn btn-outline-success btn-action" title="Desbanir" onclick="event.stopPropagation();unbanUser(\'' + u.id + '\',\'' + eName.replace(/'/g, "\\'") + '\')">✅</button>'
+                            : '<button class="btn btn-outline-warning btn-action" title="Banir" onclick="event.stopPropagation();openBanModal(\'' + u.id + '\',\'' + eName.replace(/'/g, "\\'") + '\')">🚫</button>';
+                        actions += banBtn
+                            + '<button class="btn btn-outline-secondary btn-action" title="Mudar senha" onclick="event.stopPropagation();openPasswordModal(\'' + u.id + '\',\'' + eName.replace(/'/g, "\\'") + '\')">🔑</button>'
+                            + '<button class="btn btn-outline-danger btn-action" title="Deletar" onclick="event.stopPropagation();deleteUser(\'' + u.id + '\',\'' + eName.replace(/'/g, "\\'") + '\')">🗑️</button>';
+                    }
+                    return '<tr class="clickable-row ' + rowClass + '" onclick="openUserDetail(\'' + u.id + '\')">'
+                        + '<td>' + eName + adminBadge + '</td>'
+                        + '<td>' + (u.total_matches||0) + '</td>'
+                        + '<td>' + (u.total_wins||0) + '</td>'
+                        + '<td>' + (u.total_eliminations||0) + '</td>'
+                        + '<td>' + (u.composite_score||0) + '</td>'
+                        + '<td>' + statusBadge + '</td>'
+                        + '<td><small>' + formatDate(u.created_at) + '</small></td>'
+                        + '<td><div class="d-flex gap-1 flex-wrap">' + actions + '</div></td>'
+                        + '</tr>';
+                }).join('');
+            } catch (e) {
+                showToast('Erro ao carregar usuários: ' + e.message, 'danger');
+            }
+        };
+
+        window.toggleCreateUser = function() {
+            document.getElementById('createUserForm').classList.toggle('d-none');
+        };
+
+        window.createUser = async function(e) {
+            e.preventDefault();
+            showLoading();
+            try {
+                var token = await getToken();
+                var res = await fetch('/api/admin/create-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({
+                        displayName: document.getElementById('newUserName').value,
+                        email: document.getElementById('newUserEmail').value,
+                        password: document.getElementById('newUserPass').value
+                    })
+                });
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro ao criar conta');
+                showToast('Conta criada com sucesso!');
+                document.getElementById('createUserForm').classList.add('d-none');
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserEmail').value = '';
+                document.getElementById('newUserPass').value = '';
+                loadUsers();
+            } catch (err) { showToast(err.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        // ========== USER DETAIL ==========
+        window.openUserDetail = async function(userId) {
+            currentDetailUserId = userId;
+            document.getElementById('userListView').classList.add('d-none');
+            document.getElementById('userDetailView').classList.remove('d-none');
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_get_user_details', { p_user_id: userId });
+                if (result.error) throw result.error;
+                var data = result.data;
+                var p = data.profile;
+                var s = data.stats;
+
+                // Header
+                document.getElementById('detailUserName').textContent = p.display_name || '—';
+                document.getElementById('detailUserId').textContent = 'ID: ' + p.id;
+                document.getElementById('detailCreated').textContent = formatDate(p.created_at);
+                document.getElementById('detailStatus').innerHTML = p.banned_at
+                    ? '<span class="badge bg-danger">Banido em ' + formatDate(p.banned_at) + '</span>'
+                    : '<span class="badge bg-success">Ativo</span>';
+                document.getElementById('detailBanReason').textContent = p.ban_reason || '—';
+                document.getElementById('detailFavChar').textContent = s.favorite_character || '—';
+                document.getElementById('detailWinRate').textContent = s.win_rate + '%';
+
+                // Editable stats
+                document.getElementById('editMatches').value = s.total_matches;
+                document.getElementById('editWins').value = s.total_wins;
+                document.getElementById('editEliminations').value = s.total_eliminations;
+                document.getElementById('editSurvival').value = s.total_survival_points;
+                document.getElementById('editScore').value = s.composite_score;
+
+                // Editable profile
+                document.getElementById('editDisplayName').value = p.display_name || '';
+
+                // Action buttons
+                var actionsHtml = '';
+                if (!p.is_admin) {
+                    if (p.banned_at) {
+                        actionsHtml += '<button class="btn btn-sm btn-outline-success" onclick="unbanUser(\'' + p.id + '\',\'' + escapeHtml(p.display_name).replace(/'/g, "\\'") + '\')">✅ Desbanir</button>';
+                    } else {
+                        actionsHtml += '<button class="btn btn-sm btn-outline-warning" onclick="openBanModal(\'' + p.id + '\',\'' + escapeHtml(p.display_name).replace(/'/g, "\\'") + '\')">🚫 Banir</button>';
+                    }
+                    actionsHtml += '<button class="btn btn-sm btn-outline-secondary" onclick="openPasswordModal(\'' + p.id + '\',\'' + escapeHtml(p.display_name).replace(/'/g, "\\'") + '\')">🔑 Senha</button>';
+                    actionsHtml += '<button class="btn btn-sm btn-outline-info" onclick="resetStats(\'' + p.id + '\',\'' + escapeHtml(p.display_name).replace(/'/g, "\\'") + '\')">📊 Resetar</button>';
+                    actionsHtml += '<button class="btn btn-sm btn-outline-danger" onclick="deleteUser(\'' + p.id + '\',\'' + escapeHtml(p.display_name).replace(/'/g, "\\'") + '\')">🗑️ Deletar</button>';
+                }
+                document.getElementById('detailActions').innerHTML = actionsHtml;
+
+                // Matches
+                var matches = data.matches || [];
+                var mtbody = document.getElementById('userMatchesBody');
+                if (!matches.length) {
+                    mtbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Nenhuma partida encontrada.</td></tr>';
+                } else {
+                    mtbody.innerHTML = matches.map(function(m) {
+                        var resultBadge = m.is_winner
+                            ? '<span class="badge bg-success">🏆 Vitória</span>'
+                            : '<span class="badge bg-secondary">Eliminado #' + (m.elimination_order || '?') + '</span>';
+                        return '<tr>'
+                            + '<td>' + escapeHtml(m.room_name||'—') + '</td>'
+                            + '<td>' + escapeHtml(m.character_name||'—') + '</td>'
+                            + '<td>' + resultBadge + '</td>'
+                            + '<td>' + escapeHtml(m.killed_by_player_name||'—') + '</td>'
+                            + '<td>' + (m.survival_points||0) + '</td>'
+                            + '<td><small>' + formatDate(m.ended_at) + '</small></td>'
+                            + '<td><button class="btn btn-outline-danger btn-action" title="Remover partida" onclick="deleteMatch(\'' + m.match_id + '\',\'' + escapeHtml(m.room_name||'').replace(/'/g, "\\'") + '\')">🗑️</button></td>'
+                            + '</tr>';
+                    }).join('');
+                }
+            } catch (e) {
+                showToast('Erro ao carregar detalhes: ' + e.message, 'danger');
+                closeUserDetail();
+            }
+            finally { hideLoading(); }
+        };
+
+        window.closeUserDetail = function() {
+            currentDetailUserId = null;
+            document.getElementById('userDetailView').classList.add('d-none');
+            document.getElementById('userListView').classList.remove('d-none');
+        };
+
+        window.saveUserStats = async function(e) {
+            e.preventDefault();
+            if (!currentDetailUserId) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_update_user_stats', {
+                    p_user_id: currentDetailUserId,
+                    p_total_matches: parseInt(document.getElementById('editMatches').value),
+                    p_total_wins: parseInt(document.getElementById('editWins').value),
+                    p_total_eliminations: parseInt(document.getElementById('editEliminations').value),
+                    p_total_survival_points: parseInt(document.getElementById('editSurvival').value),
+                    p_composite_score: parseFloat(document.getElementById('editScore').value)
+                });
+                if (result.error) throw result.error;
+                showToast('Estatísticas atualizadas!');
+                openUserDetail(currentDetailUserId); // Refresh
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.saveUserProfile = async function(e) {
+            e.preventDefault();
+            if (!currentDetailUserId) return;
+            showLoading();
+            try {
+                var newName = document.getElementById('editDisplayName').value.trim();
+                if (newName.length < 2) { showToast('Nome deve ter no mínimo 2 caracteres.', 'warning'); hideLoading(); return; }
+                var result = await supabase.rpc('admin_update_user_profile', {
+                    p_user_id: currentDetailUserId,
+                    p_display_name: newName
+                });
+                if (result.error) throw result.error;
+                showToast('Nome atualizado!');
+                document.getElementById('detailUserName').textContent = newName;
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.deleteMatch = async function(matchId, roomName) {
+            if (!confirm('Remover partida "' + roomName + '" do histórico? Isso afeta TODOS os participantes.')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_delete_match', { p_match_id: matchId });
+                if (result.error) throw result.error;
+                showToast('Partida removida do histórico.');
+                if (currentDetailUserId) openUserDetail(currentDetailUserId);
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        // ========== BAN ==========
+        var banUserId = null;
+        window.openBanModal = function(id, name) {
+            banUserId = id;
+            document.getElementById('banUserName').textContent = name;
+            document.getElementById('banReason').value = 'Violação das regras';
+            new bootstrap.Modal(document.getElementById('banModal')).show();
+        };
+        document.getElementById('banConfirmBtn').addEventListener('click', async function() {
+            if (!banUserId) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_ban_user', { p_user_id: banUserId, p_reason: document.getElementById('banReason').value });
+                if (result.error) throw result.error;
+                showToast('Usuário banido.');
+                bootstrap.Modal.getInstance(document.getElementById('banModal'))?.hide();
+                if (currentDetailUserId === banUserId) openUserDetail(banUserId);
+                else loadUsers();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); banUserId = null; }
+        });
+
+        window.unbanUser = async function(id, name) {
+            if (!confirm('Desbanir "' + name + '"?')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_unban_user', { p_user_id: id });
+                if (result.error) throw result.error;
+                showToast('"' + name + '" desbanido.');
+                if (currentDetailUserId === id) openUserDetail(id);
+                else loadUsers();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        // ========== PASSWORD ==========
+        var passUserId = null;
+        window.openPasswordModal = function(id, name) {
+            passUserId = id;
+            document.getElementById('passUserName').textContent = name;
+            document.getElementById('newPassword').value = '';
+            new bootstrap.Modal(document.getElementById('passwordModal')).show();
+        };
+        document.getElementById('passConfirmBtn').addEventListener('click', async function() {
+            var pw = document.getElementById('newPassword').value;
+            if (!passUserId || pw.length < 6) { showToast('Senha deve ter no mínimo 6 caracteres.', 'warning'); return; }
+            showLoading();
+            try {
+                var token = await getToken();
+                var res = await fetch('/api/admin/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ userId: passUserId, newPassword: pw })
+                });
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro ao alterar senha');
+                showToast('Senha alterada com sucesso!');
+                bootstrap.Modal.getInstance(document.getElementById('passwordModal'))?.hide();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); passUserId = null; }
+        });
+
+        window.resetStats = async function(id, name) {
+            if (!confirm('Resetar estatísticas de "' + name + '"? Não pode ser desfeito.')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_reset_user_stats', { p_user_id: id });
+                if (result.error) throw result.error;
+                showToast('Stats de "' + name + '" resetadas.');
+                if (currentDetailUserId === id) openUserDetail(id);
+                else loadUsers();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.deleteUser = async function(id, name) {
+            if (!confirm('ATENÇÃO: Deletar permanentemente "' + name + '"? Todos os dados serão perdidos.')) return;
+            showLoading();
+            try {
+                var token = await getToken();
+                var res = await fetch('/api/admin/delete-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ userId: id })
+                });
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro ao deletar');
+                showToast('Conta "' + name + '" deletada.');
+                if (currentDetailUserId === id) { closeUserDetail(); loadUsers(); }
+                else loadUsers();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        // ========== ROOMS ==========
+        var currentDetailRoomId = null;
+
+        window.loadRooms = async function() {
+            try {
+                var includeInactive = document.getElementById('showInactive').checked;
+                var result = await supabase.rpc('admin_list_rooms', { p_include_inactive: includeInactive, p_limit: 100 });
+                if (result.error) throw result.error;
+                var data = result.data;
+                var rooms = data.rooms || [];
+                document.getElementById('roomCount').textContent = data.total || 0;
+                var tbody = document.getElementById('roomsTableBody');
+                if (!rooms.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Nenhuma sala encontrada.</td></tr>'; return; }
+                tbody.innerHTML = rooms.map(function(r) {
+                    var eName = escapeHtml(r.name||'');
+                    var shortId = String(r.id).substring(0,8);
+                    var statusBadge = r.match_status
+                        ? '<span class="badge badge-status bg-warning">Em Partida</span>'
+                        : r.is_active
+                            ? '<span class="badge badge-status bg-success">Ativa</span>'
+                            : '<span class="badge badge-status bg-secondary">Inativa</span>';
+                    var forceBtn = r.match_status
+                        ? '<button class="btn btn-outline-warning btn-action" title="Forçar fim" onclick="event.stopPropagation();forceEndMatch(\'' + r.id + '\',\'' + eName.replace(/'/g, "\\'") + '\')">⏹️</button>'
+                        : '';
+                    return '<tr class="clickable-row" onclick="openRoomDetail(\'' + r.id + '\')">'
+                        + '<td><code class="text-info" style="font-size:0.75rem;">' + escapeHtml(shortId) + '…</code></td>'
+                        + '<td>' + eName + '</td>'
+                        + '<td>' + escapeHtml(r.master_name||'—') + '</td>'
+                        + '<td><span class="badge bg-info">' + (r.connected_players||0) + '</span><small class="text-muted">/' + (r.total_players||0) + '</small></td>'
+                        + '<td>' + statusBadge + '</td>'
+                        + '<td><small>' + formatDate(r.created_at) + '</small></td>'
+                        + '<td><div class="d-flex gap-1">'
+                        + '<button class="btn btn-outline-primary btn-action" title="Ver detalhes" onclick="event.stopPropagation();openRoomDetail(\'' + r.id + '\')">👁️</button>'
+                        + forceBtn
+                        + '<button class="btn btn-outline-danger btn-action" title="Deletar sala" onclick="event.stopPropagation();deleteRoom(\'' + r.id + '\',\'' + eName.replace(/'/g, "\\'") + '\')">🗑️</button>'
+                        + '</div></td>'
+                        + '</tr>';
+                }).join('');
+            } catch (e) {
+                showToast('Erro ao carregar salas: ' + e.message, 'danger');
+            }
+        };
+
+        window.openRoomDetail = async function(roomId) {
+            currentDetailRoomId = roomId;
+            document.getElementById('roomListView').classList.add('d-none');
+            document.getElementById('roomDetailView').classList.remove('d-none');
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_get_room_detail', { p_room_id: roomId });
+                if (result.error) throw result.error;
+                var data = result.data;
+                var r = data.room;
+                var players = data.players || [];
+
+                document.getElementById('roomDetailName').textContent = r.name || '—';
+                document.getElementById('roomDetailId').textContent = 'ID: ' + r.id;
+                document.getElementById('roomDetailMaster').textContent = r.master_name || '—';
+                document.getElementById('roomDetailCreated').textContent = formatDate(r.created_at);
+                document.getElementById('roomDetailActivity').textContent = formatDate(r.last_activity);
+
+                var statusHtml = r.match_status
+                    ? '<span class="badge bg-warning">Em Partida</span>'
+                    : r.is_active
+                        ? '<span class="badge bg-success">Ativa</span>'
+                        : '<span class="badge bg-secondary">Inativa</span>';
+                document.getElementById('roomDetailStatus').innerHTML = statusHtml;
+
+                // Room actions
+                var actHtml = '';
+                if (r.match_status) {
+                    actHtml += '<button class="btn btn-sm btn-outline-warning" onclick="forceEndMatch(\'' + r.id + '\',\'' + escapeHtml(r.name).replace(/'/g, "\\'") + '\')">⏹️ Forçar Fim</button>';
+                }
+                actHtml += '<button class="btn btn-sm btn-outline-danger" onclick="deleteRoom(\'' + r.id + '\',\'' + escapeHtml(r.name).replace(/'/g, "\\'") + '\')">🗑️ Deletar Sala</button>';
+                document.getElementById('roomDetailActions').innerHTML = actHtml;
+
+                // Players
+                var ptbody = document.getElementById('roomPlayersBody');
+                if (!players.length) {
+                    ptbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Nenhum jogador nesta sala.</td></tr>';
+                } else {
+                    ptbody.innerHTML = players.map(function(p) {
+                        var connBadge = p.is_connected
+                            ? '<span class="badge bg-success">🟢 Sim</span>'
+                            : '<span class="badge bg-secondary">🔴 Não</span>';
+                        var statusBadge = p.status === 'ready'
+                            ? '<span class="badge bg-primary">Pronto</span>'
+                            : p.status === 'creating'
+                                ? '<span class="badge bg-info">Criando</span>'
+                                : '<span class="badge bg-secondary">Selecionando</span>';
+                        var accountName = p.display_name ? escapeHtml(p.display_name) : '<span class="text-muted">Sem conta</span>';
+                        if (p.banned_at) accountName += ' <span class="badge bg-danger">Banido</span>';
+
+                        var actions = '<button class="btn btn-outline-danger btn-action" title="Expulsar" onclick="kickPlayer(\'' + p.id + '\',\'' + roomId + '\',\'' + escapeHtml(p.name).replace(/'/g, "\\'") + '\')">👢</button>';
+                        if (p.user_id) {
+                            if (!p.banned_at) {
+                                actions += '<button class="btn btn-outline-warning btn-action" title="Banir conta" onclick="openBanModal(\'' + p.user_id + '\',\'' + escapeHtml(p.display_name||p.name).replace(/'/g, "\\'") + '\')">🚫</button>';
+                            }
+                            actions += '<button class="btn btn-outline-primary btn-action" title="Ver conta" onclick="goToUserFromRoom(\'' + p.user_id + '\')">👁️</button>';
+                        }
+                        return '<tr>'
+                            + '<td>' + escapeHtml(p.name) + '</td>'
+                            + '<td>' + accountName + '</td>'
+                            + '<td>' + escapeHtml(p.character_name||'—') + '</td>'
+                            + '<td>' + statusBadge + '</td>'
+                            + '<td>' + connBadge + '</td>'
+                            + '<td><small>' + formatDate(p.joined_at) + '</small></td>'
+                            + '<td><div class="d-flex gap-1">' + actions + '</div></td>'
+                            + '</tr>';
+                    }).join('');
+                }
+            } catch (e) {
+                showToast('Erro ao carregar sala: ' + e.message, 'danger');
+                closeRoomDetail();
+            }
+            finally { hideLoading(); }
+        };
+
+        window.closeRoomDetail = function() {
+            currentDetailRoomId = null;
+            document.getElementById('roomDetailView').classList.add('d-none');
+            document.getElementById('roomListView').classList.remove('d-none');
+        };
+
+        window.kickPlayer = async function(playerId, roomId, name) {
+            if (!confirm('Expulsar "' + name + '" desta sala?')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_kick_from_room', { p_player_id: playerId, p_room_id: roomId });
+                if (result.error) throw result.error;
+                showToast('"' + name + '" expulso da sala.');
+                if (currentDetailRoomId) openRoomDetail(currentDetailRoomId);
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.goToUserFromRoom = function(userId) {
+            // Switch to users tab and open detail
+            document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.add('d-none'); });
+            document.getElementById('tab-users').classList.remove('d-none');
+            document.querySelectorAll('[data-tab]').forEach(function(l) { l.classList.remove('active'); });
+            document.querySelector('[data-tab="users"]').classList.add('active');
+            openUserDetail(userId);
+        };
+
+        window.forceEndMatch = async function(id, name) {
+            if (!confirm('Encerrar partida na sala "' + name + '"?')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_force_end_match', { p_room_id: id });
+                if (result.error) throw result.error;
+                showToast('Partida encerrada em "' + name + '".');
+                if (currentDetailRoomId === id) openRoomDetail(id);
+                else loadRooms();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.deleteRoom = async function(id, name) {
+            if (!confirm('Deletar sala "' + name + '"?')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('admin_delete_room', { p_room_id: id });
+                if (result.error) throw result.error;
+                showToast('Sala "' + name + '" deletada.');
+                if (currentDetailRoomId === id) { closeRoomDetail(); }
+                loadRooms();
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        // ========== AUDIT LOG ==========
+        var logOffset = 0;
+        var logLimit = 30;
+        var logTotal = 0;
+
+        window.loadAuditLog = async function(direction) {
+            if (direction === 'reset') logOffset = 0;
+            else if (direction === 'next') logOffset += logLimit;
+            else if (direction === 'prev') logOffset = Math.max(0, logOffset - logLimit);
+
+            try {
+                var result = await supabase.rpc('admin_get_audit_log', { p_limit: logLimit, p_offset: logOffset });
+                if (result.error) throw result.error;
+                var data = result.data;
+                logTotal = data.total || 0;
+                var logs = data.logs || [];
+
+                var page = Math.floor(logOffset / logLimit) + 1;
+                var totalPages = Math.ceil(logTotal / logLimit) || 1;
+                document.getElementById('logPageInfo').textContent = 'Página ' + page + ' de ' + totalPages + ' (' + logTotal + ' registros)';
+                document.getElementById('logPrevBtn').disabled = logOffset === 0;
+                document.getElementById('logNextBtn').disabled = (logOffset + logLimit) >= logTotal;
+
+                var tbody = document.getElementById('auditLogBody');
+                if (!logs.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Nenhum registro de auditoria.</td></tr>';
                     return;
                 }
-                
-                showLoading();
-                try {
-                    const { data, error } = await supabase.rpc('cleanup_inactive_data');
-                    
-                    if (error) throw error;
-                    
-                    showResult(`
-                        <div class="alert alert-success">
-                            ✅ Limpeza executada com sucesso!<br>
-                            <strong>Jogadores removidos:</strong> ${data.players_deleted || 0}<br>
-                            <strong>Salas removidas:</strong> ${data.rooms_deleted || 0}<br>
-                            <strong>Executado em:</strong> ${new Date(data.cleaned_at).toLocaleString()}
-                        </div>
-                    `);
-                    
-                    // Recarregar estatísticas
-                    setTimeout(loadStats, 1000);
-                } catch (error) {
-                    console.error('Erro na limpeza:', error);
-                    showResult(`
-                        <div class="alert alert-danger">
-                            ❌ Erro na limpeza: ${error.message}
-                        </div>
-                    `);
-                } finally {
-                    hideLoading();
-                }
-            }
-            
-            // Testar sistema
-            async function testSystem() {
-                showLoading();
-                try {
-                    const { data, error } = await supabase.rpc('test_cleanup_system');
-                    
-                    if (error) throw error;
-                    
-                    const passed = data.test_passed ? '✅ PASSOU' : '❌ FALHOU';
-                    showResult(`
-                        <div class="alert ${data.test_passed ? 'alert-success' : 'alert-warning'}">
-                            🧪 <strong>Teste do Sistema:</strong> ${passed}<br>
-                            <strong>Executado em:</strong> ${new Date(data.test_executed_at).toLocaleString()}<br>
-                            <details class="mt-2">
-                                <summary>Detalhes do teste</summary>
-                                <pre class="mt-2">${JSON.stringify(data, null, 2)}</pre>
-                            </details>
-                        </div>
-                    `);
-                } catch (error) {
-                    console.error('Erro no teste:', error);
-                    showResult(`
-                        <div class="alert alert-danger">
-                            ❌ Erro no teste: ${error.message}
-                        </div>
-                    `);
-                } finally {
-                    hideLoading();
-                }
-            }
-            
-            // Debug de salas
-            async function debugRooms() {
-                showLoading();
-                try {
-                    const { data, error } = await supabase.rpc('debug_room_cleanup');
-                    
-                    if (error) throw error;
-                    
-                    let tableHtml = `
-                        <div class="table-responsive">
-                            <table class="table table-striped table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nome</th>
-                                        <th>Criada há</th>
-                                        <th>Atividade há</th>
-                                        <th>Jogadores</th>
-                                        <th>Conectados</th>
-                                        <th>Status</th>
-                                        <th>Motivo</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
-                    
-                    if (data && data.length > 0) {
-                        data.forEach(room => {
-                            const shouldDelete = room.should_be_deleted;
-                            const rowClass = shouldDelete ? 'table-danger' : 'table-success';
-                            
-                            tableHtml += `
-                                <tr class="${rowClass}">
-                                    <td>${room.room_id}</td>
-                                    <td>${room.room_name || 'N/A'}</td>
-                                    <td>${formatInterval(room.time_since_created)}</td>
-                                    <td>${room.time_since_activity ? formatInterval(room.time_since_activity) : 'Nunca'}</td>
-                                    <td>${room.players_count}</td>
-                                    <td>${room.connected_players_count}</td>
-                                    <td>${shouldDelete ? '🗑️ REMOVER' : '✅ MANTER'}</td>
-                                    <td>${room.deletion_reason}</td>
-                                </tr>
-                            `;
-                        });
-                    } else {
-                        tableHtml += '<tr><td colspan="8" class="text-center">Nenhuma sala encontrada</td></tr>';
-                    }
-                    
-                    tableHtml += `
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                    
-                    showResult(`
-                        <div class="alert alert-info">
-                            🔍 <strong>Debug de Salas</strong> - ${new Date().toLocaleString()}<br>
-                            <small>Salas em vermelho serão removidas na próxima limpeza</small>
-                        </div>
-                        ${tableHtml}
-                    `);
-                } catch (error) {
-                    console.error('Erro no debug:', error);
-                    showResult(`
-                        <div class="alert alert-danger">
-                            ❌ Erro no debug: ${error.message}
-                        </div>
-                    `);
-                } finally {
-                    hideLoading();
-                }
-            }
-            
-            // Função auxiliar para formatar intervalos
-            function formatInterval(interval) {
-                if (!interval) return 'N/A';
-                
-                // Converter string do PostgreSQL para objeto Date
-                const match = interval.match(/(\d+):(\d+):(\d+)/);
-                if (match) {
-                    const hours = parseInt(match[1]);
-                    const minutes = parseInt(match[2]);
-                    
-                    if (hours > 0) {
-                        return `${hours}h${minutes > 0 ? ` ${minutes}m` : ''}`;
-                    } else {
-                        return `${minutes}m`;
-                    }
-                }
-                
-                return interval;
-            }
-            
-            // Atualizar estrutura do banco de dados
-            async function updateDatabase() {
-                showLoading();
-                try {
-                    // SQL para adicionar coluna app_state se não existir
-                    const { error } = await supabase.rpc('execute_sql', {
-                        sql_query: `
-                            -- Adicionar coluna para estado da aplicação se não existir
-                            ALTER TABLE public.players 
-                            ADD COLUMN IF NOT EXISTS app_state JSONB DEFAULT '{"currentView": "lobby", "selectedActor": null, "characterSelections": null}';
-                            
-                            -- Adicionar índice para melhor performance
-                            CREATE INDEX IF NOT EXISTS idx_players_app_state ON public.players USING GIN (app_state);
-                            
-                            -- Atualizar registros existentes que não têm app_state
-                            UPDATE public.players 
-                            SET app_state = '{"currentView": "lobby", "selectedActor": null, "characterSelections": null}'
-                            WHERE app_state IS NULL;
-                        `
-                    });
-                    
-                    if (error) throw error;
-                    
-                    showResult(`
-                        <div class="alert alert-success">
-                            ✅ Banco de dados atualizado com sucesso!<br>
-                            <strong>Adicionado:</strong> Coluna app_state na tabela players<br>
-                            <strong>Criado:</strong> Índice para performance<br>
-                            <strong>Executado em:</strong> ${new Date().toLocaleString()}
-                        </div>
-                    `);
-                    
-                } catch (error) {
-                    console.error('Erro na atualização do BD:', error);
-                    
-                    // Se não temos a função execute_sql, tentar com SQL direto
-                    try {
-                        await supabase.from('players').select('app_state').limit(1);
-                        showResult(`
-                            <div class="alert alert-info">
-                                ℹ️ A coluna app_state já existe ou foi criada manualmente.<br>
-                                Execute o SQL do arquivo supabase-setup.sql no editor do Supabase.
-                            </div>
-                        `);
-                    } catch (testError) {
-                        showResult(`
-                            <div class="alert alert-warning">
-                                ⚠️ Execute manualmente no Supabase SQL Editor:<br>
-                                <pre class="mt-2">ALTER TABLE public.players 
-ADD COLUMN IF NOT EXISTS app_state JSONB DEFAULT '{"currentView": "lobby", "selectedActor": null, "characterSelections": null}';
 
-CREATE INDEX IF NOT EXISTS idx_players_app_state ON public.players USING GIN (app_state);</pre>
-                            </div>
-                        `);
+                var actionLabels = {
+                    'ban_user': '🚫 Banimento',
+                    'unban_user': '✅ Desbanimento',
+                    'kick_player': '👢 Expulsão',
+                    'force_end_match': '⏹️ Fim Forçado',
+                    'delete_room': '🗑️ Sala Deletada',
+                    'reset_stats': '📊 Stats Resetadas',
+                    'update_stats': '📊 Stats Editadas',
+                    'update_profile': '✏️ Perfil Editado',
+                    'delete_match': '🗑️ Partida Removida',
+                    'update_setting': '⚙️ Config Alterada'
+                };
+
+                tbody.innerHTML = logs.map(function(l) {
+                    var actionLabel = actionLabels[l.action] || l.action;
+                    var target = '';
+                    if (l.details) {
+                        if (l.details.display_name) target = escapeHtml(l.details.display_name);
+                        else if (l.details.player_name) target = escapeHtml(l.details.player_name);
+                        else if (l.details.room_name) target = escapeHtml(l.details.room_name);
+                        else if (l.details.new_display_name) target = '→ ' + escapeHtml(l.details.new_display_name);
+                        else if (l.details.key) target = escapeHtml(l.details.key) + ' = ' + escapeHtml(l.details.value||'');
                     }
-                } finally {
-                    hideLoading();
-                }
+                    if (l.target_room_id) target += (target ? ' ' : '') + '<code class="text-info">' + escapeHtml(l.target_room_id) + '</code>';
+
+                    var detailsStr = '';
+                    if (l.details) {
+                        if (l.details.reason) detailsStr = 'Motivo: ' + escapeHtml(l.details.reason);
+                        else if (l.details.players_removed !== undefined) detailsStr = l.details.players_removed + ' jogadores removidos';
+                    }
+
+                    return '<tr>'
+                        + '<td>' + escapeHtml(l.admin_name||'—') + '</td>'
+                        + '<td>' + actionLabel + '</td>'
+                        + '<td>' + (target || '—') + '</td>'
+                        + '<td><small class="text-muted">' + (detailsStr || '—') + '</small></td>'
+                        + '<td><small>' + formatDate(l.created_at) + '</small></td>'
+                        + '</tr>';
+                }).join('');
+            } catch (e) {
+                showToast('Erro ao carregar auditoria: ' + e.message, 'danger');
             }
-            
-            // Event listeners
-            btnRefresh.addEventListener('click', loadStats);
-            btnCleanup.addEventListener('click', executeCleanup);
-            btnTest.addEventListener('click', testSystem);
-            btnDebug.addEventListener('click', debugRooms);
-            btnUpdateDB.addEventListener('click', updateDatabase);
-            
-            // Carregar estatísticas iniciais
-            loadStats();
-            
-            // Auto-refresh a cada 30 segundos
-            setInterval(loadStats, 30000);
+        };
+
+        // ========== TOOLS ==========
+        function showToolResult(html) {
+            var el = document.getElementById('toolResult');
+            document.getElementById('toolResultContent').innerHTML = html;
+            el.classList.remove('d-none');
         }
-        
-        // Inicializar aplicação quando a página carregar
+
+        window.executeCleanup = async function() {
+            if (!confirm('Executar limpeza? Esta operação é irreversível.')) return;
+            showLoading();
+            try {
+                var result = await supabase.rpc('cleanup_inactive_data');
+                if (result.error) throw result.error;
+                var data = result.data;
+                showToolResult('<div class="alert alert-success mb-0">Jogadores removidos: <strong>' + (data.players_deleted||0) + '</strong><br>Salas removidas: <strong>' + (data.rooms_deleted||0) + '</strong></div>');
+                showToast('Limpeza executada!');
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.testSystem = async function() {
+            showLoading();
+            try {
+                var result = await supabase.rpc('test_cleanup_system');
+                if (result.error) throw result.error;
+                var data = result.data;
+                var passed = data.test_passed;
+                showToolResult('<div class="alert ' + (passed ? 'alert-success' : 'alert-warning') + ' mb-0">' + (passed ? '✅ PASSOU' : '❌ FALHOU') + '<details class="mt-2"><summary>Detalhes</summary><pre class="mt-2 text-light" style="font-size:0.8rem;">' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></details></div>');
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.debugRooms = async function() {
+            showLoading();
+            try {
+                var result = await supabase.rpc('debug_room_cleanup');
+                if (result.error) throw result.error;
+                var data = result.data;
+                if (!data || !data.length) { showToolResult('<p class="text-muted mb-0">Nenhuma sala encontrada.</p>'); hideLoading(); return; }
+                var html = '<div class="table-responsive"><table class="table table-dark table-sm mb-0"><thead><tr><th>Nome</th><th>Criada há</th><th>Jogadores</th><th>Conectados</th><th>Status</th><th>Motivo</th></tr></thead><tbody>';
+                data.forEach(function(r) {
+                    var cls = r.should_be_deleted ? 'table-danger' : '';
+                    html += '<tr class="' + cls + '"><td>' + escapeHtml(r.room_name||'N/A') + '</td><td>' + formatInterval(r.time_since_created) + '</td><td>' + r.players_count + '</td><td>' + r.connected_players_count + '</td><td>' + (r.should_be_deleted ? '🗑️ Remover' : '✅ Manter') + '</td><td>' + escapeHtml(r.deletion_reason||'') + '</td></tr>';
+                });
+                html += '</tbody></table></div>';
+                showToolResult(html);
+            } catch (e) { showToast(e.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        function formatInterval(interval) {
+            if (!interval) return 'N/A';
+            var m = interval.match(/(\d+):(\d+):(\d+)/);
+            if (m) { var h = parseInt(m[1]), min = parseInt(m[2]); return h > 0 ? h + 'h' + (min > 0 ? ' ' + min + 'm' : '') : min + 'm'; }
+            return interval;
+        }
+
+        // ========== START ==========
         initApp();
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
