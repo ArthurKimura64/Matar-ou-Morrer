@@ -347,7 +347,9 @@
         "PassiveSpecialAbility.Protetor1",
         "PassiveSpecialAbility.Protetor2"
       ],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Protetor1"
+      ]
     },
     {
       "ID": "Destroul",
@@ -1242,7 +1244,9 @@
         "SpecialAbility.Alpha2"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.Alpha1"
+      ]
     },
     {
       "ID": "ArcoNegro",
@@ -8967,6 +8971,11 @@
       "Title": "SpecialCustom.Kader3.Title"
     },
     {
+      "ID": "SpecialCustom.Protetor1",
+      "Type": "counter",
+      "Title": "SpecialCustom.Protetor1.Title"
+    },
+    {
       "ID": "SpecialCustom.Copiador2",
       "Type": "counter",
       "Title": "SpecialCustom.Copiador2.Title"
@@ -8974,6 +8983,11 @@
     {
       "ID": "SpecialCustom.Copiador3",
       "Title": "SpecialCustom.Copiador3.Title"
+    },
+    {
+      "ID": "SpecialCustom.Alpha1",
+      "Type": "textbox",
+      "Title": "SpecialCustom.Alpha1.Title"
     }
   ]
 }
