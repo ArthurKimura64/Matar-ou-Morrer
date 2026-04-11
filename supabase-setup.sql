@@ -345,7 +345,30 @@ VALUES ('registration_open', 'true')
 ON CONFLICT (key) DO NOTHING;
 
 -- ================================
--- 9. TABELA: admin_audit_log (Log de auditoria admin)
+-- 9. TABELA: admin_users (Administradores)
+-- ================================
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(user_id)
+);
+
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "admin_users_select" ON public.admin_users;
+CREATE POLICY "admin_users_select" ON public.admin_users
+    FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "admin_users_modify_deny" ON public.admin_users;
+CREATE POLICY "admin_users_modify_deny" ON public.admin_users
+    FOR ALL USING (false) WITH CHECK (false);
+
+COMMENT ON TABLE public.admin_users IS 'Tabela de administradores ativos do sistema';
+
+-- ================================
+-- 10. TABELA: admin_audit_log (Log de auditoria admin)
 -- ================================
 CREATE TABLE IF NOT EXISTS public.admin_audit_log (
     id BIGSERIAL PRIMARY KEY,

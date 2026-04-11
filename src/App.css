@@ -1,0 +1,61 @@
+/* ===== GLOBAL RESPONSIVE STYLES ===== */
+
+/* Ensure smooth font scaling */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Mobile-friendly touch targets */
+@media (max-width: 576px) {
+  .btn {
+    min-height: 38px;
+  }
+  .btn-sm {
+    min-height: 32px;
+  }
+  /* More compact containers */
+  .container-fluid {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  /* Smaller headings on mobile */
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.1rem; }
+  h4 { font-size: 1rem; }
+  h5 { font-size: 0.95rem; }
+  /* Better table readability on small screens */
+  .table th, .table td {
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+  /* Tighter card bodies */
+  .card-body {
+    padding: 0.75rem;
+  }
+  /* Full-width modals on mobile */
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+}
+
+/* Tablet refinements */
+@media (min-width: 577px) and (max-width: 768px) {
+  .container-fluid {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Prevent horizontal overflow globally */
+body {
+  overflow-x: hidden;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}

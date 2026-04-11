@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import authService from '../services/authService';
 
 const LEADERBOARD_TYPES = [
@@ -15,11 +15,7 @@ const RankingPage = ({ user, onBack, localization }) => {
   const [userRank, setUserRank] = useState(null);
   const [showFormula, setShowFormula] = useState(false);
 
-  useEffect(() => {
-    loadLeaderboard(activeTab);
-  }, [activeTab]);
-
-  const loadLeaderboard = async (type) => {
+  const loadLeaderboard = useCallback(async (type) => {
     setLoading(true);
     try {
       const data = await authService.getLeaderboard(type, 50);
@@ -40,7 +36,11 @@ const RankingPage = ({ user, onBack, localization }) => {
       setLeaderboard([]);
     }
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadLeaderboard(activeTab);
+  }, [activeTab, loadLeaderboard]);
 
   const getStatValue = (entry) => {
     const type = LEADERBOARD_TYPES.find(t => t.key === activeTab);
@@ -61,14 +61,14 @@ const RankingPage = ({ user, onBack, localization }) => {
   };
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid px-2 px-md-3">
       <div className="row">
-        <div className="col-12 text-center mb-4">
+        <div className="col-12 text-center mb-3 mb-md-4">
           <img 
             src="KillOrDieLogo.png"
             alt="Kill or Die" 
-            className="img-fluid rounded mx-auto d-block my-3"
-            style={{ maxHeight: '150px' }} 
+            className="img-fluid rounded mx-auto d-block my-2 my-md-3"
+            style={{ maxHeight: '120px' }} 
           />
           <button 
             className="btn btn-outline-light btn-sm mb-3"
@@ -76,18 +76,19 @@ const RankingPage = ({ user, onBack, localization }) => {
           >
             ← Voltar ao Menu
           </button>
-          <h2 className="text-white">🏆 Ranking Global</h2>
+          <h2 className="text-white" style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 Ranking Global</h2>
         </div>
       </div>
 
       <div className="row justify-content-center">
-        <div className="col-md-10 col-lg-8">
+        <div className="col-12 col-md-10 col-lg-8">
           {/* Tabs */}
-          <div className="d-flex gap-2 flex-wrap justify-content-center mb-3">
+          <div className="d-flex gap-1 gap-md-2 flex-wrap justify-content-center mb-3">
             {LEADERBOARD_TYPES.map(type => (
               <button
                 key={type.key}
                 className={`btn btn-sm ${activeTab === type.key ? 'btn-primary' : 'btn-outline-secondary'}`}
+                style={{ fontSize: 'clamp(0.7rem, 2.5vw, 0.875rem)', padding: '4px 8px' }}
                 onClick={() => setActiveTab(type.key)}
               >
                 {type.label}
@@ -106,14 +107,15 @@ const RankingPage = ({ user, onBack, localization }) => {
             </button>
             {showFormula && (
               <div className="card bg-dark border-info mt-2">
-                <div className="card-body">
-                  <h6 className="text-info mb-3">📊 Fórmula do Score Composto</h6>
-                  <div className="p-2 rounded mb-3" style={{ background: 'rgba(13,110,253,0.1)', border: '1px solid rgba(13,110,253,0.3)' }}>
-                    <code className="text-light" style={{ fontSize: '0.85rem' }}>
+                <div className="card-body p-2 p-md-3">
+                  <h6 className="text-info mb-2 mb-md-3" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1rem)' }}>📊 Fórmula do Score Composto</h6>
+                  <div className="p-2 rounded mb-2 mb-md-3" style={{ background: 'rgba(13,110,253,0.1)', border: '1px solid rgba(13,110,253,0.3)' }}>
+                    <code className="text-light" style={{ fontSize: 'clamp(0.65rem, 2vw, 0.85rem)', wordBreak: 'break-word' }}>
                       Score = (Vitórias × 40) + (Eliminações × 8) + (Sobrevivência × 4) + (Win Rate × Fator de Volume × 30)
                     </code>
                   </div>
-                  <table className="table table-dark table-sm mb-3" style={{ fontSize: '0.85rem' }}>
+                  <div className="table-responsive">
+                  <table className="table table-dark table-sm mb-2 mb-md-3" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>
                     <thead>
                       <tr>
                         <th>Componente</th>
@@ -144,8 +146,9 @@ const RankingPage = ({ user, onBack, localization }) => {
                       </tr>
                     </tbody>
                   </table>
+                  </div>
                   <div className="p-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.3)' }}>
-                    <small className="text-warning">
+                    <small className="text-warning" style={{ fontSize: 'clamp(0.65rem, 2vw, 0.8rem)' }}>
                       <strong>⚖️ Fator de Volume:</strong> O peso do Win Rate cresce progressivamente conforme você joga, atingindo 100% após 10 partidas. 
                       Isso impede que jogadores com poucas partidas dominem o ranking por terem win rate inflado.
                     </small>
@@ -159,19 +162,19 @@ const RankingPage = ({ user, onBack, localization }) => {
           {userRank && !loading && (
             <div className="card bg-dark border-primary mb-3">
               <div className="card-body py-2 px-3">
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-1">
                   <div>
                     <small className="text-secondary">Sua posição</small>
-                    <div>
-                      <span className="fw-bold text-primary" style={{ fontSize: '1.2rem' }}>
+                    <div className="d-flex flex-wrap align-items-baseline gap-1">
+                      <span className="fw-bold text-primary" style={{ fontSize: 'clamp(1rem, 3vw, 1.2rem)' }}>
                         #{userRank.position}
                       </span>
-                      <span className="text-secondary ms-2" style={{ fontSize: '0.85rem' }}>
+                      <span className="text-secondary" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>
                         {userRank.stats.total_matches} partidas · {userRank.stats.total_wins} vitórias · {Number(userRank.stats.win_rate || 0).toFixed(1)}% WR
                       </span>
                     </div>
                   </div>
-                  <span className="fw-bold text-warning">{Number(userRank.stats.composite_score || 0).toFixed(0)} pts</span>
+                  <span className="fw-bold text-warning" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' }}>{Number(userRank.stats.composite_score || 0).toFixed(0)} pts</span>
                 </div>
               </div>
             </div>
@@ -191,17 +194,17 @@ const RankingPage = ({ user, onBack, localization }) => {
                 </div>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-dark table-hover mb-0">
+                  <table className="table table-dark table-hover mb-0" style={{ fontSize: 'clamp(0.75rem, 2.2vw, 0.9rem)' }}>
                     <thead>
                       <tr>
-                        <th style={{ width: '60px' }}>#</th>
+                        <th style={{ width: '40px' }}>#</th>
                         <th>Jogador</th>
-                        <th className="text-center">Partidas</th>
+                        <th className="text-center d-none d-sm-table-cell">Partidas</th>
                         <th className="text-center">Vitórias</th>
-                        <th className="text-center">Eliminações</th>
-                        <th className="text-center d-none d-md-table-cell">Méd. Elim</th>
-                        <th className="text-center d-none d-md-table-cell">Méd. Sobrev</th>
-                        <th className="text-center">Win Rate</th>
+                        <th className="text-center d-none d-sm-table-cell">Elim.</th>
+                        <th className="text-center d-none d-lg-table-cell">Méd. Elim</th>
+                        <th className="text-center d-none d-lg-table-cell">Méd. Sobrev</th>
+                        <th className="text-center d-none d-sm-table-cell">WR</th>
                         <th className="text-end">{LEADERBOARD_TYPES.find(t => t.key === activeTab)?.label}</th>
                       </tr>
                     </thead>
@@ -234,12 +237,12 @@ const RankingPage = ({ user, onBack, localization }) => {
                                 </span>
                               </div>
                             </td>
-                            <td className="text-center text-secondary">{entry.total_matches}</td>
+                            <td className="text-center text-secondary d-none d-sm-table-cell">{entry.total_matches}</td>
                             <td className="text-center text-success">{entry.total_wins}</td>
-                            <td className="text-center text-danger">{entry.total_eliminations}</td>
-                            <td className="text-center text-secondary d-none d-md-table-cell">{avgStat(entry, 'total_eliminations')}</td>
-                            <td className="text-center text-secondary d-none d-md-table-cell">{avgStat(entry, 'total_survival_points')}</td>
-                            <td className="text-center text-secondary">
+                            <td className="text-center text-danger d-none d-sm-table-cell">{entry.total_eliminations}</td>
+                            <td className="text-center text-secondary d-none d-lg-table-cell">{avgStat(entry, 'total_eliminations')}</td>
+                            <td className="text-center text-secondary d-none d-lg-table-cell">{avgStat(entry, 'total_survival_points')}</td>
+                            <td className="text-center text-secondary d-none d-sm-table-cell">
                               {entry.win_rate ? Number(entry.win_rate).toFixed(1) : '0.0'}%
                             </td>
                             <td className="text-end">

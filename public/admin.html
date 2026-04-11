@@ -80,10 +80,89 @@
         .stat-edit-input:focus { border-color: var(--accent); outline: none; }
         .clickable-row { cursor: pointer; }
         .clickable-row:hover td { color: #fff !important; }
+        /* ===== RESPONSIVE: TABLET (≤992px) ===== */
+        @media (max-width: 992px) {
+            .main-content { padding: 16px; }
+            .stat-card .stat-value { font-size: 1.4rem; }
+            .stat-card { padding: 14px; }
+            .panel-card { padding: 14px; }
+            .table-dark th, .table-dark td { font-size: 0.8rem; padding: 8px 6px; }
+        }
+
+        /* ===== RESPONSIVE: MOBILE (≤768px) ===== */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.show { transform: translateX(0); }
-            .main-content { margin-left: 0; }
+            .main-content { margin-left: 0; padding: 12px; padding-top: 50px; }
+            .stat-card .stat-value { font-size: 1.2rem; }
+            .stat-card .stat-label { font-size: 0.75rem; }
+            .stat-card { padding: 12px 8px; border-radius: 8px; }
+            .panel-card { padding: 12px; border-radius: 8px; }
+            h4 { font-size: 1.1rem !important; }
+            h5 { font-size: 1rem !important; }
+            h6 { font-size: 0.9rem !important; }
+            /* Stack header flex rows */
+            .d-flex.justify-content-between.align-items-center.mb-4 {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px;
+            }
+            /* Tables on mobile */
+            .table-dark th, .table-dark td { font-size: 0.75rem; padding: 6px 4px; white-space: nowrap; }
+            .btn-action { padding: 3px 6px; font-size: 0.75rem; }
+            .badge-status { font-size: 0.65rem; padding: 3px 6px; }
+            /* Create user form stacking */
+            #createUserForm .row .col-md-4,
+            #createUserForm .row .col-md-3,
+            #createUserForm .row .col-md-1 {
+                flex: 0 0 100%; max-width: 100%;
+            }
+            /* User detail header */
+            .user-detail-header { flex-direction: column; align-items: flex-start !important; }
+            .user-detail-header .d-flex.gap-2 { width: 100%; flex-wrap: wrap; }
+            .user-detail-header .d-flex.gap-2 .btn { flex: 1; min-width: 0; font-size: 0.8rem; }
+            /* Stat display on detail view */
+            #userDetailView .col-6.col-md-2 { flex: 0 0 50%; max-width: 50%; }
+            /* Profile edit form */
+            #editDisplayName { width: 100% !important; }
+            form.d-flex.gap-2.align-items-end { flex-direction: column; align-items: stretch !important; }
+            form.d-flex.gap-2.align-items-end .btn { width: 100%; }
+            /* Create match form */
+            #createMatchForm .col-md-4,
+            #createMatchForm .col-md-3,
+            #createMatchForm .col-md-2 { flex: 0 0 50%; max-width: 50%; }
+            /* Search row */
+            .row.g-2.mb-3 .col-md-8 { flex: 0 0 100%; max-width: 100%; }
+            .row.g-2.mb-3 .col-md-4 { flex: 0 0 100%; max-width: 100%; margin-top: 4px; }
+            /* Room detail info */
+            #roomDetailView .col-6.col-md-3 { flex: 0 0 50%; max-width: 50%; }
+            /* Tools grid */
+            #tab-tools .col-md-4 { flex: 0 0 100%; max-width: 100%; }
+            /* Modals full-width on mobile */
+            .modal-dialog { margin: 8px; max-width: calc(100% - 16px); }
+            .modal-body .row .col-md-6,
+            .modal-body .row .col-md-4,
+            .modal-body .row .col-md-3,
+            .modal-body .row .col-md-2 { flex: 0 0 100%; max-width: 100%; }
+            /* Registration toggle */
+            .panel-card.mb-4.d-flex { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+        }
+
+        /* ===== RESPONSIVE: SMALL MOBILE (≤480px) ===== */
+        @media (max-width: 480px) {
+            .main-content { padding: 8px; padding-top: 48px; }
+            .stat-card .stat-value { font-size: 1rem; }
+            .stat-card { padding: 10px 6px; }
+            .panel-card { padding: 10px; }
+            .table-dark th, .table-dark td { font-size: 0.7rem; padding: 4px 3px; }
+            /* Create match form: full width */
+            #createMatchForm .col-md-4,
+            #createMatchForm .col-md-3,
+            #createMatchForm .col-md-2 { flex: 0 0 100%; max-width: 100%; }
+            /* Single column stats on very small */
+            #userDetailView .col-6.col-md-2 { flex: 0 0 50%; max-width: 50%; font-size: 0.8rem; }
+            .btn { font-size: 0.8rem; }
+            .btn-sm { font-size: 0.75rem; padding: 4px 8px; }
         }
     </style>
 </head>
@@ -114,7 +193,9 @@
     </nav>
 
     <!-- Mobile toggle -->
-    <button class="btn btn-outline-light d-md-none position-fixed" style="top:10px;left:10px;z-index:101;" onclick="document.getElementById('sidebar').classList.toggle('show')">☰</button>
+    <button class="btn btn-outline-light d-md-none position-fixed" style="top:10px;left:10px;z-index:102;width:42px;height:42px;padding:0;font-size:1.2rem;border-radius:8px;" onclick="var s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay');s.classList.toggle('show');if(s.classList.contains('show')){o.classList.remove('d-none')}else{o.classList.add('d-none')}">☰</button>
+    <!-- Mobile overlay to close sidebar -->
+    <div id="sidebarOverlay" class="d-none position-fixed" style="top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99;" onclick="document.getElementById('sidebar').classList.remove('show');this.classList.add('d-none')"></div>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
@@ -231,35 +312,30 @@
                         </div>
                     </div>
 
-                    <!-- Editable Stats -->
-                    <h6 class="text-white mb-2">📊 Estatísticas <small class="text-muted">(clique para editar)</small></h6>
-                    <form onsubmit="saveUserStats(event)" id="statsEditForm">
-                        <div class="row g-3 mb-3">
-                            <div class="col-6 col-md-2 text-center">
-                                <label class="text-muted small d-block">Partidas</label>
-                                <input type="number" class="stat-edit-input" id="editMatches" min="0">
-                            </div>
-                            <div class="col-6 col-md-2 text-center">
-                                <label class="text-muted small d-block">Vitórias</label>
-                                <input type="number" class="stat-edit-input" id="editWins" min="0">
-                            </div>
-                            <div class="col-6 col-md-2 text-center">
-                                <label class="text-muted small d-block">Eliminações</label>
-                                <input type="number" class="stat-edit-input" id="editEliminations" min="0">
-                            </div>
-                            <div class="col-6 col-md-2 text-center">
-                                <label class="text-muted small d-block">Pts Sobrevivência</label>
-                                <input type="number" class="stat-edit-input" id="editSurvival" min="0">
-                            </div>
-                            <div class="col-6 col-md-2 text-center">
-                                <label class="text-muted small d-block">Score</label>
-                                <input type="number" class="stat-edit-input" id="editScore" min="0" step="0.01">
-                            </div>
-                            <div class="col-6 col-md-2 d-flex align-items-end justify-content-center">
-                                <button type="submit" class="btn btn-sm btn-primary">💾 Salvar Stats</button>
-                            </div>
+                    <!-- Stats (read-only — calculadas automaticamente pelo histórico) -->
+                    <h6 class="text-white mb-2">📊 Estatísticas <small class="text-muted">(calculadas automaticamente)</small></h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Partidas</div>
+                            <div class="text-light fw-bold" id="statMatches">0</div>
                         </div>
-                    </form>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Vitórias</div>
+                            <div class="text-success fw-bold" id="statWins">0</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Eliminações</div>
+                            <div class="text-danger fw-bold" id="statEliminations">0</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Pts Sobrevivência</div>
+                            <div class="text-warning fw-bold" id="statSurvival">0</div>
+                        </div>
+                        <div class="col-6 col-md-2 text-center">
+                            <div class="text-muted small">Score</div>
+                            <div class="text-info fw-bold" id="statScore">0</div>
+                        </div>
+                    </div>
 
                     <!-- Editable Profile -->
                     <h6 class="text-white mb-2">✏️ Perfil</h6>
@@ -288,7 +364,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="text-muted small d-block">Personagem</label>
-                                    <input type="text" class="form-control form-control-sm search-input" id="newMatchChar" placeholder="Nome do personagem">
+                                    <select class="form-select form-select-sm search-input" id="newMatchChar"><option value="">— Selecionar —</option></select>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="text-muted small d-block">Total Jogadores</label>
@@ -298,17 +374,13 @@
                                     <label class="text-muted small d-block">Pts Sobrevivência</label>
                                     <input type="number" class="form-control form-control-sm search-input" id="newMatchSurvival" value="0" min="0">
                                 </div>
+                                <div class="col-md-2">
+                                    <label class="text-muted small d-block">Kills</label>
+                                    <input type="number" class="form-control form-control-sm search-input" id="newMatchKills" value="0" min="0">
+                                </div>
                             </div>
                             <div class="row g-2 mb-2">
-                                <div class="col-md-3">
-                                    <label class="text-muted small d-block">Eliminado por</label>
-                                    <input type="text" class="form-control form-control-sm search-input" id="newMatchKilledBy" placeholder="(vazio se venceu)">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="text-muted small d-block">Ordem Eliminação</label>
-                                    <input type="number" class="form-control form-control-sm search-input" id="newMatchElimOrder" min="1" placeholder="—">
-                                </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="text-muted small d-block">Data</label>
                                     <input type="datetime-local" class="form-control form-control-sm search-input" id="newMatchDate">
                                 </div>
@@ -326,7 +398,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-dark table-hover table-sm mb-0">
-                            <thead><tr><th>Sala</th><th>Personagem</th><th>Resultado</th><th>Eliminado por</th><th>Pts</th><th>Data</th><th>Ações</th></tr></thead>
+                            <thead><tr><th>Sala</th><th>Personagem</th><th>Resultado</th><th>Kills</th><th>Pts Sobrev.</th><th>Data</th><th>Ações</th></tr></thead>
                             <tbody id="userMatchesBody"><tr><td colspan="7" class="text-center text-muted py-3">Carregando...</td></tr></tbody>
                         </table>
                     </div>
@@ -512,29 +584,23 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-light small">Personagem</label>
-                        <input type="text" class="form-control search-input" id="editMatchChar">
+                        <select class="form-select search-input" id="editMatchChar"><option value="">— Selecionar —</option></select>
                     </div>
                 </div>
                 <div class="row g-2 mb-2">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label text-light small">Total Jogadores</label>
                         <input type="number" class="form-control search-input" id="editMatchPlayers" min="1" max="20">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label text-light small">Pts Sobrevivência</label>
                         <input type="number" class="form-control search-input" id="editMatchSurvival" min="0">
                     </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-light small">Kills</label>
+                        <input type="number" class="form-control search-input" id="editMatchKills" min="0">
+                    </div>
                     <div class="col-md-4">
-                        <label class="form-label text-light small">Ordem Eliminação</label>
-                        <input type="number" class="form-control search-input" id="editMatchElimOrder" min="1" placeholder="—">
-                    </div>
-                </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
-                        <label class="form-label text-light small">Eliminado por</label>
-                        <input type="text" class="form-control search-input" id="editMatchKilledBy" placeholder="(vazio se ninguém)">
-                    </div>
-                    <div class="col-md-6">
                         <label class="form-label text-light small">Data</label>
                         <input type="datetime-local" class="form-control search-input" id="editMatchDate">
                     </div>
@@ -586,8 +652,36 @@
             var { data: isAdmin, error: adminErr } = await supabase.rpc('is_user_admin', { p_user_id: user.id });
             if (adminErr || !isAdmin) { showAccessDenied('Você não tem permissão de administrador.'); return; }
 
+            await loadCharacterList();
             setupTabs();
             loadDashboard();
+        }
+
+        async function loadCharacterList() {
+            try {
+                var [res, locRes] = await Promise.all([
+                    fetch('/GameEconomyData.json'),
+                    fetch('/LocalizationPortuguese.json')
+                ]);
+                var data = await res.json();
+                var loc = await locRes.json();
+                var ids = (data.ActorDefinitions || []).map(function(a) { return a.ID; });
+                var chars = ids.map(function(id) {
+                    var key = 'Character.Name.' + id;
+                    var displayName = loc[key];
+                    if (displayName == null || typeof displayName === 'number') displayName = id;
+                    return { id: id, name: String(displayName).trim() };
+                }).sort(function(a, b) { return a.name.localeCompare(b.name, 'pt-BR'); });
+                ['newMatchChar', 'editMatchChar'].forEach(function(selId) {
+                    var sel = document.getElementById(selId);
+                    chars.forEach(function(c) {
+                        var opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.name;
+                        sel.appendChild(opt);
+                    });
+                });
+            } catch(e) { console.warn('Não foi possível carregar lista de personagens:', e); }
         }
 
         function showAccessDenied(msg) {
@@ -623,6 +717,7 @@
                     if (tab === 'dashboard') loadDashboard();
                     if (tab === 'logs') loadAuditLog('reset');
                     document.getElementById('sidebar').classList.remove('show');
+                    document.getElementById('sidebarOverlay').classList.add('d-none');
                 });
             });
         }
@@ -824,12 +919,12 @@
                 document.getElementById('detailFavChar').textContent = s.favorite_character || '—';
                 document.getElementById('detailWinRate').textContent = s.win_rate + '%';
 
-                // Editable stats
-                document.getElementById('editMatches').value = s.total_matches;
-                document.getElementById('editWins').value = s.total_wins;
-                document.getElementById('editEliminations').value = s.total_eliminations;
-                document.getElementById('editSurvival').value = s.total_survival_points;
-                document.getElementById('editScore').value = s.composite_score;
+                // Stats (read-only)
+                document.getElementById('statMatches').textContent = s.total_matches;
+                document.getElementById('statWins').textContent = s.total_wins;
+                document.getElementById('statEliminations').textContent = s.total_eliminations;
+                document.getElementById('statSurvival').textContent = s.total_survival_points;
+                document.getElementById('statScore').textContent = s.composite_score;
 
                 // Editable profile
                 document.getElementById('editDisplayName').value = p.display_name || '';
@@ -857,18 +952,18 @@
                     mtbody.innerHTML = matches.map(function(m) {
                         var resultBadge = m.is_winner
                             ? '<span class="badge bg-success">🏆 Vitória</span>'
-                            : '<span class="badge bg-secondary">Eliminado #' + (m.elimination_order || '?') + '</span>';
+                            : '<span class="badge bg-danger">💀 Derrota</span>';
                         var matchDataAttr = escapeHtml(JSON.stringify({
                             match_id: m.match_id, room_name: m.room_name, character_name: m.character_name,
-                            is_winner: m.is_winner, elimination_order: m.elimination_order,
-                            survival_points: m.survival_points, killed_by_player_name: m.killed_by_player_name,
+                            is_winner: m.is_winner, survival_points: m.survival_points,
+                            eliminations_made: m.eliminations_made,
                             ended_at: m.ended_at, total_players: m.total_players
                         }));
                         return '<tr>'
                             + '<td>' + escapeHtml(m.room_name||'—') + '</td>'
                             + '<td>' + escapeHtml(m.character_name||'—') + '</td>'
                             + '<td>' + resultBadge + '</td>'
-                            + '<td>' + escapeHtml(m.killed_by_player_name||'—') + '</td>'
+                            + '<td>' + (m.eliminations_made||0) + '</td>'
                             + '<td>' + (m.survival_points||0) + '</td>'
                             + '<td><small>' + formatDate(m.ended_at) + '</small></td>'
                             + '<td><div class="d-flex gap-1">'
@@ -889,26 +984,6 @@
             currentDetailUserId = null;
             document.getElementById('userDetailView').classList.add('d-none');
             document.getElementById('userListView').classList.remove('d-none');
-        };
-
-        window.saveUserStats = async function(e) {
-            e.preventDefault();
-            if (!currentDetailUserId) return;
-            showLoading();
-            try {
-                var result = await supabase.rpc('admin_update_user_stats', {
-                    p_user_id: currentDetailUserId,
-                    p_total_matches: parseInt(document.getElementById('editMatches').value),
-                    p_total_wins: parseInt(document.getElementById('editWins').value),
-                    p_total_eliminations: parseInt(document.getElementById('editEliminations').value),
-                    p_total_survival_points: parseInt(document.getElementById('editSurvival').value),
-                    p_composite_score: parseFloat(document.getElementById('editScore').value)
-                });
-                if (result.error) throw result.error;
-                showToast('Estatísticas atualizadas!');
-                openUserDetail(currentDetailUserId); // Refresh
-            } catch (e) { showToast(e.message, 'danger'); }
-            finally { hideLoading(); }
         };
 
         window.saveUserProfile = async function(e) {
@@ -964,9 +1039,8 @@
                     p_room_name: document.getElementById('newMatchRoom').value.trim() || 'Partida Manual',
                     p_character_name: document.getElementById('newMatchChar').value.trim() || null,
                     p_is_winner: document.getElementById('newMatchWinner').checked,
-                    p_elimination_order: parseInt(document.getElementById('newMatchElimOrder').value) || null,
                     p_survival_points: parseInt(document.getElementById('newMatchSurvival').value) || 0,
-                    p_killed_by: document.getElementById('newMatchKilledBy').value.trim() || null,
+                    p_eliminations: parseInt(document.getElementById('newMatchKills').value) || 0,
                     p_total_players: parseInt(document.getElementById('newMatchPlayers').value) || 2,
                     p_ended_at: endedAt ? new Date(endedAt).toISOString() : new Date().toISOString()
                 };
@@ -986,8 +1060,8 @@
             document.getElementById('editMatchChar').value = data.character_name || '';
             document.getElementById('editMatchPlayers').value = data.total_players || 2;
             document.getElementById('editMatchSurvival').value = data.survival_points || 0;
-            document.getElementById('editMatchElimOrder').value = data.elimination_order || '';
-            document.getElementById('editMatchKilledBy').value = data.killed_by_player_name || '';
+            document.getElementById('editMatchKills').value = data.eliminations_made || 0;
+
             document.getElementById('editMatchWinner').checked = !!data.is_winner;
             if (data.ended_at) {
                 var d = new Date(data.ended_at);
@@ -1012,9 +1086,8 @@
                     p_room_name: document.getElementById('editMatchRoom').value.trim() || null,
                     p_character_name: document.getElementById('editMatchChar').value.trim() || null,
                     p_is_winner: document.getElementById('editMatchWinner').checked,
-                    p_elimination_order: parseInt(document.getElementById('editMatchElimOrder').value) || null,
                     p_survival_points: parseInt(document.getElementById('editMatchSurvival').value) || 0,
-                    p_killed_by: document.getElementById('editMatchKilledBy').value.trim(),
+                    p_eliminations: parseInt(document.getElementById('editMatchKills').value) || 0,
                     p_total_players: parseInt(document.getElementById('editMatchPlayers').value) || null,
                     p_ended_at: endedAt ? new Date(endedAt).toISOString() : null
                 };

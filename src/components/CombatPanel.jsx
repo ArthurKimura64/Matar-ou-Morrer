@@ -1533,7 +1533,7 @@ const CombatPanel = ({
       {/* Botão de toggle fixo na lateral direita */}
       <button
         onClick={toggleSidebar}
-        className="btn btn-danger position-fixed d-flex align-items-center justify-content-center sidebar-toggle-btn border border-light"
+        className="btn btn-danger position-fixed d-flex align-items-center justify-content-center sidebar-toggle-btn border border-light combat-toggle-btn"
         style={{
           right: isOpen ? '340px' : '0px',
           top: 'calc(50% - 60px)',
@@ -1551,6 +1551,7 @@ const CombatPanel = ({
           animation: hasActiveCombat ? 'pulseCombatAlert 1s ease-in-out infinite' : 'none',
           border: hasActiveCombat ? '3px solid #ffc107' : '1px solid white'
         }}
+        data-sidebar-open={isOpen ? 'true' : 'false'}
         title={isOpen ? 'Fechar painel de combate' : 'Abrir painel de combate'}
       >
         <span style={{ 
@@ -1583,7 +1584,7 @@ const CombatPanel = ({
 
       {/* Sidebar */}
       <div
-        className="position-fixed bg-dark border-start border-danger"
+        className="position-fixed bg-dark border-start border-danger combat-sidebar"
         style={{
           top: 0,
           right: isOpen ? '0' : '-340px',

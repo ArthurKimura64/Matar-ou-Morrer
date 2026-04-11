@@ -71,6 +71,35 @@ CREATE TRIGGER on_auth_user_created
 -- SEÇÃO 2: UTILITY FUNCTIONS
 -- ================================
 
+-- Verificar se o usuário é administrador
+-- Versão unificada: sem parâmetro usa auth.uid(), com parâmetro usa o valor fornecido
+-- Precisa dropar políticas dependentes primeiro para poder recriar a função
+DROP POLICY IF EXISTS "rooms_update_master_or_admin" ON public.rooms;
+DROP POLICY IF EXISTS "rooms_delete_admin_only" ON public.rooms;
+DROP POLICY IF EXISTS "admin_audit_log_select" ON public.admin_audit_log;
+
+DROP FUNCTION IF EXISTS public.is_user_admin();
+DROP FUNCTION IF EXISTS public.is_user_admin(UUID);
+
+CREATE FUNCTION public.is_user_admin(p_user_id UUID DEFAULT NULL)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS(
+        SELECT 1 FROM public.admin_users
+        WHERE user_id = COALESCE(p_user_id, auth.uid())
+        AND is_active = true
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+-- Recriar políticas dependentes
+CREATE POLICY "rooms_update_master_or_admin" ON public.rooms
+    FOR UPDATE USING (true);
+CREATE POLICY "rooms_delete_admin_only" ON public.rooms
+    FOR DELETE USING (public.is_user_admin());
+CREATE POLICY "admin_audit_log_select" ON public.admin_audit_log
+    FOR SELECT USING (public.is_user_admin());
+
 -- Calcular composite score para ranking
 CREATE OR REPLACE FUNCTION public.calculate_composite_score(
     p_wins INTEGER,
@@ -84,15 +113,15 @@ DECLARE
 BEGIN
     IF p_matches > 0 THEN
         v_win_rate := (p_wins::DECIMAL / p_matches::DECIMAL) * 100;
-        -- Fator de volume: win rate atinge peso total após 10 partidas (progressivo)
-        v_volume_factor := LEAST(p_matches::DECIMAL / 10.0, 1.0);
+        -- Fator de volume: win rate atinge peso total após 20 partidas (progressivo)
+        v_volume_factor := LEAST(p_matches::DECIMAL / 20.0, 1.0);
     ELSE
         v_win_rate := 0;
         v_volume_factor := 0;
     END IF;
 
     -- Fórmula balanceada: vitórias acumuladas dominam, win rate cresce com volume
-    RETURN (p_wins * 40) + (p_eliminations * 8) + (p_survival_points * 4) + (v_win_rate * v_volume_factor * 30);
+    RETURN (p_wins * 40) + (p_eliminations * 8) + (p_survival_points * 4) + (v_win_rate * v_volume_factor * 15);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -1128,6 +1157,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Criar partida manualmente
+DROP FUNCTION IF EXISTS public.admin_create_match(UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ);
+DROP FUNCTION IF EXISTS public.admin_create_match(UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ, INTEGER);
 CREATE OR REPLACE FUNCTION public.admin_create_match(
     p_user_id UUID,
     p_room_name TEXT DEFAULT 'Partida Manual',
@@ -1137,7 +1168,8 @@ CREATE OR REPLACE FUNCTION public.admin_create_match(
     p_survival_points INTEGER DEFAULT 0,
     p_killed_by TEXT DEFAULT NULL,
     p_total_players INTEGER DEFAULT 2,
-    p_ended_at TIMESTAMPTZ DEFAULT NOW()
+    p_ended_at TIMESTAMPTZ DEFAULT NOW(),
+    p_eliminations INTEGER DEFAULT 0
 ) RETURNS JSON AS $$
 DECLARE
     v_match_id UUID;
@@ -1166,12 +1198,46 @@ BEGIN
 
     INSERT INTO public.match_participants (
         match_id, user_id, player_name, character_name,
-        elimination_order, survival_points, is_winner, killed_by_player_name
+        elimination_order, survival_points, is_winner, killed_by_player_name,
+        eliminations_made
     )
     VALUES (
         v_match_id, p_user_id, v_display_name, p_character_name,
-        p_elimination_order, p_survival_points, p_is_winner, NULLIF(p_killed_by, '')
+        p_elimination_order, p_survival_points, p_is_winner, NULLIF(p_killed_by, ''),
+        COALESCE(p_eliminations, 0)
     );
+
+    -- Recalcular stats do jogador a partir de todas as match_participants
+    INSERT INTO public.user_stats (user_id, updated_at)
+    VALUES (p_user_id, NOW())
+    ON CONFLICT (user_id) DO NOTHING;
+
+    UPDATE public.user_stats us SET
+        total_matches = sub.total_matches,
+        total_wins = sub.total_wins,
+        total_eliminations = sub.total_eliminations,
+        total_survival_points = sub.total_survival_points,
+        win_rate = CASE WHEN sub.total_matches > 0
+            THEN ROUND((sub.total_wins::DECIMAL / sub.total_matches) * 100, 2)
+            ELSE 0 END,
+        composite_score = calculate_composite_score(sub.total_wins, sub.total_eliminations, sub.total_survival_points, sub.total_matches),
+        favorite_character = sub.fav_char,
+        updated_at = NOW()
+    FROM (
+        SELECT
+            COUNT(*)::INTEGER AS total_matches,
+            COUNT(*) FILTER (WHERE mp.is_winner = true)::INTEGER AS total_wins,
+            COALESCE(SUM(COALESCE(mp.eliminations_made, 0)), 0)::INTEGER AS total_eliminations,
+            COALESCE(SUM(COALESCE(mp.survival_points, 0)), 0)::INTEGER AS total_survival_points,
+            (
+                SELECT mp2.character_name FROM public.match_participants mp2
+                WHERE mp2.user_id = p_user_id AND mp2.character_name IS NOT NULL
+                GROUP BY mp2.character_name ORDER BY COUNT(*) DESC LIMIT 1
+            ) AS fav_char
+        FROM public.match_participants mp
+        WHERE mp.user_id = p_user_id
+    ) sub
+    WHERE us.user_id = p_user_id;
 
     PERFORM public._admin_log('create_match', p_user_id, NULL,
         jsonb_build_object('match_id', v_match_id, 'room_name', p_room_name, 'display_name', v_display_name));
@@ -1181,6 +1247,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Atualizar participação em partida
+DROP FUNCTION IF EXISTS public.admin_update_match_participant(UUID, UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ);
+DROP FUNCTION IF EXISTS public.admin_update_match_participant(UUID, UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ, INTEGER);
 CREATE OR REPLACE FUNCTION public.admin_update_match_participant(
     p_match_id UUID,
     p_user_id UUID,
@@ -1191,7 +1259,8 @@ CREATE OR REPLACE FUNCTION public.admin_update_match_participant(
     p_survival_points INTEGER DEFAULT NULL,
     p_killed_by TEXT DEFAULT NULL,
     p_total_players INTEGER DEFAULT NULL,
-    p_ended_at TIMESTAMPTZ DEFAULT NULL
+    p_ended_at TIMESTAMPTZ DEFAULT NULL,
+    p_eliminations INTEGER DEFAULT NULL
 ) RETURNS JSON AS $$
 DECLARE
     v_participant_id UUID;
@@ -1236,8 +1305,37 @@ BEGIN
         killed_by_player_name = CASE
             WHEN p_killed_by IS NOT NULL THEN NULLIF(p_killed_by, '')
             ELSE killed_by_player_name
-        END
+        END,
+        eliminations_made = COALESCE(p_eliminations, eliminations_made)
     WHERE id = v_participant_id;
+
+    -- Recalcular stats do jogador a partir de todas as match_participants
+    UPDATE public.user_stats us SET
+        total_matches = sub.total_matches,
+        total_wins = sub.total_wins,
+        total_eliminations = sub.total_eliminations,
+        total_survival_points = sub.total_survival_points,
+        win_rate = CASE WHEN sub.total_matches > 0
+            THEN ROUND((sub.total_wins::DECIMAL / sub.total_matches) * 100, 2)
+            ELSE 0 END,
+        composite_score = calculate_composite_score(sub.total_wins, sub.total_eliminations, sub.total_survival_points, sub.total_matches),
+        favorite_character = sub.fav_char,
+        updated_at = NOW()
+    FROM (
+        SELECT
+            COUNT(*)::INTEGER AS total_matches,
+            COUNT(*) FILTER (WHERE mp.is_winner = true)::INTEGER AS total_wins,
+            COALESCE(SUM(COALESCE(mp.eliminations_made, 0)), 0)::INTEGER AS total_eliminations,
+            COALESCE(SUM(COALESCE(mp.survival_points, 0)), 0)::INTEGER AS total_survival_points,
+            (
+                SELECT mp2.character_name FROM public.match_participants mp2
+                WHERE mp2.user_id = p_user_id AND mp2.character_name IS NOT NULL
+                GROUP BY mp2.character_name ORDER BY COUNT(*) DESC LIMIT 1
+            ) AS fav_char
+        FROM public.match_participants mp
+        WHERE mp.user_id = p_user_id
+    ) sub
+    WHERE us.user_id = p_user_id;
 
     PERFORM public._admin_log('update_match', p_user_id, NULL,
         jsonb_build_object('match_id', p_match_id, 'display_name', v_display_name));
@@ -1547,7 +1645,8 @@ BEGIN
             mp.elimination_order,
             mp.survival_points,
             mp.is_winner,
-            mp.killed_by_player_name
+            mp.killed_by_player_name,
+            COALESCE(mp.eliminations_made, 0) AS eliminations_made
         FROM public.match_participants mp
         JOIN public.match_history mh ON mh.id = mp.match_id
         WHERE mp.user_id = p_user_id
@@ -1676,8 +1775,16 @@ GRANT EXECUTE ON FUNCTION public.admin_create_match TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_update_match_participant TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_update_setting TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_app_setting TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.is_user_admin(UUID) TO authenticated;
 
 SELECT 'TODAS AS FUNÇÕES INSTALADAS!' as status;
+
+-- ================================
+-- MIGRAÇÃO: Adicionar coluna eliminations_made em match_participants
+-- Execute esta query UMA VEZ no SQL Editor do Supabase
+-- ================================
+-- ALTER TABLE public.match_participants
+--     ADD COLUMN IF NOT EXISTS eliminations_made INTEGER DEFAULT 0;
 
 -- ================================
 -- MIGRAÇÃO: Recalcular composite_score de todos os jogadores

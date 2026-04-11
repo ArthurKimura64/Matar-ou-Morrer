@@ -1586,6 +1586,49 @@
   }
 }
 
+/* ===== COMBAT SIDEBAR MOBILE ===== */
+@media (max-width: 576px) {
+  /* Sidebar full-width on mobile */
+  .combat-sidebar {
+    width: 100vw !important;
+    right: -100vw !important;
+  }
+  .combat-sidebar[style*="right: 0"] {
+    right: 0 !important;
+  }
+
+  /* Toggle button position: when open, hide behind full-width sidebar */
+  .combat-toggle-btn[data-sidebar-open="true"] {
+    right: calc(100vw - 8px) !important;
+  }
+
+  /* Compact padding inside sidebar on mobile */
+  .combat-sidebar .p-3 {
+    padding: 0.75rem !important;
+  }
+  .combat-sidebar .p-4 {
+    padding: 1rem !important;
+  }
+
+  /* Smaller text in sidebar on mobile */
+  .combat-sidebar .fw-bold {
+    font-size: 0.9rem;
+  }
+  .combat-sidebar .text-muted,
+  .combat-sidebar .text-secondary {
+    font-size: 0.8rem;
+  }
+  .combat-sidebar .btn-sm {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+
+  /* Combatant cards compact */
+  .combatant-card {
+    padding: 8px !important;
+  }
+}
+
 /* ========================================
    AJUSTE DISCRETO DE RESULTADO DE DADOS (HOVER)
    ======================================== */
