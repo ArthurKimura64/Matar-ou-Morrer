@@ -2095,7 +2095,10 @@
         "PassiveSpecialAbility.MulherFantasma1",
         "PassiveSpecialAbility.MulherFantasma2"
       ],
-      "SpecialCharacteristics": []
+      "SpecialCharacteristics": [
+        "SpecialCustom.MulherFantasma2",
+        "SpecialCustom.MulherFantasma3"
+      ]
     },
     {
       "ID": "Zyua",
@@ -8974,6 +8977,14 @@
     {
       "ID": "SpecialCustom.Copiador3",
       "Title": "SpecialCustom.Copiador3.Title"
+    },
+    {
+      "ID": "SpecialCustom.MulherFantasma2",
+      "Title": "SpecialCustom.MulherFantasma2.Title"
+    },
+    {
+      "ID": "SpecialCustom.MulherFantasma3",
+      "Title": "SpecialCustom.MulherFantasma3.Title"
     }
   ]
 }
