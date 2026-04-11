@@ -1932,6 +1932,8 @@
   "PassiveSpecialAbility.Omega4.Description": "Pode atacar sem estar entre pontos de conexão.",
   "SpecialCustom.Kader2.Title": "Contador",
   "SpecialCustom.Kader3.Title": "Escudo",
+  "SpecialCustom.Protetor1.Title": "20",
   "SpecialCustom.Copiador2.Title": "Contador",
-  "SpecialCustom.Copiador3.Title": "Ponto de Cópia"
+  "SpecialCustom.Copiador3.Title": "Ponto de Cópia",
+  "SpecialCustom.Alpha1.Title": "20"
 }
