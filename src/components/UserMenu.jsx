@@ -3,7 +3,14 @@ import authService from '../services/authService';
 
 const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword }) => {
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (user) {
+      authService.checkIsAdmin().then(setIsAdmin);
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -83,6 +90,14 @@ const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword }) => 
             >
               🔐 Mudar Senha
             </button>
+            {isAdmin && (
+              <button 
+                className="btn btn-sm btn-outline-warning w-100 text-start mb-1"
+                onClick={() => { setOpen(false); window.open('/admin.html', '_blank'); }}
+              >
+                ⚙️ Painel Admin
+              </button>
+            )}
             <button 
               className="btn btn-sm btn-outline-danger w-100 text-start"
               onClick={handleLogout}

@@ -80,14 +80,19 @@ CREATE OR REPLACE FUNCTION public.calculate_composite_score(
 ) RETURNS DECIMAL(10,2) AS $$
 DECLARE
     v_win_rate DECIMAL(5,2);
+    v_volume_factor DECIMAL(5,2);
 BEGIN
     IF p_matches > 0 THEN
         v_win_rate := (p_wins::DECIMAL / p_matches::DECIMAL) * 100;
+        -- Fator de volume: win rate atinge peso total após 10 partidas (progressivo)
+        v_volume_factor := LEAST(p_matches::DECIMAL / 10.0, 1.0);
     ELSE
         v_win_rate := 0;
+        v_volume_factor := 0;
     END IF;
 
-    RETURN (p_wins * 50) + (p_eliminations * 10) + (p_survival_points * 5) + (v_win_rate * 100);
+    -- Fórmula balanceada: vitórias acumuladas dominam, win rate cresce com volume
+    RETURN (p_wins * 40) + (p_eliminations * 8) + (p_survival_points * 4) + (v_win_rate * v_volume_factor * 30);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -1673,3 +1678,12 @@ GRANT EXECUTE ON FUNCTION public.admin_update_setting TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_app_setting TO anon, authenticated;
 
 SELECT 'TODAS AS FUNÇÕES INSTALADAS!' as status;
+
+-- ================================
+-- MIGRAÇÃO: Recalcular composite_score de todos os jogadores
+-- Execute esta query UMA VEZ após atualizar calculate_composite_score
+-- ================================
+-- UPDATE public.user_stats SET
+--     composite_score = calculate_composite_score(total_wins, total_eliminations, total_survival_points, total_matches),
+--     updated_at = NOW()
+-- WHERE total_matches > 0;

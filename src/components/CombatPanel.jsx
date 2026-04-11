@@ -1969,6 +1969,16 @@ const CombatPanel = ({
                     </>
                   );
                 }
+
+                // Espectador: não é atacante nem defensor
+                return (
+                  <div className="alert alert-secondary">
+                    <h6>⚔️ Combate em Andamento</h6>
+                    <p className="mb-1"><strong>{combat.attacker_name}</strong> atacou <strong>{combat.defender_name}</strong> com <strong>{combat.attack_data?.Name || 'ataque'}</strong>!</p>
+                    <p className="mb-0 text-muted"><small>Aguardando <strong>{combat.defender_name}</strong> escolher uma arma para revidar...</small></p>
+                    <div className="text-center mt-2">👀 ⏳</div>
+                  </div>
+                );
               })()}
 
               {/* FASE 2: ROLAGEM DE DADOS */}

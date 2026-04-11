@@ -141,6 +141,33 @@ class AuthService {
     return data;
   }
 
+  async getUserRankPosition(userId, type = 'composite') {
+    const orderColumn = {
+      composite: 'composite_score',
+      wins: 'total_wins',
+      eliminations: 'total_eliminations',
+      survival: 'total_survival_points'
+    }[type] || 'composite_score';
+
+    // Get current user's stat value
+    const { data: userStats, error: userError } = await supabase
+      .from('user_stats')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (userError || !userStats || userStats.total_matches === 0) return null;
+
+    // Count how many players have a higher score
+    const { count, error: countError } = await supabase
+      .from('user_stats')
+      .select('*', { count: 'exact', head: true })
+      .gt('total_matches', 0)
+      .gt(orderColumn, userStats[orderColumn] || 0);
+    if (countError) return null;
+
+    return { position: (count || 0) + 1, stats: userStats };
+  }
+
   async getRoomLeaderboard(roomId, type = 'composite', limit = 50) {
     const orderColumn = {
       composite: 'composite_score',
@@ -196,6 +223,18 @@ class AuthService {
     });
     if (error) throw error;
     return data;
+  }
+
+  // ==================== VERIFICAÇÃO DE ADMIN ====================
+
+  async checkIsAdmin() {
+    try {
+      const { data, error } = await supabase.rpc('is_user_admin');
+      if (error) return false;
+      return data === true;
+    } catch {
+      return false;
+    }
   }
 
   // ==================== VERIFICAÇÃO DE BAN ====================
