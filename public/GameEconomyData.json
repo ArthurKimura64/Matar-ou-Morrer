@@ -192,9 +192,7 @@
         "SpecialAbility.Caos5"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.Caos1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Ryan",
@@ -392,9 +390,7 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.Destroul1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Imortal",
@@ -626,8 +622,8 @@
       ],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": [
-        "SpecialCustom.Kader1",
-        "SpecialCustom.Kader2"
+        "SpecialCustom.Kader2",
+        "SpecialCustom.Kader3"
       ]
     },
     {
@@ -672,9 +668,7 @@
       ],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.PortadorDasEntidades1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "amaldicoada",
@@ -921,9 +915,7 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.EclipseKnight1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Invicto",
@@ -1023,9 +1015,7 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.Vinteum1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Pax",
@@ -1067,9 +1057,7 @@
       "DevicesData": [],
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.Pax1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Observadora",
@@ -1871,9 +1859,7 @@
         "SpecialAbility.Capuz2"
       ],
       "PassiveSpecialAbilitiesData": [],
-      "SpecialCharacteristics": [
-        "SpecialCustom.Capuz1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "adaptado",
@@ -2068,9 +2054,7 @@
         "PassiveSpecialAbility.AgentedoVazio1",
         "PassiveSpecialAbility.AgentedoVazio2"
       ],
-      "SpecialCharacteristics": [
-        "SpecialCustom.AgentedoVazio1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "MulherFantasma",
@@ -2115,9 +2099,7 @@
         "PassiveSpecialAbility.MulherFantasma1",
         "PassiveSpecialAbility.MulherFantasma2"
       ],
-      "SpecialCharacteristics": [
-        "SpecialCustom.MulherFantasma1"
-      ]
+      "SpecialCharacteristics": []
     },
     {
       "ID": "Zyua",
@@ -2393,8 +2375,8 @@
       "SpecialAbilitiesData": [],
       "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": [
-        "SpecialCustom.Copiador1",
-        "SpecialCustom.Copiador2"
+        "SpecialCustom.Copiador2",
+        "SpecialCustom.Copiador3"
       ]
     },
     {
@@ -8980,61 +8962,18 @@
   ],
   "SpecialDefinitions": [
     {
-      "ID": "SpecialCustom.Caos1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Caos1.Title"
-    },
-    {
-      "ID": "SpecialCustom.Kader1",
-      "Type": "textbox",
-      "Title": "SpecialCustom.Kader1.Title"
-    },
-    {
       "ID": "SpecialCustom.Kader2",
-      "Type": "counter",
-      "maxValue": 20,
+      "Type": "textbox",
       "Title": "SpecialCustom.Kader2.Title"
     },
     {
-      "ID": "SpecialCustom.Destroul1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Destroul1.Title"
+      "ID": "SpecialCustom.Kader3",
+      "Title": "SpecialCustom.Kader3.Title"
     },
     {
       "ID": "SpecialCustom.Protetor1",
       "Type": "counter",
-      "maxValue": 20,
       "Title": "SpecialCustom.Protetor1.Title"
-    },
-    {
-      "ID": "SpecialCustom.PortadorDasEntidades1",
-      "Type": "counter",
-      "Title": "SpecialCustom.PortadorDasEntidades1.Title"
-    },
-    {
-      "ID": "SpecialCustom.EclipseKnight1",
-      "Type": "counter",
-      "Title": "SpecialCustom.EclipseKnight1.Title"
-    },
-    {
-      "ID": "SpecialCustom.Vinteum1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Vinteum1.Title"
-    },
-    {
-      "ID": "SpecialCustom.Capuz1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Capuz1.Title"
-    },
-    {
-      "ID": "SpecialCustom.AgentedoVazio1",
-      "Type": "counter",
-      "Title": "SpecialCustom.AgentedoVazio1.Title"
-    },
-    {
-      "ID": "SpecialCustom.Copiador1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Copiador1.Title"
     },
     {
       "ID": "SpecialCustom.Copiador2",
@@ -9042,14 +8981,8 @@
       "Title": "SpecialCustom.Copiador2.Title"
     },
     {
-      "ID": "SpecialCustom.MulherFantasma1",
-      "Type": "counter",
-      "Title": "SpecialCustom.MulherFantasma1.Title"
-    },
-    {
-      "ID": "SpecialCustom.Pax1",
-      "Type": "counter",
-      "Title": "SpecialCustom.Pax1.Title"
+      "ID": "SpecialCustom.Copiador3",
+      "Title": "SpecialCustom.Copiador3.Title"
     },
     {
       "ID": "SpecialCustom.Alpha1",
