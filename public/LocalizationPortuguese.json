@@ -877,7 +877,7 @@
   "Passive.EclipseKnight6": "Luta Medieval",
   "Passive.EclipseKnight6.Description": "Você jogará apenas 1 dado de ataque mas ele será 6 (a cada ataque seu é opcional você usar esta passiva ou não).",
   "Passive.Invicto1": "Peito de Aço",
-  "Passive.Invicto1.Description": "Recebe metade do dano do ataque recebido(se o dano for ímpar, recebe a maioria), se o dano for 5 ou menos, recebe o dano normal.",
+  "Passive.Invicto1.Description": "Recebe metade do dano de cada dado de ataque jogado contra você(se o dano for ímpar, recebe a maioria), se o dano for 5 ou menos, recebe o dano normal.",
   "Passive.Invicto2": "Enrijecer",
   "Passive.Invicto2.Description": "Não pode receber ataques de oportunidade e empurrões.",
   "Passive.Invicto3": "Ódio Regenerativo",
