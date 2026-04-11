@@ -281,26 +281,6 @@ export class RoomService {
     }
   }
 
-  // Listar salas ativas
-  static async getActiveRooms() {
-    try {
-      const { data, error } = await supabase
-        .from('rooms')
-        .select(`
-          *,
-          players:players(count)
-        `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return { success: true, rooms: data };
-    } catch (error) {
-      console.error('Erro ao buscar salas:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
   // Obter jogadores de uma sala com cache (cache invalidado por subscriptions)
   static async getRoomPlayers(roomId) {
     try {
@@ -405,22 +385,6 @@ export class RoomService {
       return { success: true };
     } catch (error) {
       console.error('Erro ao sair da sala:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // Fechar sala (apenas para o mestre)
-  static async closeRoom(roomId) {
-    try {
-      const { error } = await supabase
-        .from('rooms')
-        .update({ is_active: false })
-        .eq('id', roomId);
-
-      if (error) throw error;
-      return { success: true };
-    } catch (error) {
-      console.error('Erro ao fechar sala:', error);
       return { success: false, error: error.message };
     }
   }
@@ -1009,23 +973,45 @@ export class RoomService {
   // Subscrever para mudanças na sala (match_status, etc.)
   static subscribeToRoomStatus(roomId, onRoomChange) {
     const channelName = `room-status-${roomId}`;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    let channel = null;
 
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'rooms',
-          filter: `id=eq.${roomId}`
-        },
-        (payload) => {
-          onRoomChange(payload.new);
-        }
-      )
-      .subscribe();
+    const createSubscription = () => {
+      channel = supabase
+        .channel(`${channelName}_${Date.now()}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'rooms',
+            filter: `id=eq.${roomId}`
+          },
+          (payload) => {
+            onRoomChange(payload.new);
+          }
+        )
+        .subscribe((status, err) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('✅ Room status subscription ativa para sala:', roomId);
+            reconnectAttempts = 0;
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            console.error('❌ Erro na room status subscription:', status, err);
+            if (reconnectAttempts < maxReconnectAttempts) {
+              reconnectAttempts++;
+              setTimeout(() => {
+                if (channel) supabase.removeChannel(channel);
+                createSubscription();
+              }, Math.min(reconnectAttempts * 1000, 5000));
+            }
+          }
+        });
 
+      return channel;
+    };
+
+    channel = createSubscription();
     return channel;
   }
 

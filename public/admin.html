@@ -274,7 +274,56 @@
 
                 <!-- User Match History -->
                 <div class="panel-card">
-                    <h6 class="text-white mb-3">🎮 Partidas Recentes</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-white mb-0">🎮 Partidas Recentes</h6>
+                        <button class="btn btn-sm btn-success" onclick="toggleCreateMatch()">➕ Criar Partida</button>
+                    </div>
+                    <div class="d-none mb-3 p-3" id="createMatchForm" style="background:var(--bg-main);border-radius:8px;border:1px solid var(--border-color);">
+                        <h6 class="text-white mb-3">Nova Partida</h6>
+                        <form onsubmit="createMatch(event)">
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-4">
+                                    <label class="text-muted small d-block">Nome da Sala</label>
+                                    <input type="text" class="form-control form-control-sm search-input" id="newMatchRoom" value="Partida Manual" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small d-block">Personagem</label>
+                                    <input type="text" class="form-control form-control-sm search-input" id="newMatchChar" placeholder="Nome do personagem">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="text-muted small d-block">Total Jogadores</label>
+                                    <input type="number" class="form-control form-control-sm search-input" id="newMatchPlayers" value="2" min="1" max="20">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="text-muted small d-block">Pts Sobrevivência</label>
+                                    <input type="number" class="form-control form-control-sm search-input" id="newMatchSurvival" value="0" min="0">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-3">
+                                    <label class="text-muted small d-block">Eliminado por</label>
+                                    <input type="text" class="form-control form-control-sm search-input" id="newMatchKilledBy" placeholder="(vazio se venceu)">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="text-muted small d-block">Ordem Eliminação</label>
+                                    <input type="number" class="form-control form-control-sm search-input" id="newMatchElimOrder" min="1" placeholder="—">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="text-muted small d-block">Data</label>
+                                    <input type="datetime-local" class="form-control form-control-sm search-input" id="newMatchDate">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="newMatchWinner">
+                                        <label class="form-check-label text-light small" for="newMatchWinner">🏆 Vencedor</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success btn-sm w-100">✓ Criar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-dark table-hover table-sm mb-0">
                             <thead><tr><th>Sala</th><th>Personagem</th><th>Resultado</th><th>Eliminado por</th><th>Pts</th><th>Data</th><th>Ações</th></tr></thead>
@@ -446,6 +495,58 @@
             <div class="modal-footer border-secondary">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button class="btn btn-primary" id="passConfirmBtn">Alterar Senha</button>
+            </div>
+        </div></div>
+    </div>
+
+    <!-- Edit Match Modal -->
+    <div class="modal fade" id="editMatchModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header border-secondary"><h5 class="modal-title text-white">✏️ Editar Partida</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="editMatchId">
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label text-light small">Nome da Sala</label>
+                        <input type="text" class="form-control search-input" id="editMatchRoom">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light small">Personagem</label>
+                        <input type="text" class="form-control search-input" id="editMatchChar">
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-4">
+                        <label class="form-label text-light small">Total Jogadores</label>
+                        <input type="number" class="form-control search-input" id="editMatchPlayers" min="1" max="20">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-light small">Pts Sobrevivência</label>
+                        <input type="number" class="form-control search-input" id="editMatchSurvival" min="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-light small">Ordem Eliminação</label>
+                        <input type="number" class="form-control search-input" id="editMatchElimOrder" min="1" placeholder="—">
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label text-light small">Eliminado por</label>
+                        <input type="text" class="form-control search-input" id="editMatchKilledBy" placeholder="(vazio se ninguém)">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light small">Data</label>
+                        <input type="datetime-local" class="form-control search-input" id="editMatchDate">
+                    </div>
+                </div>
+                <div class="form-check mt-2">
+                    <input type="checkbox" class="form-check-input" id="editMatchWinner">
+                    <label class="form-check-label text-light" for="editMatchWinner">🏆 Vencedor</label>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" id="editMatchConfirmBtn">💾 Salvar</button>
             </div>
         </div></div>
     </div>
@@ -757,6 +858,12 @@
                         var resultBadge = m.is_winner
                             ? '<span class="badge bg-success">🏆 Vitória</span>'
                             : '<span class="badge bg-secondary">Eliminado #' + (m.elimination_order || '?') + '</span>';
+                        var matchDataAttr = escapeHtml(JSON.stringify({
+                            match_id: m.match_id, room_name: m.room_name, character_name: m.character_name,
+                            is_winner: m.is_winner, elimination_order: m.elimination_order,
+                            survival_points: m.survival_points, killed_by_player_name: m.killed_by_player_name,
+                            ended_at: m.ended_at, total_players: m.total_players
+                        }));
                         return '<tr>'
                             + '<td>' + escapeHtml(m.room_name||'—') + '</td>'
                             + '<td>' + escapeHtml(m.character_name||'—') + '</td>'
@@ -764,7 +871,10 @@
                             + '<td>' + escapeHtml(m.killed_by_player_name||'—') + '</td>'
                             + '<td>' + (m.survival_points||0) + '</td>'
                             + '<td><small>' + formatDate(m.ended_at) + '</small></td>'
-                            + '<td><button class="btn btn-outline-danger btn-action" title="Remover partida" onclick="deleteMatch(\'' + m.match_id + '\',\'' + escapeHtml(m.room_name||'').replace(/'/g, "\\'") + '\')">🗑️</button></td>'
+                            + '<td><div class="d-flex gap-1">'
+                            + '<button class="btn btn-outline-primary btn-action" title="Editar" data-match=\'' + matchDataAttr + '\' onclick="openEditMatch(this)">✏️</button>'
+                            + '<button class="btn btn-outline-danger btn-action" title="Remover partida" onclick="deleteMatch(\'' + m.match_id + '\',\'' + escapeHtml(m.room_name||'').replace(/'/g, "\\'") + '\')">🗑️</button>'
+                            + '</div></td>'
                             + '</tr>';
                     }).join('');
                 }
@@ -830,6 +940,92 @@
             } catch (e) { showToast(e.message, 'danger'); }
             finally { hideLoading(); }
         };
+
+        // ========== CREATE / EDIT MATCH ==========
+        window.toggleCreateMatch = function() {
+            var form = document.getElementById('createMatchForm');
+            form.classList.toggle('d-none');
+            if (!form.classList.contains('d-none')) {
+                // Preencher data atual
+                var now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById('newMatchDate').value = now.toISOString().slice(0, 16);
+            }
+        };
+
+        window.createMatch = async function(e) {
+            e.preventDefault();
+            if (!currentDetailUserId) return;
+            showLoading();
+            try {
+                var endedAt = document.getElementById('newMatchDate').value;
+                var params = {
+                    p_user_id: currentDetailUserId,
+                    p_room_name: document.getElementById('newMatchRoom').value.trim() || 'Partida Manual',
+                    p_character_name: document.getElementById('newMatchChar').value.trim() || null,
+                    p_is_winner: document.getElementById('newMatchWinner').checked,
+                    p_elimination_order: parseInt(document.getElementById('newMatchElimOrder').value) || null,
+                    p_survival_points: parseInt(document.getElementById('newMatchSurvival').value) || 0,
+                    p_killed_by: document.getElementById('newMatchKilledBy').value.trim() || null,
+                    p_total_players: parseInt(document.getElementById('newMatchPlayers').value) || 2,
+                    p_ended_at: endedAt ? new Date(endedAt).toISOString() : new Date().toISOString()
+                };
+                var result = await supabase.rpc('admin_create_match', params);
+                if (result.error) throw result.error;
+                showToast('Partida criada com sucesso!');
+                document.getElementById('createMatchForm').classList.add('d-none');
+                openUserDetail(currentDetailUserId);
+            } catch (err) { showToast(err.message, 'danger'); }
+            finally { hideLoading(); }
+        };
+
+        window.openEditMatch = function(btn) {
+            var data = JSON.parse(btn.getAttribute('data-match'));
+            document.getElementById('editMatchId').value = data.match_id;
+            document.getElementById('editMatchRoom').value = data.room_name || '';
+            document.getElementById('editMatchChar').value = data.character_name || '';
+            document.getElementById('editMatchPlayers').value = data.total_players || 2;
+            document.getElementById('editMatchSurvival').value = data.survival_points || 0;
+            document.getElementById('editMatchElimOrder').value = data.elimination_order || '';
+            document.getElementById('editMatchKilledBy').value = data.killed_by_player_name || '';
+            document.getElementById('editMatchWinner').checked = !!data.is_winner;
+            if (data.ended_at) {
+                var d = new Date(data.ended_at);
+                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                document.getElementById('editMatchDate').value = d.toISOString().slice(0, 16);
+            } else {
+                document.getElementById('editMatchDate').value = '';
+            }
+            new bootstrap.Modal(document.getElementById('editMatchModal')).show();
+        };
+
+        document.getElementById('editMatchConfirmBtn').addEventListener('click', async function() {
+            if (!currentDetailUserId) return;
+            var matchId = document.getElementById('editMatchId').value;
+            if (!matchId) return;
+            showLoading();
+            try {
+                var endedAt = document.getElementById('editMatchDate').value;
+                var params = {
+                    p_match_id: matchId,
+                    p_user_id: currentDetailUserId,
+                    p_room_name: document.getElementById('editMatchRoom').value.trim() || null,
+                    p_character_name: document.getElementById('editMatchChar').value.trim() || null,
+                    p_is_winner: document.getElementById('editMatchWinner').checked,
+                    p_elimination_order: parseInt(document.getElementById('editMatchElimOrder').value) || null,
+                    p_survival_points: parseInt(document.getElementById('editMatchSurvival').value) || 0,
+                    p_killed_by: document.getElementById('editMatchKilledBy').value.trim(),
+                    p_total_players: parseInt(document.getElementById('editMatchPlayers').value) || null,
+                    p_ended_at: endedAt ? new Date(endedAt).toISOString() : null
+                };
+                var result = await supabase.rpc('admin_update_match_participant', params);
+                if (result.error) throw result.error;
+                showToast('Partida atualizada!');
+                bootstrap.Modal.getInstance(document.getElementById('editMatchModal'))?.hide();
+                openUserDetail(currentDetailUserId);
+            } catch (err) { showToast(err.message, 'danger'); }
+            finally { hideLoading(); }
+        });
 
         // ========== BAN ==========
         var banUserId = null;
@@ -1135,6 +1331,8 @@
                     'update_stats': '📊 Stats Editadas',
                     'update_profile': '✏️ Perfil Editado',
                     'delete_match': '🗑️ Partida Removida',
+                    'create_match': '➕ Partida Criada',
+                    'update_match': '✏️ Partida Editada',
                     'update_setting': '⚙️ Config Alterada'
                 };
 

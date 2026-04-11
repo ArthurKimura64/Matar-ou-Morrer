@@ -4,7 +4,10 @@ const path = require('path');
 const crypto = require('crypto');
 
 const jsDir = path.join(__dirname, 'build', 'static', 'js');
-const cacheDir = path.join(__dirname, '.obfuscation-cache');
+// Vercel preserves node_modules/.cache between builds; use it for persistent caching
+const cacheDir = process.env.VERCEL
+  ? path.join(__dirname, 'node_modules', '.cache', 'obfuscation')
+  : path.join(__dirname, '.obfuscation-cache');
 const workerFile = path.join(__dirname, 'obfuscate-worker.js');
 
 if (!fs.existsSync(jsDir)) {

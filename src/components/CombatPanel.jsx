@@ -71,6 +71,16 @@ const CombatPanel = ({
   const [opportunityWeapon, setOpportunityWeapon] = useState(null);
   const [opportunityTarget, setOpportunityTarget] = useState(null); // 'attacker' ou 'defender'
 
+  // Refs para evitar stale closure na subscription
+  const currentPlayerRef = useRef(currentPlayer);
+  currentPlayerRef.current = currentPlayer;
+  const isOpenRef = useRef(isOpen);
+  isOpenRef.current = isOpen;
+  const onToggleRef = useRef(onToggle);
+  onToggleRef.current = onToggle;
+  // Timestamp do último update via Realtime (para saber se polling é necessário)
+  const lastRealtimeRef = useRef(0);
+
   // Buscar ataques/armas disponíveis do jogador atual (memoizado)
   const getAvailableAttacks = useMemo(() => {
     const attacks = [];
@@ -223,6 +233,8 @@ const CombatPanel = ({
     
     console.log('🔔 Iniciando subscription de combate para sala:', roomId);
     
+    let subscriptionHealthy = false;
+    
     // Carregar combate existente primeiro
     loadCombat();
 
@@ -244,18 +256,20 @@ const CombatPanel = ({
         },
         (payload) => {
           console.log('🔔 Atualização de combate recebida:', payload.eventType);
+          lastRealtimeRef.current = Date.now();
           
           const combatData = payload.new || payload.old;
+          const playerId = currentPlayerRef.current?.id;
           
           if (combatData) {
-            const isParticipant = combatData.attacker_id === currentPlayer.id || 
-                                  combatData.defender_id === currentPlayer.id;
+            const isParticipant = combatData.attacker_id === playerId || 
+                                  combatData.defender_id === playerId;
             
             if (isParticipant) {
               // Se é um novo combate e este jogador é o defensor, abrir sidebar
               if (
                 payload.eventType === 'INSERT' &&
-                combatData.defender_id === currentPlayer.id &&
+                combatData.defender_id === playerId &&
                 combatData.status === 'pending'
               ) {
                 try {
@@ -266,9 +280,9 @@ const CombatPanel = ({
                   console.log('Áudio não disponível');
                 }
                 
-                if (!isOpen && onToggle) {
-                  onToggle();
-                } else if (!isOpen) {
+                if (!isOpenRef.current && onToggleRef.current) {
+                  onToggleRef.current();
+                } else if (!isOpenRef.current) {
                   setIsOpenLocal(true);
                 }
               }
@@ -301,7 +315,7 @@ const CombatPanel = ({
                 setCombat(prev => {
                   if (!prev || prev.id === combatData.id) return { ...(prev || {}), ...combatData };
                   // Se sou defensor deste registro, trocar para ele
-                  if (combatData.defender_id === currentPlayer.id) return { ...(prev || {}), ...combatData };
+                  if (combatData.defender_id === playerId) return { ...(prev || {}), ...combatData };
                   return prev;
                 });
               } else {
@@ -321,16 +335,24 @@ const CombatPanel = ({
         console.log('📡 Status da subscription de combate:', status, err);
         if (status === 'SUBSCRIBED') {
           console.log('✅ Subscription de combate ativa para sala:', roomId);
+          subscriptionHealthy = true;
+          // Recarregar ao reconectar para recuperar updates perdidos
+          loadCombat();
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          subscriptionHealthy = false;
           console.error('❌ Erro na subscription de combate:', status);
           // Tentar recarregar combate manualmente
           setTimeout(loadCombat, 1000);
         }
       });
 
-    // Polling backup a cada 5 segundos para garantir sincronização
+    // Polling inteligente: só roda quando subscription está com problema
+    // ou não recebemos update via Realtime há mais de 15 segundos
     const pollInterval = setInterval(() => {
-      loadCombat();
+      const timeSinceLastRealtime = Date.now() - lastRealtimeRef.current;
+      if (!subscriptionHealthy || timeSinceLastRealtime > 15000) {
+        loadCombat();
+      }
     }, 5000);
 
     return () => {
@@ -339,7 +361,7 @@ const CombatPanel = ({
       clearInterval(pollInterval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, currentPlayer?.id, loadCombat, isOpen, onToggle]);
+  }, [roomId, currentPlayer?.id, loadCombat]);
 
   // ========== INICIALIZAR VALORES TEMPORÁRIOS QUANDO COMBATE INICIAR ==========
   useEffect(() => {
@@ -705,31 +727,21 @@ const CombatPanel = ({
 
       const total = finalDice.reduce((sum, val) => sum + val, 0);
 
-      // Atualizar round_data
-      if (isOpportunityAttacker) {
-        roundInfo.attacker = { rolled: true, roll: finalDice, total: total };
-      } else if (isTargetPlayer) {
-        roundInfo.defender = { rolled: true, roll: finalDice, total: total };
-      }
-
-      // Verificar se rodada está completa
-      if (roundInfo.attacker.rolled && roundInfo.defender.rolled) {
-        roundInfo.completed = true;
-      }
-
       setRolling(false);
 
-      // Salvar
-      const { error } = await supabase
-        .from('combat_notifications')
-        .update({
-          round_data: roundData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', combat.id);
+      // Salvar via RPC atômico (evita race condition com ataques de oportunidade)
+      const { data: rollResult, error } = await supabase.rpc('update_combat_roll', {
+        p_combat_id: combat.id,
+        p_round_index: roundIndex,
+        p_is_attacker: isOpportunityAttacker,
+        p_roll: finalDice,
+        p_total: total
+      });
 
       if (error) {
         console.error('Erro ao salvar dados:', error);
+      } else if (rollResult && !rollResult.success) {
+        console.error('Erro ao salvar dados:', rollResult.error);
       }
       
       return;
@@ -867,17 +879,19 @@ const CombatPanel = ({
         }
       }
     } else {
-      // Combate normal 1v1 ou rodadas de contra-ataque: salvar apenas este registro
-      const { error } = await supabase
-        .from('combat_notifications')
-        .update({
-          round_data: roundData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', combat.id);
+      // Combate normal 1v1 ou rodadas de contra-ataque: salvar via RPC atômico
+      const { data: rollResult, error } = await supabase.rpc('update_combat_roll', {
+        p_combat_id: combat.id,
+        p_round_index: roundIndex,
+        p_is_attacker: isAttacker,
+        p_roll: finalDice,
+        p_total: total
+      });
 
       if (error) {
         console.error('Erro ao salvar dados:', error);
+      } else if (rollResult && !rollResult.success) {
+        console.error('Erro ao salvar dados:', rollResult.error);
       }
     }
   };
@@ -2917,8 +2931,9 @@ const CombatPanel = ({
                             {(
                               isOpportunityRound ?
                                 (
-                                  (roundInfo.opportunity_target === 'attacker' && currentPlayer.id === combat.attacker_id) ||
-                                  (roundInfo.opportunity_target === 'defender' && currentPlayer.id === combat.defender_id)
+                                  ((roundInfo.opportunity_target === 'attacker' && currentPlayer.id === combat.attacker_id) ||
+                                  (roundInfo.opportunity_target === 'defender' && currentPlayer.id === combat.defender_id)) &&
+                                  roundInfo.attacker?.rolled  // Atacante de oportunidade deve rolar primeiro
                                 ) :
                                 (((!isAttackerActing && isAttacker) || (isAttackerActing && !isAttacker)) && !waitingForAttacker && !isSpectator)
                             ) && (
@@ -2933,14 +2948,15 @@ const CombatPanel = ({
                             {(
                               isOpportunityRound ?
                                 !(
-                                  (roundInfo.opportunity_target === 'attacker' && currentPlayer.id === combat.attacker_id) ||
-                                  (roundInfo.opportunity_target === 'defender' && currentPlayer.id === combat.defender_id)
+                                  ((roundInfo.opportunity_target === 'attacker' && currentPlayer.id === combat.attacker_id) ||
+                                  (roundInfo.opportunity_target === 'defender' && currentPlayer.id === combat.defender_id)) &&
+                                  roundInfo.attacker?.rolled
                                 ) :
                                 ((waitingForAttacker && ((!isAttackerActing && isAttacker) || (isAttackerActing && !isAttacker))) || (!((isAttackerActing && !isAttacker) || (!isAttackerActing && isAttacker))) || isSpectator)
                             ) && (
                               <div className="combatant-waiting">
                                 <span className="waiting-spinner">⏳</span>
-                                <span>{isSpectator ? 'Espectador' : (waitingForAttacker ? 'Aguarde atacante...' : 'Aguardando...')}</span>
+                                <span>{isSpectator ? 'Espectador' : (isOpportunityRound && !roundInfo.attacker?.rolled ? 'Aguarde atacante...' : (waitingForAttacker ? 'Aguarde atacante...' : 'Aguardando...'))}</span>
                               </div>
                             )}
                           </>
@@ -3962,75 +3978,21 @@ const CombatPanel = ({
               onClick={async () => {
                 if (!opportunityWeapon || !opportunityTarget) return;
                 
-                // Validar estado atual do combate antes de submeter
-                try {
-                  const { data: freshCombat, error: fetchError } = await supabase
-                    .from('combat_notifications')
-                    .select('combat_phase, status, opportunity_attacks_used')
-                    .eq('id', combat.id)
-                    .single();
-                  
-                  if (fetchError || !freshCombat) {
-                    alert('❌ Combate não encontrado. Pode ter sido encerrado.');
-                    setShowOpportunityAttack(false);
-                    return;
-                  }
-                  
-                  if (freshCombat.status === 'completed' || freshCombat.status === 'cancelled') {
-                    alert('❌ Este combate já foi encerrado!');
-                    setShowOpportunityAttack(false);
-                    return;
-                  }
-                  
-                  if (freshCombat.combat_phase !== 'rolling') {
-                    alert('❌ O combate não está na fase de rolagem!');
-                    setShowOpportunityAttack(false);
-                    return;
-                  }
-                  
-                  if (freshCombat.opportunity_attacks_used?.includes(currentPlayer.id)) {
-                    alert('❌ Você já usou seu ataque de oportunidade neste combate!');
-                    setShowOpportunityAttack(false);
-                    return;
-                  }
-                } catch (validationErr) {
-                  console.error('Erro ao validar combate:', validationErr);
-                  alert('Erro ao validar combate. Tente novamente.');
-                  return;
-                }
-                
-                // Adicionar rodada de ataque de oportunidade
-                const currentRoundData = [...(combat.round_data || [])];
-                const newRound = {
-                  round: currentRoundData.length + 1,
-                  who_acts: 'opportunity',
-                  action_type: 'opportunity',
-                  opportunity_attacker_id: currentPlayer.id,
-                  opportunity_attacker_name: currentPlayer.name,
-                  opportunity_weapon: opportunityWeapon,
-                  opportunity_target: opportunityTarget,
-                  attacker: { rolled: false, roll: [], total: 0 },
-                  defender: { rolled: false, roll: [], total: 0 },
-                  completed: false
-                };
-                currentRoundData.push(newRound);
-                
-                // Atualizar combate
-                const opportunityUsed = [...(combat.opportunity_attacks_used || []), currentPlayer.id];
-                
-                const { error } = await supabase
-                  .from('combat_notifications')
-                  .update({
-                    round_data: currentRoundData,
-                    total_rounds: currentRoundData.length,
-                    opportunity_attacks_used: opportunityUsed,
-                    updated_at: new Date().toISOString()
-                  })
-                  .eq('id', combat.id);
+                // Adicionar rodada de ataque de oportunidade via RPC atômico
+                const { data: oaResult, error } = await supabase.rpc('add_opportunity_attack', {
+                  p_combat_id: combat.id,
+                  p_player_id: currentPlayer.id,
+                  p_player_name: currentPlayer.name,
+                  p_weapon: opportunityWeapon,
+                  p_target: opportunityTarget
+                });
                 
                 if (error) {
                   console.error('Erro ao adicionar ataque de oportunidade:', error);
                   alert('Erro ao adicionar ataque. Tente novamente.');
+                } else if (oaResult && !oaResult.success) {
+                  alert(`❌ ${oaResult.error}`);
+                  setShowOpportunityAttack(false);
                 } else {
                   setShowOpportunityAttack(false);
                   setOpportunityWeapon(null);

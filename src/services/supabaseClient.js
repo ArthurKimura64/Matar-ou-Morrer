@@ -19,7 +19,7 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
     params: {
       eventsPerSecond: 10,
     },
-    heartbeatIntervalMs: 60000, // Heartbeat a cada 60 segundos (reduzido overhead)
+    heartbeatIntervalMs: 15000, // Heartbeat a cada 15 segundos (adequado para jogo em tempo real)
     reconnectAfterMs: (tries) => Math.min(tries * 1500, 30000), // Reconexão progressiva mais suave
   },
   auth: {
@@ -46,7 +46,7 @@ class ConnectionMonitor {
   }
 
   startHeartbeat() {
-    // Heartbeat a cada 60 segundos para manter a conexão ativa (reduzido overhead)
+    // Heartbeat a cada 15 segundos para manter a conexão ativa
     this.heartbeatInterval = setInterval(async () => {
       try {
         const { error } = await supabase
@@ -69,7 +69,7 @@ class ConnectionMonitor {
         }
         this.attemptReconnect();
       }
-    }, 60000); // Aumentado para 60 segundos
+    }, 15000); // 15 segundos para jogo em tempo real
   }
 
   setupConnectionListeners() {
