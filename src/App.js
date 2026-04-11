@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { RoomService } from './services/roomService';
 import { PlayerPersistence } from './utils/playerPersistence';
 import authService from './services/authService';
-import { supabase } from './services/supabaseClient';
 import AuthModal from './components/AuthModal';
 import UserMenu from './components/UserMenu';
 import './App.css';
@@ -13,7 +12,6 @@ const CharacterBuilder = lazy(() => import('./components/CharacterBuilder'));
 const CharacterSheet = lazy(() => import('./components/CharacterSheet'));
 const RoomLobby = lazy(() => import('./components/RoomLobby'));
 const RoomView = lazy(() => import('./components/RoomView'));
-const AdminPanel = lazy(() => import('./components/AdminPanel'));
 const ProfilePage = lazy(() => import('./components/ProfilePage'));
 const RankingPage = lazy(() => import('./components/RankingPage'));
 
@@ -279,33 +277,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Verificar se a URL contém "admin" para mostrar o painel de administração
-    const isAdminUrl = window.location.pathname.includes('admin') || 
-      new URLSearchParams(window.location.search).get('admin') === 'true';
-    
-    if (isAdminUrl) {
-      // Verificar autenticação + permissão de admin via RPC (server-side)
-      (async () => {
-        try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) {
-            console.warn('Acesso admin negado: usuário não autenticado');
-            // Não redirecionar — continua carregamento normal do menu
-          } else {
-            const { data: isAdmin, error } = await supabase.rpc('is_user_admin', { p_user_id: user.id });
-            if (error || !isAdmin) {
-              console.warn('Acesso admin negado: usuário não é administrador');
-            } else {
-              setCurrentView('admin');
-              return;
-            }
-          }
-        } catch (err) {
-          console.warn('Erro ao verificar acesso admin:', err);
-        }
-      })();
-    }
-    
     // Gerar ID de sessão para controlar múltiplas abas
     if (!PlayerPersistence.isSameSession()) {
       PlayerPersistence.generateSessionId();
@@ -759,55 +730,6 @@ function App() {
             localization={localization}
           />
         </Suspense>
-      )}
-
-      {/* Painel de Administração Escondido */}
-      {currentView === 'admin' && (
-        <>
-          <div className="row">
-            <div className="col-12 text-center mb-4">
-              <img 
-                src="KillOrDieLogo.png"
-                alt="Kill or Die" 
-                className="img-fluid rounded mx-auto d-block my-3"
-                style={{maxHeight: '200px'}} 
-              />
-              <h2 className="text-white">🛠️ Painel de Administração</h2>
-              <p className="text-light">Sistema de monitoramento e limpeza automática</p>
-            </div>
-          </div>
-          
-          <div className="row">
-            <div className="col-12">
-              <Suspense fallback={<LoadingFallback />}>
-                <AdminPanel />
-              </Suspense>
-            </div>
-          </div>
-          
-          <div className="row mt-4">
-            <div className="col-12 text-center">
-              <button 
-                className="btn btn-outline-light btn-lg"
-                onClick={() => {
-                  setCurrentView('menu');
-                  window.history.pushState({}, '', '/');
-                }}
-              >
-                ← Voltar ao Jogo Principal
-              </button>
-            </div>
-          </div>
-          
-          <div className="row mt-4">
-            <div className="col-12">
-              <div className="alert alert-warning" role="alert">
-                <strong>⚠️ Página Restrita:</strong> Esta página é destinada apenas para administradores do sistema.
-                Use com cuidado ao executar limpezas manuais.
-              </div>
-            </div>
-          </div>
-        </>
       )}
 
     </div>

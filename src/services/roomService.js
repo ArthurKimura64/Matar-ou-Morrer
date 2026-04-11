@@ -925,37 +925,11 @@ export class RoomService {
   // SISTEMA DE PARTIDAS (MATCH)
   // ================================
 
-  // Iniciar uma partida na sala
+  // Iniciar uma partida na sala (via RPC server-side)
   static async startMatch(roomId) {
     try {
-      const matchStartedAt = new Date().toISOString();
-
-      // Atualizar status da sala para partida em andamento
-      const { error: roomError } = await supabase
-        .from('rooms')
-        .update({ 
-          match_status: 'in_progress',
-          match_started_at: matchStartedAt,
-          last_activity: matchStartedAt
-        })
-        .eq('id', roomId);
-
-      if (roomError) throw roomError;
-
-      // Marcar todos os jogadores conectados e prontos como vivos, resetar elimination_order
-      const { error: playersError } = await supabase
-        .from('players')
-        .update({ 
-          is_alive: true, 
-          killed_by_player_id: null,
-          elimination_order: null,
-          last_activity: matchStartedAt
-        })
-        .eq('room_id', roomId)
-        .eq('status', 'ready')
-        .eq('is_connected', true);
-
-      if (playersError) throw playersError;
+      const { error } = await supabase.rpc('start_match', { p_room_id: roomId });
+      if (error) throw error;
 
       // Limpar cache
       queryCache.clear(`players_${roomId}`);
@@ -1014,38 +988,17 @@ export class RoomService {
     }
   }
 
-  // Declarar vitória e encerrar a partida
+  // Declarar vitória e encerrar a partida (via RPC server-side)
+  // Registra stats + reseta match atomicamente
   static async declareVictory(roomId) {
     try {
-      // Encerrar a partida (match_status volta a NULL)
-      const { error: roomError } = await supabase
-        .from('rooms')
-        .update({ 
-          match_status: null,
-          match_started_at: null,
-          last_activity: new Date().toISOString()
-        })
-        .eq('id', roomId);
-
-      if (roomError) throw roomError;
-
-      // Resetar is_alive, killed_by e elimination_order de todos os jogadores da sala
-      const { error: playersError } = await supabase
-        .from('players')
-        .update({ 
-          is_alive: true, 
-          killed_by_player_id: null,
-          elimination_order: null,
-          last_activity: new Date().toISOString()
-        })
-        .eq('room_id', roomId);
-
-      if (playersError) throw playersError;
+      const { data, error } = await supabase.rpc('end_match', { p_room_id: roomId });
+      if (error) throw error;
 
       // Limpar cache
       queryCache.clear(`players_${roomId}`);
 
-      return { success: true };
+      return { success: true, data };
     } catch (error) {
       console.error('Erro ao declarar vitória:', error);
       return { success: false, error: error.message };

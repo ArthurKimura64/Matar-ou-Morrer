@@ -10,7 +10,11 @@
   },
   "rewrites": [
     {
-      "source": "/((?!api/.*).*)",
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/((?!api/|admin).*)",
       "destination": "/index.html"
     }
   ],

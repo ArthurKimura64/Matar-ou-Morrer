@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { RoomService } from '../services/roomService';
-import authService from '../services/authService';
 
 const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, currentUser, localization, onMatchEnd, onMatchStart }) => {
   const [showEliminationModal, setShowEliminationModal] = useState(false);
@@ -52,59 +51,9 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
     if (!window.confirm('Você tem certeza que deseja declarar vitória e encerrar a partida?')) return;
     setLoading(true);
     try {
-      // Registrar resultado da partida antes de resetar dados
-      try {
-        const winnerUserId = currentPlayer?.user_id || null;
-        const totalPlayers = players.filter(p => p.is_connected && p.status === 'ready').length;
-        
-        // Montar dados dos participantes
-        const participantsData = players
-          .filter(p => p.is_connected && p.status === 'ready')
-          .map(p => {
-            const isWinner = p.id === currentPlayer?.id;
-            // Calcular eliminações feitas por este jogador
-            const eliminationsMade = players.filter(other => other.killed_by_player_id === p.id).length;
-            // Survival points = quantos jogadores foram eliminados antes dele
-            const survivalPoints = isWinner 
-              ? totalPlayers - 1 
-              : (p.elimination_order ? p.elimination_order - 1 : 0);
-            
-            return {
-              user_id: p.user_id || '',
-              player_name: p.name,
-              character_name: p.character_name || '',
-              elimination_order: isWinner ? null : (p.elimination_order || null),
-              killed_by_user_id: p.killed_by_player_id 
-                ? (players.find(k => k.id === p.killed_by_player_id)?.user_id || '') 
-                : '',
-              killed_by_player_name: p.killed_by_player_id 
-                ? (players.find(k => k.id === p.killed_by_player_id)?.name || '') 
-                : '',
-              survival_points: survivalPoints,
-              is_winner: isWinner,
-              eliminations_made: eliminationsMade
-            };
-          });
-
-        // Só registrar se ao menos 1 participante tem conta
-        const hasLoggedInPlayer = participantsData.some(p => p.user_id);
-        if (hasLoggedInPlayer) {
-          await authService.recordMatchResult(
-            roomId,
-            room?.name || '',
-            room?.match_started_at || new Date().toISOString(),
-            winnerUserId,
-            currentPlayer?.name || '',
-            totalPlayers,
-            participantsData
-          );
-        }
-      } catch (recordErr) {
-        console.warn('Erro ao registrar resultado da partida (não bloqueante):', recordErr);
-      }
-
-      await RoomService.declareVictory(roomId);
-      if (onMatchEnd) onMatchEnd();
+      // end_match RPC registra stats + reseta match atomicamente no servidor
+      const result = await RoomService.declareVictory(roomId);
+      if (result.success && onMatchEnd) onMatchEnd();
     } catch (err) {
       console.error('Erro ao declarar vitória:', err);
     }

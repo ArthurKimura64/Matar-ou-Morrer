@@ -183,7 +183,7 @@ const RoomView = ({
       if (roomSub) RoomService.unsubscribeFromRoom(roomSub);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [room.id]);
+  }, [room.id, room.match_status]);
 
   // Dados do jogador atual derivados dos players
   const currentPlayerData = players.find(p => p.id === currentPlayer?.id);
