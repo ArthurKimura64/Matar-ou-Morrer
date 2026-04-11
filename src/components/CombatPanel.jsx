@@ -20,7 +20,8 @@ const CombatPanel = ({
   gameData,
   localization = {},
   isOpen: isOpenProp,
-  onToggle
+  onToggle,
+  matchStatus
 }) => {
   // Usar estado local apenas se não for controlado externamente
   const [isOpenLocal, setIsOpenLocal] = useState(false);
@@ -288,7 +289,8 @@ const CombatPanel = ({
                   const idx = prev.findIndex(c => c.id === combatData.id);
                   if (idx >= 0) {
                     const updated = [...prev];
-                    updated[idx] = combatData;
+                    // MERGE: preservar dados existentes, sobrescrever apenas campos recebidos
+                    updated[idx] = { ...prev[idx], ...combatData };
                     return updated;
                   } else if (payload.eventType === 'INSERT') {
                     return [...prev, combatData];
@@ -297,14 +299,19 @@ const CombatPanel = ({
                 });
                 // Atualizar combat se este registro é o ativo
                 setCombat(prev => {
-                  if (!prev || prev.id === combatData.id) return combatData;
+                  if (!prev || prev.id === combatData.id) return { ...(prev || {}), ...combatData };
                   // Se sou defensor deste registro, trocar para ele
-                  if (combatData.defender_id === currentPlayer.id) return combatData;
+                  if (combatData.defender_id === currentPlayer.id) return { ...(prev || {}), ...combatData };
                   return prev;
                 });
               } else {
-                setCombat(combatData);
-                setCombatGroup([combatData]);
+                setCombat(prev => prev ? { ...prev, ...combatData } : combatData);
+                setCombatGroup(prev => {
+                  if (prev.length > 0 && prev[0].id === combatData.id) {
+                    return [{ ...prev[0], ...combatData }];
+                  }
+                  return [combatData];
+                });
               }
             }
           }
@@ -1020,16 +1027,17 @@ const CombatPanel = ({
     }
   };
 
-  // Filtrar jogadores disponíveis (excluir o próprio jogador e apenas com personagem criado)
+  // Filtrar jogadores disponíveis (excluir o próprio jogador, eliminados, e apenas com personagem criado)
   const getAvailableTargets = useMemo(() => {
     return players.filter(player => 
       player.id !== currentPlayer?.id && 
       player.character?.selections &&
-      player.status !== 'offline'
+      player.status !== 'offline' &&
+      player.is_alive !== false
     );
   }, [players, currentPlayer?.id]);
 
-  // Jogadores disponíveis para trocar o defensor (exclui defensores já no grupo)
+  // Jogadores disponíveis para trocar o defensor (exclui defensores já no grupo e eliminados)
   const getSwapTargets = useMemo(() => {
     const groupDefenderIds = combatGroup.map(gc => gc.defender_id);
     return players.filter(p =>
@@ -1037,7 +1045,8 @@ const CombatPanel = ({
       p.id !== combat?.defender_id &&
       !groupDefenderIds.includes(p.id) &&
       p.character?.selections &&
-      p.status !== 'offline'
+      p.status !== 'offline' &&
+      p.is_alive !== false
     );
   }, [players, currentPlayer?.id, combat?.defender_id, combatGroup]);
 
@@ -1089,6 +1098,11 @@ const CombatPanel = ({
 
   // Iniciar combate
   const handleStartCombat = async () => {
+    if (matchStatus !== 'in_progress') {
+      alert('⚠️ Inicie uma partida antes de iniciar combates!');
+      return;
+    }
+
     if (!selectedAttack) {
       alert('Selecione um ataque ou arma!');
       return;
@@ -2394,7 +2408,8 @@ const CombatPanel = ({
                         
                         {/* Botão de Ataque de Oportunidade */}
                         {combat.allow_opportunity_attacks && 
-                         !combat.opportunity_attacks_used?.includes(currentPlayer.id) && (
+                         !combat.opportunity_attacks_used?.includes(currentPlayer.id) && 
+                         availableAttacks.length > 0 && (
                           <button 
                             className="btn btn-warning w-100 mb-2"
                             onClick={() => setShowOpportunityAttack(true)}
@@ -3123,8 +3138,14 @@ const CombatPanel = ({
           ) : (
             /* ========== INICIAR NOVO COMBATE ========== */
             <>
-              {/* Verificar se jogador tem personagem */}
-              {!currentPlayerData?.character?.selections ? (
+              {/* Verificar se há partida ativa */}
+              {matchStatus !== 'in_progress' ? (
+                <div className="alert alert-info">
+                  <p className="mb-0">
+                    🏁 Inicie uma partida antes de iniciar combates!
+                  </p>
+                </div>
+              ) : !currentPlayerData?.character?.selections ? (
                 <div className="alert alert-warning">
                   <p className="mb-0">
                     ⚠️ Você precisa criar um personagem antes de iniciar combates!
@@ -3940,6 +3961,43 @@ const CombatPanel = ({
               disabled={!opportunityWeapon || !opportunityTarget}
               onClick={async () => {
                 if (!opportunityWeapon || !opportunityTarget) return;
+                
+                // Validar estado atual do combate antes de submeter
+                try {
+                  const { data: freshCombat, error: fetchError } = await supabase
+                    .from('combat_notifications')
+                    .select('combat_phase, status, opportunity_attacks_used')
+                    .eq('id', combat.id)
+                    .single();
+                  
+                  if (fetchError || !freshCombat) {
+                    alert('❌ Combate não encontrado. Pode ter sido encerrado.');
+                    setShowOpportunityAttack(false);
+                    return;
+                  }
+                  
+                  if (freshCombat.status === 'completed' || freshCombat.status === 'cancelled') {
+                    alert('❌ Este combate já foi encerrado!');
+                    setShowOpportunityAttack(false);
+                    return;
+                  }
+                  
+                  if (freshCombat.combat_phase !== 'rolling') {
+                    alert('❌ O combate não está na fase de rolagem!');
+                    setShowOpportunityAttack(false);
+                    return;
+                  }
+                  
+                  if (freshCombat.opportunity_attacks_used?.includes(currentPlayer.id)) {
+                    alert('❌ Você já usou seu ataque de oportunidade neste combate!');
+                    setShowOpportunityAttack(false);
+                    return;
+                  }
+                } catch (validationErr) {
+                  console.error('Erro ao validar combate:', validationErr);
+                  alert('Erro ao validar combate. Tente novamente.');
+                  return;
+                }
                 
                 // Adicionar rodada de ataque de oportunidade
                 const currentRoundData = [...(combat.round_data || [])];

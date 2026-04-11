@@ -26,11 +26,14 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
     setLoading(true);
     try {
       const result = await RoomService.startMatch(roomId);
-      if (result.success && onMatchStart) {
-        onMatchStart();
+      if (result.success) {
+        if (onMatchStart) onMatchStart();
+      } else {
+        alert('Erro ao iniciar partida: ' + (result.error || 'Erro desconhecido'));
       }
     } catch (err) {
       console.error('Erro ao iniciar partida:', err);
+      alert('Erro ao iniciar partida: ' + (err.message || 'Erro de conexão'));
     }
     setLoading(false);
   };
@@ -38,11 +41,16 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
   const handleDeclareElimination = async () => {
     setLoading(true);
     try {
-      await RoomService.declareElimination(currentPlayer.id, selectedKiller);
-      setShowEliminationModal(false);
-      setSelectedKiller(null);
+      const result = await RoomService.declareElimination(currentPlayer.id, selectedKiller);
+      if (result.success) {
+        setShowEliminationModal(false);
+        setSelectedKiller(null);
+      } else {
+        alert('Erro ao declarar eliminação: ' + (result.error || 'Erro desconhecido'));
+      }
     } catch (err) {
       console.error('Erro ao declarar eliminação:', err);
+      alert('Erro ao declarar eliminação: ' + (err.message || 'Erro de conexão'));
     }
     setLoading(false);
   };
@@ -53,9 +61,14 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
     try {
       // end_match RPC registra stats + reseta match atomicamente no servidor
       const result = await RoomService.declareVictory(roomId);
-      if (result.success && onMatchEnd) onMatchEnd();
+      if (result.success) {
+        if (onMatchEnd) onMatchEnd();
+      } else {
+        alert('Erro ao encerrar partida: ' + (result.error || 'Erro desconhecido'));
+      }
     } catch (err) {
       console.error('Erro ao declarar vitória:', err);
+      alert('Erro ao encerrar partida: ' + (err.message || 'Erro de conexão'));
     }
     setLoading(false);
   };

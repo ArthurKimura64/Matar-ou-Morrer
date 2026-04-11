@@ -770,7 +770,26 @@ export class RoomService {
   // Verificar se jogador já existe na sala
   static async findExistingPlayer(roomId, playerName) {
     try {
-      
+      // Se autenticado, buscar primeiro por user_id (mais confiável)
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: byUser, error: userError } = await supabase
+          .from('players')
+          .select('*')
+          .eq('room_id', roomId)
+          .eq('user_id', user.id)
+          .order('joined_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (byUser) {
+          return { success: true, player: byUser };
+        }
+        if (userError && userError.code !== 'PGRST116') throw userError;
+      }
+
+      // Fallback: buscar por nome (anônimos ou jogadores antigos sem user_id)
       const { data, error } = await supabase
         .from('players')
         .select('*')
@@ -780,12 +799,13 @@ export class RoomService {
         .limit(1)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      if (error && error.code !== 'PGRST116') {
         throw error;
       }
 
-      if (data) {
-      } else {
+      // Se encontrou por nome mas pertence a outro usuário, não retornar
+      if (data && data.user_id && user && data.user_id !== user.id) {
+        return { success: true, player: null };
       }
 
       return { success: true, player: data };
@@ -941,45 +961,26 @@ export class RoomService {
     }
   }
 
-  // Declarar eliminação de um jogador
+  // Declarar eliminação de um jogador (via RPC server-side atômico)
   static async declareElimination(playerId, killerPlayerId = null) {
     try {
-      // Buscar room_id do jogador
-      const { data: player, error: fetchError } = await supabase
+      const { error } = await supabase.rpc('declare_elimination', {
+        p_player_id: playerId,
+        p_killer_player_id: killerPlayerId
+      });
+
+      if (error) throw error;
+
+      // Limpar cache — buscar room_id do jogador para invalidar corretamente
+      const { data: player } = await supabase
         .from('players')
         .select('room_id')
         .eq('id', playerId)
         .single();
 
-      if (fetchError) throw fetchError;
-
-      // Contar quantos jogadores já foram eliminados para determinar a ordem
-      const { count, error: countError } = await supabase
-        .from('players')
-        .select('id', { count: 'exact', head: true })
-        .eq('room_id', player.room_id)
-        .eq('is_alive', false)
-        .not('elimination_order', 'is', null);
-
-      if (countError) throw countError;
-
-      const eliminationOrder = (count || 0) + 1;
-
-      // Marcar jogador como eliminado com ordem de eliminação
-      const { error: updateError } = await supabase
-        .from('players')
-        .update({ 
-          is_alive: false, 
-          killed_by_player_id: killerPlayerId,
-          elimination_order: eliminationOrder,
-          last_activity: new Date().toISOString()
-        })
-        .eq('id', playerId);
-
-      if (updateError) throw updateError;
-
-      // Limpar cache
-      queryCache.clear(`players_${player.room_id}`);
+      if (player) {
+        queryCache.clear(`players_${player.room_id}`);
+      }
 
       return { success: true };
     } catch (error) {

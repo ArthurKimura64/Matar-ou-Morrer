@@ -128,22 +128,24 @@ const RoomView = ({
           if (prev.some(p => p.id === newRecord.id)) return prev;
           updated = [...prev, newRecord];
         } else if (eventType === 'UPDATE') {
-          // Jogador atualizado — substituir no array
+          // Jogador atualizado — MERGE com dados existentes para preservar campos
+          // que o Realtime não envia (payload parcial sem REPLICA IDENTITY FULL)
           const idx = prev.findIndex(p => p.id === newRecord.id);
           if (idx === -1) {
             // Jogador reconectado que não estava na lista
-            if (newRecord.is_connected) {
+            if (newRecord.is_connected !== false) {
               updated = [...prev, newRecord];
             } else {
               return prev;
             }
           } else {
-            // Se o jogador desconectou, remover da lista
-            if (!newRecord.is_connected) {
+            // Verificar desconexão EXPLÍCITA (is_connected === false, não undefined)
+            if (newRecord.is_connected === false) {
               updated = prev.filter(p => p.id !== newRecord.id);
             } else {
               updated = [...prev];
-              updated[idx] = newRecord;
+              // MERGE: preservar dados existentes, sobrescrever apenas campos recebidos
+              updated[idx] = { ...prev[idx], ...newRecord };
             }
           }
         } else if (eventType === 'DELETE') {
@@ -515,6 +517,7 @@ const RoomView = ({
         localization={localization}
         isOpen={openSidebar === 'combat'}
         onToggle={handleToggleCombat}
+        matchStatus={matchStatus}
       />
     </div>
   );

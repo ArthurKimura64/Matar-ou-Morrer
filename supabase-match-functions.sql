@@ -16,13 +16,26 @@ DECLARE
     v_ready_count INTEGER;
 BEGIN
     -- Verificar que o chamador é jogador conectado na sala
-    IF NOT EXISTS (
-        SELECT 1 FROM public.players
-        WHERE room_id = p_room_id
-        AND user_id = auth.uid()
-        AND is_connected = true
-    ) THEN
-        RAISE EXCEPTION 'Apenas jogadores conectados na sala podem iniciar a partida';
+    -- Suporte dual: autenticado (verifica user_id) ou anônimo (verifica apenas existência)
+    IF auth.uid() IS NOT NULL THEN
+        -- Jogador autenticado: verificar que user_id corresponde
+        IF NOT EXISTS (
+            SELECT 1 FROM public.players
+            WHERE room_id = p_room_id
+            AND user_id = auth.uid()
+            AND is_connected = true
+        ) THEN
+            RAISE EXCEPTION 'Apenas jogadores conectados na sala podem iniciar a partida';
+        END IF;
+    ELSE
+        -- Jogador anônimo: verificar que há pelo menos um jogador conectado na sala
+        IF NOT EXISTS (
+            SELECT 1 FROM public.players
+            WHERE room_id = p_room_id
+            AND is_connected = true
+        ) THEN
+            RAISE EXCEPTION 'Apenas jogadores conectados na sala podem iniciar a partida';
+        END IF;
     END IF;
 
     -- Buscar sala
@@ -64,6 +77,10 @@ BEGIN
     AND status = 'ready'
     AND is_connected = true;
 
+    -- Limpar combates residuais da sala (partida anterior)
+    DELETE FROM public.combat_notifications
+    WHERE room_id = p_room_id;
+
     RETURN json_build_object('success', true);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -87,13 +104,26 @@ DECLARE
     v_max_char VARCHAR(100);
 BEGIN
     -- Verificar que o chamador é jogador conectado na sala
-    IF NOT EXISTS (
-        SELECT 1 FROM public.players
-        WHERE room_id = p_room_id
-        AND user_id = auth.uid()
-        AND is_connected = true
-    ) THEN
-        RAISE EXCEPTION 'Apenas jogadores conectados na sala podem encerrar a partida';
+    -- Suporte dual: autenticado (verifica user_id) ou anônimo (verifica apenas existência)
+    IF auth.uid() IS NOT NULL THEN
+        -- Jogador autenticado: verificar que user_id corresponde
+        IF NOT EXISTS (
+            SELECT 1 FROM public.players
+            WHERE room_id = p_room_id
+            AND user_id = auth.uid()
+            AND is_connected = true
+        ) THEN
+            RAISE EXCEPTION 'Apenas jogadores conectados na sala podem encerrar a partida';
+        END IF;
+    ELSE
+        -- Jogador anônimo: verificar que há pelo menos um jogador conectado na sala
+        IF NOT EXISTS (
+            SELECT 1 FROM public.players
+            WHERE room_id = p_room_id
+            AND is_connected = true
+        ) THEN
+            RAISE EXCEPTION 'Apenas jogadores conectados na sala podem encerrar a partida';
+        END IF;
     END IF;
 
     -- Buscar sala
@@ -228,6 +258,10 @@ BEGIN
 
     -- ====== RESETAR ESTADO DA PARTIDA ======
 
+    -- Limpar combates da sala ao encerrar partida
+    DELETE FROM public.combat_notifications
+    WHERE room_id = p_room_id;
+
     -- Encerrar partida na sala
     UPDATE public.rooms SET
         match_status = NULL,
@@ -255,4 +289,83 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 3. Grant execute permissions
 -- ============================================================
 GRANT EXECUTE ON FUNCTION public.start_match(VARCHAR) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.start_match(VARCHAR) TO anon;
 GRANT EXECUTE ON FUNCTION public.end_match(VARCHAR) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.end_match(VARCHAR) TO anon;
+
+-- ============================================================
+-- 4. declare_elimination(p_player_id, p_killer_player_id)
+--    Atomic elimination with advisory lock to prevent duplicate
+--    elimination_order values from concurrent declarations.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.declare_elimination(
+    p_player_id UUID,
+    p_killer_player_id UUID DEFAULT NULL
+) RETURNS JSON AS $$
+DECLARE
+    v_player RECORD;
+    v_elimination_order INTEGER;
+    v_room_lock BIGINT;
+BEGIN
+    -- Buscar jogador e validar
+    SELECT * INTO v_player
+    FROM public.players
+    WHERE id = p_player_id
+    AND is_connected = true;
+
+    IF v_player IS NULL THEN
+        RAISE EXCEPTION 'Jogador não encontrado ou desconectado';
+    END IF;
+
+    -- Verificar ownership: autenticado deve ser o próprio jogador
+    IF auth.uid() IS NOT NULL AND v_player.user_id IS NOT NULL THEN
+        IF v_player.user_id != auth.uid() THEN
+            RAISE EXCEPTION 'Você só pode declarar sua própria eliminação';
+        END IF;
+    END IF;
+
+    -- Verificar que o jogador ainda está vivo
+    IF v_player.is_alive = false THEN
+        RAISE EXCEPTION 'Jogador já foi eliminado';
+    END IF;
+
+    -- Verificar que há partida ativa na sala
+    IF NOT EXISTS (
+        SELECT 1 FROM public.rooms
+        WHERE id = v_player.room_id
+        AND match_status = 'in_progress'
+    ) THEN
+        RAISE EXCEPTION 'Não há partida ativa nesta sala';
+    END IF;
+
+    -- Advisory lock por sala para serializar eliminações concorrentes
+    -- Usar hashtext do room_id como chave de lock
+    v_room_lock := hashtext(v_player.room_id::text);
+    PERFORM pg_advisory_xact_lock(v_room_lock);
+
+    -- Contar eliminações existentes (protegido pelo lock)
+    SELECT COUNT(*) INTO v_elimination_order
+    FROM public.players
+    WHERE room_id = v_player.room_id
+    AND is_alive = false
+    AND elimination_order IS NOT NULL;
+
+    v_elimination_order := v_elimination_order + 1;
+
+    -- Marcar jogador como eliminado
+    UPDATE public.players SET
+        is_alive = false,
+        killed_by_player_id = p_killer_player_id,
+        elimination_order = v_elimination_order,
+        last_activity = NOW()
+    WHERE id = p_player_id;
+
+    RETURN json_build_object(
+        'success', true,
+        'elimination_order', v_elimination_order
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.declare_elimination(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.declare_elimination(UUID, UUID) TO anon;

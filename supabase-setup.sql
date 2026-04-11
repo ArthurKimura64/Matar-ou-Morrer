@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS public.players (
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- REPLICA IDENTITY FULL: garante que Realtime envia TODAS as colunas em UPDATEs
+-- Sem isso, payloads parciais apagam dados de personagem ao iniciar partida
+ALTER TABLE public.players REPLICA IDENTITY FULL;
+
 -- Adicionar colunas de status se não existirem (para compatibilidade com bancos antigos)
 ALTER TABLE public.players 
 ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'selecting';
@@ -650,6 +654,9 @@ CREATE TABLE IF NOT EXISTS public.combat_notifications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- REPLICA IDENTITY FULL: garante payloads Realtime completos para combate
+ALTER TABLE public.combat_notifications REPLICA IDENTITY FULL;
 
 -- Adicionar coluna opportunity_attacks_used se não existir (para compatibilidade com bancos antigos)
 ALTER TABLE public.combat_notifications 

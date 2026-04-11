@@ -130,7 +130,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
   // Isso evita que contadores, cartas expostas, itens usados/desbloqueados e contadores
   // adicionais do personagem anterior permaneçam na ficha quando o jogador escolher outro personagem.
   useEffect(() => {
-    if (!currentPlayer?.id || !actor?.ID) return;
+    if (!actor?.ID) return;
     
     // Se é o mesmo personagem que já processamos, não resetar
     // (isso evita resetar ao recarregar a página com o mesmo personagem)
@@ -148,15 +148,19 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
       try {
         // Resetar contadores base para os valores iniciais do novo actor
         setCounters(initialCounters);
-        await RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
+        if (currentPlayer?.id) {
+          await RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
+        }
 
         // Limpar cartas expostas e itens usados/desbloqueados
         setExposedCards(new Set());
         setUsedItems(new Set());
         setUnlockedItems(new Set());
-        await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
-        await RoomService.updatePlayerUsedItems(currentPlayer.id, []);
-        await RoomService.updatePlayerUnlockedItems(currentPlayer.id, []);
+        if (currentPlayer?.id) {
+          await RoomService.updatePlayerExposedCards(currentPlayer.id, []);
+          await RoomService.updatePlayerUsedItems(currentPlayer.id, []);
+          await RoomService.updatePlayerUnlockedItems(currentPlayer.id, []);
+        }
 
         // Resetar contadores adicionais conforme definição do novo personagem
         const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
@@ -166,7 +170,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           resetAdditional[key] = { ...counter, current: 0 };
         });
         setAdditionalCounters(resetAdditional);
-        await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetAdditional);
+        if (currentPlayer?.id) {
+          await RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetAdditional);
+        }
 
         // Limpar assignments do Copiador ao trocar de personagem
         setCopycatAssignments({});
@@ -183,19 +189,25 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
 
   // Calcular características do personagem criado - Otimizado
   useEffect(() => {
-    if (actor && selections && currentPlayer?.id) {
+    if (!actor || !selections) return;
+
+    // --- Contadores adicionais (funciona em solo E em sala) ---
+    const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
+    const additionalCountersData = getCharacterAdditionalCounters(characterName, { 
+      actor, 
+      selections, 
+      gameData, 
+      localization 
+    });
+
+    if (currentPlayer?.id) {
+      // === MODO SALA: restaurar do banco + sincronizar ===
+      
       // RESTAURAR contadores salvos do banco, ou usar valores iniciais
       if (currentPlayer.counters) {
-
-        // Mesclar contadores salvos com initialCounters,
-        // MAS garantir que os valores "*_max" sempre venham dos valores iniciais do ator.
-        // Isso evita que valores máximos salvos incorretamente (por versões antigas ou bugs)
-        // substituam os limites reais do personagem.
         const saved = currentPlayer.counters || {};
         const restoredCounters = {
-          // Começar com os valores salvos (preserva o estado atual do usuário)
           ...saved,
-          // Garantir que os campos base existam e os *_max corretos sejam aplicados
           vida: saved.vida !== undefined ? saved.vida : initialCounters.vida,
           vida_max: initialCounters.vida_max || 20,
           esquiva: saved.esquiva !== undefined ? saved.esquiva : initialCounters.esquiva,
@@ -207,12 +219,9 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         };
 
         setCounters(restoredCounters);
-
-        // Atualizar o banco com os valores corrigidos (forçar *_max corretos caso estivesse salvo errado)
         RoomService.updatePlayerCounters(currentPlayer.id, restoredCounters);
       } else {
         setCounters(initialCounters);
-        // Sincronizar com o banco de dados
         RoomService.updatePlayerCounters(currentPlayer.id, initialCounters);
       }
 
@@ -224,48 +233,42 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
         console.error('❌ Falha ao salvar seleções:', error);
       });
       
-      // Configurar contadores adicionais baseados nas SpecialCharacteristics
-      const characterName = localization[`Character.Name.${actor.ID}`] || actor.ID;
-      const additionalCountersData = getCharacterAdditionalCounters(characterName, { 
-        actor, 
-        selections, 
-        gameData, 
-        localization 
-      });
-      
       // RESTAURAR contadores adicionais do banco, ou resetar para 0
-      {
-        // If player has saved additional_counters, ensure they match the new character's counter keys.
-        const saved = currentPlayer.additional_counters || {};
-        const savedKeys = new Set(Object.keys(saved));
-        const expectedKeys = new Set(Object.keys(additionalCountersData));
+      const saved = currentPlayer.additional_counters || {};
+      const savedKeys = new Set(Object.keys(saved));
+      const expectedKeys = new Set(Object.keys(additionalCountersData));
 
-        const keysMatch = savedKeys.size === expectedKeys.size &&
-          [...expectedKeys].every(k => savedKeys.has(k));
+      const keysMatch = savedKeys.size === expectedKeys.size &&
+        [...expectedKeys].every(k => savedKeys.has(k));
 
-        if (saved && Object.keys(saved).length > 0 && keysMatch) {
-          // Saved counters match the current character's definitions -> restore them
-          setAdditionalCounters(saved);
-        } else {
-          // Mismatch or no saved counters -> build fresh reset counters from definitions
-          const resetCountersData = {};
-          Object.entries(additionalCountersData).forEach(([key, counter]) => {
-            resetCountersData[key] = {
-              ...counter,
-              current: 0 // Começar sempre em 0 na ficha
-            };
-          });
+      if (saved && Object.keys(saved).length > 0 && keysMatch) {
+        setAdditionalCounters(saved);
+      } else {
+        const resetCountersData = {};
+        Object.entries(additionalCountersData).forEach(([key, counter]) => {
+          resetCountersData[key] = {
+            ...counter,
+            current: 0
+          };
+        });
 
-          setAdditionalCounters(resetCountersData);
-
-          // Persist reset counters to the DB so future reloads don't re-use old counters
-          if (currentPlayer?.id) {
-            RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData).catch(err => {
-              console.error('Erro ao persistir contadores adicionais resetados:', err);
-            });
-          }
-        }
+        setAdditionalCounters(resetCountersData);
+        RoomService.updatePlayerAdditionalCounters(currentPlayer.id, resetCountersData).catch(err => {
+          console.error('Erro ao persistir contadores adicionais resetados:', err);
+        });
       }
+    } else {
+      // === MODO SOLO: inicializar localmente sem banco ===
+      setCounters(initialCounters);
+
+      const resetCountersData = {};
+      Object.entries(additionalCountersData).forEach(([key, counter]) => {
+        resetCountersData[key] = {
+          ...counter,
+          current: 0
+        };
+      });
+      setAdditionalCounters(resetCountersData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actor?.ID, selections, currentPlayer?.id, initialCounters]);

@@ -179,15 +179,8 @@ export class PlayerPersistence {
 
       const supabase = await getSupabase();
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // Se não está autenticado, sessão inválida
-      if (!user) {
-        console.warn('Sessão inválida: usuário não autenticado');
-        this.clearPlayerData();
-        return false;
-      }
 
-      // Verificar se o player no banco pertence a este usuário
+      // Verificar se o player no banco ainda existe
       const { data: player, error } = await supabase
         .from('players')
         .select('id, user_id, room_id, is_connected')
@@ -200,8 +193,8 @@ export class PlayerPersistence {
         return false;
       }
 
-      // Se o player tem user_id definido, verificar se corresponde ao usuário atual
-      if (player.user_id && player.user_id !== user.id) {
+      // Se autenticado, verificar se o player pertence a este usuário
+      if (user && player.user_id && player.user_id !== user.id) {
         console.warn('Sessão inválida: jogador pertence a outro usuário');
         this.clearPlayerData();
         return false;
