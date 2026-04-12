@@ -359,6 +359,10 @@
                         <form onsubmit="createMatch(event)">
                             <div class="row g-2 mb-2">
                                 <div class="col-md-4">
+                                    <label class="text-muted small d-block">Vincular a Partida Existente <span class="text-info">(opcional)</span></label>
+                                    <input type="text" class="form-control form-control-sm search-input" id="newMatchExistingId" placeholder="Cole o ID da partida ou deixe vazio">
+                                </div>
+                                <div class="col-md-4">
                                     <label class="text-muted small d-block">Nome da Sala</label>
                                     <input type="text" class="form-control form-control-sm search-input" id="newMatchRoom" value="Partida Manual" required>
                                 </div>
@@ -366,6 +370,8 @@
                                     <label class="text-muted small d-block">Personagem</label>
                                     <select class="form-select form-select-sm search-input" id="newMatchChar"><option value="">— Selecionar —</option></select>
                                 </div>
+                            </div>
+                            <div class="row g-2 mb-2">
                                 <div class="col-md-2">
                                     <label class="text-muted small d-block">Total Jogadores</label>
                                     <input type="number" class="form-control form-control-sm search-input" id="newMatchPlayers" value="2" min="1" max="20">
@@ -378,9 +384,7 @@
                                     <label class="text-muted small d-block">Kills</label>
                                     <input type="number" class="form-control form-control-sm search-input" id="newMatchKills" value="0" min="0">
                                 </div>
-                            </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <label class="text-muted small d-block">Data</label>
                                     <input type="datetime-local" class="form-control form-control-sm search-input" id="newMatchDate">
                                 </div>
@@ -398,8 +402,8 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-dark table-hover table-sm mb-0">
-                            <thead><tr><th>Sala</th><th>Personagem</th><th>Resultado</th><th>Kills</th><th>Pts Sobrev.</th><th>Data</th><th>Ações</th></tr></thead>
-                            <tbody id="userMatchesBody"><tr><td colspan="7" class="text-center text-muted py-3">Carregando...</td></tr></tbody>
+                            <thead><tr><th>Sala</th><th>Personagem</th><th>Resultado</th><th>Kills</th><th>Pts Sobrev.</th><th>Data</th><th>Match ID</th><th>Ações</th></tr></thead>
+                            <tbody id="userMatchesBody"><tr><td colspan="8" class="text-center text-muted py-3">Carregando...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -947,7 +951,7 @@
                 var matches = data.matches || [];
                 var mtbody = document.getElementById('userMatchesBody');
                 if (!matches.length) {
-                    mtbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Nenhuma partida encontrada.</td></tr>';
+                    mtbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">Nenhuma partida encontrada.</td></tr>';
                 } else {
                     mtbody.innerHTML = matches.map(function(m) {
                         var resultBadge = m.is_winner
@@ -959,6 +963,7 @@
                             eliminations_made: m.eliminations_made,
                             ended_at: m.ended_at, total_players: m.total_players
                         }));
+                        var shortId = (m.match_id || '').substring(0, 8);
                         return '<tr>'
                             + '<td>' + escapeHtml(m.room_name||'—') + '</td>'
                             + '<td>' + escapeHtml(m.character_name||'—') + '</td>'
@@ -966,6 +971,7 @@
                             + '<td>' + (m.eliminations_made||0) + '</td>'
                             + '<td>' + (m.survival_points||0) + '</td>'
                             + '<td><small>' + formatDate(m.ended_at) + '</small></td>'
+                            + '<td><code class="text-info" style="cursor:pointer;font-size:11px" title="Clique para copiar ID completo" onclick="copyMatchId(\'' + m.match_id + '\')">' + shortId + '…</code></td>'
                             + '<td><div class="d-flex gap-1">'
                             + '<button class="btn btn-outline-primary btn-action" title="Editar" data-match=\'' + matchDataAttr + '\' onclick="openEditMatch(this)">✏️</button>'
                             + '<button class="btn btn-outline-danger btn-action" title="Remover partida" onclick="deleteMatch(\'' + m.match_id + '\',\'' + escapeHtml(m.room_name||'').replace(/'/g, "\\'") + '\')">🗑️</button>'
@@ -1034,6 +1040,7 @@
             showLoading();
             try {
                 var endedAt = document.getElementById('newMatchDate').value;
+                var existingId = document.getElementById('newMatchExistingId').value.trim() || null;
                 var params = {
                     p_user_id: currentDetailUserId,
                     p_room_name: document.getElementById('newMatchRoom').value.trim() || 'Partida Manual',
@@ -1044,13 +1051,33 @@
                     p_total_players: parseInt(document.getElementById('newMatchPlayers').value) || 2,
                     p_ended_at: endedAt ? new Date(endedAt).toISOString() : new Date().toISOString()
                 };
+                if (existingId) {
+                    params.p_match_id = existingId;
+                }
                 var result = await supabase.rpc('admin_create_match', params);
                 if (result.error) throw result.error;
-                showToast('Partida criada com sucesso!');
-                document.getElementById('createMatchForm').classList.add('d-none');
+                var matchId = result.data && result.data.match_id ? result.data.match_id : '';
+                showToast('Partida criada! ID: ' + matchId.substring(0, 8) + '…');
+                // Auto-preencher o campo de ID para facilitar adicionar mais participantes
+                document.getElementById('newMatchExistingId').value = matchId;
                 openUserDetail(currentDetailUserId);
             } catch (err) { showToast(err.message, 'danger'); }
             finally { hideLoading(); }
+        };
+
+        window.copyMatchId = function(matchId) {
+            navigator.clipboard.writeText(matchId).then(function() {
+                showToast('ID copiado: ' + matchId.substring(0, 8) + '…');
+            }).catch(function() {
+                // Fallback
+                var ta = document.createElement('textarea');
+                ta.value = matchId;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('ID copiado: ' + matchId.substring(0, 8) + '…');
+            });
         };
 
         window.openEditMatch = function(btn) {

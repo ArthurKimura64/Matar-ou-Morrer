@@ -302,6 +302,7 @@ CREATE TABLE IF NOT EXISTS public.match_participants (
     killed_by_user_id UUID REFERENCES public.user_profiles(id) ON DELETE SET NULL,
     killed_by_player_name VARCHAR(50),
     survival_points INTEGER DEFAULT 0,
+    eliminations_made INTEGER DEFAULT 0,
     is_winner BOOLEAN DEFAULT false
 );
 

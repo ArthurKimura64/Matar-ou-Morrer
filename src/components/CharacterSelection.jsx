@@ -7,21 +7,36 @@ const CharacterSelection = ({
   players = [],
   currentPlayerId 
 }) => {
-  // Estados de ordenação mais simples - apenas um índice para ciclar
+  // Cores de dificuldade (1=Fácil → 7=Extremo)
+  const difficultyColors = {
+    1: '#22c55e', // verde
+    2: '#eab308', // amarelo
+    3: '#ef4444', // vermelho
+  };
+
   const [sortIndex, setSortIndex] = useState(0);
   
-  // Opções de ordenação (ciclo)
   const sortOptions = [
-    { type: 'name', order: 'asc', label: 'Nome ↑', icon: '📝' },
-    { type: 'name', order: 'desc', label: 'Nome ↓', icon: '📝' },
-    { type: 'title', order: 'asc', label: 'Título ↑', icon: '🏷️' },
-    { type: 'title', order: 'desc', label: 'Título ↓', icon: '🏷️' }
+    { type: 'name', order: 'asc', label: 'Nome ↑' },
+    { type: 'name', order: 'desc', label: 'Nome ↓' },
+    { type: 'title', order: 'asc', label: 'Título ↑' },
+    { type: 'title', order: 'desc', label: 'Título ↓' },
+    { type: 'difficulty', order: 'asc', label: 'Dificuldade ↑' },
+    { type: 'difficulty', order: 'desc', label: 'Dificuldade ↓' },
+    { type: 'generation', order: 'asc', label: 'Geração ↑' },
+    { type: 'generation', order: 'desc', label: 'Geração ↓' }
   ];
   
   const currentSort = sortOptions[sortIndex];
-  // Obter personagens que estão sendo criados por outros jogadores
+  const isSortedByGeneration = currentSort.type === 'generation';
+
+  // Gerações disponíveis
+  const generations = useMemo(() => {
+    const gens = new Set(gameData.ActorDefinitions.map(a => a.Generation || 1));
+    return [...gens].sort((a, b) => a - b);
+  }, [gameData.ActorDefinitions]);
+
   const getCharacterStatus = (actorId) => {
-    // Nome do personagem localizado
     const actorName = localization[`Character.Name.${actorId}`] || actorId;
     
     const otherPlayersCreating = players.filter(player => 
@@ -37,25 +52,15 @@ const CharacterSelection = ({
     );
 
     if (otherPlayersReady.length > 0) {
-      return {
-        disabled: true,
-        status: 'taken',
-        playerName: otherPlayersReady[0].name
-      };
+      return { disabled: true, status: 'taken', playerName: otherPlayersReady[0].name };
     }
-    
     if (otherPlayersCreating.length > 0) {
-      return {
-        disabled: true,
-        status: 'creating',
-        playerName: otherPlayersCreating[0].name
-      };
+      return { disabled: true, status: 'creating', playerName: otherPlayersCreating[0].name };
     }
-    
     return { disabled: false, status: 'available' };
   };
 
-  // Ordenar personagens baseado nas preferências
+  // Ordenar personagens
   const sortedActors = useMemo(() => {
     const actors = [...gameData.ActorDefinitions];
     const { type, order } = currentSort;
@@ -63,6 +68,18 @@ const CharacterSelection = ({
     return actors.sort((a, b) => {
       let valueA, valueB;
       
+      if (type === 'difficulty') {
+        valueA = a.Difficulty || 3;
+        valueB = b.Difficulty || 3;
+        return order === 'asc' ? valueA - valueB : valueB - valueA;
+      }
+
+      if (type === 'generation') {
+        valueA = a.Generation || 1;
+        valueB = b.Generation || 1;
+        return order === 'asc' ? valueA - valueB : valueB - valueA;
+      }
+
       if (type === 'name') {
         valueA = localization[`Character.Name.${a.ID}`] || a.ID || '';
         valueB = localization[`Character.Name.${b.ID}`] || b.ID || '';
@@ -71,67 +88,111 @@ const CharacterSelection = ({
         valueB = localization[`Character.Title.${b.ID}`] || '';
       }
       
-      // Garantir que os valores são strings antes de normalizar
       valueA = String(valueA || '').toLowerCase();
       valueB = String(valueB || '').toLowerCase();
       
-      if (order === 'asc') {
-        return valueA.localeCompare(valueB);
-      } else {
-        return valueB.localeCompare(valueA);
-      }
+      return order === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
     });
   }, [gameData.ActorDefinitions, localization, currentSort]);
 
-  // Função para ciclar entre as opções de ordenação
-  const cycleSortOption = () => {
-    setSortIndex((prevIndex) => (prevIndex + 1) % sortOptions.length);
+  // Agrupar por geração (só quando ordenado por geração)
+  const groupedByGeneration = useMemo(() => {
+    if (!isSortedByGeneration) return null;
+    const groups = {};
+    sortedActors.forEach(actor => {
+      const gen = actor.Generation || 1;
+      if (!groups[gen]) groups[gen] = [];
+      groups[gen].push(actor);
+    });
+    return groups;
+  }, [sortedActors, isSortedByGeneration]);
+
+  const handleSortChange = (e) => {
+    setSortIndex(Number(e.target.value));
   };
+
+  const renderCharacterButton = (actor) => {
+    const status = getCharacterStatus(actor.ID);
+    const characterName = localization[`Character.Name.${actor.ID}`] && localization[`Character.Title.${actor.ID}`] 
+      ? `${localization[`Character.Name.${actor.ID}`]} (${localization[`Character.Title.${actor.ID}`]})` 
+      : actor.ID;
+    const difficulty = actor.Difficulty || 3;
+    const diffColor = difficultyColors[difficulty] || difficultyColors[3];
+    const diffLabel = localization[`Difficulty.${difficulty}`] || '';
+    const diffTooltip = `${localization['Difficulty.Label'] || 'Dificuldade'}: ${diffLabel}`;
+    
+    return (
+      <div key={actor.ID} className="position-relative">
+        <button
+          type="button"
+          className={`btn ${status.disabled ? 'btn-secondary' : 'btn-outline-light'} text-center col-auto my-1 mx-2`}
+          onClick={() => !status.disabled && onCharacterSelect(actor)}
+          disabled={status.disabled}
+          style={{ borderLeft: `3px solid ${diffColor}` }}
+          title={
+            status.status === 'creating' 
+              ? `${status.playerName} ${localization['UI.CharacterSelection.TakenByPlayer'] || 'UI.CharacterSelection.TakenByPlayer'}`
+              : status.status === 'taken'
+              ? `${status.playerName} ${localization['UI.CharacterSelection.AlreadyCreated'] || 'UI.CharacterSelection.AlreadyCreated'}`
+              : `${localization['UI.CharacterSelection.ClickToCreate'] || 'UI.CharacterSelection.ClickToCreate'} ${characterName}\n${diffTooltip}`
+          }
+        >
+          {characterName}
+        </button>
+      </div>
+    );
+  };
+
+  // Ordem das gerações conforme a direção do sort
+  const sortedGenerations = currentSort.order === 'asc' ? generations : [...generations].reverse();
 
   return (
     <div>
-      {/* Botão de ordenação discreto alinhado à esquerda */}
+      {/* Dropdown de ordenação */}
       <div className="d-flex justify-content-start mb-2">
-        <button
-          type="button"
-          className="btn btn-outline-secondary btn-sm d-flex align-items-center opacity-75"
-          onClick={cycleSortOption}
-          title={`${localization['UI.CharacterSelection.SortOptions'] || 'Ordenação'}: ${currentSort.label}`}
-          style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+        <select
+          className="form-select form-select-sm opacity-75"
+          value={sortIndex}
+          onChange={handleSortChange}
+          style={{ fontSize: '0.8rem', width: 'auto', padding: '0.25rem 2rem 0.25rem 0.5rem', background: 'transparent', color: 'inherit', border: '1px solid #6c757d' }}
+          title={localization['UI.CharacterSelection.SortOptions'] || 'Ordenação'}
         >
-          <span style={{ marginRight: '3px', fontSize: '0.7rem' }}>{currentSort.icon}</span>
-          <span style={{ fontSize: '0.7rem' }}>{currentSort.label}</span>
-        </button>
+          {sortOptions.map((opt, i) => (
+            <option key={i} value={i} style={{ background: '#212529' }}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Lista de personagens ordenados */}
-      <div className="d-flex flex-wrap justify-content-center" id="characterSelection">
-        {sortedActors.map((actor) => {
-          const status = getCharacterStatus(actor.ID);
-          const characterName = localization[`Character.Name.${actor.ID}`] && localization[`Character.Title.${actor.ID}`] 
-            ? `${localization[`Character.Name.${actor.ID}`]} (${localization[`Character.Title.${actor.ID}`]})` 
-            : actor.ID;
-          
-          return (
-            <div key={actor.ID} className="position-relative">
-              <button
-                type="button"
-                className={`btn ${status.disabled ? 'btn-secondary' : 'btn-outline-light'} text-center col-auto my-1 mx-2`}
-                onClick={() => !status.disabled && onCharacterSelect(actor)}
-                disabled={status.disabled}
-                title={
-                  status.status === 'creating' 
-                    ? `${status.playerName} ${localization['UI.CharacterSelection.TakenByPlayer'] || 'UI.CharacterSelection.TakenByPlayer'}`
-                    : status.status === 'taken'
-                    ? `${status.playerName} ${localization['UI.CharacterSelection.AlreadyCreated'] || 'UI.CharacterSelection.AlreadyCreated'}`
-                    : `${localization['UI.CharacterSelection.ClickToCreate'] || 'UI.CharacterSelection.ClickToCreate'} ${characterName}`
-                }
-              >
-                {characterName}
-              </button>
-            </div>
-          );
-        })}
+      {/* Lista de personagens */}
+      <div id="characterSelection">
+        {isSortedByGeneration && groupedByGeneration ? (
+          // Ordenado por geração — mostrar seções separadas
+          sortedGenerations.map(gen => {
+            const actors = groupedByGeneration[gen];
+            if (!actors || actors.length === 0) return null;
+            return (
+              <div key={gen} className="mb-3">
+                <div className="d-flex align-items-center mb-2" style={{ opacity: 0.6 }}>
+                  <hr className="flex-grow-1 m-0" style={{ borderColor: '#6c757d' }} />
+                  <span className="px-2" style={{ fontSize: '0.7rem', color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                    {localization[`Generation.${gen}`] || `Geração ${gen}`}
+                  </span>
+                  <hr className="flex-grow-1 m-0" style={{ borderColor: '#6c757d' }} />
+                </div>
+                <div className="d-flex flex-wrap justify-content-center">
+                  {actors.map(renderCharacterButton)}
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          // Outros sorts — lista simples
+          <div className="d-flex flex-wrap justify-content-center">
+            {sortedActors.map(renderCharacterButton)}
+          </div>
+        )}
       </div>
     </div>
   );

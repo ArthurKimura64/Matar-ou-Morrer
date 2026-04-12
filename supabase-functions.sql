@@ -422,6 +422,13 @@ BEGIN
     ORDER BY p.last_activity DESC
     LIMIT 1;
 
+    -- Validar que o chamador é o último sobrevivente (anti-trapaça)
+    IF auth.uid() IS NOT NULL AND v_winner.user_id IS NOT NULL THEN
+        IF v_winner.user_id != auth.uid() THEN
+            RAISE EXCEPTION 'Apenas o último sobrevivente pode declarar vitória';
+        END IF;
+    END IF;
+
     -- Inserir match_history
     INSERT INTO public.match_history (
         room_id, room_name, started_at, ended_at,
@@ -461,7 +468,7 @@ BEGIN
         INSERT INTO public.match_participants (
             match_id, user_id, player_name, character_name,
             elimination_order, killed_by_user_id, killed_by_player_name,
-            survival_points, is_winner
+            survival_points, eliminations_made, is_winner
         ) VALUES (
             v_match_id,
             v_player.user_id,
@@ -475,6 +482,7 @@ BEGIN
                 (SELECT name FROM public.players WHERE id = v_player.killed_by_player_id)
             ELSE NULL END,
             v_survival_points,
+            v_eliminations_made,
             v_is_winner
         );
 
@@ -1158,9 +1166,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Criar partida manualmente
+-- Criar partida manualmente (com suporte a adicionar participante em partida existente)
 DROP FUNCTION IF EXISTS public.admin_create_match(UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ);
 DROP FUNCTION IF EXISTS public.admin_create_match(UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ, INTEGER);
+DROP FUNCTION IF EXISTS public.admin_create_match(UUID, TEXT, TEXT, BOOLEAN, INTEGER, INTEGER, TEXT, INTEGER, TIMESTAMPTZ, INTEGER, UUID);
 CREATE OR REPLACE FUNCTION public.admin_create_match(
     p_user_id UUID,
     p_room_name TEXT DEFAULT 'Partida Manual',
@@ -1171,11 +1180,13 @@ CREATE OR REPLACE FUNCTION public.admin_create_match(
     p_killed_by TEXT DEFAULT NULL,
     p_total_players INTEGER DEFAULT 2,
     p_ended_at TIMESTAMPTZ DEFAULT NOW(),
-    p_eliminations INTEGER DEFAULT 0
+    p_eliminations INTEGER DEFAULT 0,
+    p_match_id UUID DEFAULT NULL
 ) RETURNS JSON AS $$
 DECLARE
     v_match_id UUID;
     v_display_name TEXT;
+    v_is_new_match BOOLEAN := false;
 BEGIN
     IF NOT public.is_user_admin() THEN
         RAISE EXCEPTION 'Não autorizado: apenas administradores';
@@ -1188,15 +1199,42 @@ BEGIN
         RAISE EXCEPTION 'Usuário não encontrado';
     END IF;
 
-    INSERT INTO public.match_history (room_name, ended_at, winner_user_id, winner_player_name, total_players)
-    VALUES (
-        p_room_name,
-        p_ended_at,
-        CASE WHEN p_is_winner THEN p_user_id ELSE NULL END,
-        CASE WHEN p_is_winner THEN v_display_name ELSE NULL END,
-        p_total_players
-    )
-    RETURNING id INTO v_match_id;
+    -- Se p_match_id fornecido, adicionar participante à partida existente
+    IF p_match_id IS NOT NULL THEN
+        -- Validar que a partida existe
+        IF NOT EXISTS (SELECT 1 FROM public.match_history WHERE id = p_match_id) THEN
+            RAISE EXCEPTION 'Partida não encontrada: %', p_match_id;
+        END IF;
+
+        -- Verificar se o jogador já está nessa partida
+        IF EXISTS (
+            SELECT 1 FROM public.match_participants
+            WHERE match_id = p_match_id AND user_id = p_user_id
+        ) THEN
+            RAISE EXCEPTION 'Jogador já é participante desta partida';
+        END IF;
+
+        v_match_id := p_match_id;
+
+        -- Atualizar dados da partida existente se necessário
+        UPDATE public.match_history SET
+            total_players = GREATEST(total_players, p_total_players),
+            winner_user_id = CASE WHEN p_is_winner THEN p_user_id ELSE winner_user_id END,
+            winner_player_name = CASE WHEN p_is_winner THEN v_display_name ELSE winner_player_name END
+        WHERE id = v_match_id;
+    ELSE
+        -- Criar nova partida
+        v_is_new_match := true;
+        INSERT INTO public.match_history (room_name, ended_at, winner_user_id, winner_player_name, total_players)
+        VALUES (
+            p_room_name,
+            p_ended_at,
+            CASE WHEN p_is_winner THEN p_user_id ELSE NULL END,
+            CASE WHEN p_is_winner THEN v_display_name ELSE NULL END,
+            p_total_players
+        )
+        RETURNING id INTO v_match_id;
+    END IF;
 
     INSERT INTO public.match_participants (
         match_id, user_id, player_name, character_name,
@@ -1245,6 +1283,341 @@ BEGIN
         jsonb_build_object('match_id', v_match_id, 'room_name', p_room_name, 'display_name', v_display_name));
 
     RETURN json_build_object('success', true, 'match_id', v_match_id);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Merge de partidas duplicadas em uma só
+-- Recebe array de match_history IDs e consolida tudo no primeiro que tiver vencedor (ou o primeiro da lista)
+CREATE OR REPLACE FUNCTION public.admin_merge_matches(
+    p_match_ids UUID[]
+) RETURNS JSON AS $$
+DECLARE
+    v_primary_id UUID;
+    v_secondary_id UUID;
+    v_winner_user_id UUID;
+    v_winner_player_name TEXT;
+    v_max_total INTEGER;
+    v_affected_users UUID[];
+    v_user_id UUID;
+    v_merged_count INTEGER := 0;
+BEGIN
+    IF NOT public.is_user_admin() THEN
+        RAISE EXCEPTION 'Não autorizado: apenas administradores';
+    END IF;
+
+    IF array_length(p_match_ids, 1) < 2 THEN
+        RAISE EXCEPTION 'Precisa de pelo menos 2 partidas para fazer merge';
+    END IF;
+
+    -- Validar que todas as partidas existem
+    IF (SELECT COUNT(*) FROM public.match_history WHERE id = ANY(p_match_ids))
+        != array_length(p_match_ids, 1) THEN
+        RAISE EXCEPTION 'Uma ou mais partidas não encontradas';
+    END IF;
+
+    -- Escolher a partida primária: preferir a que tem vencedor, senão a primeira
+    SELECT id INTO v_primary_id
+    FROM public.match_history
+    WHERE id = ANY(p_match_ids) AND winner_user_id IS NOT NULL
+    ORDER BY ended_at DESC
+    LIMIT 1;
+
+    IF v_primary_id IS NULL THEN
+        v_primary_id := p_match_ids[1];
+    END IF;
+
+    -- Coletar info do vencedor (de qualquer uma das partidas)
+    SELECT winner_user_id, winner_player_name
+    INTO v_winner_user_id, v_winner_player_name
+    FROM public.match_history
+    WHERE id = ANY(p_match_ids) AND winner_user_id IS NOT NULL
+    LIMIT 1;
+
+    -- Coletar todos os user_ids afetados (para recalcular stats depois)
+    SELECT ARRAY(
+        SELECT DISTINCT mp.user_id
+        FROM public.match_participants mp
+        WHERE mp.match_id = ANY(p_match_ids)
+        AND mp.user_id IS NOT NULL
+    ) INTO v_affected_users;
+
+    -- Mover todos os participantes das partidas secundárias para a primária
+    -- Evitar duplicatas (mesmo user_id na mesma partida)
+    FOR v_secondary_id IN
+        SELECT unnest(p_match_ids) EXCEPT SELECT v_primary_id
+    LOOP
+        -- Mover participantes que não existem na primária
+        UPDATE public.match_participants
+        SET match_id = v_primary_id
+        WHERE match_id = v_secondary_id
+        AND NOT EXISTS (
+            SELECT 1 FROM public.match_participants existing
+            WHERE existing.match_id = v_primary_id
+            AND existing.user_id = public.match_participants.user_id
+            AND existing.user_id IS NOT NULL
+        );
+
+        -- Deletar participantes duplicados que ficaram para trás
+        DELETE FROM public.match_participants
+        WHERE match_id = v_secondary_id;
+
+        -- Deletar a partida secundária
+        DELETE FROM public.match_history
+        WHERE id = v_secondary_id;
+
+        v_merged_count := v_merged_count + 1;
+    END LOOP;
+
+    -- Obter o maior total_players entre os participantes reais
+    SELECT GREATEST(
+        (SELECT COUNT(*) FROM public.match_participants WHERE match_id = v_primary_id),
+        (SELECT total_players FROM public.match_history WHERE id = v_primary_id)
+    ) INTO v_max_total;
+
+    -- Atualizar a partida primária com dados consolidados
+    UPDATE public.match_history SET
+        winner_user_id = COALESCE(v_winner_user_id, winner_user_id),
+        winner_player_name = COALESCE(v_winner_player_name, winner_player_name),
+        total_players = v_max_total
+    WHERE id = v_primary_id;
+
+    -- Recalcular stats de todos os jogadores afetados
+    FOREACH v_user_id IN ARRAY v_affected_users
+    LOOP
+        UPDATE public.user_stats us SET
+            total_matches = sub.total_matches,
+            total_wins = sub.total_wins,
+            total_eliminations = sub.total_eliminations,
+            total_survival_points = sub.total_survival_points,
+            win_rate = CASE WHEN sub.total_matches > 0
+                THEN ROUND((sub.total_wins::DECIMAL / sub.total_matches) * 100, 2)
+                ELSE 0 END,
+            composite_score = calculate_composite_score(sub.total_wins, sub.total_eliminations, sub.total_survival_points, sub.total_matches),
+            favorite_character = sub.fav_char,
+            updated_at = NOW()
+        FROM (
+            SELECT
+                COUNT(*)::INTEGER AS total_matches,
+                COUNT(*) FILTER (WHERE mp.is_winner = true)::INTEGER AS total_wins,
+                COALESCE(SUM(COALESCE(mp.eliminations_made, 0)), 0)::INTEGER AS total_eliminations,
+                COALESCE(SUM(COALESCE(mp.survival_points, 0)), 0)::INTEGER AS total_survival_points,
+                (
+                    SELECT mp2.character_name FROM public.match_participants mp2
+                    WHERE mp2.user_id = v_user_id AND mp2.character_name IS NOT NULL
+                    GROUP BY mp2.character_name ORDER BY COUNT(*) DESC LIMIT 1
+                ) AS fav_char
+            FROM public.match_participants mp
+            WHERE mp.user_id = v_user_id
+        ) sub
+        WHERE us.user_id = v_user_id;
+    END LOOP;
+
+    PERFORM public._admin_log('merge_matches', NULL, NULL,
+        jsonb_build_object(
+            'primary_match_id', v_primary_id,
+            'merged_count', v_merged_count,
+            'match_ids', p_match_ids::TEXT,
+            'affected_users', v_affected_users::TEXT
+        ));
+
+    RETURN json_build_object(
+        'success', true,
+        'primary_match_id', v_primary_id,
+        'merged_count', v_merged_count,
+        'affected_users', array_length(v_affected_users, 1)
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Auto-merge: detecta partidas duplicadas e consolida automaticamente
+-- Critério: mesmo room_name + mesmo ended_at = mesma partida
+-- Escolhe como primária a que tem mais informações preenchidas (winner, room_id, started_at, etc.)
+-- Modo dry_run=true apenas retorna o que seria feito sem executar
+DROP FUNCTION IF EXISTS public.admin_auto_merge_matches();
+DROP FUNCTION IF EXISTS public.admin_auto_merge_matches(BOOLEAN);
+CREATE OR REPLACE FUNCTION public.admin_auto_merge_matches(
+    p_dry_run BOOLEAN DEFAULT true
+) RETURNS JSON AS $$
+DECLARE
+    v_group RECORD;
+    v_primary_id UUID;
+    v_secondary_id UUID;
+    v_winner_user_id UUID;
+    v_winner_player_name TEXT;
+    v_best_room_id VARCHAR(6);
+    v_best_started_at TIMESTAMPTZ;
+    v_max_total INTEGER;
+    v_affected_users UUID[] := '{}';
+    v_user_id UUID;
+    v_groups_merged INTEGER := 0;
+    v_total_removed INTEGER := 0;
+    v_preview JSONB := '[]'::JSONB;
+BEGIN
+    IF NOT public.is_user_admin() THEN
+        RAISE EXCEPTION 'Não autorizado: apenas administradores';
+    END IF;
+
+    -- Encontrar grupos de partidas duplicadas (mesmo room_name + ended_at)
+    FOR v_group IN
+        SELECT
+            mh.room_name,
+            mh.ended_at,
+            COUNT(*) AS match_count,
+            ARRAY_AGG(mh.id ORDER BY
+                -- Pontuar: quanto mais campos preenchidos, maior a prioridade
+                (CASE WHEN mh.winner_user_id IS NOT NULL THEN 4 ELSE 0 END)
+                + (CASE WHEN mh.room_id IS NOT NULL THEN 2 ELSE 0 END)
+                + (CASE WHEN mh.started_at IS NOT NULL THEN 1 ELSE 0 END)
+                + (CASE WHEN mh.winner_player_name IS NOT NULL THEN 1 ELSE 0 END)
+                DESC,
+                mh.total_players DESC
+            ) AS match_ids
+        FROM public.match_history mh
+        GROUP BY mh.room_name, mh.ended_at
+        HAVING COUNT(*) > 1
+    LOOP
+        -- Primário = primeiro do array (mais completo pela ordenação)
+        v_primary_id := v_group.match_ids[1];
+
+        IF p_dry_run THEN
+            -- Apenas montar preview
+            v_preview := v_preview || jsonb_build_object(
+                'room_name', v_group.room_name,
+                'ended_at', v_group.ended_at,
+                'duplicates', v_group.match_count,
+                'primary_id', v_primary_id,
+                'will_remove', v_group.match_count - 1,
+                'all_ids', ARRAY_TO_JSON(v_group.match_ids)
+            );
+        ELSE
+            -- Coletar melhor winner, room_id, started_at de qualquer uma do grupo
+            SELECT winner_user_id, winner_player_name
+            INTO v_winner_user_id, v_winner_player_name
+            FROM public.match_history
+            WHERE id = ANY(v_group.match_ids) AND winner_user_id IS NOT NULL
+            LIMIT 1;
+
+            SELECT room_id INTO v_best_room_id
+            FROM public.match_history
+            WHERE id = ANY(v_group.match_ids) AND room_id IS NOT NULL
+            LIMIT 1;
+
+            SELECT started_at INTO v_best_started_at
+            FROM public.match_history
+            WHERE id = ANY(v_group.match_ids) AND started_at IS NOT NULL
+            LIMIT 1;
+
+            -- Coletar users afetados
+            v_affected_users := v_affected_users || ARRAY(
+                SELECT DISTINCT mp.user_id
+                FROM public.match_participants mp
+                WHERE mp.match_id = ANY(v_group.match_ids)
+                AND mp.user_id IS NOT NULL
+            );
+
+            -- Mover participantes das secundárias para a primária
+            FOR v_secondary_id IN
+                SELECT unnest(v_group.match_ids[2:])
+            LOOP
+                -- Mover participantes que não existem na primária
+                UPDATE public.match_participants
+                SET match_id = v_primary_id
+                WHERE match_id = v_secondary_id
+                AND NOT EXISTS (
+                    SELECT 1 FROM public.match_participants existing
+                    WHERE existing.match_id = v_primary_id
+                    AND existing.user_id = public.match_participants.user_id
+                    AND existing.user_id IS NOT NULL
+                );
+
+                -- Deletar participantes que eram duplicatas
+                DELETE FROM public.match_participants
+                WHERE match_id = v_secondary_id;
+
+                -- Deletar a partida secundária
+                DELETE FROM public.match_history
+                WHERE id = v_secondary_id;
+
+                v_total_removed := v_total_removed + 1;
+            END LOOP;
+
+            -- Consolidar a primária com os melhores dados
+            SELECT GREATEST(
+                (SELECT COUNT(*) FROM public.match_participants WHERE match_id = v_primary_id),
+                (SELECT total_players FROM public.match_history WHERE id = v_primary_id)
+            ) INTO v_max_total;
+
+            UPDATE public.match_history SET
+                winner_user_id = COALESCE(v_winner_user_id, winner_user_id),
+                winner_player_name = COALESCE(v_winner_player_name, winner_player_name),
+                room_id = COALESCE(v_best_room_id, room_id),
+                started_at = COALESCE(v_best_started_at, started_at),
+                total_players = v_max_total
+            WHERE id = v_primary_id;
+
+            v_groups_merged := v_groups_merged + 1;
+        END IF;
+    END LOOP;
+
+    -- Se executou de verdade, recalcular stats dos afetados
+    IF NOT p_dry_run AND array_length(v_affected_users, 1) > 0 THEN
+        -- Deduplica a lista de users
+        v_affected_users := ARRAY(SELECT DISTINCT unnest(v_affected_users));
+
+        FOREACH v_user_id IN ARRAY v_affected_users
+        LOOP
+            UPDATE public.user_stats us SET
+                total_matches = sub.total_matches,
+                total_wins = sub.total_wins,
+                total_eliminations = sub.total_eliminations,
+                total_survival_points = sub.total_survival_points,
+                win_rate = CASE WHEN sub.total_matches > 0
+                    THEN ROUND((sub.total_wins::DECIMAL / sub.total_matches) * 100, 2)
+                    ELSE 0 END,
+                composite_score = calculate_composite_score(sub.total_wins, sub.total_eliminations, sub.total_survival_points, sub.total_matches),
+                favorite_character = sub.fav_char,
+                updated_at = NOW()
+            FROM (
+                SELECT
+                    COUNT(*)::INTEGER AS total_matches,
+                    COUNT(*) FILTER (WHERE mp.is_winner = true)::INTEGER AS total_wins,
+                    COALESCE(SUM(COALESCE(mp.eliminations_made, 0)), 0)::INTEGER AS total_eliminations,
+                    COALESCE(SUM(COALESCE(mp.survival_points, 0)), 0)::INTEGER AS total_survival_points,
+                    (
+                        SELECT mp2.character_name FROM public.match_participants mp2
+                        WHERE mp2.user_id = v_user_id AND mp2.character_name IS NOT NULL
+                        GROUP BY mp2.character_name ORDER BY COUNT(*) DESC LIMIT 1
+                    ) AS fav_char
+                FROM public.match_participants mp
+                WHERE mp.user_id = v_user_id
+            ) sub
+            WHERE us.user_id = v_user_id;
+        END LOOP;
+
+        PERFORM public._admin_log('auto_merge_matches', NULL, NULL,
+            jsonb_build_object(
+                'groups_merged', v_groups_merged,
+                'entries_removed', v_total_removed,
+                'affected_users', array_length(v_affected_users, 1)
+            ));
+    END IF;
+
+    IF p_dry_run THEN
+        RETURN json_build_object(
+            'success', true,
+            'dry_run', true,
+            'groups_found', jsonb_array_length(v_preview),
+            'preview', v_preview
+        );
+    ELSE
+        RETURN json_build_object(
+            'success', true,
+            'dry_run', false,
+            'groups_merged', v_groups_merged,
+            'entries_removed', v_total_removed,
+            'affected_users', COALESCE(array_length(v_affected_users, 1), 0)
+        );
+    END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -1739,6 +2112,188 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ================================
+-- SEÇÃO 10B: AUTO-ENCERRAMENTO DE PARTIDAS INATIVAS
+-- ================================
+
+-- Encerra automaticamente partidas in_progress sem atividade por mais de 2 horas.
+-- Registra histórico completo (match_history, match_participants, user_stats).
+-- O último jogador vivo é considerado vencedor. Se nenhum vivo, sem vencedor.
+-- Deve ser chamada via pg_cron: SELECT cron.schedule('auto-end-stale', '*/10 * * * *', 'SELECT public.auto_end_stale_matches()');
+CREATE OR REPLACE FUNCTION public.auto_end_stale_matches()
+RETURNS JSON AS $$
+DECLARE
+    v_room RECORD;
+    v_match_id UUID;
+    v_total INTEGER;
+    v_winner RECORD;
+    v_player RECORD;
+    v_is_winner BOOLEAN;
+    v_survival_points INTEGER;
+    v_eliminations_made INTEGER;
+    v_max_char VARCHAR(100);
+    v_ended_count INTEGER := 0;
+BEGIN
+    FOR v_room IN
+        SELECT r.*
+        FROM public.rooms r
+        WHERE r.match_status = 'in_progress'
+        AND r.last_activity < NOW() - INTERVAL '2 hours'
+    LOOP
+        -- Contar participantes
+        SELECT COUNT(*) INTO v_total
+        FROM public.players
+        WHERE room_id = v_room.id
+        AND is_connected = true
+        AND (status = 'ready' OR elimination_order IS NOT NULL);
+
+        -- Se nenhum participante, apenas resetar a sala
+        IF v_total = 0 THEN
+            UPDATE public.rooms SET
+                match_status = NULL,
+                match_started_at = NULL,
+                last_activity = NOW()
+            WHERE id = v_room.id;
+
+            v_ended_count := v_ended_count + 1;
+            CONTINUE;
+        END IF;
+
+        -- Determinar vencedor: último jogador vivo (pode não existir se todos desconectaram)
+        SELECT p.id, p.name, p.user_id, p.character_name
+        INTO v_winner
+        FROM public.players p
+        WHERE p.room_id = v_room.id
+        AND p.is_connected = true
+        AND p.is_alive = true
+        ORDER BY p.last_activity DESC
+        LIMIT 1;
+
+        -- Inserir match_history
+        INSERT INTO public.match_history (
+            room_id, room_name, started_at, ended_at,
+            winner_user_id, winner_player_name, total_players
+        ) VALUES (
+            v_room.id,
+            v_room.name,
+            COALESCE(v_room.match_started_at, v_room.created_at),
+            NOW(),
+            v_winner.user_id,
+            v_winner.name,
+            v_total
+        ) RETURNING id INTO v_match_id;
+
+        -- Inserir participantes e atualizar stats
+        FOR v_player IN
+            SELECT p.*
+            FROM public.players p
+            WHERE p.room_id = v_room.id
+            AND p.is_connected = true
+            AND (p.status = 'ready' OR p.elimination_order IS NOT NULL)
+        LOOP
+            v_is_winner := (v_winner.id IS NOT NULL AND v_player.id = v_winner.id);
+
+            IF v_is_winner THEN
+                v_survival_points := GREATEST(v_total - 1, 0);
+            ELSE
+                v_survival_points := COALESCE(v_player.elimination_order - 1, 0);
+            END IF;
+
+            SELECT COUNT(*) INTO v_eliminations_made
+            FROM public.players
+            WHERE room_id = v_room.id
+            AND killed_by_player_id = v_player.id;
+
+            INSERT INTO public.match_participants (
+                match_id, user_id, player_name, character_name,
+                elimination_order, killed_by_user_id, killed_by_player_name,
+                survival_points, eliminations_made, is_winner
+            ) VALUES (
+                v_match_id,
+                v_player.user_id,
+                v_player.name,
+                v_player.character_name,
+                CASE WHEN v_is_winner THEN NULL ELSE v_player.elimination_order END,
+                CASE WHEN v_player.killed_by_player_id IS NOT NULL THEN
+                    (SELECT user_id FROM public.players WHERE id = v_player.killed_by_player_id)
+                ELSE NULL END,
+                CASE WHEN v_player.killed_by_player_id IS NOT NULL THEN
+                    (SELECT name FROM public.players WHERE id = v_player.killed_by_player_id)
+                ELSE NULL END,
+                v_survival_points,
+                v_eliminations_made,
+                v_is_winner
+            );
+
+            -- Atualizar user_stats se o participante tem conta
+            IF v_player.user_id IS NOT NULL THEN
+                INSERT INTO public.user_stats (user_id, updated_at)
+                VALUES (v_player.user_id, NOW())
+                ON CONFLICT (user_id) DO NOTHING;
+
+                UPDATE public.user_stats SET
+                    total_matches = total_matches + 1,
+                    total_wins = total_wins + CASE WHEN v_is_winner THEN 1 ELSE 0 END,
+                    total_eliminations = total_eliminations + v_eliminations_made,
+                    total_survival_points = total_survival_points + v_survival_points,
+                    win_rate = CASE
+                        WHEN (total_matches + 1) > 0
+                        THEN ((total_wins + CASE WHEN v_is_winner THEN 1 ELSE 0 END)::DECIMAL / (total_matches + 1)::DECIMAL) * 100
+                        ELSE 0
+                    END,
+                    composite_score = calculate_composite_score(
+                        total_wins + CASE WHEN v_is_winner THEN 1 ELSE 0 END,
+                        total_eliminations + v_eliminations_made,
+                        total_survival_points + v_survival_points,
+                        total_matches + 1
+                    ),
+                    updated_at = NOW()
+                WHERE user_id = v_player.user_id;
+
+                -- Atualizar personagem favorito
+                SELECT mp.character_name INTO v_max_char
+                FROM public.match_participants mp
+                WHERE mp.user_id = v_player.user_id AND mp.character_name IS NOT NULL
+                GROUP BY mp.character_name
+                ORDER BY COUNT(*) DESC
+                LIMIT 1;
+
+                IF v_max_char IS NOT NULL THEN
+                    UPDATE public.user_stats SET favorite_character = v_max_char
+                    WHERE user_id = v_player.user_id;
+                END IF;
+            END IF;
+        END LOOP;
+
+        -- Limpar combates da sala
+        DELETE FROM public.combat_notifications
+        WHERE room_id = v_room.id;
+
+        -- Encerrar partida na sala
+        UPDATE public.rooms SET
+            match_status = NULL,
+            match_started_at = NULL,
+            last_activity = NOW()
+        WHERE id = v_room.id;
+
+        -- Resetar jogadores
+        UPDATE public.players SET
+            is_alive = true,
+            killed_by_player_id = NULL,
+            elimination_order = NULL,
+            last_activity = NOW()
+        WHERE room_id = v_room.id;
+
+        v_ended_count := v_ended_count + 1;
+    END LOOP;
+
+    RETURN json_build_object(
+        'success', true,
+        'matches_ended', v_ended_count
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ================================
 -- SEÇÃO 11: GRANTS
 -- ================================
 
@@ -1774,10 +2329,15 @@ GRANT EXECUTE ON FUNCTION public.admin_update_user_profile TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_delete_match TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_get_room_detail TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_create_match TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_merge_matches TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_auto_merge_matches(BOOLEAN) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_update_match_participant TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_update_setting TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_app_setting TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.is_user_admin(UUID) TO authenticated;
+
+-- Auto-end (chamada via pg_cron, mas precisa de grant para o role que o cron usa)
+GRANT EXECUTE ON FUNCTION public.auto_end_stale_matches() TO authenticated;
 
 SELECT 'TODAS AS FUNÇÕES INSTALADAS!' as status;
 
@@ -1796,3 +2356,13 @@ SELECT 'TODAS AS FUNÇÕES INSTALADAS!' as status;
 --     composite_score = calculate_composite_score(total_wins, total_eliminations, total_survival_points, total_matches),
 --     updated_at = NOW()
 -- WHERE total_matches > 0;
+
+-- ================================
+-- CRON: Agendar auto-encerramento de partidas inativas (2h)
+-- Execute UMA VEZ no SQL Editor do Supabase (requer extensão pg_cron habilitada)
+-- ================================
+-- SELECT cron.schedule(
+--     'auto-end-stale-matches',
+--     '*/10 * * * *',
+--     $$SELECT public.auto_end_stale_matches()$$
+-- );
