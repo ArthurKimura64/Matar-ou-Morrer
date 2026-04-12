@@ -70,7 +70,81 @@ class QueryCache {
 // Cache com TTL de 3 segundos — invalidado por subscriptions em tempo real
 const queryCache = new QueryCache(3000);
 
-// Helper para retry em operações de escrita
+// Debounced writer para operações frequentes de escrita (contadores, seleções, etc.)
+// Garante que o ÚLTIMO valor sempre seja enviado ao banco, mesmo com cliques rápidos.
+// Substitui o rate limiter que descartava silenciosamente atualizações.
+class DebouncedWriter {
+  constructor() {
+    this.pending = new Map(); // key -> { value, writeFn, timer }
+  }
+
+  /**
+   * Agenda uma escrita debounced. O último valor será enviado após delayMs.
+   * Se chamado novamente antes do timer disparar, o timer é resetado com o novo valor.
+   */
+  schedule(key, value, writeFn, delayMs = 300) {
+    const existing = this.pending.get(key);
+    if (existing?.timer) {
+      clearTimeout(existing.timer);
+    }
+
+    const timer = setTimeout(async () => {
+      const entry = this.pending.get(key);
+      if (!entry) return;
+      this.pending.delete(key);
+      try {
+        await entry.writeFn(entry.value);
+      } catch (error) {
+        console.error(`Erro no debounced write [${key}]:`, error);
+      }
+    }, delayMs);
+
+    this.pending.set(key, { value, writeFn, timer });
+  }
+
+  /**
+   * Força envio imediato de um write pendente por chave.
+   */
+  async flush(key) {
+    const entry = this.pending.get(key);
+    if (!entry) return;
+    clearTimeout(entry.timer);
+    this.pending.delete(key);
+    try {
+      await entry.writeFn(entry.value);
+    } catch (error) {
+      console.error(`Erro no flush [${key}]:`, error);
+    }
+  }
+
+  /**
+   * Força envio de todos os writes pendentes de um jogador específico.
+   */
+  async flushPlayer(playerId) {
+    const playerEntries = [...this.pending.entries()].filter(([key]) => key.includes(playerId));
+    await Promise.allSettled(playerEntries.map(([key, entry]) => {
+      clearTimeout(entry.timer);
+      this.pending.delete(key);
+      return entry.writeFn(entry.value);
+    }));
+  }
+
+  /**
+   * Força envio de TODOS os writes pendentes.
+   */
+  async flushAll() {
+    const entries = [...this.pending.entries()];
+    for (const [, entry] of entries) {
+      clearTimeout(entry.timer);
+    }
+    this.pending.clear();
+    await Promise.allSettled(entries.map(([, entry]) => entry.writeFn(entry.value)));
+  }
+}
+
+const debouncedWriter = new DebouncedWriter();
+
+// Helper para retry em operações de escrita (com refresh automático de JWT)
 async function withRetry(operation, maxRetries = 2) {
   let lastError;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -78,6 +152,13 @@ async function withRetry(operation, maxRetries = 2) {
       return await operation();
     } catch (error) {
       lastError = error;
+      // Se o erro for JWT expirado, tentar refresh da sessão antes do retry
+      const msg = error?.message || '';
+      if (msg.includes('JWT') || error?.code === 'PGRST301') {
+        try {
+          await supabase.auth.refreshSession();
+        } catch (_) { /* ignorar erro de refresh */ }
+      }
       if (attempt < maxRetries) {
         await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
       }
@@ -282,13 +363,16 @@ export class RoomService {
   }
 
   // Obter jogadores de uma sala com cache (cache invalidado por subscriptions)
-  static async getRoomPlayers(roomId) {
+  static async getRoomPlayers(roomId, forceRefresh = false) {
     try {
-      // Tentar obter do cache primeiro
       const cacheKey = `players_${roomId}`;
-      const cached = queryCache.get(cacheKey);
-      if (cached) {
-        return { success: true, players: cached };
+      
+      // Tentar obter do cache primeiro (exceto se forceRefresh)
+      if (!forceRefresh) {
+        const cached = queryCache.get(cacheKey);
+        if (cached) {
+          return { success: true, players: cached };
+        }
       }
       
       const { data, error } = await supabase
@@ -512,39 +596,38 @@ export class RoomService {
     }
   }
 
-  // Atualizar contadores do jogador
-  static async updatePlayerCounters(playerId, counters) {
-    try {
-      // Rate limit: máximo 1 atualização a cada 500ms
-      const rl = rateLimiter.check(`counters_${playerId}`, 500);
-      if (!rl.allowed) {
-        return { success: false, error: 'Atualizando muito rápido, aguarde.' };
-      }
-
-      const { data } = await withRetry(async () => {
-        const result = await supabase
-          .from('players')
-          .update({ 
-            counters,
-            last_activity: new Date().toISOString()
-          })
-          .eq('id', playerId)
-          .select()
-          .single();
-        if (result.error) throw result.error;
-        return result;
-      });
-      
-      // Limpar cache relacionado
-      if (data?.room_id) {
-        queryCache.clear(`players_${data.room_id}`);
-      }
-      
-      return { success: true, player: data };
-    } catch (error) {
-      console.error('Erro ao atualizar contadores:', error);
-      return { success: false, error: error.message };
-    }
+  // Atualizar contadores do jogador (debounced para garantir que o último valor sempre seja sincronizado)
+  static updatePlayerCounters(playerId, counters) {
+    debouncedWriter.schedule(
+      `counters_${playerId}`,
+      counters,
+      async (value) => {
+        try {
+          const { data } = await withRetry(async () => {
+            const result = await supabase
+              .from('players')
+              .update({ 
+                counters: value,
+                last_activity: new Date().toISOString()
+              })
+              .eq('id', playerId)
+              .select()
+              .single();
+            if (result.error) throw result.error;
+            return result;
+          });
+          
+          if (data?.room_id) {
+            queryCache.clear(`players_${data.room_id}`);
+          }
+        } catch (error) {
+          console.error('Erro ao atualizar contadores:', error);
+        }
+      },
+      300 // 300ms debounce — rápido o suficiente para parecer tempo real
+    );
+    // Retornar imediatamente (escrita otimista — estado local já foi atualizado)
+    return Promise.resolve({ success: true, pending: true });
   }
 
   // Atualizar características do jogador
@@ -628,66 +711,70 @@ export class RoomService {
     }
   }
 
-  // Atualizar contadores adicionais do jogador
-  static async updatePlayerAdditionalCounters(playerId, additionalCounters) {
-    try {
-      const { data, error } = await supabase
-        .from('players')
-        .update({ 
-          additional_counters: additionalCounters,
-          last_activity: new Date().toISOString()
-        })
-        .eq('id', playerId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      // Limpar cache relacionado
-      if (data?.room_id) {
-        queryCache.clear(`players_${data.room_id}`);
-      }
-      
-      return { success: true, player: data };
-    } catch (error) {
-      console.error('Erro ao atualizar contadores adicionais:', error);
-      return { success: false, error: error.message };
-    }
+  // Atualizar contadores adicionais do jogador (debounced)
+  static updatePlayerAdditionalCounters(playerId, additionalCounters) {
+    debouncedWriter.schedule(
+      `additionalCounters_${playerId}`,
+      additionalCounters,
+      async (value) => {
+        try {
+          const { data } = await withRetry(async () => {
+            const result = await supabase
+              .from('players')
+              .update({ 
+                additional_counters: value,
+                last_activity: new Date().toISOString()
+              })
+              .eq('id', playerId)
+              .select()
+              .single();
+            if (result.error) throw result.error;
+            return result;
+          });
+          
+          if (data?.room_id) {
+            queryCache.clear(`players_${data.room_id}`);
+          }
+        } catch (error) {
+          console.error('Erro ao atualizar contadores adicionais:', error);
+        }
+      },
+      300
+    );
+    return Promise.resolve({ success: true, pending: true });
   }
 
-  static async updatePlayerSelections(playerId, selections) {
-    try {
-      // Rate limit: máximo 1 atualização a cada 500ms
-      const rl = rateLimiter.check(`selections_${playerId}`, 500);
-      if (!rl.allowed) {
-        return { success: false, error: 'Atualizando muito rápido, aguarde.' };
-      }
-
-      const { data, error } = await supabase
-        .from('players')
-        .update({ 
-          selections: selections,
-          last_activity: new Date().toISOString()
-        })
-        .eq('id', playerId)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Erro SQL ao atualizar seleções:', error);
-        throw error;
-      }
-      
-      // Limpar cache relacionado
-      if (data?.room_id) {
-        queryCache.clear(`players_${data.room_id}`);
-      }
-      
-      return { success: true, player: data };
-    } catch (error) {
-      console.error('Erro geral ao atualizar seleções:', error);
-      return { success: false, error: error.message };
-    }
+  // Atualizar seleções do jogador (debounced para garantir que o último valor sempre seja sincronizado)
+  static updatePlayerSelections(playerId, selections) {
+    debouncedWriter.schedule(
+      `selections_${playerId}`,
+      selections,
+      async (value) => {
+        try {
+          const { data } = await withRetry(async () => {
+            const result = await supabase
+              .from('players')
+              .update({ 
+                selections: value,
+                last_activity: new Date().toISOString()
+              })
+              .eq('id', playerId)
+              .select()
+              .single();
+            if (result.error) throw result.error;
+            return result;
+          });
+          
+          if (data?.room_id) {
+            queryCache.clear(`players_${data.room_id}`);
+          }
+        } catch (error) {
+          console.error('Erro ao atualizar seleções:', error);
+        }
+      },
+      500 // 500ms debounce — seleções mudam com menos frequência
+    );
+    return Promise.resolve({ success: true, pending: true });
   }
 
   // Função para executar limpeza de dados antigos
@@ -1018,6 +1105,10 @@ export class RoomService {
   // Resetar jogador para o lobby em uma única operação (batch)
   static async resetPlayerForLobby(playerId) {
     try {
+      // Cancelar escritas debounced pendentes para este jogador antes de resetar
+      // (evita que um write pendente sobrescreva o reset)
+      await debouncedWriter.flushPlayer(playerId);
+      
       const { data } = await withRetry(async () => {
         const result = await supabase
           .from('players')
@@ -1051,5 +1142,15 @@ export class RoomService {
       console.error('Erro ao resetar jogador para lobby:', error);
       return { success: false, error: error.message };
     }
+  }
+
+  // Forçar envio imediato de todas as escritas pendentes de um jogador
+  static async flushPlayerUpdates(playerId) {
+    return debouncedWriter.flushPlayer(playerId);
+  }
+
+  // Forçar envio imediato de TODAS as escritas pendentes (todos jogadores)
+  static async flushAllPendingUpdates() {
+    return debouncedWriter.flushAll();
   }
 }

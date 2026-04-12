@@ -45,16 +45,62 @@ class ConnectionMonitor {
     this.setupConnectionListeners();
   }
 
+  // Refresh proativo da sessão auth para evitar JWT expired
+  async refreshSessionIfNeeded() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return; // Sem sessão (anônimo) — nada a fazer
+
+      // Se o token expira em menos de 2 minutos, forçar refresh
+      const expiresAt = session.expires_at; // Unix timestamp em segundos
+      const nowSecs = Math.floor(Date.now() / 1000);
+      if (expiresAt && (expiresAt - nowSecs) < 120) {
+        console.log('🔄 Renovando sessão JWT proativamente...');
+        const { error } = await supabase.auth.refreshSession();
+        if (error) {
+          console.warn('⚠️ Falha ao renovar sessão:', error.message);
+        } else {
+          console.log('✅ Sessão JWT renovada com sucesso');
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao verificar/renovar sessão:', error);
+    }
+  }
+
   startHeartbeat() {
     // Heartbeat a cada 15 segundos para manter a conexão ativa
     this.heartbeatInterval = setInterval(async () => {
       try {
+        // Renovar sessão antes do heartbeat para evitar JWT expired
+        await this.refreshSessionIfNeeded();
+
         const { error } = await supabase
           .from('rooms')
           .select('id')
           .limit(1);
           
-        if (error) throw error;
+        if (error) {
+          // Se for JWT expired, tentar refresh imediato e retry
+          if (error.message?.includes('JWT') || error.code === 'PGRST301') {
+            console.warn('⚠️ JWT expirado no heartbeat, forçando refresh...');
+            await supabase.auth.refreshSession();
+            // Retry após refresh
+            const { error: retryError } = await supabase
+              .from('rooms')
+              .select('id')
+              .limit(1);
+            if (retryError) throw retryError;
+            // Se chegou aqui, refresh funcionou
+            if (!this.isConnected) {
+              this.isConnected = true;
+              this.reconnectAttempts = 0;
+              this.notifyCallbacks('connected');
+            }
+            return;
+          }
+          throw error;
+        }
         
         if (!this.isConnected) {
           this.isConnected = true;
@@ -75,13 +121,18 @@ class ConnectionMonitor {
   setupConnectionListeners() {
     // Listener para quando a página fica visível novamente
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && !this.isConnected) {
-        this.attemptReconnect();
+      if (!document.hidden) {
+        // Sempre renovar sessão ao voltar à aba — JWT pode ter expirado em background
+        this.refreshSessionIfNeeded();
+        if (!this.isConnected) {
+          this.attemptReconnect();
+        }
       }
     });
 
     // Listener para quando a conexão de rede é restabelecida
     window.addEventListener('online', () => {
+      this.refreshSessionIfNeeded();
       this.attemptReconnect();
     });
   }
@@ -95,6 +146,9 @@ class ConnectionMonitor {
     this.reconnectAttempts++;
 
     try {
+      // Refresh da sessão antes de tentar reconectar
+      await this.refreshSessionIfNeeded();
+
       const { error } = await supabase
         .from('rooms')
         .select('id')

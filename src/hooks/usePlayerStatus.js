@@ -10,7 +10,7 @@ import { RoomService } from '../services/roomService';
  * @param {object} localization - Objeto de localização
  */
 export const usePlayerStatus = (playerId, currentView, selectedActor, characterSelections, localization) => {
-  const previousView = useRef(currentView);
+  const previousView = useRef(null);
 
   useEffect(() => {
     const updateStatus = async () => {
@@ -39,7 +39,7 @@ export const usePlayerStatus = (playerId, currentView, selectedActor, characterS
           newStatus = 'selecting';
       }
 
-      // Só atualizar se mudou de view
+      // Atualizar se mudou de view OU se é a primeira vez (previousView é null na montagem)
       if (previousView.current !== currentView) {
         await RoomService.updatePlayerStatus(playerId, newStatus, characterName);
         previousView.current = currentView;

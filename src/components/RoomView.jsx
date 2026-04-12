@@ -84,6 +84,26 @@ const RoomView = ({
   // Gerenciar status automaticamente
   usePlayerStatus(currentPlayer?.id, currentView, selectedActor, characterSelections, localization);
 
+  // Quando a partida termina (matchStatus volta para null), re-sincronizar o status
+  // do jogador atual — o end_match RPC reseta is_alive mas não altera o campo status
+  const prevMatchStatus = useRef(matchStatus);
+  useEffect(() => {
+    if (prevMatchStatus.current === 'in_progress' && matchStatus === null && currentPlayer?.id) {
+      // Partida acabou de terminar — forçar atualização de status no banco
+      let newStatus = 'selecting';
+      let characterName = null;
+      if (currentView === 'sheet' && selectedActor) {
+        newStatus = 'ready';
+        characterName = localization?.[`Character.Name.${selectedActor.ID}`] || selectedActor.ID;
+      } else if (currentView === 'builder' && selectedActor) {
+        newStatus = 'creating';
+        characterName = localization?.[`Character.Name.${selectedActor.ID}`] || selectedActor.ID;
+      }
+      RoomService.updatePlayerStatus(currentPlayer.id, newStatus, characterName);
+    }
+    prevMatchStatus.current = matchStatus;
+  }, [matchStatus, currentPlayer?.id, currentView, selectedActor, localization]);
+
   // Função para atualizar jogadores manualmente removida (refreshPlayers)
 
   useEffect(() => {
@@ -128,8 +148,7 @@ const RoomView = ({
           if (prev.some(p => p.id === newRecord.id)) return prev;
           updated = [...prev, newRecord];
         } else if (eventType === 'UPDATE') {
-          // Jogador atualizado — MERGE com dados existentes para preservar campos
-          // que o Realtime não envia (payload parcial sem REPLICA IDENTITY FULL)
+          // Jogador atualizado — MERGE: REPLICA IDENTITY FULL garante payload completo
           const idx = prev.findIndex(p => p.id === newRecord.id);
           if (idx === -1) {
             // Jogador reconectado que não estava na lista
@@ -170,20 +189,39 @@ const RoomView = ({
       setRoomData(prev => ({ ...prev, ...updatedRoom }));
     });
 
-    // Visibility change: re-fetch completo apenas ao voltar à aba
+    // Visibility change: re-fetch completo apenas ao voltar à aba + flush ao sair
     const handleVisibilityChange = () => {
-      if (!document.hidden && isMounted) {
+      if (document.hidden) {
+        // Ao sair da aba, forçar envio de escritas pendentes
+        RoomService.flushAllPendingUpdates();
+      } else if (isMounted) {
         loadInitial();
         if (playersSub) RoomService.checkAndReconnectSubscription(playersSub);
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
+    // Sync periódico a cada 20s como safety net para eventos realtime perdidos
+    const periodicSyncInterval = setInterval(async () => {
+      if (!isMounted || document.hidden) return;
+      try {
+        const result = await RoomService.getRoomPlayers(room.id, true); // forceRefresh
+        if (result.success && isMounted) {
+          setPlayers(result.players);
+        }
+      } catch (error) {
+        // Silenciar erros do sync periódico — não é crítico
+      }
+    }, 20000);
+
     return () => {
       isMounted = false;
+      // Flush escritas pendentes antes de desmontar
+      RoomService.flushAllPendingUpdates();
       if (playersSub) RoomService.unsubscribeFromRoom(playersSub);
       if (roomSub) RoomService.unsubscribeFromRoom(roomSub);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(periodicSyncInterval);
     };
   }, [room.id, room.match_status]);
 

@@ -404,11 +404,13 @@ BEGIN
         RAISE EXCEPTION 'Não há partida ativa nesta sala';
     END IF;
 
+    -- Contar participantes: jogadores prontos OU eliminados durante a partida
+    -- (eliminados que voltaram ao lobby têm status='selecting' mas elimination_order IS NOT NULL)
     SELECT COUNT(*) INTO v_total
     FROM public.players
     WHERE room_id = p_room_id
     AND is_connected = true
-    AND status = 'ready';
+    AND (status = 'ready' OR elimination_order IS NOT NULL);
 
     -- Determinar vencedor: último jogador vivo
     SELECT p.id, p.name, p.user_id, p.character_name
@@ -416,7 +418,6 @@ BEGIN
     FROM public.players p
     WHERE p.room_id = p_room_id
     AND p.is_connected = true
-    AND p.status = 'ready'
     AND p.is_alive = true
     ORDER BY p.last_activity DESC
     LIMIT 1;
@@ -436,12 +437,13 @@ BEGIN
     ) RETURNING id INTO v_match_id;
 
     -- Inserir participantes e atualizar stats
+    -- Inclui jogadores ready E eliminados que voltaram ao lobby (elimination_order NOT NULL)
     FOR v_player IN
         SELECT p.*
         FROM public.players p
         WHERE p.room_id = p_room_id
         AND p.is_connected = true
-        AND p.status = 'ready'
+        AND (p.status = 'ready' OR p.elimination_order IS NOT NULL)
     LOOP
         v_is_winner := (v_player.id = v_winner.id);
 
