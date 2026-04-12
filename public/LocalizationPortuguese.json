@@ -128,7 +128,7 @@
   "UI.Room.CreateYourCharacter": "Criar Seu Personagem",
   "UI.CharacterBuilder.CreateCharacter": "Criar Personagem",
   "UI.CharacterSheet.AdditionalCounters": "Contadores Especiais",
-  "Ui.CharacterSelection.TakenByPlayer": "pegou esse personagem",
+  "UI.CharacterSelection.TakenByPlayer": "pegou esse personagem",
   "UI.CharacterSelection.ClickToCreate": "Clique para montar",
   "UI.Room.KickedYou": "Você foi expulso da sala pelo anfitrião.",
   "UI.Room.KickPlayer": "Expulsar jogador",
