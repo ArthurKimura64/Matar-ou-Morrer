@@ -2,6 +2,8 @@
   "ActorDefinitions": [
     {
       "ID": "Impact",
+      "Difficulty": 1,
+      "Generation": 1,
       "DodgePoints": 10,
       "OportunityAttacks": 8,
       "ExplorationItens": 3,
@@ -50,6 +52,8 @@
     },
     {
       "ID": "Tai",
+      "Difficulty": 2,
+      "Generation": 3,
       "DodgePoints": 5,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -97,6 +101,8 @@
     },
     {
       "ID": "Atomico",
+      "Difficulty": 2,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 3,
       "ExplorationItens": 3,
@@ -147,6 +153,8 @@
     },
     {
       "ID": "Caos",
+      "Difficulty": 1,
+      "Generation": 3,
       "DodgePoints": 8,
       "OportunityAttacks": 8,
       "ExplorationItens": 4,
@@ -198,6 +206,8 @@
     },
     {
       "ID": "Ryan",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 6,
       "ExplorationItens": 4,
@@ -252,6 +262,8 @@
     },
     {
       "ID": "Absoluto",
+      "Difficulty": 2,
+      "Generation": 1,
       "DodgePoints": 7,
       "OportunityAttacks": 6,
       "ExplorationItens": 3,
@@ -304,6 +316,8 @@
     },
     {
       "ID": "Protetor",
+      "Difficulty": 1,
+      "Generation": 2,
       "DodgePoints": 6,
       "OportunityAttacks": 9,
       "ExplorationItens": 3,
@@ -355,6 +369,8 @@
     },
     {
       "ID": "Destroul",
+      "Difficulty": 2,
+      "Generation": 3,
       "DodgePoints": 1,
       "OportunityAttacks": 10,
       "ExplorationItens": 3,
@@ -398,6 +414,8 @@
     },
     {
       "ID": "Imortal",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 4,
       "OportunityAttacks": 3,
       "ExplorationItens": 3,
@@ -447,6 +465,8 @@
     },
     {
       "ID": "Gravidade",
+      "Difficulty": 3,
+      "Generation": 1,
       "DodgePoints": 10,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -492,6 +512,8 @@
     },
     {
       "ID": "Radiacao",
+      "Difficulty": 1,
+      "Generation": 1,
       "DodgePoints": 4,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -540,6 +562,8 @@
     },
     {
       "ID": "SextoSentido",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 6,
       "OportunityAttacks": 6,
       "ExplorationItens": 3,
@@ -587,6 +611,8 @@
     },
     {
       "ID": "Kader",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 3,
       "OportunityAttacks": 8,
       "ExplorationItens": 3,
@@ -632,6 +658,8 @@
     },
     {
       "ID": "PortadorDasEntidades",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 4,
       "OportunityAttacks": 4,
       "ExplorationItens": 6,
@@ -678,6 +706,8 @@
     },
     {
       "ID": "amaldicoada",
+      "Difficulty": 3,
+      "Generation": 2,
       "DodgePoints": 5,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -728,6 +758,8 @@
     },
     {
       "ID": "Destruidor",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 8,
       "OportunityAttacks": 3,
       "ExplorationItens": 4,
@@ -772,6 +804,8 @@
     },
     {
       "ID": "LuaNegra",
+      "Difficulty": 2,
+      "Generation": 1,
       "DodgePoints": 10,
       "OportunityAttacks": 10,
       "ExplorationItens": 3,
@@ -827,6 +861,8 @@
     },
     {
       "ID": "Bruce",
+      "Difficulty": 2,
+      "Generation": 1,
       "DodgePoints": 3,
       "OportunityAttacks": 8,
       "ExplorationItens": 6,
@@ -876,6 +912,8 @@
     },
     {
       "ID": "EclipseKnight",
+      "Difficulty": 3,
+      "Generation": 2,
       "mode1": "Character.Mode.EclipseKnight.mode1",
       "mode2": "Character.Mode.EclipseKnight.mode2",
       "DodgePoints": 8,
@@ -927,6 +965,8 @@
     },
     {
       "ID": "Invicto",
+      "Difficulty": 1,
+      "Generation": 1,
       "DodgePoints": 3,
       "OportunityAttacks": 3,
       "ExplorationItens": 3,
@@ -973,6 +1013,8 @@
     },
     {
       "ID": "Vinteum",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 15,
       "OportunityAttacks": 10,
       "ExplorationItens": 3,
@@ -1029,6 +1071,8 @@
     },
     {
       "ID": "Pax",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 6,
       "OportunityAttacks": 10,
       "ExplorationItens": 3,
@@ -1073,6 +1117,8 @@
     },
     {
       "ID": "Observadora",
+      "Difficulty": 3,
+      "Generation": 2,
       "DodgePoints": 7,
       "OportunityAttacks": 3,
       "ExplorationItens": 6,
@@ -1120,6 +1166,8 @@
     },
     {
       "ID": "MulherTitanium",
+      "Difficulty": 1,
+      "Generation": 1,
       "DodgePoints": 2,
       "OportunityAttacks": 3,
       "ExplorationItens": 3,
@@ -1163,6 +1211,8 @@
     },
     {
       "ID": "Ilusao",
+      "Difficulty": 3,
+      "Generation": 1,
       "DodgePoints": 6,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -1210,6 +1260,8 @@
     },
     {
       "ID": "Alpha",
+      "Difficulty": 2,
+      "Generation": 1,
       "DodgePoints": 5,
       "OportunityAttacks": 2,
       "ExplorationItens": 3,
@@ -1262,6 +1314,8 @@
     },
     {
       "ID": "ArcoNegro",
+      "Difficulty": 2,
+      "Generation": 1,
       "DodgePoints": 3,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -1308,6 +1362,8 @@
     },
     {
       "ID": "Vazio",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 7,
       "OportunityAttacks": 4,
       "ExplorationItens": 4,
@@ -1360,6 +1416,8 @@
     },
     {
       "ID": "Energz",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 12,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -1407,6 +1465,8 @@
     },
     {
       "ID": "Absinto",
+      "Difficulty": 3,
+      "Generation": 2,
       "DodgePoints": 1,
       "OportunityAttacks": 2,
       "ExplorationItens": 3,
@@ -1448,6 +1508,8 @@
     },
     {
       "ID": "Pressao",
+      "Difficulty": 3,
+      "Generation": 2,
       "DodgePoints": 4,
       "OportunityAttacks": 2,
       "ExplorationItens": 3,
@@ -1497,6 +1559,8 @@
     },
     {
       "ID": "Manipulador",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 6,
       "OportunityAttacks": 7,
       "ExplorationItens": 3,
@@ -1539,6 +1603,8 @@
     },
     {
       "ID": "SenhordaLuz",
+      "Difficulty": 1,
+      "Generation": 2,
       "DodgePoints": 10,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -1581,6 +1647,8 @@
     },
     {
       "ID": "Dimensao",
+      "Difficulty": 3,
+      "Generation": 2,
       "DodgePoints": 10,
       "OportunityAttacks": 3,
       "ExplorationItens": 8,
@@ -1624,6 +1692,8 @@
     },
     {
       "ID": "Programador",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 5,
       "OportunityAttacks": 2,
       "ExplorationItens": 5,
@@ -1670,6 +1740,8 @@
     },
     {
       "ID": "NyanjaVlast",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 7,
       "ExplorationItens": 5,
@@ -1720,6 +1792,8 @@
     },
     {
       "ID": "Sistema",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 10,
       "ExplorationItens": 8,
@@ -1773,6 +1847,8 @@
     },
     {
       "ID": "Onisciente",
+      "Difficulty": 3,
+      "Generation": 2,
       "DodgePoints": 4,
       "OportunityAttacks": 2,
       "ExplorationItens": 3,
@@ -1822,6 +1898,8 @@
     },
     {
       "ID": "Capuz",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 6,
       "OportunityAttacks": 9,
       "ExplorationItens": 3,
@@ -1877,6 +1955,8 @@
     },
     {
       "ID": "adaptado",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 6,
       "OportunityAttacks": 1,
       "ExplorationItens": 3,
@@ -1924,6 +2004,8 @@
     },
     {
       "ID": "Raioroxo",
+      "Difficulty": 1,
+      "Generation": 2,
       "DodgePoints": 5,
       "OportunityAttacks": 10,
       "ExplorationItens": 3,
@@ -1967,6 +2049,8 @@
     },
     {
       "ID": "Tecnology",
+      "Difficulty": 2,
+      "Generation": 1,
       "DodgePoints": 5,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -2017,6 +2101,8 @@
     },
     {
       "ID": "AgentedoVazio",
+      "Difficulty": 2,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 10,
       "ExplorationItens": 3,
@@ -2074,6 +2160,8 @@
     },
     {
       "ID": "MulherFantasma",
+      "Difficulty": 2,
+      "Generation": 3,
       "DodgePoints": 15,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -2121,6 +2209,8 @@
     },
     {
       "ID": "Zyua",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -2162,6 +2252,8 @@
     },
     {
       "ID": "Vortztem",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 10,
       "OportunityAttacks": 9,
       "ExplorationItens": 4,
@@ -2209,6 +2301,8 @@
     },
     {
       "ID": "Katnis",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 4,
       "OportunityAttacks": 4,
       "ExplorationItens": 3,
@@ -2265,6 +2359,8 @@
     },
     {
       "ID": "Eterno ",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 8,
       "OportunityAttacks": 7,
       "ExplorationItens": 3,
@@ -2315,6 +2411,8 @@
     },
     {
       "ID": "Stratton",
+      "Difficulty": 2,
+      "Generation": 2,
       "DodgePoints": 3,
       "OportunityAttacks": 3,
       "ExplorationItens": 3,
@@ -2368,6 +2466,8 @@
     },
     {
       "ID": "Copiador",
+      "Difficulty": 3,
+      "Generation": 3,
       "DodgePoints": 10,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -2399,6 +2499,8 @@
     },
     {
       "ID": "Omega",
+      "Difficulty": 2,
+      "Generation": 3,
       "DodgePoints": 8,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
