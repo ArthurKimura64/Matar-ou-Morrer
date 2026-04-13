@@ -3,7 +3,7 @@ import React, { useState, memo } from 'react';
 /**
  * Componente extraído de CombatPanel — permite ajustar resultados de dados individualmente ou em grupo.
  */
-const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole }) => {
+const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, localization = {} }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const adjustDie = (index, delta) => {
@@ -44,7 +44,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole }) => {
           adjustAllDice(-1);
         }}
         disabled={!canDecreaseAll}
-        title="Diminuir todos os dados"
+        title={localization['UI.Dice.DecreaseAll'] || "Diminuir todos os dados"}
       >
         −
       </button>
@@ -65,7 +65,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole }) => {
                   adjustDie(i, 1);
                 }}
                 disabled={die >= 6}
-                title="Aumentar"
+                title={localization['UI.Dice.Increase'] || "Aumentar"}
               >
                 ▲
               </button>
@@ -77,7 +77,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole }) => {
                   adjustDie(i, -1);
                 }}
                 disabled={die <= 1}
-                title="Diminuir"
+                title={localization['UI.Dice.Decrease'] || "Diminuir"}
               >
                 ▼
               </button>
@@ -89,7 +89,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole }) => {
                     e.stopPropagation();
                     removeDie(i);
                   }}
-                  title="Remover dado"
+                  title={localization['UI.Dice.RemoveDie'] || "Remover dado"}
                 >
                   ✕
                 </button>
@@ -107,7 +107,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole }) => {
           adjustAllDice(1);
         }}
         disabled={!canIncreaseAll}
-        title="Aumentar todos os dados"
+        title={localization['UI.Dice.IncreaseAll'] || "Aumentar todos os dados"}
       >
         +
       </button>

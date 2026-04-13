@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import './AdditionalCounters.css';
 
-const SquaresCounter = ({ id, title, value = 0, min = 0, max = 5, onChange }) => {
+const SquaresCounter = ({ id, title, value = 0, min = 0, max = 5, onChange, localization = {} }) => {
   // Garantir que `max` seja um número inteiro não-negativo
   const parsedMax = Number.isFinite(Number(max)) ? Math.max(0, Math.floor(Number(max))) : 0;
   const clampedMax = parsedMax;
@@ -57,7 +57,7 @@ const SquaresCounter = ({ id, title, value = 0, min = 0, max = 5, onChange }) =>
                   key={`${id}-sq-${index}`}
                   className={`square-counter ${marked ? 'marked' : ''} ${showHoverPreview ? 'hover-preview' : ''}`}
                   aria-pressed={marked}
-                  title={marked ? 'Usado' : 'Não usado'}
+                  title={marked ? (localization['UI.Counter.Used'] || 'Usado') : (localization['UI.Counter.NotUsed'] || 'Não usado')}
                 >
                   {marked ? '✕' : ''}
                 </span>
@@ -72,8 +72,8 @@ const SquaresCounter = ({ id, title, value = 0, min = 0, max = 5, onChange }) =>
           type="button"
           className="squares-reset-btn btn btn-outline-light"
           onClick={(e) => { handleReset(); }}
-          title="Reiniciar contagem"
-          aria-label="Reiniciar contagem"
+          title={localization['UI.Counter.ResetCount'] || "Reiniciar contagem"}
+          aria-label={localization['UI.Counter.ResetCount'] || "Reiniciar contagem"}
         >
           ⟳
         </button>

@@ -49,7 +49,7 @@ const PlayersSidebar = ({
         }}
         title={isOpen ? 
           (localization['UI.Room.CollapsePlayersList'] || "Fechar lista de jogadores") : 
-          `${localization['UI.Room.ExpandPlayersList'] || "Abrir lista de jogadores"} (${players.length} ${players.length === 1 ? 'jogador' : 'jogadores'})`
+          `${localization['UI.Room.ExpandPlayersList'] || "Abrir lista de jogadores"} (${players.length} ${players.length === 1 ? (localization['UI.Common.PlayerSingular'] || 'jogador') : (localization['UI.Common.PlayerPlural'] || 'jogadores')})`
         }
       >
         {/* Ícone centralizado */}
@@ -102,7 +102,7 @@ const PlayersSidebar = ({
                 {localization['UI.Room.ConnectedPlayers'] || 'Jogadores Conectados'}
               </h6>
               <small className="text-light">
-                {players.length} {players.length === 1 ? 'jogador' : 'jogadores'}
+                {players.length} {players.length === 1 ? (localization['UI.Common.PlayerSingular'] || 'jogador') : (localization['UI.Common.PlayerPlural'] || 'jogadores')}
               </small>
             </div>
             <div className="d-flex align-items-center gap-2">
@@ -179,7 +179,7 @@ const PlayersSidebar = ({
                 {localization['UI.Room.ConnectedPlayers'] || 'Jogadores Conectados'}
               </h6>
               <small className="text-light">
-                {players.length} {players.length === 1 ? 'jogador' : 'jogadores'}
+                {players.length} {players.length === 1 ? (localization['UI.Common.PlayerSingular'] || 'jogador') : (localization['UI.Common.PlayerPlural'] || 'jogadores')}
               </small>
             </div>
             <div className="d-flex align-items-center gap-2">

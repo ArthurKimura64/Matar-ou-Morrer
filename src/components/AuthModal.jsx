@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../services/authService';
 
-const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
+const AuthModal = ({ show, onClose, onAuthSuccess, initialMode, localization }) => {
   const [mode, setMode] = useState(initialMode || 'login'); // 'login' | 'register' | 'forgot' | 'changePassword'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,12 +30,12 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
     try {
       if (mode === 'register') {
         if (!displayName.trim()) {
-          setError('Nome de exibição é obrigatório');
+          setError(localization?.['UI.Auth.DisplayNameRequired'] || 'Nome de exibição é obrigatório');
           setLoading(false);
           return;
         }
         if (password.length < 6) {
-          setError('A senha deve ter pelo menos 6 caracteres');
+          setError(localization?.['UI.Auth.PasswordMinLength'] || 'A senha deve ter pelo menos 6 caracteres');
           setLoading(false);
           return;
         }
@@ -46,22 +46,22 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
         }
       } else if (mode === 'forgot') {
         await authService.resetPasswordForEmail(email);
-        setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
+        setSuccess(localization?.['UI.Auth.RecoveryEmailSent'] || 'Email de recuperação enviado! Verifique sua caixa de entrada.');
         setLoading(false);
         return;
       } else if (mode === 'changePassword') {
         if (newPassword.length < 6) {
-          setError('A nova senha deve ter pelo menos 6 caracteres');
+          setError(localization?.['UI.Auth.NewPasswordMinLength'] || 'A nova senha deve ter pelo menos 6 caracteres');
           setLoading(false);
           return;
         }
         if (newPassword !== confirmPassword) {
-          setError('As senhas não coincidem');
+          setError(localization?.['UI.Auth.PasswordMismatch'] || 'As senhas não coincidem');
           setLoading(false);
           return;
         }
         await authService.updatePassword(newPassword);
-        setSuccess('Senha alterada com sucesso!');
+        setSuccess(localization?.['UI.Auth.PasswordChanged'] || 'Senha alterada com sucesso!');
         setLoading(false);
         return;
       } else {
@@ -73,10 +73,10 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
       }
     } catch (err) {
       const messages = {
-        'Invalid login credentials': 'Email ou senha incorretos',
-        'User already registered': 'Este email já está registrado',
-        'For security purposes, you can only request this after 60 seconds.': 'Aguarde 60 segundos antes de solicitar novamente.',
-        'New password should be different from the old password.': 'A nova senha deve ser diferente da senha atual.'
+        'Invalid login credentials': localization?.['UI.Auth.InvalidCredentials'] || 'Email ou senha incorretos',
+        'User already registered': localization?.['UI.Auth.AlreadyRegistered'] || 'Este email já está registrado',
+        'For security purposes, you can only request this after 60 seconds.': localization?.['UI.Auth.RateLimited'] || 'Aguarde 60 segundos antes de solicitar novamente.',
+        'New password should be different from the old password.': localization?.['UI.Auth.SamePassword'] || 'A nova senha deve ser diferente da senha atual.'
       };
       setError(messages[err.message] || err.message);
     }
@@ -101,10 +101,10 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
   if (!show) return null;
 
   const titles = {
-    login: '🔑 Entrar',
-    register: '📝 Criar Conta',
-    forgot: '🔒 Recuperar Senha',
-    changePassword: '🔐 Mudar Senha'
+    login: localization?.['UI.Auth.Title.Login'] || '🔑 Entrar',
+    register: localization?.['UI.Auth.Title.Register'] || '📝 Criar Conta',
+    forgot: localization?.['UI.Auth.Title.Forgot'] || '🔒 Recuperar Senha',
+    changePassword: localization?.['UI.Auth.Title.ChangePassword'] || '🔐 Mudar Senha'
   };
 
   return (
@@ -135,13 +135,13 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
                 <form onSubmit={handleEmailAuth}>
                   {mode === 'register' && (
                     <div className="mb-3">
-                      <label className="form-label">Nome de Exibição</label>
+                      <label className="form-label">{localization?.['UI.Auth.DisplayNameLabel'] || 'Nome de Exibição'}</label>
                       <input
                         type="text"
                         className="form-control bg-dark text-light border-secondary"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="Como outros jogadores vão te ver"
+                        placeholder={localization?.['UI.Auth.DisplayNamePlaceholder'] || 'Como outros jogadores vão te ver'}
                         maxLength={50}
                         required
                       />
@@ -150,13 +150,13 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
 
                   {(mode === 'login' || mode === 'register' || mode === 'forgot') && (
                     <div className="mb-3">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">{localization?.['UI.Auth.EmailLabel'] || 'Email'}</label>
                       <input
                         type="email"
                         className="form-control bg-dark text-light border-secondary"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="seu@email.com"
+                        placeholder={localization?.['UI.Auth.EmailPlaceholder'] || 'seu@email.com'}
                         required
                       />
                     </div>
@@ -164,13 +164,13 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
 
                   {(mode === 'login' || mode === 'register') && (
                     <div className="mb-3">
-                      <label className="form-label">Senha</label>
+                      <label className="form-label">{localization?.['UI.Auth.PasswordLabel'] || 'Senha'}</label>
                       <input
                         type="password"
                         className="form-control bg-dark text-light border-secondary"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : 'Sua senha'}
+                        placeholder={mode === 'register' ? (localization?.['UI.Auth.PasswordPlaceholderNew'] || 'Mínimo 6 caracteres') : (localization?.['UI.Auth.PasswordPlaceholder'] || 'Sua senha')}
                         minLength={6}
                         required
                       />
@@ -180,25 +180,25 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
                   {mode === 'changePassword' && (
                     <>
                       <div className="mb-3">
-                        <label className="form-label">Nova Senha</label>
+                        <label className="form-label">{localization?.['UI.Auth.NewPasswordLabel'] || 'Nova Senha'}</label>
                         <input
                           type="password"
                           className="form-control bg-dark text-light border-secondary"
                           value={newPassword}
                           onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="Mínimo 6 caracteres"
+                          placeholder={localization?.['UI.Auth.PasswordPlaceholderNew'] || 'Mínimo 6 caracteres'}
                           minLength={6}
                           required
                         />
                       </div>
                       <div className="mb-3">
-                        <label className="form-label">Confirmar Nova Senha</label>
+                        <label className="form-label">{localization?.['UI.Auth.ConfirmPasswordLabel'] || 'Confirmar Nova Senha'}</label>
                         <input
                           type="password"
                           className="form-control bg-dark text-light border-secondary"
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Repita a nova senha"
+                          placeholder={localization?.['UI.Auth.ConfirmPasswordPlaceholder'] || 'Repita a nova senha'}
                           minLength={6}
                           required
                         />
@@ -211,13 +211,13 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
                       {loading ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                          Processando...
+                          {localization?.['UI.Auth.Processing'] || 'Processando...'}
                         </>
                       ) : (
-                        mode === 'login' ? 'Entrar' : 
-                        mode === 'register' ? 'Criar Conta' : 
-                        mode === 'forgot' ? 'Enviar Email de Recuperação' :
-                        'Alterar Senha'
+                        mode === 'login' ? (localization?.['UI.Auth.Submit.Login'] || 'Entrar') : 
+                        mode === 'register' ? (localization?.['UI.Auth.Submit.Register'] || 'Criar Conta') : 
+                        mode === 'forgot' ? (localization?.['UI.Auth.Submit.Forgot'] || 'Enviar Email de Recuperação') :
+                        (localization?.['UI.Auth.Submit.ChangePassword'] || 'Alterar Senha')
                       )}
                     </button>
                   </div>
@@ -228,43 +228,43 @@ const AuthModal = ({ show, onClose, onAuthSuccess, initialMode }) => {
                     <>
                       <small className="text-secondary d-block mb-1">
                         <button className="btn btn-link btn-sm p-0 text-warning" onClick={() => switchMode('forgot')}>
-                          Esqueceu a senha?
+                          {localization?.['UI.Auth.ForgotPassword'] || 'Esqueceu a senha?'}
                         </button>
                       </small>
                       {registrationOpen ? (
                         <small className="text-secondary">
-                          Não tem conta?{' '}
+                          {localization?.['UI.Auth.NoAccount'] || 'Não tem conta?'}{' '}
                           <button className="btn btn-link btn-sm p-0 text-primary" onClick={() => switchMode('register')}>
-                            Criar conta
+                            {localization?.['UI.Auth.CreateAccount'] || 'Criar conta'}
                           </button>
                         </small>
                       ) : (
                         <small className="text-danger d-block mt-1">
-                          🚫 Novos cadastros estão desativados.
+                          {localization?.['UI.Auth.RegistrationClosed'] || '🚫 Novos cadastros estão desativados.'}
                         </small>
                       )}
                     </>
                   )}
                   {mode === 'register' && (
                     <small className="text-secondary">
-                      Já tem conta?{' '}
+                      {localization?.['UI.Auth.HasAccount'] || 'Já tem conta?'}{' '}
                       <button className="btn btn-link btn-sm p-0 text-primary" onClick={() => switchMode('login')}>
-                        Entrar
+                        {localization?.['UI.Auth.GoToLogin'] || 'Entrar'}
                       </button>
                     </small>
                   )}
                   {mode === 'forgot' && (
                     <small className="text-secondary">
-                      Lembrou a senha?{' '}
+                      {localization?.['UI.Auth.RememberedPassword'] || 'Lembrou a senha?'}{' '}
                       <button className="btn btn-link btn-sm p-0 text-primary" onClick={() => switchMode('login')}>
-                        Voltar ao login
+                        {localization?.['UI.Auth.BackToLogin'] || 'Voltar ao login'}
                       </button>
                     </small>
                   )}
                   {mode === 'changePassword' && (
                     <small className="text-secondary">
                       <button className="btn btn-link btn-sm p-0 text-primary" onClick={onClose}>
-                        Cancelar
+                        {localization?.['UI.Common.Cancel'] || 'Cancelar'}
                       </button>
                     </small>
                   )}

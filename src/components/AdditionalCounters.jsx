@@ -61,6 +61,7 @@ const AdditionalCounters = ({ additionalCounters, onCounterChange, playerId, loc
               min={counterData.min || 0}
               max={counterData.max || 10}
               onChange={(newVal) => handleCounterChange(key, newVal)}
+              localization={localization}
             />
           );
         })}

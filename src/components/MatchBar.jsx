@@ -29,11 +29,11 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
       if (result.success) {
         if (onMatchStart) onMatchStart();
       } else {
-        alert('Erro ao iniciar partida: ' + (result.error || 'Erro desconhecido'));
+        alert((localization?.['UI.Error.StartMatch'] || 'Erro ao iniciar partida: ') + (result.error || 'Erro desconhecido'));
       }
     } catch (err) {
       console.error('Erro ao iniciar partida:', err);
-      alert('Erro ao iniciar partida: ' + (err.message || 'Erro de conexão'));
+      alert((localization?.['UI.Error.StartMatch'] || 'Erro ao iniciar partida: ') + (err.message || 'Erro de conexão'));
     }
     setLoading(false);
   };
@@ -46,17 +46,17 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
         setShowEliminationModal(false);
         setSelectedKiller(null);
       } else {
-        alert('Erro ao declarar eliminação: ' + (result.error || 'Erro desconhecido'));
+        alert((localization?.['UI.Error.DeclareElimination'] || 'Erro ao declarar eliminação: ') + (result.error || 'Erro desconhecido'));
       }
     } catch (err) {
       console.error('Erro ao declarar eliminação:', err);
-      alert('Erro ao declarar eliminação: ' + (err.message || 'Erro de conexão'));
+      alert((localization?.['UI.Error.DeclareElimination'] || 'Erro ao declarar eliminação: ') + (err.message || 'Erro de conexão'));
     }
     setLoading(false);
   };
 
   const handleDeclareVictory = async () => {
-    if (!window.confirm('Você tem certeza que deseja declarar vitória e encerrar a partida?')) return;
+    if (!window.confirm(localization?.['UI.Match.ConfirmVictory'] || 'Você tem certeza que deseja declarar vitória e encerrar a partida?')) return;
     setLoading(true);
     try {
       // end_match RPC registra stats + reseta match atomicamente no servidor
@@ -64,11 +64,11 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
       if (result.success) {
         if (onMatchEnd) onMatchEnd();
       } else {
-        alert('Erro ao encerrar partida: ' + (result.error || 'Erro desconhecido'));
+        alert((localization?.['UI.Error.EndMatch'] || 'Erro ao encerrar partida: ') + (result.error || 'Erro desconhecido'));
       }
     } catch (err) {
       console.error('Erro ao declarar vitória:', err);
-      alert('Erro ao encerrar partida: ' + (err.message || 'Erro de conexão'));
+      alert((localization?.['UI.Error.EndMatch'] || 'Erro ao encerrar partida: ') + (err.message || 'Erro de conexão'));
     }
     setLoading(false);
   };
@@ -84,8 +84,8 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
             <div className="alert alert-warning d-flex align-items-center justify-content-center mb-0 py-2" 
                  style={{ borderRadius: '8px' }}>
               <span className="me-2">⚔️</span>
-              <strong>Partida em andamento</strong>
-              <span className="ms-2">— Monte seu personagem para a próxima partida</span>
+              <strong>{localization?.['UI.Match.InProgress'] || 'Partida em andamento'}</strong>
+              <span className="ms-2">— {localization?.['UI.Match.PrepareNextMatch'] || 'Monte seu personagem para a próxima partida'}</span>
             </div>
           </div>
         </div>
@@ -103,8 +103,8 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
                style={{ borderRadius: '8px' }}>
             <span style={{ fontSize: '14px', color: '#adb5bd' }}>
               {allPlayersReady 
-                ? `✅ Todos prontos (${connectedReadyPlayers.length} jogadores)` 
-                : `⏳ Aguardando jogadores ficarem prontos (${connectedReadyPlayers.length}/${players.filter(p => p.is_connected).length})`
+                ? `✅ ${localization?.['UI.Match.AllReady'] || 'Todos prontos'} (${connectedReadyPlayers.length} ${connectedReadyPlayers.length === 1 ? (localization?.['UI.Common.PlayerSingular'] || 'jogador') : (localization?.['UI.Common.PlayerPlural'] || 'jogadores')})` 
+                : `⏳ ${localization?.['UI.Match.WaitingPlayers'] || 'Aguardando jogadores ficarem prontos'} (${connectedReadyPlayers.length}/${players.filter(p => p.is_connected).length})`
               }
             </span>
             <button
@@ -113,9 +113,9 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
               disabled={!allPlayersReady || loading}
             >
               {loading ? (
-                <><span className="spinner-border spinner-border-sm me-1" /> Iniciando...</>
+                <><span className="spinner-border spinner-border-sm me-1" /> {localization?.['UI.Match.Starting'] || 'Iniciando...'}</>
               ) : (
-                <>🏁 Iniciar Partida</>
+                <>{localization?.['UI.Match.StartMatch'] || '🏁 Iniciar Partida'}</>
               )}
             </button>
           </div>
@@ -137,9 +137,9 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
                  boxShadow: '0 0 15px rgba(231, 76, 60, 0.3)'
                }}>
             <span style={{ fontSize: '14px' }}>
-              ⚔️ <strong className="text-danger">Partida em andamento</strong>
+              ⚔️ <strong className="text-danger">{localization?.['UI.Match.InProgress'] || 'Partida em andamento'}</strong>
               <span className="text-muted ms-2">
-                — {alivePlayers.length} {alivePlayers.length === 1 ? 'sobrevivente' : 'sobreviventes'}
+                — {alivePlayers.length} {alivePlayers.length === 1 ? (localization?.['UI.Match.SurvivorSingular'] || 'sobrevivente') : (localization?.['UI.Match.SurvivorPlural'] || 'sobreviventes')}
               </span>
             </span>
             
@@ -149,7 +149,7 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
                 onClick={() => setShowEliminationModal(true)}
                 disabled={loading}
               >
-                ☠️ Fui Eliminado
+                {localization?.['UI.Match.DeclareEliminated'] || '☠️ Fui Eliminado'}
               </button>
             )}
 
@@ -161,16 +161,16 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
                 style={{ animation: 'pulse 1.5s ease-in-out infinite' }}
               >
                 {loading ? (
-                  <><span className="spinner-border spinner-border-sm me-1" /> Encerrando...</>
+                  <><span className="spinner-border spinner-border-sm me-1" /> {localization?.['UI.Match.Ending'] || 'Encerrando...'}</>
                 ) : (
-                  <>🏆 Sou o Vencedor!</>
+                  <>{localization?.['UI.Match.DeclareVictory'] || '🏆 Sou o Vencedor!'}</>
                 )}
               </button>
             )}
 
             {!isAlive && (
               <span className="badge bg-secondary" style={{ fontSize: '13px' }}>
-                💀 Eliminado
+                {localization?.['UI.Match.EliminatedBadge'] || '💀 Eliminado'}
               </span>
             )}
           </div>
@@ -191,11 +191,11 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
           >
             <h5 className="text-danger mb-3">
               <span className="me-2">☠️</span>
-              Declarar Eliminação
+              {localization?.['UI.Match.DeclareEliminationTitle'] || 'Declarar Eliminação'}
             </h5>
 
             <p className="text-white mb-3" style={{ fontSize: '14px' }}>
-              Quem te eliminou? <small className="text-muted">(opcional)</small>
+              {localization?.['UI.Match.WhoKilledYou'] || 'Quem te eliminou?'} <small className="text-muted">{localization?.['UI.Common.Optional'] || '(opcional)'}</small>
             </p>
 
             <div className="d-flex flex-column gap-2 mb-3">
@@ -207,7 +207,7 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
               >
                 <div className="card-body p-2">
                   <div className="d-flex justify-content-between align-items-center">
-                    <span className="text-white small">🚫 Ninguém / Não sei</span>
+                    <span className="text-white small">{localization?.['UI.Match.NoKiller'] || '🚫 Ninguém / Não sei'}</span>
                     {selectedKiller === null && <span className="text-danger">✓</span>}
                   </div>
                 </div>
@@ -241,7 +241,7 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
                 className="btn btn-secondary flex-fill"
                 onClick={() => { setShowEliminationModal(false); setSelectedKiller(null); }}
               >
-                Cancelar
+                {localization?.['UI.Common.Cancel'] || 'Cancelar'}
               </button>
               <button
                 className="btn btn-danger flex-fill fw-bold"
@@ -249,9 +249,9 @@ const MatchBar = ({ matchStatus, players, currentPlayer, isAlive, roomId, room, 
                 disabled={loading}
               >
                 {loading ? (
-                  <><span className="spinner-border spinner-border-sm me-1" /> Confirmando...</>
+                  <><span className="spinner-border spinner-border-sm me-1" /> {localization?.['UI.Match.Confirming'] || 'Confirmando...'}</>
                 ) : (
-                  <>☠️ Confirmar Eliminação</>
+                  <>{localization?.['UI.Match.ConfirmElimination'] || '☠️ Confirmar Eliminação'}</>
                 )}
               </button>
             </div>

@@ -653,7 +653,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
               fontSize: '12px'
             }}
             onClick={() => handleToggleCardExposure(item.ID)}
-            title={isExposed ? 'Ocultar da mesa' : 'Expor na mesa'}
+            title={isExposed ? (localization['UI.CharacterSheet.HideFromTable'] || 'Ocultar da mesa') : (localization['UI.CharacterSheet.ExposeOnTable'] || 'Expor na mesa')}
           >
             👁️
           </button>
@@ -774,7 +774,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                         fontSize: '12px'
                       }}
                       onClick={() => handleToggleCardExposure(assigned.ID)}
-                      title={exposedCards.has(assigned.ID) ? 'Ocultar da mesa' : 'Expor na mesa'}
+                      title={exposedCards.has(assigned.ID) ? (localization['UI.CharacterSheet.HideFromTable'] || 'Ocultar da mesa') : (localization['UI.CharacterSheet.ExposeOnTable'] || 'Expor na mesa')}
                     >
                       👁️
                     </button>
@@ -782,11 +782,11 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                   <div className="card-body p-2">
                     {!assigned ? (
                       <>
-                        <div className={`fw-bold text-${section.color} mb-1`}>Slot {idx+1}</div>
+                        <div className={`fw-bold text-${section.color} mb-1`}>{localization['UI.Copycat.Slot'] || 'Slot'} {idx+1}</div>
                         {isSelectingSource && isSelectingSource.slotKey === slotKey ? (
                           <div className="small">
                             {sources.length === 0 && (
-                              <div className="text-muted">Nenhum jogador expôs esta característica.</div>
+                              <div className="text-muted">{localization['UI.Copycat.NoneExposed'] || 'Nenhum jogador expôs esta característica.'}</div>
                             )}
                             {sources.map(src => (
                               <div key={src.playerId} className="mb-3">
@@ -824,14 +824,14 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                                 </div>
                               </div>
                             ))}
-                            <button className="btn btn-sm btn-secondary" onClick={() => setIsSelectingSource(null)}>Cancelar</button>
+                            <button className="btn btn-sm btn-secondary" onClick={() => setIsSelectingSource(null)}>{localization['UI.Common.Cancel'] || 'Cancelar'}</button>
                           </div>
                         ) : (
                           <button 
                             className={`btn btn-sm btn-outline-${section.color}`}
                             onClick={() => handleOpenCopySelect(slotKey, section.key)}
                           >
-                            adicionar {section.title}
+                            {localization['UI.Copycat.Add'] || 'adicionar'} {section.title}
                           </button>
                         )}
                       </>
@@ -882,7 +882,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
                 fontSize: '14px'
               }}
               onClick={() => handleToggleCardExposure(`Description.${actor.ID}`)}
-              title={exposedCards.has(`Description.${actor.ID}`) ? 'Ocultar descrição da mesa' : 'Expor descrição na mesa'}
+              title={exposedCards.has(`Description.${actor.ID}`) ? (localization['UI.CharacterSheet.HideDescFromTable'] || 'Ocultar descrição da mesa') : (localization['UI.CharacterSheet.ExposeDescOnTable'] || 'Expor descrição na mesa')}
             >
               👁️
             </button>
@@ -965,6 +965,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           min={0}
           max={counters.esquiva_max}
           onChange={(value) => handleCounterChange('esquiva', value)}
+          localization={localization}
         />
         <SquaresCounter
           id="oport"
@@ -973,6 +974,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           min={0}
           max={counters.oport_max}
           onChange={(value) => handleCounterChange('oport', value)}
+          localization={localization}
         />
         <SquaresCounter
           id="item"
@@ -981,6 +983,7 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
           min={0}
           max={counters.item_max}
           onChange={(value) => handleCounterChange('item', value)}
+          localization={localization}
         />
         <Counter
           id="mortes"
@@ -1028,10 +1031,10 @@ const CharacterSheet = ({ actor, selections, gameData, localization, onReset, cu
 
       <div className="text-center mt-4">
         {matchStatus === 'in_progress' && isAlive ? (
-          <span className="text-muted small">⚔️ Partida em andamento — declare eliminação para trocar de personagem</span>
+          <span className="text-muted small">{localization['UI.CharacterSheet.MatchInProgress'] || '⚔️ Partida em andamento — declare eliminação para trocar de personagem'}</span>
         ) : (
           <button className="btn btn-secondary" onClick={handleReset}>
-            Reiniciar
+            {localization['UI.CharacterSheet.Reset'] || 'Reiniciar'}
           </button>
         )}
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import authService from '../services/authService';
 
-const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword }) => {
+const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword, localization = {} }) => {
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const menuRef = useRef(null);
@@ -32,7 +32,7 @@ const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword }) => 
     }
   };
 
-  const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Jogador';
+  const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split('@')[0] || (localization['UI.Common.DefaultPlayer'] || 'Jogador');
 
   return (
     <div ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
@@ -69,40 +69,40 @@ const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword }) => 
         >
           <div className="card-body p-2">
             <div className="px-2 py-1 mb-2 border-bottom border-secondary">
-              <small className="text-secondary">Logado como</small>
+              <small className="text-secondary">{localization['UI.Menu.LoggedAs'] || 'Logado como'}</small>
               <div className="text-light fw-bold text-truncate">{displayName}</div>
             </div>
             <button 
               className="btn btn-sm btn-outline-light w-100 text-start mb-1"
               onClick={() => { setOpen(false); onNavigate('profile'); }}
             >
-              📊 Meu Perfil
+              📊 {localization['UI.Menu.MyProfile'] || 'Meu Perfil'}
             </button>
             <button 
               className="btn btn-sm btn-outline-light w-100 text-start mb-1"
               onClick={() => { setOpen(false); onNavigate('ranking'); }}
             >
-              🏆 Ranking
+              🏆 {localization['UI.Menu.Ranking'] || 'Ranking'}
             </button>
             <button 
               className="btn btn-sm btn-outline-light w-100 text-start mb-1"
               onClick={() => { setOpen(false); onChangePassword && onChangePassword(); }}
             >
-              🔐 Mudar Senha
+              🔐 {localization['UI.Menu.ChangePassword'] || 'Mudar Senha'}
             </button>
             {isAdmin && (
               <button 
                 className="btn btn-sm btn-outline-warning w-100 text-start mb-1"
                 onClick={() => { setOpen(false); window.open('/admin.html', '_blank'); }}
               >
-                ⚙️ Painel Admin
+                ⚙️ {localization['UI.Menu.AdminPanel'] || 'Painel Admin'}
               </button>
             )}
             <button 
               className="btn btn-sm btn-outline-danger w-100 text-start"
               onClick={handleLogout}
             >
-              🚪 Sair
+              🚪 {localization['UI.Menu.Logout'] || 'Sair'}
             </button>
           </div>
         </div>

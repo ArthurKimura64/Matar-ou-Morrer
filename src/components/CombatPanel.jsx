@@ -43,12 +43,12 @@ const CombatPanel = ({
   
   // Estados para ataque customizado
   const [customAttack, setCustomAttack] = useState({
-    Name: 'Ataque Personalizado',
+    Name: localization?.['UI.Combat.CustomAttack'] || 'Ataque Personalizado',
     Dices: '1',
     LoadTime: '3',
     Damage: '0',
     Effects: '',
-    category: 'Customizado'
+    category: localization?.['UI.Combat.CustomCategory'] || 'Customizado'
   });
 
   // ===== ESTADOS DO COMBATE ATIVO =====
@@ -113,7 +113,7 @@ const CombatPanel = ({
       }
 
       const itemId = effectiveData.ID || effectiveData.Name;
-      const itemName = effectiveData.Name || localization?.[itemId] || itemId || (type === 'attack' ? 'Ataque' : 'Arma');
+      const itemName = effectiveData.Name || localization?.[itemId] || itemId || (type === 'attack' ? (localization?.['UI.Combat.AttackFallback'] || 'Ataque') : (localization?.['UI.Combat.WeaponFallback'] || 'Arma'));
       
       // Normalizar dados para garantir que são strings/números
       const normalized = {
@@ -142,7 +142,7 @@ const CombatPanel = ({
     // Buscar em attacks
     if (selections.attacks && Array.isArray(selections.attacks)) {
       selections.attacks.forEach(attack => {
-        const processed = processItem(attack, 'Ataques', 'attack');
+        const processed = processItem(attack, localization?.['UI.Combat.AttackCategory'] || 'Ataques', 'attack');
         if (processed) attacks.push(processed);
       });
     }
@@ -150,7 +150,7 @@ const CombatPanel = ({
     // Buscar em weapons
     if (selections.weapons && Array.isArray(selections.weapons)) {
       selections.weapons.forEach(weapon => {
-        const processed = processItem(weapon, 'Armas', 'weapon');
+        const processed = processItem(weapon, localization?.['UI.Combat.WeaponCategory'] || 'Armas', 'weapon');
         if (processed) attacks.push(processed);
       });
     }
@@ -162,7 +162,7 @@ const CombatPanel = ({
       if (copycatData.attacks) {
         Object.values(copycatData.attacks).forEach(item => {
           if (item) {
-            const processed = processItem(item, 'Copiado - Ataques', 'attack');
+            const processed = processItem(item, localization?.['UI.Combat.CopiedAttacks'] || 'Copiado - Ataques', 'attack');
             if (processed) attacks.push(processed);
           }
         });
@@ -171,7 +171,7 @@ const CombatPanel = ({
       if (copycatData.weapons) {
         Object.values(copycatData.weapons).forEach(item => {
           if (item) {
-            const processed = processItem(item, 'Copiado - Armas', 'weapon');
+            const processed = processItem(item, localization?.['UI.Combat.CopiedWeapons'] || 'Copiado - Armas', 'weapon');
             if (processed) attacks.push(processed);
           }
         });
@@ -419,7 +419,7 @@ const CombatPanel = ({
       selections.attacks.forEach(attack => {
         if (attack && (attack.Name || attack.ID)) {
           const attackId = attack.ID || attack.Name;
-          const attackName = attack.Name || localization?.[attackId] || attackId || 'Ataque';
+          const attackName = attack.Name || localization?.[attackId] || attackId || (localization?.['UI.Combat.AttackFallback'] || 'Ataque');
           
           const normalizedAttack = {
             ID: String(attack.ID || attack.Name || ''),
@@ -448,7 +448,7 @@ const CombatPanel = ({
       selections.weapons.forEach(weapon => {
         if (weapon && (weapon.Name || weapon.ID)) {
           const weaponId = weapon.ID || weapon.Name;
-          const weaponName = weapon.Name || localization?.[weaponId] || weaponId || 'Arma';
+          const weaponName = weapon.Name || localization?.[weaponId] || weaponId || (localization?.['UI.Combat.WeaponFallback'] || 'Arma');
           
           const normalizedWeapon = {
             ID: String(weapon.ID || weapon.Name || ''),
@@ -488,7 +488,7 @@ const CombatPanel = ({
               LoadTime: typeof item.LoadTime === 'object' ? '0' : String(item.LoadTime || '0'),
               Damage: typeof item.Damage === 'object' ? '0' : String(item.Damage || '0'),
               Effects: typeof item.Effects === 'object' ? JSON.stringify(item.Effects) : String(item.Effects || ''),
-              type: type === 'Ataque' ? 'attack' : 'weapon'
+              type: type === (localization?.['UI.Combat.AttackFallback'] || 'Ataque') ? 'attack' : 'weapon'
             };
             Object.keys(item).forEach(key => {
               if (typeof item[key] !== 'object' || item[key] === null) {
@@ -499,8 +499,8 @@ const CombatPanel = ({
           }
         });
       };
-      pushCopycatItems(copycatData.attacks, 'Ataque');
-      pushCopycatItems(copycatData.weapons, 'Arma');
+      pushCopycatItems(copycatData.attacks, localization?.['UI.Combat.AttackFallback'] || 'Ataque');
+      pushCopycatItems(copycatData.weapons, localization?.['UI.Combat.WeaponFallback'] || 'Arma');
     }
 
     return weapons;
@@ -599,7 +599,7 @@ const CombatPanel = ({
         // Defensor escolheu uma arma
         if (!selectedWeapon) {
           console.log('No weapon selected');
-          alert('Selecione uma arma primeiro!');
+          alert(localization?.['UI.Combat.SelectWeaponFirst'] || 'Selecione uma arma primeiro!');
           return;
         }
         
@@ -646,13 +646,13 @@ const CombatPanel = ({
 
       if (error) {
         console.error('Erro ao selecionar arma:', error);
-        alert('Erro ao confirmar escolha. Tente novamente.');
+        alert(localization?.['UI.Combat.ConfirmError'] || 'Erro ao confirmar escolha. Tente novamente.');
       } else {
         console.log('Weapon selection successful!');
       }
     } catch (err) {
       console.error('Erro ao processar seleção:', err);
-      alert('Erro inesperado: ' + err.message);
+      alert((localization?.['UI.Combat.UnexpectedError'] || 'Erro inesperado: ') + err.message);
     }
   };
 
@@ -702,7 +702,7 @@ const CombatPanel = ({
       }
       
       if (diceCount === 0) {
-        alert('Erro: número de dados inválido');
+        alert(localization?.['UI.Combat.InvalidDiceCount'] || 'Erro: número de dados inválido');
         return;
       }
 
@@ -794,7 +794,7 @@ const CombatPanel = ({
     }
 
     if (diceCount === 0) {
-      alert('Erro: número de dados inválido');
+      alert(localization?.['UI.Combat.InvalidDiceCount'] || 'Erro: número de dados inválido');
       return;
     }
 
@@ -942,7 +942,7 @@ const CombatPanel = ({
 
     // Verificar se ambos já rolaram
     if (!roundInfo || !roundInfo.completed) {
-      alert('Ambos os jogadores devem rolar antes de avançar!');
+      alert(localization?.['UI.Combat.BothMustRoll'] || 'Ambos os jogadores devem rolar antes de avançar!');
       return;
     }
 
@@ -1089,13 +1089,13 @@ const CombatPanel = ({
 
       if (error) {
         console.error('Erro ao trocar defensor:', error);
-        alert('Erro ao trocar defensor. Tente novamente.');
+        alert(localization?.['UI.Combat.SwapDefenderError'] || 'Erro ao trocar defensor. Tente novamente.');
       } else {
         setShowDefenderSwap(false);
       }
     } catch (err) {
       console.error('Erro ao trocar defensor:', err);
-      alert('Erro inesperado: ' + err.message);
+      alert((localization?.['UI.Combat.UnexpectedError'] || 'Erro inesperado: ') + err.message);
     }
   };
 
@@ -1113,22 +1113,22 @@ const CombatPanel = ({
   // Iniciar combate
   const handleStartCombat = async () => {
     if (matchStatus !== 'in_progress') {
-      alert('⚠️ Inicie uma partida antes de iniciar combates!');
+      alert(localization?.['UI.Combat.StartMatchFirst'] || '⚠️ Inicie uma partida antes de iniciar combates!');
       return;
     }
 
     if (!selectedAttack) {
-      alert('Selecione um ataque ou arma!');
+      alert(localization?.['UI.Combat.SelectAttackRequired'] || 'Selecione um ataque ou arma!');
       return;
     }
 
     if (selectedDefenders.length === 0) {
-      alert('Selecione pelo menos um defensor!');
+      alert(localization?.['UI.Combat.SelectDefender'] || 'Selecione pelo menos um defensor!');
       return;
     }
 
     if (!currentPlayer?.id) {
-      alert('Erro: jogador não identificado!');
+      alert(localization?.['UI.Combat.PlayerNotIdentified'] || 'Erro: jogador não identificado!');
       return;
     }
 
@@ -1146,7 +1146,7 @@ const CombatPanel = ({
       }
 
       if (existingCombats && existingCombats.length > 0) {
-        alert('⚠️ Já existe um combate ativo na sala! Aguarde o término do combate atual.');
+        alert(localization?.['UI.Combat.CombatAlreadyActive'] || '⚠️ Já existe um combate ativo na sala! Aguarde o término do combate atual.');
         return;
       }
     } catch (err) {
@@ -1167,7 +1167,7 @@ const CombatPanel = ({
           attacker_id: currentPlayer.id,
           defender_id: defenderId,
           attacker_name: currentPlayer.name,
-          defender_name: defender?.name || 'Desconhecido',
+          defender_name: defender?.name || (localization?.['UI.Combat.Unknown'] || 'Desconhecido'),
           attack_data: selectedAttack,
           allow_counter_attack: allowCounterAttack,
           allow_opportunity_attacks: allowOpportunityAttacks,
@@ -1188,12 +1188,12 @@ const CombatPanel = ({
 
       if (error) {
         console.error('Erro ao criar combate:', error);
-        alert('Erro ao iniciar combate. Verifique o console.');
+        alert(localization?.['UI.Combat.StartCombatError'] || 'Erro ao iniciar combate. Verifique o console.');
       } else {
         // Sucesso! Limpar seleções
         setSelectedAttack(null);
         setSelectedDefenders([]);
-        alert(`Combate iniciado contra ${selectedDefenders.length} jogador(es)!`);
+        alert(`${localization?.['UI.Combat.CombatStarted'] || 'Combate iniciado contra'} ${selectedDefenders.length} ${selectedDefenders.length === 1 ? (localization?.['UI.Common.PlayerSingular'] || 'jogador') : (localization?.['UI.Common.PlayerPlural'] || 'jogadores')}!`);
         
         // Fechar sidebar após iniciar
         if (isOpen) {
@@ -1202,7 +1202,7 @@ const CombatPanel = ({
       }
     } catch (err) {
       console.error('Erro ao iniciar combate:', err);
-      alert('Erro inesperado ao iniciar combate.');
+      alert(localization?.['UI.Combat.StartCombatUnexpectedError'] || 'Erro inesperado ao iniciar combate.');
     } finally {
       setLoading(false);
     }
@@ -1343,7 +1343,7 @@ const CombatPanel = ({
 
     if (error) {
       console.error('Erro ao adicionar rodada:', error);
-      alert('Erro ao adicionar rodada. Tente novamente.');
+      alert(localization?.['UI.Combat.AddRoundError'] || 'Erro ao adicionar rodada. Tente novamente.');
     }
   };
 
@@ -1356,7 +1356,7 @@ const CombatPanel = ({
     
     // Não permitir remover se estamos na última rodada ou após ela
     if (currentRound >= roundData.length) {
-      alert('Não é possível remover a rodada atual ou rodadas já completadas.');
+      alert(localization?.['UI.Combat.CannotRemoveRound'] || 'Não é possível remover a rodada atual ou rodadas já completadas.');
       return;
     }
 
@@ -1375,7 +1375,7 @@ const CombatPanel = ({
 
     if (error) {
       console.error('Erro ao remover rodada:', error);
-      alert('Erro ao remover rodada. Tente novamente.');
+      alert(localization?.['UI.Combat.RemoveRoundError'] || 'Erro ao remover rodada. Tente novamente.');
     }
   };
 
@@ -1503,12 +1503,12 @@ const CombatPanel = ({
         className={`btn btn-sm ${btnClass} w-100 ${wrapperClass ? '' : 'mb-2'}`}
         onClick={() => setShowDefenderSwap(!showDefenderSwap)}
       >
-        🔄 Trocar Defensor
+        🔄 {localization?.['UI.Combat.SwapDefender'] || 'Trocar Defensor'}
       </button>
       {showDefenderSwap && (
         <div className={listClass} style={{ maxHeight: '150px', overflowY: 'auto' }}>
           {swapTargets.length === 0 ? (
-            <small className="text-muted d-block text-center">Nenhum jogador disponível</small>
+            <small className="text-muted d-block text-center">{localization?.['UI.Combat.NoPlayersAvailable'] || 'Nenhum jogador disponível'}</small>
           ) : swapTargets.map(p => (
             <button
               key={p.id}
@@ -1552,7 +1552,7 @@ const CombatPanel = ({
           border: hasActiveCombat ? '3px solid #ffc107' : '1px solid white'
         }}
         data-sidebar-open={isOpen ? 'true' : 'false'}
-        title={isOpen ? 'Fechar painel de combate' : 'Abrir painel de combate'}
+        title={isOpen ? (localization?.['UI.Combat.ClosePanel'] || 'Fechar painel de combate') : (localization?.['UI.Combat.OpenPanel'] || 'Abrir painel de combate')}
       >
         <span style={{ 
           fontSize: '24px',
@@ -1600,8 +1600,8 @@ const CombatPanel = ({
         <div className="bg-danger text-white p-3 border-bottom border-light">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <h6 className="mb-1 fw-bold">⚔️ Painel de Combate</h6>
-              <small>{combat ? 'Combate em andamento' : 'Iniciar novo combate'}</small>
+              <h6 className="mb-1 fw-bold">{localization?.['UI.Combat.PanelTitle'] || '⚔️ Painel de Combate'}</h6>
+              <small>{combat ? (localization?.['UI.Combat.InProgress'] || 'Combate em andamento') : (localization?.['UI.Combat.StartNew'] || 'Iniciar novo combate')}</small>
             </div>
             <button
               onClick={toggleSidebar}
@@ -1657,7 +1657,7 @@ const CombatPanel = ({
                     };
                     autoStart();
                   }
-                  return <div className="text-white">Iniciando combate...</div>;
+                  return <div className="text-white">{localization?.['UI.Combat.Initiating'] || 'Iniciando combate...'}</div>;
                 }
 
                 // Defensor deve escolher arma
@@ -1667,16 +1667,16 @@ const CombatPanel = ({
                   return (
                     <>
                       <div className="alert alert-warning">
-                        <h6>⚔️ Combate Iniciado!</h6>
-                        <p className="mb-0"><strong>{combat.attacker_name}</strong> está atacando você com <strong>{combat.attack_data.Name}</strong>!</p>
+                        <h6>{localization?.['UI.Combat.CombatStartedTitle'] || '⚔️ Combate Iniciado!'}</h6>
+                        <p className="mb-0"><strong>{combat.attacker_name}</strong> {localization?.['UI.Combat.AttackingYouWith'] || 'está atacando você com'} <strong>{combat.attack_data.Name}</strong>!</p>
                       </div>
 
                       <div className="mb-3">
-                        <h6 className="text-white mb-2">✓ Escolha sua arma para revidar:</h6>
+                        <h6 className="text-white mb-2">{localization?.['UI.Combat.ChooseWeapon'] || '✓ Escolha sua arma para revidar:'}</h6>
                         
                         {weapons.length === 0 && (
                           <div className="alert alert-info">
-                            <small>Você não possui armas disponíveis.</small>
+                            <small>{localization?.['UI.Combat.NoWeaponsAvailable'] || 'Você não possui armas disponíveis.'}</small>
                           </div>
                         )}
                         
@@ -1722,7 +1722,7 @@ const CombatPanel = ({
                                     <div className="mt-2">
                                       <div className="row g-2 mb-2">
                                         <div className="col-4">
-                                          <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                          <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                                           <input
                                             type="number"
                                             className="form-control form-control-sm"
@@ -1733,7 +1733,7 @@ const CombatPanel = ({
                                           />
                                         </div>
                                         <div className="col-4">
-                                          <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                          <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                                           <input
                                             type="number"
                                             className="form-control form-control-sm"
@@ -1744,7 +1744,7 @@ const CombatPanel = ({
                                           />
                                         </div>
                                         <div className="col-4">
-                                          <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                          <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                                           <input
                                             type="number"
                                             className="form-control form-control-sm"
@@ -1773,7 +1773,7 @@ const CombatPanel = ({
                               >
                                 <div className="card-body p-2">
                                   <div className="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                                    <h6 className="text-warning mb-0 small">{localization?.['UI.Combat.CustomAttackCard'] || '⚙️ Ataque Personalizado'}</h6>
                                     {isCustom && <span className="text-warning">✓</span>}
                                   </div>
                                   {!isCustom ? (
@@ -1789,7 +1789,7 @@ const CombatPanel = ({
                                   ) : (
                                     <div className="mt-2">
                                       <div className="mb-2">
-                                        <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                                        <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.WeaponName'] || 'Nome:'}</label>
                                         <input
                                           type="text"
                                           className="form-control form-control-sm"
@@ -1799,13 +1799,13 @@ const CombatPanel = ({
                                             setCustomAttack(updated);
                                             if (selectedWeapon?.Name === customAttack.Name) setSelectedWeapon(updated);
                                           }}
-                                          placeholder="Nome do ataque"
+                                          placeholder={localization?.['UI.Combat.AttackNamePlaceholder'] || 'Nome do ataque'}
                                           onClick={(e) => e.stopPropagation()}
                                         />
                                       </div>
                                       <div className="row g-2 mb-2">
                                         <div className="col-4">
-                                          <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                          <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                                           <input
                                             type="number"
                                             className="form-control form-control-sm"
@@ -1820,7 +1820,7 @@ const CombatPanel = ({
                                           />
                                         </div>
                                         <div className="col-4">
-                                          <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                          <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                                           <input
                                             type="number"
                                             className="form-control form-control-sm"
@@ -1835,7 +1835,7 @@ const CombatPanel = ({
                                           />
                                         </div>
                                         <div className="col-4">
-                                          <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                          <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                                           <input
                                             type="number"
                                             className="form-control form-control-sm"
@@ -1864,21 +1864,21 @@ const CombatPanel = ({
                         onClick={() => selectWeaponForDefense(false)}
                         disabled={!selectedWeapon}
                       >
-                        Confirmar Arma
+                        {localization?.['UI.Combat.ConfirmWeapon'] || 'Confirmar Arma'}
                       </button>
 
                       <button
                         className="btn btn-warning w-100 mb-2"
                         onClick={() => selectWeaponForDefense(true)}
                       >
-                        ❌ Não Retaliar
+                        {localization?.['UI.Combat.NoRetaliation'] || '❌ Não Retaliar'}
                       </button>
 
                       {/* Trocar Defensor */}
                       {renderSwapDefenderSection()}
 
                       <button className="btn btn-danger w-100" onClick={endCombat}>
-                        Encerrar Combate
+                        {localization?.['UI.Combat.EndCombat'] || 'Encerrar Combate'}
                       </button>
                     </>
                   );
@@ -1890,17 +1890,17 @@ const CombatPanel = ({
                     return (
                       <>
                         <div className="alert alert-info">
-                          <h6>⚔️ Combate Multi-Alvo</h6>
+                          <h6>{localization?.['UI.Combat.MultiTarget'] || '⚔️ Combate Multi-Alvo'}</h6>
                           <p className="mb-1"><strong>{combat.attack_data.Name}</strong> vs {combatGroup.length} defensores</p>
                         </div>
 
                         {/* Status de cada defensor */}
                         <div className="d-flex flex-column gap-2 mb-3">
                           {combatGroup.map(gc => {
-                            const statusLabel = gc.status === 'cancelled' ? '❌ Cancelado' 
-                              : gc.combat_phase === 'weapon_selection' ? '⏳ Escolhendo arma...'
-                              : gc.combat_phase === 'rolling' ? (gc.round_data?.[0]?.defender?.rolled ? '✅ Defendeu' : '🎲 Aguardando defesa')
-                              : gc.combat_phase === 'results' ? '📊 Finalizado'
+                            const statusLabel = gc.status === 'cancelled' ? `❌ ${localization?.['UI.Combat.StatusCancelled'] || 'Cancelado'}` 
+                              : gc.combat_phase === 'weapon_selection' ? `⏳ ${localization?.['UI.Combat.StatusChoosing'] || 'Escolhendo arma...'}`
+                              : gc.combat_phase === 'rolling' ? (gc.round_data?.[0]?.defender?.rolled ? `✅ ${localization?.['UI.Combat.StatusDefended'] || 'Defendeu'}` : `🎲 ${localization?.['UI.Combat.StatusWaitingDefense'] || 'Aguardando defesa'}`)
+                              : gc.combat_phase === 'results' ? `📊 ${localization?.['UI.Combat.StatusFinished'] || 'Finalizado'}`
                               : '⏳';
                             const bgClass = gc.status === 'cancelled' ? 'bg-secondary' 
                               : gc.combat_phase === 'rolling' && gc.round_data?.[0]?.defender?.rolled ? 'bg-success bg-opacity-25'
@@ -1916,12 +1916,12 @@ const CombatPanel = ({
                                   {gc.combat_phase === 'rolling' && gc.round_data?.[0]?.defender?.rolled && (
                                     <div className="mt-1">
                                       <small className="text-info">
-                                        Defesa: {gc.round_data[0].defender.roll.map(d => `🎲${d}`).join(' ')} = {gc.round_data[0].defender.total}
+                                        {localization?.['UI.Combat.DefenseLabel'] || 'Defesa:'} {gc.round_data[0].defender.roll.map(d => `🎲${d}`).join(' ')} = {gc.round_data[0].defender.total}
                                       </small>
                                     </div>
                                   )}
                                   {gc.defender_weapon && (
-                                    <small className="text-warning d-block">Arma: {gc.defender_weapon.Name}</small>
+                                    <small className="text-warning d-block">{localization?.['UI.Combat.WeaponLabel'] || 'Arma:'} {gc.defender_weapon.Name}</small>
                                   )}
                                 </div>
                               </div>
@@ -1932,18 +1932,18 @@ const CombatPanel = ({
                         {/* Info: atacante pode rolar a qualquer momento */}
                         {!combat.attacker_shared_roll?.rolled && (
                           <div className="alert alert-warning py-2">
-                            <small>Você pode rolar seu ataque a qualquer momento. A rolagem será aplicada a todos os defensores.</small>
+                            <small>{localization?.['UI.Combat.RollAllHint'] || 'Você pode rolar seu ataque a qualquer momento. A rolagem será aplicada a todos os defensores.'}</small>
                           </div>
                         )}
 
                         {combat.attacker_shared_roll?.rolled && (
                           <div className="alert alert-success py-2">
-                            <small>✅ Ataque rolado: {combat.attacker_shared_roll.roll.map(d => `🎲${d}`).join(' ')} = {combat.attacker_shared_roll.total}</small>
+                            <small>✅ {localization?.['UI.Combat.AttackRolled'] || 'Ataque rolado:'} {combat.attacker_shared_roll.roll.map(d => `🎲${d}`).join(' ')} = {combat.attacker_shared_roll.total}</small>
                           </div>
                         )}
 
                         <button className="btn btn-danger w-100" onClick={endCombat}>
-                          Encerrar Todos os Combates
+                          {localization?.['UI.Combat.EndAllCombats'] || 'Encerrar Todos os Combates'}
                         </button>
 
                         {/* Trocar Defensor (por defensor) — multi-alvo weapon_selection */}
@@ -1956,8 +1956,8 @@ const CombatPanel = ({
                   return (
                     <>
                       <div className="alert alert-info">
-                        <h6>⚔️ Aguardando Defensor...</h6>
-                        <p className="mb-0">Aguardando <strong>{combat.defender_name}</strong> escolher sua arma...</p>
+                        <h6>{localization?.['UI.Combat.WaitingDefender'] || '⚔️ Aguardando Defensor...'}</h6>
+                        <p className="mb-0">{(localization?.['UI.Combat.WaitingWeaponChoice'] || 'Aguardando {name} escolher sua arma...').replace('{name}', '')}<strong>{combat.defender_name}</strong></p>
                         <div className="text-center mt-2">⏳</div>
                       </div>
 
@@ -1965,7 +1965,7 @@ const CombatPanel = ({
                       {renderSwapDefenderSection()}
 
                       <button className="btn btn-danger w-100" onClick={endCombat}>
-                        Encerrar Combate
+                        {localization?.['UI.Combat.EndCombat'] || 'Encerrar Combate'}
                       </button>
                     </>
                   );
@@ -1974,9 +1974,9 @@ const CombatPanel = ({
                 // Espectador: não é atacante nem defensor
                 return (
                   <div className="alert alert-secondary">
-                    <h6>⚔️ Combate em Andamento</h6>
-                    <p className="mb-1"><strong>{combat.attacker_name}</strong> atacou <strong>{combat.defender_name}</strong> com <strong>{combat.attack_data?.Name || 'ataque'}</strong>!</p>
-                    <p className="mb-0 text-muted"><small>Aguardando <strong>{combat.defender_name}</strong> escolher uma arma para revidar...</small></p>
+                    <h6>{localization?.['UI.Combat.InProgressSpectator'] || '⚔️ Combate em Andamento'}</h6>
+                    <p className="mb-1"><strong>{combat.attacker_name}</strong> {localization?.['UI.Combat.AttackedWith'] || 'atacou'} <strong>{combat.defender_name}</strong> {localization?.['UI.Combat.With'] || 'com'} <strong>{combat.attack_data?.Name || (localization?.['UI.Combat.RoundType.Attack'] || 'ataque').toLowerCase()}</strong>!</p>
+                    <p className="mb-0 text-muted"><small>{(localization?.['UI.Combat.WaitingWeaponRetaliate'] || 'Aguardando {name} escolher uma arma para revidar...').replace('{name}', '')}<strong>{combat.defender_name}</strong></small></p>
                     <div className="text-center mt-2">👀 ⏳</div>
                   </div>
                 );
@@ -2025,8 +2025,8 @@ const CombatPanel = ({
                 if (isOpportunityRound) {
                   // Rodada de ataque de oportunidade
                   leftPlayer = {
-                    name: roundInfo.opportunity_attacker_name || 'Espectador',
-                    weapon: roundInfo.opportunity_weapon?.Name || 'Arma',
+                    name: roundInfo.opportunity_attacker_name || (localization?.['UI.Combat.Spectator'] || 'Espectador'),
+                    weapon: roundInfo.opportunity_weapon?.Name || (localization?.['UI.Combat.WeaponFallback'] || 'Arma'),
                     rolled: roundInfo.attacker?.rolled || false,
                     data: roundInfo.attacker,
                     icon: '⚡',
@@ -2037,7 +2037,7 @@ const CombatPanel = ({
                   const targetIsAttacker = roundInfo.opportunity_target === 'attacker';
                   rightPlayer = {
                     name: targetIsAttacker ? combat.attacker_name : combat.defender_name,
-                    weapon: 'Defesa',
+                    weapon: localization?.['UI.Combat.Defense'] || 'Defesa',
                     rolled: roundInfo.defender?.rolled || false,
                     data: roundInfo.defender,
                     icon: '🛡️',
@@ -2058,7 +2058,7 @@ const CombatPanel = ({
                   };
                   rightPlayer = {
                     name: combat.defender_name,
-                    weapon: 'Defesa',
+                    weapon: localization?.['UI.Combat.Defense'] || 'Defesa',
                     rolled: defenderRolled,
                     data: roundInfo.defender,
                     icon: '🛡️',
@@ -2067,7 +2067,7 @@ const CombatPanel = ({
                 } else {
                   // Rodada de contra-ataque
                   // Usar arma do banco (defender_weapon já é atualizada quando defensor troca de arma)
-                  const defenderWeaponName = combat.defender_weapon?.Name || 'Arma';
+                  const defenderWeaponName = combat.defender_weapon?.Name || (localization?.['UI.Combat.WeaponFallback'] || 'Arma');
                   
                   leftPlayer = {
                     name: combat.defender_name,
@@ -2079,7 +2079,7 @@ const CombatPanel = ({
                   };
                   rightPlayer = {
                     name: combat.attacker_name,
-                    weapon: 'Defesa',
+                    weapon: localization?.['UI.Combat.Defense'] || 'Defesa',
                     rolled: attackerRolled,
                     data: roundInfo.attacker,
                     icon: '🛡️',
@@ -2099,7 +2099,7 @@ const CombatPanel = ({
                     return (
                       <>
                         <div className="alert alert-info mb-2">
-                          <h6 className="mb-1">⚔️ Combate Multi-Alvo — Rodada 1</h6>
+                          <h6 className="mb-1">{localization?.['UI.Combat.MultiTargetRound1'] || '⚔️ Combate Multi-Alvo — Rodada 1'}</h6>
                           <p className="mb-0"><strong>{combat.attack_data.Name}</strong></p>
                         </div>
 
@@ -2115,9 +2115,9 @@ const CombatPanel = ({
                               const weaponWithMode = getWeaponWithMode(combat.attack_data) || combat.attack_data;
                               return (
                                 <>
-                                  <span className="stat-compact" title="Dados de Ataque">🎲 {weaponWithMode?.Dices || '?'}</span>
-                                  <span className="stat-compact" title="Tempo de Recarga">⚡ {weaponWithMode?.LoadTime || '?'}</span>
-                                  <span className="stat-compact" title="Dano">💥 {weaponWithMode?.Damage || '0'}</span>
+                                  <span className="stat-compact" title={localization?.['UI.Combat.DiceTitle'] || 'Dados de Ataque'}>🎲 {weaponWithMode?.Dices || '?'}</span>
+                                  <span className="stat-compact" title={localization?.['UI.Combat.LoadTimeTitle'] || 'Tempo de Recarga'}>⚡ {weaponWithMode?.LoadTime || '?'}</span>
+                                  <span className="stat-compact" title={localization?.['UI.Combat.DamageTitle'] || 'Dano'}>💥 {weaponWithMode?.Damage || '0'}</span>
                                 </>
                               );
                             })()}
@@ -2140,12 +2140,13 @@ const CombatPanel = ({
                                 diceArray={sharedRoll?.roll || roundInfo.attacker?.roll || []}
                                 onAdjust={(newDice) => adjustDiceResult(newDice, true)}
                                 playerRole="left"
+                                localization={localization}
                               />
                             </div>
                           ) : !rolling && (
                             <button className="btn-combat-roll-inline" onClick={rollDice}>
                               <span className="btn-icon">🎲</span>
-                              <span className="btn-text">Rolar Ataque (Todos)</span>
+                              <span className="btn-text">{localization?.['UI.Combat.RollAttackAll'] || 'Rolar Ataque (Todos)'}</span>
                             </button>
                           )}
                         </div>
@@ -2167,18 +2168,18 @@ const CombatPanel = ({
                                   <div className="d-flex justify-content-between align-items-center">
                                     <span className="text-white small fw-bold">🛡️ {gc.defender_name}</span>
                                     <span className="text-muted small">
-                                      {inWeaponSel ? '⏳ Escolhendo arma...' : defRolled ? '✅ Defendeu' : inRolling ? '🎲 Aguardando defesa' : gc.combat_phase}
+                                      {inWeaponSel ? `⏳ ${localization?.['UI.Combat.StatusChoosing'] || 'Escolhendo arma...'}` : defRolled ? `✅ ${localization?.['UI.Combat.StatusDefended'] || 'Defendeu'}` : inRolling ? `🎲 ${localization?.['UI.Combat.StatusWaitingDefense'] || 'Aguardando defesa'}` : gc.combat_phase}
                                     </span>
                                   </div>
                                   {defRolled && defRoll && (
                                     <div className="mt-1">
                                       <small className="text-info">
-                                        Defesa: {defRoll.map(d => `🎲${d}`).join(' ')} = {defTotal}
+                                        {localization?.['UI.Combat.DefenseLabel'] || 'Defesa:'} {defRoll.map(d => `🎲${d}`).join(' ')} = {defTotal}
                                       </small>
                                     </div>
                                   )}
                                   {gc.defender_weapon && (
-                                    <small className="text-warning d-block">Arma: {gc.defender_weapon.Name}</small>
+                                    <small className="text-warning d-block">{localization?.['UI.Combat.WeaponLabel'] || 'Arma:'} {gc.defender_weapon.Name}</small>
                                   )}
                                 </div>
                               </div>
@@ -2207,7 +2208,7 @@ const CombatPanel = ({
                                     }
                                   }}
                                 >
-                                  {hasMoreRounds ? `➡️ Contra-Ataque: ${gc.defender_name}` : `✅ Ver Resultado: ${gc.defender_name}`}
+                                  {hasMoreRounds ? `➡️ ${localization?.['UI.Combat.CounterAttackPrefix'] || '➡️ Contra-Ataque:'} ${gc.defender_name}` : `✅ ${localization?.['UI.Combat.ViewResultPrefix'] || '✅ Ver Resultado:'} ${gc.defender_name}`}
                                 </button>
                               );
                             })}
@@ -2219,17 +2220,17 @@ const CombatPanel = ({
                           <details className="weapon-details">
                             <summary className="weapon-summary">
                               <span className="weapon-icon">🔄</span>
-                              <span className="weapon-label">Alterar Equipamento</span>
+                              <span className="weapon-label">{localization?.['UI.Combat.ChangeEquipment'] || 'Alterar Equipamento'}</span>
                               <span className="toggle-icon">▼</span>
                             </summary>
                             <div className="weapon-details-content">
                               <div className="weapon-change-section">
-                                <button className="btn btn-sm btn-outline-warning w-100 mb-2" onClick={openWeaponChange} title="Trocar arma">
-                                  ⚔️ Trocar Arma {tempWeapon && '(Alterada)'}
+                                <button className="btn btn-sm btn-outline-warning w-100 mb-2" onClick={openWeaponChange} title={localization?.['UI.Combat.ChangeWeaponTooltip'] || 'Trocar arma'}>
+                                  {localization?.['UI.Combat.ChangeWeapon'] || '⚔️ Trocar Arma'} {tempWeapon && (localization?.['UI.Combat.Changed'] || '(Alterada)')}
                                 </button>
                                 <div className="defense-adjustment">
                                   <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <label className="form-label text-white mb-0" style={{ fontSize: '13px' }}>🛡️ Dados de Defesa</label>
+                                    <label className="form-label text-white mb-0" style={{ fontSize: '13px' }}>{localization?.['UI.Combat.DefenseDice'] || '🛡️ Dados de Defesa'}</label>
                                     <span className="badge bg-primary" style={{ fontSize: '16px', padding: '6px 12px' }}>{getCurrentDefenseDices()}</span>
                                   </div>
                                   <input type="range" className="form-range defense-slider" min="0" max="8" value={getCurrentDefenseDices()} onChange={(e) => handleDefenseDicesChange(parseInt(e.target.value))} style={{ width: '100%' }} />
@@ -2245,7 +2246,7 @@ const CombatPanel = ({
                         </div>
 
                         <button className="btn btn-danger w-100" onClick={endCombat}>
-                          🚫 Encerrar Todos os Combates
+                          🚫 {localization?.['UI.Combat.EndAllCombats'] || 'Encerrar Todos os Combates'}
                         </button>
                       </>
                     );
@@ -2272,8 +2273,8 @@ const CombatPanel = ({
                   return (
                     <>
                       <div className="alert alert-info mb-2">
-                        <h6 className="mb-1">⚔️ Contra-Ataques</h6>
-                        <p className="mb-0 small">Gerencie cada contra-ataque individualmente</p>
+                        <h6 className="mb-1">{localization?.['UI.Combat.CounterAttacks'] || '⚔️ Contra-Ataques'}</h6>
+                        <p className="mb-0 small">{localization?.['UI.Combat.ManageCounterAttacks'] || 'Gerencie cada contra-ataque individualmente'}</p>
                       </div>
 
                       {/* Defender navigation tabs */}
@@ -2309,7 +2310,7 @@ const CombatPanel = ({
                         const scDefenderRolled = scRound.defender?.rolled || false;
                         
                         const scLeftPlayer = scIsCounterAttack ? {
-                          name: sc.defender_name, weapon: sc.defender_weapon?.Name || 'Arma',
+                          name: sc.defender_name, weapon: sc.defender_weapon?.Name || (localization?.['UI.Combat.WeaponFallback'] || 'Arma'),
                           rolled: scDefenderRolled, data: scRound.defender, icon: '⚔️', className: 'attacker'
                         } : {
                           name: sc.attacker_name, weapon: sc.attack_data?.Name || combat.attack_data.Name,
@@ -2327,7 +2328,7 @@ const CombatPanel = ({
                           <>
                             <div className="combat-round-header mb-2">
                               <div className="round-info">
-                                <span className="round-label">vs {sc.defender_name} — Rodada {sc.current_round}/{sc.total_rounds}</span>
+                                <span className="round-label">vs {sc.defender_name} — {localization?.['UI.Combat.Round'] || 'Rodada'} {sc.current_round}/{sc.total_rounds}</span>
                               </div>
                             </div>
 
@@ -2350,7 +2351,7 @@ const CombatPanel = ({
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="combatant-waiting"><span className="waiting-spinner">⏳</span><span>Aguardando...</span></div>
+                                  <div className="combatant-waiting"><span className="waiting-spinner">⏳</span><span>{localization?.['UI.Combat.Waiting'] || 'Aguardando...'}</span></div>
                                 )}
                               </div>
 
@@ -2375,11 +2376,11 @@ const CombatPanel = ({
                                   </div>
                                 ) : !rolling && scIsCounterAttack && (
                                   <button className="btn-combat-roll-inline" onClick={rollDice}>
-                                    <span className="btn-icon">🎲</span><span className="btn-text">Rolar Defesa</span>
+                                    <span className="btn-icon">🎲</span><span className="btn-text">{localization?.['UI.Combat.RollDefense'] || 'Rolar Defesa'}</span>
                                   </button>
                                 )}
                                 {!scRightPlayer.rolled && !rolling && !scIsCounterAttack && (
-                                  <div className="combatant-waiting"><span className="waiting-spinner">⏳</span><span>Aguardando...</span></div>
+                                  <div className="combatant-waiting"><span className="waiting-spinner">⏳</span><span>{localization?.['UI.Combat.Waiting'] || 'Aguardando...'}</span></div>
                                 )}
                               </div>
                             </div>
@@ -2393,7 +2394,7 @@ const CombatPanel = ({
                                 }
                               }}>
                                 <span className="btn-icon">{sc.current_round >= sc.total_rounds ? '✅' : '➡️'}</span>
-                                <span className="btn-text">{sc.current_round >= sc.total_rounds ? 'Ver Resultados' : 'Avançar Rodada'}</span>
+                                <span className="btn-text">{sc.current_round >= sc.total_rounds ? (localization?.['UI.Combat.ViewResults'] || 'Ver Resultados') : (localization?.['UI.Combat.AdvanceRound'] || 'Avançar Rodada')}</span>
                               </button>
                             )}
                           </>
@@ -2403,17 +2404,17 @@ const CombatPanel = ({
                       {/* Summary of other defenders */}
                       {stillInRound1.length > 0 && (
                         <div className="alert alert-secondary py-1 px-2 mb-2">
-                          <small>⏳ Aguardando defesa de rodada 1: {stillInRound1.map(gc => gc.defender_name).join(', ')}</small>
+                          <small>⏳ {localization?.['UI.Combat.WaitingRound1'] || 'Aguardando defesa de rodada 1:'} {stillInRound1.map(gc => gc.defender_name).join(', ')}</small>
                         </div>
                       )}
                       {finishedDefenders.length > 0 && (
                         <div className="alert alert-success py-1 px-2 mb-2">
-                          <small>📊 Finalizados: {finishedDefenders.map(gc => gc.defender_name).join(', ')}</small>
+                          <small>📊 {localization?.['UI.Combat.Finished'] || 'Finalizados:'} {finishedDefenders.map(gc => gc.defender_name).join(', ')}</small>
                         </div>
                       )}
 
                       <button className="btn btn-danger w-100" onClick={endCombat}>
-                        🚫 Encerrar Todos os Combates
+                        🚫 {localization?.['UI.Combat.EndAllCombats'] || 'Encerrar Todos os Combates'}
                       </button>
                     </>
                   );
@@ -2426,8 +2427,8 @@ const CombatPanel = ({
                       <>
                         <div className="alert alert-warning mb-2">
                           <small>
-                            <strong>👁️ Modo Espectador</strong><br/>
-                            Você está assistindo este combate.
+                            <strong>{localization?.['UI.Combat.SpectatorMode'] || '👁️ Modo Espectador'}</strong><br/>
+                            {localization?.['UI.Combat.SpectatorWatching'] || 'Você está assistindo este combate.'}
                           </small>
                         </div>
                         
@@ -2439,14 +2440,14 @@ const CombatPanel = ({
                             className="btn btn-warning w-100 mb-2"
                             onClick={() => setShowOpportunityAttack(true)}
                           >
-                            ⚡ Dar Ataque de Oportunidade
+                            {localization?.['UI.Combat.OpportunityAttack'] || '⚡ Dar Ataque de Oportunidade'}
                           </button>
                         )}
                         
                         {combat.opportunity_attacks_used?.includes(currentPlayer.id) && (
                           <div className="alert alert-secondary mb-2 py-1 px-2">
                             <small style={{ fontSize: '10px' }}>
-                              ✅ Você já usou seu ataque de oportunidade
+                              {localization?.['UI.Combat.OpportunityUsed'] || '✅ Você já usou seu ataque de oportunidade'}
                             </small>
                           </div>
                         )}
@@ -2456,20 +2457,20 @@ const CombatPanel = ({
                     {/* Header da rodada com indicador visual INTERATIVO */}
                     <div className="combat-round-header mb-2">
                       <div className="round-info">
-                        <span className="round-label">Rodada {currentRound}/{totalRounds}</span>
+                        <span className="round-label">{localization?.['UI.Combat.Round'] || 'Rodada'} {currentRound}/{totalRounds}</span>
                       </div>
                       <div className="round-indicators">
                         {combat.round_data.map((r, idx) => {
                           // Determinar classe de cor baseada no tipo de ação
                           let colorClass = 'round-dot-attack';
-                          let actionLabel = 'Ataque';
+                          let actionLabel = localization?.['UI.Combat.RoundType.Attack'] || 'Ataque';
                           
                           if (r.action_type === 'opportunity') {
                             colorClass = 'round-dot-opportunity';
-                            actionLabel = 'Oportunidade';
+                            actionLabel = localization?.['UI.Combat.RoundType.Opportunity'] || 'Oportunidade';
                           } else if (r.action_type === 'counter') {
                             colorClass = 'round-dot-counter';
-                            actionLabel = 'Contra';
+                            actionLabel = localization?.['UI.Combat.RoundType.Counter'] || 'Contra';
                           }
                           
                           const isCompleted = r.completed;
@@ -2513,7 +2514,7 @@ const CombatPanel = ({
                           <summary className="weapon-summary">
                             <span className="weapon-icon">🔄</span>
                             <span className="weapon-label">
-                              Alterar Equipamento
+                              {localization?.['UI.Combat.ChangeEquipment'] || 'Alterar Equipamento'}
                               {(() => {
                                 const actor = currentPlayerData?.character?.actor;
                                 const hasModes = actor?.mode1 && actor?.mode2;
@@ -2542,7 +2543,7 @@ const CombatPanel = ({
                                 return (
                                   <div className="mode-switch-section">
                                     <div className="mode-switch-title">
-                                      🔀 Modo de Combate
+                                      {localization?.['UI.Combat.CombatMode'] || '🔀 Modo de Combate'}
                                     </div>
                                     <div className="btn-group" role="group">
                                       <button
@@ -2561,7 +2562,7 @@ const CombatPanel = ({
                                       </button>
                                     </div>
                                     <div className="mode-info-text">
-                                      ✨ Alterna estatísticas e habilidades
+                                      {localization?.['UI.Combat.CombatModeHint'] || '✨ Alterna estatísticas e habilidades'}
                                     </div>
                                   </div>
                                 );
@@ -2573,16 +2574,16 @@ const CombatPanel = ({
                             <button 
                               className="btn btn-sm btn-outline-warning w-100 mb-2"
                               onClick={openWeaponChange}
-                              title="Trocar arma (permanece até fim do combate)"
+                              title={localization?.['UI.Combat.ChangeWeaponTooltip'] || 'Trocar arma (permanece até fim do combate)'}
                             >
-                              ⚔️ Trocar Arma {tempWeapon && '(Alterada)'}
+                              {localization?.['UI.Combat.ChangeWeapon'] || '⚔️ Trocar Arma'} {tempWeapon && (localization?.['UI.Combat.Changed'] || '(Alterada)')}
                             </button>
 
                             {/* Ajustar Dados de Defesa */}
                             <div className="defense-adjustment">
                               <div className="d-flex justify-content-between align-items-center mb-2">
                                 <label className="form-label text-white mb-0" style={{ fontSize: '13px' }}>
-                                  🛡️ Dados de Defesa
+                                  {localization?.['UI.Combat.DefenseDice'] || '🛡️ Dados de Defesa'}
                                 </label>
                                 <span className="badge bg-primary" style={{ fontSize: '16px', padding: '6px 12px' }}>
                                   {getCurrentDefenseDices()}
@@ -2614,7 +2615,7 @@ const CombatPanel = ({
                                   className="btn btn-sm btn-outline-secondary flex-fill"
                                   onClick={() => handleDefenseDicesChange(currentPlayerData?.character?.actor?.NumberOfDefenseDices || 0)}
                                 >
-                                  ↺ Resetar
+                                  {localization?.['UI.Combat.ResetDefense'] || '↺ Resetar'}
                                 </button>
                                 <button 
                                   className="btn btn-sm btn-outline-primary flex-fill"
@@ -2632,8 +2633,8 @@ const CombatPanel = ({
                               
                               <small className="text-muted d-block mt-2 text-center">
                                 {tempDefenseDices !== null && tempDefenseDices !== (currentPlayerData?.character?.actor?.NumberOfDefenseDices || 0) ? 
-                                  '✅ Valor alterado temporariamente' : 
-                                  '💡 Arraste o slider para ajustar'}
+                                  (localization?.['UI.Combat.DefenseChanged'] || '✅ Valor alterado temporariamente') : 
+                                  (localization?.['UI.Combat.DefenseSliderHint'] || '💡 Arraste o slider para ajustar')}
                               </small>
                             </div>
                             
@@ -2641,10 +2642,10 @@ const CombatPanel = ({
                             <div className="round-management mt-3">
                               <div className="d-flex justify-content-between align-items-center mb-2">
                                 <label className="form-label text-white mb-0" style={{ fontSize: '13px' }}>
-                                  ⚔️ Gerenciar Rodadas
+                                  {localization?.['UI.Combat.ManageRounds'] || '⚔️ Gerenciar Rodadas'}
                                 </label>
                                 <span className="badge bg-warning text-dark" style={{ fontSize: '14px', padding: '4px 10px' }}>
-                                  {totalRounds} rodadas
+                                  {totalRounds} {localization?.['UI.Combat.RoundsCount'] || 'rodadas'}
                                 </span>
                               </div>
                               
@@ -2653,16 +2654,16 @@ const CombatPanel = ({
                                 <button 
                                   className="btn btn-sm btn-outline-primary flex-fill"
                                   onClick={() => addRound('attacker')}
-                                  title="Adicionar rodada de ATAQUE (atacante age)"
+                                  title={localization?.['UI.Combat.AddAttackRoundTooltip'] || 'Adicionar rodada de ATAQUE (atacante age)'}
                                 >
-                                  ⚔️ + Ataque
+                                  {localization?.['UI.Combat.AddAttackRound'] || '⚔️ + Ataque'}
                                 </button>
                                 <button 
                                   className="btn btn-sm btn-outline-info flex-fill"
                                   onClick={() => addRound('defender')}
-                                  title="Adicionar rodada de CONTRA-ATAQUE (defensor age)"
+                                  title={localization?.['UI.Combat.AddCounterRoundTooltip'] || 'Adicionar rodada de CONTRA-ATAQUE (defensor age)'}
                                 >
-                                  🛡️ + Contra
+                                  {localization?.['UI.Combat.AddCounterRound'] || '🛡️ + Contra'}
                                 </button>
                               </div>
                               
@@ -2671,13 +2672,13 @@ const CombatPanel = ({
                                 className="btn btn-sm btn-outline-danger w-100"
                                 onClick={() => removeRound()}
                                 disabled={totalRounds <= 1}
-                                title="Remover última rodada"
+                                title={localization?.['UI.Combat.RemoveLastRoundTooltip'] || 'Remover última rodada'}
                               >
-                                − Remover Última Rodada
+                                {localization?.['UI.Combat.RemoveLastRound'] || '− Remover Última Rodada'}
                               </button>
                               
                               <small className="text-muted d-block mt-2 text-center" style={{ fontSize: '10px' }}>
-                                💡 Arraste os indicadores de rodada acima para reordenar
+                                {localization?.['UI.Combat.ReorderHint'] || '💡 Arraste os indicadores de rodada acima para reordenar'}
                               </small>
                             </div>
 
@@ -2726,13 +2727,13 @@ const CombatPanel = ({
                             
                             return (
                               <>
-                                <span className="stat-compact" title="Dados de Ataque">
+                                <span className="stat-compact" title={localization?.['UI.Combat.DiceTitle'] || 'Dados de Ataque'}>
                                   🎲 {weaponWithMode?.Dices || '?'}
                                 </span>
-                                <span className="stat-compact" title="Tempo de Recarga">
+                                <span className="stat-compact" title={localization?.['UI.Combat.LoadTimeTitle'] || 'Tempo de Recarga'}>
                                   ⚡ {weaponWithMode?.LoadTime || '?'}
                                 </span>
-                                <span className="stat-compact" title="Dano">
+                                <span className="stat-compact" title={localization?.['UI.Combat.DamageTitle'] || 'Dano'}>
                                   💥 {weaponWithMode?.Damage || '0'}
                                 </span>
                               </>
@@ -2769,6 +2770,7 @@ const CombatPanel = ({
                                 diceArray={leftPlayer.data.roll}
                                 onAdjust={(newDice) => adjustDiceResult(newDice, isAttackerActing)}
                                 playerRole="left"
+                                localization={localization}
                               />
                             ) : (
                               <div className="dice-result-inline">
@@ -2792,7 +2794,7 @@ const CombatPanel = ({
                                 disabled={isOpportunityRound ? false : waitingForAttacker}
                               >
                                 <span className="btn-icon">🎲</span>
-                                <span className="btn-text">Rolar</span>
+                                <span className="btn-text">{localization?.['UI.Combat.Roll'] || 'Rolar'}</span>
                               </button>
                             )}
                             {(
@@ -2802,7 +2804,7 @@ const CombatPanel = ({
                             ) && (
                               <div className="combatant-waiting">
                                 <span className="waiting-spinner">⏳</span>
-                                <span>{isSpectator ? 'Espectador' : 'Aguardando...'}</span>
+                                <span>{isSpectator ? (localization?.['UI.Combat.Spectator'] || 'Espectador') : (localization?.['UI.Combat.Waiting'] || 'Aguardando...')}</span>
                               </div>
                             )}
                           </>
@@ -2885,7 +2887,7 @@ const CombatPanel = ({
                             }
                             
                             return (
-                              <span className="stat-compact" title="Dados de Defesa">
+                              <span className="stat-compact" title={localization?.['UI.Combat.DefenseDiceTitle'] || 'Dados de Defesa'}>
                                 🛡️ {defenseDices}
                               </span>
                             );
@@ -2927,6 +2929,7 @@ const CombatPanel = ({
                                 diceArray={rightPlayer.data.roll}
                                 onAdjust={(newDice) => adjustDiceResult(newDice, !isAttackerActing)}
                                 playerRole="right"
+                                localization={localization}
                               />
                             ) : (
                               <div className="dice-result-inline">
@@ -2953,7 +2956,7 @@ const CombatPanel = ({
                                 onClick={rollDice}
                               >
                                 <span className="btn-icon">🎲</span>
-                                <span className="btn-text">Rolar</span>
+                                <span className="btn-text">{localization?.['UI.Combat.Roll'] || 'Rolar'}</span>
                               </button>
                             )}
                             {(
@@ -2967,7 +2970,7 @@ const CombatPanel = ({
                             ) && (
                               <div className="combatant-waiting">
                                 <span className="waiting-spinner">⏳</span>
-                                <span>{isSpectator ? 'Espectador' : (isOpportunityRound && !roundInfo.attacker?.rolled ? 'Aguarde atacante...' : (waitingForAttacker ? 'Aguarde atacante...' : 'Aguardando...'))}</span>
+                                <span>{isSpectator ? (localization?.['UI.Combat.Spectator'] || 'Espectador') : (isOpportunityRound && !roundInfo.attacker?.rolled ? (localization?.['UI.Combat.WaitForAttacker'] || 'Aguarde atacante...') : (waitingForAttacker ? (localization?.['UI.Combat.WaitForAttacker'] || 'Aguarde atacante...') : (localization?.['UI.Combat.Waiting'] || 'Aguardando...')))}</span>
                               </div>
                             )}
                           </>
@@ -2980,7 +2983,7 @@ const CombatPanel = ({
                       <button className="btn-combat-advance mb-2" onClick={advanceRound}>
                         <span className="btn-icon">{currentRound >= totalRounds ? '✅' : '➡️'}</span>
                         <span className="btn-text">
-                          {currentRound >= totalRounds ? 'Ver Resultados' : 'Avançar Rodada'}
+                          {currentRound >= totalRounds ? (localization?.['UI.Combat.ViewResults'] || 'Ver Resultados') : (localization?.['UI.Combat.AdvanceRound'] || 'Avançar Rodada')}
                         </span>
                       </button>
                     )}
@@ -2988,7 +2991,7 @@ const CombatPanel = ({
                     {!isSpectator && (
                       <button className="btn btn-danger w-100" onClick={endCombat}>
                         <span className="me-2">🚫</span>
-                        Encerrar Combate
+                        {localization?.['UI.Combat.EndCombat'] || 'Encerrar Combate'}
                       </button>
                     )}
                   </>
@@ -3008,7 +3011,7 @@ const CombatPanel = ({
                       <div className="combat-results-header mb-3">
                         <div className="results-title">
                           <span className="results-icon">📊</span>
-                          <h5 className="mb-0">Resultados — Multi-Alvo</h5>
+                          <h5 className="mb-0">{localization?.['UI.Combat.ResultsMultiTarget'] || 'Resultados — Multi-Alvo'}</h5>
                         </div>
                       </div>
 
@@ -3020,14 +3023,14 @@ const CombatPanel = ({
                               <div className="card-header py-1 px-2">
                                 <strong className="text-white small">{combat.attacker_name} ⚔️ vs 🛡️ {gc.defender_name}</strong>
                                 <span className={`badge ms-2 ${gc.combat_phase === 'results' ? 'bg-success' : 'bg-warning text-dark'}`}>
-                                  {gc.combat_phase === 'results' ? 'Finalizado' : gc.combat_phase}
+                                  {gc.combat_phase === 'results' ? (localization?.['UI.Combat.StatusFinished'] || 'Finalizado') : gc.combat_phase}
                                 </span>
                               </div>
                               <div className="card-body p-2">
                                 {gcRounds.map((round, idx) => {
                                   const atkRoll = round.attacker?.roll || [];
                                   const defRoll = round.defender?.roll || [];
-                                  const label = round.action_type === 'counter' ? 'Contra' : round.action_type === 'opportunity' ? 'Oportunidade' : 'Ataque';
+                                  const label = round.action_type === 'counter' ? (localization?.['UI.Combat.RoundType.Counter'] || 'Contra') : round.action_type === 'opportunity' ? (localization?.['UI.Combat.RoundType.Opportunity'] || 'Oportunidade') : (localization?.['UI.Combat.RoundType.Attack'] || 'Ataque');
                                   return (
                                     <div key={idx} className="mb-1 small text-white">
                                       <span className="text-muted">R{round.round} ({label}):</span>
@@ -3059,7 +3062,7 @@ const CombatPanel = ({
                     <div className="combat-results-header mb-3">
                       <div className="results-title">
                         <span className="results-icon">📊</span>
-                        <h5 className="mb-0">Resultado do Combate</h5>
+                        <h5 className="mb-0">{localization?.['UI.Combat.ResultsTitle'] || 'Resultado do Combate'}</h5>
                       </div>
                       <div className="results-fighters">
                         <span className="fighter-name attacker-name">{combat.attacker_name}</span>
@@ -3089,9 +3092,9 @@ const CombatPanel = ({
                         
                         if (isOpportunityRound) {
                           // Rodada de oportunidade: usar opportunity_attacker_name
-                          displayAttackerName = round.opportunity_attacker_name || 'Espectador';
+                          displayAttackerName = round.opportunity_attacker_name || (localization?.['UI.Combat.Spectator'] || 'Espectador');
                           attackerIcon = '⚡';
-                          roundLabel = `Rodada ${round.round} - Ataque de Oportunidade`;
+                          roundLabel = `${localization?.['UI.Combat.Round'] || 'Rodada'} ${round.round} - ${localization?.['UI.Combat.RoundType.OpportunityAttack'] || 'Ataque de Oportunidade'}`;
                           
                           // Defensor é o alvo escolhido (attacker ou defender original)
                           if (round.opportunity_target === 'attacker') {
@@ -3106,14 +3109,14 @@ const CombatPanel = ({
                           displayDefenderName = combat.attacker_name;
                           attackerIcon = '⚔️';
                           defenderIcon = '🛡️';
-                          roundLabel = `Rodada ${round.round} - Contra-Ataque`;
+                          roundLabel = `${localization?.['UI.Combat.Round'] || 'Rodada'} ${round.round} - ${localization?.['UI.Combat.RoundType.CounterAttack'] || 'Contra-Ataque'}`;
                         } else {
                           // Ataque normal
                           displayAttackerName = combat.attacker_name;
                           displayDefenderName = combat.defender_name;
                           attackerIcon = '⚔️';
                           defenderIcon = '🛡️';
-                          roundLabel = `Rodada ${round.round} - Ataque`;
+                          roundLabel = `${localization?.['UI.Combat.Round'] || 'Rodada'} ${round.round} - ${localization?.['UI.Combat.RoundType.Attack'] || 'Ataque'}`;
                         }
                         
                         return (
@@ -3156,7 +3159,7 @@ const CombatPanel = ({
 
                     <button className="btn btn-danger w-100 mt-3" onClick={endCombat}>
                       <span className="me-2">✅</span>
-                      Encerrar Combate
+                      {localization?.['UI.Combat.EndCombat'] || 'Encerrar Combate'}
                     </button>
                   </>
                 );
@@ -3169,13 +3172,13 @@ const CombatPanel = ({
               {matchStatus !== 'in_progress' ? (
                 <div className="alert alert-info">
                   <p className="mb-0">
-                    🏁 Inicie uma partida antes de iniciar combates!
+                    {localization?.['UI.Combat.StartMatchRequired'] || '🏁 Inicie uma partida antes de iniciar combates!'}
                   </p>
                 </div>
               ) : !currentPlayerData?.character?.selections ? (
                 <div className="alert alert-warning">
                   <p className="mb-0">
-                    ⚠️ Você precisa criar um personagem antes de iniciar combates!
+                    {localization?.['UI.Combat.CreateCharacterRequired'] || '⚠️ Você precisa criar um personagem antes de iniciar combates!'}
                   </p>
                 </div>
               ) : (
@@ -3192,7 +3195,7 @@ const CombatPanel = ({
                   return (
                     <div className="mode-switch-section mb-3">
                       <div className="mode-switch-title">
-                        🔀 Modo de Combate
+                        {localization?.['UI.Combat.CombatMode'] || '🔀 Modo de Combate'}
                       </div>
                       <div className="btn-group" role="group">
                         <button
@@ -3211,7 +3214,7 @@ const CombatPanel = ({
                         </button>
                       </div>
                       <div className="mode-info-text">
-                        ✨ Define ataques/armas e estatísticas disponíveis
+                        {localization?.['UI.Combat.ModeDefinesHint'] || '✨ Define ataques/armas e estatísticas disponíveis'}
                       </div>
                     </div>
                   );
@@ -3222,14 +3225,14 @@ const CombatPanel = ({
               {/* Seção: Selecionar Ataque */}
               <div className="mb-4">
                 <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
-                  1️⃣ Selecione seu Ataque/Arma
+                  {localization?.['UI.Combat.SelectAttackSection'] || '1️⃣ Selecione seu Ataque/Arma'}
                 </h6>
 
                 {/* Lista de ataques/armas disponíveis + Ataque Personalizado como opção */}
                 <div className="d-flex flex-column gap-2">
                   {availableAttacks.length === 0 && (
                     <div className="alert alert-info mb-2">
-                      <small>Você não possui ataques ou armas disponíveis.</small>
+                      <small>{localization?.['UI.Combat.NoAttacksAvailable'] || 'Você não possui ataques ou armas disponíveis.'}</small>
                     </div>
                   )}
 
@@ -3281,7 +3284,7 @@ const CombatPanel = ({
                             <div className="mt-2">
                               <div className="row g-2 mb-2">
                                 <div className="col-4">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                  <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                                   <input
                                     type="number"
                                     className="form-control form-control-sm"
@@ -3292,7 +3295,7 @@ const CombatPanel = ({
                                   />
                                 </div>
                                 <div className="col-4">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                  <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                                   <input
                                     type="number"
                                     className="form-control form-control-sm"
@@ -3303,7 +3306,7 @@ const CombatPanel = ({
                                   />
                                 </div>
                                 <div className="col-4">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                  <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                                   <input
                                     type="number"
                                     className="form-control form-control-sm"
@@ -3332,7 +3335,7 @@ const CombatPanel = ({
                       >
                         <div className="card-body p-2">
                           <div className="d-flex justify-content-between align-items-start mb-2">
-                            <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                            <h6 className="text-warning mb-0 small">{localization?.['UI.Combat.CustomAttackCard'] || '⚙️ Ataque Personalizado'}</h6>
                             {isCustomSelected && <span className="text-warning">✓</span>}
                           </div>
 
@@ -3349,19 +3352,19 @@ const CombatPanel = ({
                           ) : (
                             <div className="mt-2">
                               <div className="mb-2">
-                                <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.WeaponName'] || 'Nome:'}</label>
                                 <input
                                   type="text"
                                   className="form-control form-control-sm"
                                   value={customAttack.Name}
                                   onChange={(e) => setCustomAttack({ ...customAttack, Name: e.target.value })}
-                                  placeholder="Nome do ataque"
+                                  placeholder={localization?.['UI.Combat.AttackNamePlaceholder'] || 'Nome do ataque'}
                                   onClick={(e) => e.stopPropagation()}
                                 />
                               </div>
                               <div className="row g-2 mb-2">
                                 <div className="col-4">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                  <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                                   <input
                                     type="number"
                                     className="form-control form-control-sm"
@@ -3372,7 +3375,7 @@ const CombatPanel = ({
                                   />
                                 </div>
                                 <div className="col-4">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                  <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                                   <input
                                     type="number"
                                     className="form-control form-control-sm"
@@ -3383,7 +3386,7 @@ const CombatPanel = ({
                                   />
                                 </div>
                                 <div className="col-4">
-                                  <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                  <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                                   <input
                                     type="number"
                                     className="form-control form-control-sm"
@@ -3406,12 +3409,12 @@ const CombatPanel = ({
               {/* Seção: Selecionar Alvos */}
               <div className="mb-4">
                 <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
-                  2️⃣ Selecione o(s) Alvo(s)
+                  {localization?.['UI.Combat.SelectTargetSection'] || '2️⃣ Selecione o(s) Alvo(s)'}
                 </h6>
                 
                 {availableTargets.length === 0 ? (
                   <div className="alert alert-info">
-                    <small>Nenhum jogador disponível para combate no momento.</small>
+                    <small>{localization?.['UI.Combat.NoTargetsAvailable'] || 'Nenhum jogador disponível para combate no momento.'}</small>
                   </div>
                 ) : (
                   <div className="d-flex flex-column gap-2">
@@ -3434,8 +3437,8 @@ const CombatPanel = ({
                               </h6>
                               <small className="text-muted" style={{ fontSize: '11px' }}>
                                 {typeof player.character?.actor === 'object' 
-                                  ? (player.character?.actor?.Name || 'Personagem')
-                                  : (player.character?.actor || 'Personagem')}
+                                  ? (player.character?.actor?.Name || (localization?.['UI.Combat.CharacterFallback'] || 'Personagem'))
+                                  : (player.character?.actor || (localization?.['UI.Combat.CharacterFallback'] || 'Personagem'))}
                               </small>
                             </div>
                             {selectedDefenders.includes(player.id) && (
@@ -3452,7 +3455,7 @@ const CombatPanel = ({
               {/* Seção: Opções */}
               <div className="mb-4">
                 <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
-                  3️⃣ Opções de Combate
+                  {localization?.['UI.Combat.OptionsSection'] || '3️⃣ Opções de Combate'}
                 </h6>
                 
                 <div className="form-check form-switch mb-2">
@@ -3464,14 +3467,14 @@ const CombatPanel = ({
                     onChange={(e) => setAllowCounterAttack(!e.target.checked)}
                   />
                   <label className="form-check-label text-white" htmlFor="singleAttack">
-                    <small>Ataque único (não pode revidar)</small>
+                    <small>{localization?.['UI.Combat.SingleAttack'] || 'Ataque único (não pode revidar)'}</small>
                   </label>
                 </div>
                 
                 {!allowCounterAttack && (
                   <div className="alert alert-warning mt-2 py-1 px-2 mb-2">
                     <small style={{ fontSize: '10px' }}>
-                      ⚡ Apenas 1 rodada de ataque sem possibilidade de defesa
+                      {localization?.['UI.Combat.SingleAttackHint'] || '⚡ Apenas 1 rodada de ataque sem possibilidade de defesa'}
                     </small>
                   </div>
                 )}
@@ -3485,14 +3488,14 @@ const CombatPanel = ({
                     onChange={(e) => setAllowOpportunityAttacks(e.target.checked)}
                   />
                   <label className="form-check-label text-white" htmlFor="opportunityAttacks">
-                    <small>Permitir ataques de oportunidade</small>
+                    <small>{localization?.['UI.Combat.AllowOpportunity'] || 'Permitir ataques de oportunidade'}</small>
                   </label>
                 </div>
                 
                 {allowOpportunityAttacks && (
                   <div className="alert alert-info mt-2 py-1 px-2">
                     <small style={{ fontSize: '10px' }}>
-                      👁️ Espectadores podem dar 1 ataque de oportunidade
+                      {localization?.['UI.Combat.AllowOpportunityHint'] || '👁️ Espectadores podem dar 1 ataque de oportunidade'}
                     </small>
                   </div>
                 )}
@@ -3511,11 +3514,11 @@ const CombatPanel = ({
                 {loading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" />
-                    Iniciando...
+                    {localization?.['UI.Combat.Starting'] || 'Iniciando...'}
                   </>
                 ) : (
                   <>
-                    ⚔️ Iniciar Combate
+                    {localization?.['UI.Combat.StartCombat'] || '⚔️ Iniciar Combate'}
                     {selectedDefenders.length > 0 && ` (${selectedDefenders.length})`}
                   </>
                 )}
@@ -3525,10 +3528,10 @@ const CombatPanel = ({
               {selectedAttack && selectedDefenders.length > 0 && (
                 <div className="alert alert-dark mt-3 py-2 px-2">
                   <small className="text-white" style={{ fontSize: '11px' }}>
-                    <strong>Resumo:</strong><br/>
-                    🎯 Ataque: {selectedAttack.Name}<br/>
-                    👥 Alvos: {selectedDefenders.length}<br/>
-                    ⚡ Tipo: {allowCounterAttack ? 'Combate Completo' : 'Ataque Único'}
+                    <strong>{localization?.['UI.Combat.Summary'] || 'Resumo:'}</strong><br/>
+                    {localization?.['UI.Combat.SummaryAttack'] || '🎯 Ataque:'} {selectedAttack.Name}<br/>
+                    {localization?.['UI.Combat.SummaryTargets'] || '👥 Alvos:'} {selectedDefenders.length}<br/>
+                    {localization?.['UI.Combat.SummaryType'] || '⚡ Tipo:'} {allowCounterAttack ? (localization?.['UI.Combat.FullCombat'] || 'Combate Completo') : (localization?.['UI.Combat.SingleAttackType'] || 'Ataque Único')}
                   </small>
                 </div>
               )}
@@ -3560,7 +3563,7 @@ const CombatPanel = ({
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5 className="text-warning mb-0">
                 <span className="me-2">⚔️</span>
-                Trocar Arma
+                {localization?.['UI.Combat.WeaponChangeTitle'] || '⚔️ Trocar Arma'}
               </h5>
               <button
                 className="btn-close btn-close-white"
@@ -3570,7 +3573,7 @@ const CombatPanel = ({
 
             <div className="alert alert-info py-2 px-2 mb-3">
               <small>
-                💡 A alteração permanece até o fim do combate
+                {localization?.['UI.Combat.WeaponChangeHint'] || '💡 A alteração permanece até o fim do combate'}
               </small>
             </div>
 
@@ -3606,7 +3609,7 @@ const CombatPanel = ({
                         <div className="mt-2">
                           <div className="row g-2 mb-2">
                             <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                               <input
                                 type="number"
                                 className="form-control form-control-sm"
@@ -3617,7 +3620,7 @@ const CombatPanel = ({
                               />
                             </div>
                             <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                               <input
                                 type="number"
                                 className="form-control form-control-sm"
@@ -3628,7 +3631,7 @@ const CombatPanel = ({
                               />
                             </div>
                             <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                               <input
                                 type="number"
                                 className="form-control form-control-sm"
@@ -3657,7 +3660,7 @@ const CombatPanel = ({
                   >
                     <div className="card-body p-2">
                       <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                        <h6 className="text-warning mb-0 small">{localization?.['UI.Combat.CustomAttackCard'] || '⚙️ Ataque Personalizado'}</h6>
                         {isCustom && <span className="text-warning">✓</span>}
                       </div>
                       {!isCustom ? (
@@ -3673,7 +3676,7 @@ const CombatPanel = ({
                       ) : (
                         <div className="mt-2">
                           <div className="mb-2">
-                            <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                            <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.WeaponName'] || 'Nome:'}</label>
                             <input
                               type="text"
                               className="form-control form-control-sm"
@@ -3683,13 +3686,13 @@ const CombatPanel = ({
                                 setCustomAttack(updated);
                                 if (tempWeapon?.Name === customAttack.Name) setTempWeapon(updated);
                               }}
-                              placeholder="Nome do ataque"
+                              placeholder={localization?.['UI.Combat.AttackNamePlaceholder'] || 'Nome do ataque'}
                               onClick={(e) => e.stopPropagation()}
                             />
                           </div>
                           <div className="row g-2 mb-2">
                             <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                               <input
                                 type="number"
                                 className="form-control form-control-sm"
@@ -3704,7 +3707,7 @@ const CombatPanel = ({
                               />
                             </div>
                             <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                               <input
                                 type="number"
                                 className="form-control form-control-sm"
@@ -3719,7 +3722,7 @@ const CombatPanel = ({
                               />
                             </div>
                             <div className="col-4">
-                              <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                               <input
                                 type="number"
                                 className="form-control form-control-sm"
@@ -3744,10 +3747,10 @@ const CombatPanel = ({
               {/* Confirm / Cancel actions for weapon change modal */}
               <div className="d-flex gap-2 mt-3">
                 <button className="btn btn-secondary flex-fill" onClick={() => { setTempWeapon(null); setShowWeaponChange(false); }}>
-                  Cancelar
+                  {localization?.['UI.Combat.Cancel'] || 'Cancelar'}
                 </button>
                 <button className="btn btn-warning flex-fill" onClick={() => { if (tempWeapon) confirmWeaponChange(tempWeapon); }} disabled={!tempWeapon}>
-                  Confirmar troca
+                  {localization?.['UI.Combat.ConfirmChange'] || 'Confirmar troca'}
                 </button>
               </div>
             </div>
@@ -3780,7 +3783,7 @@ const CombatPanel = ({
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5 className="text-warning mb-0">
                 <span className="me-2">⚡</span>
-                Ataque de Oportunidade
+                {localization?.['UI.Combat.OpportunityTitle'] || '⚡ Ataque de Oportunidade'}
               </h5>
               <button
                 className="btn-close btn-close-white"
@@ -3794,13 +3797,13 @@ const CombatPanel = ({
 
             <div className="alert alert-info py-2 px-2 mb-3">
               <small>
-                💡 Escolha uma arma e um alvo (atacante ou defensor)
+                {localization?.['UI.Combat.OpportunityHint'] || '💡 Escolha uma arma e um alvo (atacante ou defensor)'}
               </small>
             </div>
 
             {/* Escolha do Alvo */}
             <div className="mb-3">
-              <label className="text-white mb-2 small"><strong>1️⃣ Escolha o Alvo:</strong></label>
+              <label className="text-white mb-2 small"><strong>{localization?.['UI.Combat.ChooseTarget'] || '1️⃣ Escolha o Alvo:'}</strong></label>
               <div className="d-flex gap-2">
                 <button
                   className={`btn btn-sm flex-fill ${opportunityTarget === 'attacker' ? 'btn-primary' : 'btn-outline-primary'}`}
@@ -3819,7 +3822,7 @@ const CombatPanel = ({
 
             {/* Escolha da Arma */}
             <div className="mb-3">
-              <label className="text-white mb-2 small"><strong>2️⃣ Escolha sua Arma:</strong></label>
+              <label className="text-white mb-2 small"><strong>{localization?.['UI.Combat.ChooseWeaponLabel'] || '2️⃣ Escolha sua Arma:'}</strong></label>
               <div className="d-flex flex-column gap-2">
                 {availableAttacks.map((attack, idx) => {
                   const isSelected = opportunityWeapon?.Name === attack.Name;
@@ -3846,7 +3849,7 @@ const CombatPanel = ({
                           <div className="mt-2">
                             <div className="row g-2 mb-2">
                               <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                                 <input
                                   type="number"
                                   className="form-control form-control-sm"
@@ -3857,7 +3860,7 @@ const CombatPanel = ({
                                 />
                               </div>
                               <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                                 <input
                                   type="number"
                                   className="form-control form-control-sm"
@@ -3868,7 +3871,7 @@ const CombatPanel = ({
                                 />
                               </div>
                               <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                                 <input
                                   type="number"
                                   className="form-control form-control-sm"
@@ -3896,7 +3899,7 @@ const CombatPanel = ({
                     >
                       <div className="card-body p-2">
                         <div className="d-flex justify-content-between align-items-start mb-2">
-                          <h6 className="text-warning mb-0 small">⚙️ Ataque Personalizado</h6>
+                          <h6 className="text-warning mb-0 small">{localization?.['UI.Combat.CustomAttackCard'] || '⚙️ Ataque Personalizado'}</h6>
                           {isCustom && <span className="text-warning">✓</span>}
                         </div>
                         {!isCustom ? (
@@ -3912,7 +3915,7 @@ const CombatPanel = ({
                         ) : (
                           <div className="mt-2">
                             <div className="mb-2">
-                              <label className="text-white" style={{ fontSize: '11px' }}>Nome:</label>
+                              <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.WeaponName'] || 'Nome:'}</label>
                               <input
                                 type="text"
                                 className="form-control form-control-sm"
@@ -3922,13 +3925,13 @@ const CombatPanel = ({
                                   setCustomAttack(updated);
                                   if (opportunityWeapon?.Name === customAttack.Name) setOpportunityWeapon(updated);
                                 }}
-                                placeholder="Nome do ataque"
+                                placeholder={localization?.['UI.Combat.AttackNamePlaceholder'] || 'Nome do ataque'}
                                 onClick={(e) => e.stopPropagation()}
                               />
                             </div>
                             <div className="row g-2 mb-2">
                               <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>🎲 Dados:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DiceLabel'] || '🎲 Dados:'}</label>
                                 <input
                                   type="number"
                                   className="form-control form-control-sm"
@@ -3943,7 +3946,7 @@ const CombatPanel = ({
                                 />
                               </div>
                               <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>⏱️ Tempo:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.TimeLabel'] || '⏱️ Tempo:'}</label>
                                 <input
                                   type="number"
                                   className="form-control form-control-sm"
@@ -3958,7 +3961,7 @@ const CombatPanel = ({
                                 />
                               </div>
                               <div className="col-4">
-                                <label className="text-white" style={{ fontSize: '11px' }}>💥 Dano:</label>
+                                <label className="text-white" style={{ fontSize: '11px' }}>{localization?.['UI.Combat.DamageLabel'] || '💥 Dano:'}</label>
                                 <input
                                   type="number"
                                   className="form-control form-control-sm"
@@ -4000,7 +4003,7 @@ const CombatPanel = ({
                 
                 if (error) {
                   console.error('Erro ao adicionar ataque de oportunidade:', error);
-                  alert('Erro ao adicionar ataque. Tente novamente.');
+                  alert(localization?.['UI.Combat.OpportunityError'] || 'Erro ao adicionar ataque. Tente novamente.');
                 } else if (oaResult && !oaResult.success) {
                   alert(`❌ ${oaResult.error}`);
                   setShowOpportunityAttack(false);
@@ -4008,11 +4011,11 @@ const CombatPanel = ({
                   setShowOpportunityAttack(false);
                   setOpportunityWeapon(null);
                   setOpportunityTarget(null);
-                  alert('✅ Ataque de oportunidade adicionado!');
+                  alert(localization?.['UI.Combat.OpportunityAdded'] || '✅ Ataque de oportunidade adicionado!');
                 }
               }}
             >
-              ⚡ Confirmar Ataque de Oportunidade
+              {localization?.['UI.Combat.ConfirmOpportunity'] || '⚡ Confirmar Ataque de Oportunidade'}
             </button>
           </div>
         </>

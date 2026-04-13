@@ -17,14 +17,14 @@ const CharacterSelection = ({
   const [sortIndex, setSortIndex] = useState(0);
   
   const sortOptions = [
-    { type: 'name', order: 'asc', label: 'Nome ↑' },
-    { type: 'name', order: 'desc', label: 'Nome ↓' },
-    { type: 'title', order: 'asc', label: 'Título ↑' },
-    { type: 'title', order: 'desc', label: 'Título ↓' },
-    { type: 'difficulty', order: 'asc', label: 'Dificuldade ↑' },
-    { type: 'difficulty', order: 'desc', label: 'Dificuldade ↓' },
-    { type: 'generation', order: 'asc', label: 'Geração ↑' },
-    { type: 'generation', order: 'desc', label: 'Geração ↓' }
+    { type: 'name', order: 'asc', labelKey: 'UI.Sort.NameAsc', fallback: 'Nome ↑' },
+    { type: 'name', order: 'desc', labelKey: 'UI.Sort.NameDesc', fallback: 'Nome ↓' },
+    { type: 'title', order: 'asc', labelKey: 'UI.Sort.TitleAsc', fallback: 'Título ↑' },
+    { type: 'title', order: 'desc', labelKey: 'UI.Sort.TitleDesc', fallback: 'Título ↓' },
+    { type: 'difficulty', order: 'asc', labelKey: 'UI.Sort.DifficultyAsc', fallback: 'Dificuldade ↑' },
+    { type: 'difficulty', order: 'desc', labelKey: 'UI.Sort.DifficultyDesc', fallback: 'Dificuldade ↓' },
+    { type: 'generation', order: 'asc', labelKey: 'UI.Sort.GenerationAsc', fallback: 'Geração ↑' },
+    { type: 'generation', order: 'desc', labelKey: 'UI.Sort.GenerationDesc', fallback: 'Geração ↓' }
   ];
   
   const currentSort = sortOptions[sortIndex];
@@ -69,8 +69,8 @@ const CharacterSelection = ({
       let valueA, valueB;
       
       if (type === 'difficulty') {
-        valueA = a.Difficulty || 3;
-        valueB = b.Difficulty || 3;
+        valueA = a.Difficulty || 2;
+        valueB = b.Difficulty || 2;
         return order === 'asc' ? valueA - valueB : valueB - valueA;
       }
 
@@ -116,8 +116,8 @@ const CharacterSelection = ({
     const characterName = localization[`Character.Name.${actor.ID}`] && localization[`Character.Title.${actor.ID}`] 
       ? `${localization[`Character.Name.${actor.ID}`]} (${localization[`Character.Title.${actor.ID}`]})` 
       : actor.ID;
-    const difficulty = actor.Difficulty || 3;
-    const diffColor = difficultyColors[difficulty] || difficultyColors[3];
+    const difficulty = actor.Difficulty || 2;
+    const diffColor = difficultyColors[difficulty] || difficultyColors[2];
     const diffLabel = localization[`Difficulty.${difficulty}`] || '';
     const diffTooltip = `${localization['Difficulty.Label'] || 'Dificuldade'}: ${diffLabel}`;
     
@@ -159,7 +159,7 @@ const CharacterSelection = ({
         >
           {sortOptions.map((opt, i) => (
             <option key={i} value={i} style={{ background: '#212529' }}>
-              {opt.label}
+              {localization[opt.labelKey] || opt.fallback}
             </option>
           ))}
         </select>

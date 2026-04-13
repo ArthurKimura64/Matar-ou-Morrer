@@ -194,16 +194,16 @@ const PlayerDetailedStatus = ({
 
   const getShortCharacteristicLabel = useMemo(() => {
     const shortLabels = {
-      attacks: 'Ataques',
-      weapons: 'Armas',
-      passives: 'Passivas',
-      devices: 'Dispositivos',
-      powers: 'Poderes',
-      specials: 'Especiais',
-      passiveSpecials: 'Pass. Esp.'
+      attacks: localization['Characteristic.Attack.Short'] || 'Ataques',
+      weapons: localization['Characteristic.Weapon.Short'] || 'Armas',
+      passives: localization['Characteristic.Passive.Short'] || 'Passivas',
+      devices: localization['Characteristic.Device.Short'] || 'Dispositivos',
+      powers: localization['Characteristic.Power.Short'] || 'Poderes',
+      specials: localization['Characteristic.SpecialAbility.Short'] || 'Especiais',
+      passiveSpecials: localization['Characteristic.PassiveSpecialAbility.Short'] || 'Pass. Esp.'
     };
     return (key) => shortLabels[key] || getCharacteristicLabel(key);
-  }, [getCharacteristicLabel]);
+  }, [getCharacteristicLabel, localization]);
 
   // Função otimizada para formatação de contadores
   const formatCounter = useMemo(() => (current, max) => {
@@ -227,7 +227,7 @@ const PlayerDetailedStatus = ({
         <div className="card-body p-2 d-flex align-items-center justify-content-center">
           <div className="text-center">
             <div className="text-muted small" style={STYLES.fallbackBox}>
-              Dados não disponíveis
+              {localization['UI.PlayerStatus.DataUnavailable'] || 'Dados não disponíveis'}
             </div>
           </div>
         </div>
@@ -244,7 +244,7 @@ const PlayerDetailedStatus = ({
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className="d-flex align-items-center flex-grow-1 min-width-0">
             {matchStatus === 'in_progress' && (
-              <span className="me-1 flex-shrink-0" title={player.is_alive !== false ? 'Vivo' : 'Eliminado'}>
+              <span className="me-1 flex-shrink-0" title={player.is_alive !== false ? (localization['UI.PlayerStatus.Alive'] || 'Vivo') : (localization['UI.PlayerStatus.Eliminated'] || 'Eliminado')}>
                 {player.is_alive !== false ? '🟢' : '💀'}
               </span>
             )}

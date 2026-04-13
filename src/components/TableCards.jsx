@@ -48,7 +48,7 @@ const TableCards = ({
         }}
         title={isOpen ? 
           (localization['UI.TableCards.Close'] || "Fechar cartas na mesa") : 
-          `${localization['UI.TableCards.Toggle'] || "Cartas na Mesa"} (${playersWithExposedCards.length} ${playersWithExposedCards.length === 1 ? 'jogador' : 'jogadores'})`
+          `${localization['UI.TableCards.Toggle'] || "Cartas na Mesa"} (${playersWithExposedCards.length} ${playersWithExposedCards.length === 1 ? (localization['UI.Common.PlayerSingular'] || 'jogador') : (localization['UI.Common.PlayerPlural'] || 'jogadores')})`
         }
       >
         {/* Ícone centralizado */}
@@ -118,7 +118,7 @@ const TableCards = ({
                 👁️ {localization['UI.TableCards.Title'] || 'Cartas na Mesa'}
               </h6>
               <small className="text-light">
-                {playersWithExposedCards.length} {playersWithExposedCards.length === 1 ? 'jogador' : 'jogadores'} com cartas expostas
+                {playersWithExposedCards.length} {playersWithExposedCards.length === 1 ? (localization['UI.Common.PlayerSingular'] || 'jogador') : (localization['UI.Common.PlayerPlural'] || 'jogadores')} {localization['UI.TableCards.WithExposedCards'] || 'com cartas expostas'}
               </small>
             </div>
             <button
@@ -146,12 +146,12 @@ const TableCards = ({
                     <div className="mb-3" style={{ fontSize: '4rem', opacity: 0.3 }}>
                       👁️
                     </div>
-                    <h6 className="text-white mb-2">Mesa Vazia</h6>
+                    <h6 className="text-white mb-2">{localization['UI.TableCards.EmptyTable'] || 'Mesa Vazia'}</h6>
                     <p>
                       {localization['UI.TableCards.NoCards'] || 'Nenhum jogador expôs cartas na mesa ainda.'}
                     </p>
                     <small className="text-muted">
-                      Dica: Use o ícone do olho 👁️ nas habilidades da sua ficha para expor cartas.
+                      {localization['UI.TableCards.Hint'] || 'Dica: Use o ícone do olho 👁️ nas habilidades da sua ficha para expor cartas.'}
                     </small>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ const TableCards = ({
                       <h6 className="text-primary mb-3 d-flex align-items-center gap-2">
                         <span>👤 {player.name}</span>
                         <span className="badge bg-secondary small">
-                          {player.exposed_cards.length} {player.exposed_cards.length === 1 ? 'carta' : 'cartas'}
+                          {player.exposed_cards.length} {player.exposed_cards.length === 1 ? (localization['UI.Common.CardSingular'] || 'carta') : (localization['UI.Common.CardPlural'] || 'cartas')}
                         </span>
                       </h6>
                       <div className="row g-2">
@@ -304,11 +304,11 @@ const TableCards = ({
                                     <b>${localization['AttackBase.LoadTime'] || 'Segundos'}:</b> ${foundItem.LoadTime || 0}
                                   `;
                                 } else {
-                                  description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';
+                                  description = localization[foundItem.Description] || foundItem.Description || (localization['UI.TableCards.NoDescription'] || 'Descrição não disponível');
                                 }
                               }
                             } else {
-                              description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';
+                              description = localization[foundItem.Description] || foundItem.Description || (localization['UI.TableCards.NoDescription'] || 'Descrição não disponível');
                             }
                             
                             // Determinar o título: para device, power, special, mostrar TriggerType
@@ -370,7 +370,7 @@ const TableCards = ({
                 👁️ {localization['UI.TableCards.Title'] || 'Cartas na Mesa'}
               </h6>
               <small className="text-light">
-                {playersWithExposedCards.length} {playersWithExposedCards.length === 1 ? 'jogador' : 'jogadores'} com cartas expostas
+                {playersWithExposedCards.length} {playersWithExposedCards.length === 1 ? (localization['UI.Common.PlayerSingular'] || 'jogador') : (localization['UI.Common.PlayerPlural'] || 'jogadores')} {localization['UI.TableCards.WithExposedCards'] || 'com cartas expostas'}
               </small>
             </div>
             <button
@@ -398,12 +398,12 @@ const TableCards = ({
                 <div className="mb-3" style={{ fontSize: '4rem', opacity: 0.3 }}>
                   👁️
                 </div>
-                <h6 className="text-white mb-2">Mesa Vazia</h6>
+                <h6 className="text-white mb-2">{localization['UI.TableCards.EmptyTable'] || 'Mesa Vazia'}</h6>
                 <p>
                   {localization['UI.TableCards.NoCards'] || 'Nenhum jogador expôs cartas na mesa ainda.'}
                 </p>
                 <small className="text-muted">
-                  Dica: Use o ícone do olho 👁️ nas habilidades da sua ficha para expor cartas.
+                  {localization['UI.TableCards.Hint'] || 'Dica: Use o ícone do olho 👁️ nas habilidades da sua ficha para expor cartas.'}
                 </small>
               </div>
             </div>
@@ -415,7 +415,7 @@ const TableCards = ({
                   <h6 className="text-primary mb-3 d-flex align-items-center gap-2">
                     <span>👤 {player.name}</span>
                     <span className="badge bg-secondary small">
-                      {player.exposed_cards.length} {player.exposed_cards.length === 1 ? 'carta' : 'cartas'}
+                      {player.exposed_cards.length} {player.exposed_cards.length === 1 ? (localization['UI.Common.CardSingular'] || 'carta') : (localization['UI.Common.CardPlural'] || 'cartas')}
                     </span>
                   </h6>
                   <div className="row g-2">
@@ -552,11 +552,11 @@ const TableCards = ({
                               <b>${localization['AttackBase.LoadTime'] || 'Segundos'}:</b> ${foundItem.LoadTime || 0}
                             `;
                           } else {
-                            description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';
+                            description = localization[foundItem.Description] || foundItem.Description || (localization['UI.TableCards.NoDescription'] || 'Descrição não disponível');
                           }
                         }
                       } else {
-                        description = localization[foundItem.Description] || foundItem.Description || 'Descrição não disponível';
+                        description = localization[foundItem.Description] || foundItem.Description || (localization['UI.TableCards.NoDescription'] || 'Descrição não disponível');
                       }
                       
                       // Determinar o título: para device, power, special, mostrar TriggerType

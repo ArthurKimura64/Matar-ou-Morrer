@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import authService from '../services/authService';
 
 const LEADERBOARD_TYPES = [
-  { key: 'composite', label: '🏅 Score Composto', column: 'composite_score' },
-  { key: 'wins', label: '🏆 Vitórias', column: 'total_wins' },
-  { key: 'eliminations', label: '☠️ Eliminações', column: 'total_eliminations' },
-  { key: 'survival', label: '💪 Sobrevivência', column: 'total_survival_points' }
+  { key: 'composite', labelKey: 'UI.Ranking.CompositeScore', fallback: '🏅 Score Composto', column: 'composite_score' },
+  { key: 'wins', labelKey: 'UI.Ranking.Wins', fallback: '🏆 Vitórias', column: 'total_wins' },
+  { key: 'eliminations', labelKey: 'UI.Ranking.Eliminations', fallback: '☠️ Eliminações', column: 'total_eliminations' },
+  { key: 'survival', labelKey: 'UI.Ranking.Survival', fallback: '💪 Sobrevivência', column: 'total_survival_points' }
 ];
 
 const RankingPage = ({ user, onBack, localization }) => {
@@ -74,9 +74,9 @@ const RankingPage = ({ user, onBack, localization }) => {
             className="btn btn-outline-light btn-sm mb-3"
             onClick={onBack}
           >
-            ← Voltar ao Menu
+            {localization?.['UI.Menu.BackToMenu'] || '← Voltar ao Menu'}
           </button>
-          <h2 className="text-white" style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>🏆 Ranking Global</h2>
+          <h2 className="text-white" style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)' }}>{localization?.['UI.Ranking.Title'] || '🏆 Ranking Global'}</h2>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ const RankingPage = ({ user, onBack, localization }) => {
                 style={{ fontSize: 'clamp(0.7rem, 2.5vw, 0.875rem)', padding: '4px 8px' }}
                 onClick={() => setActiveTab(type.key)}
               >
-                {type.label}
+                {localization?.[type.labelKey] || type.fallback}
               </button>
             ))}
           </div>
@@ -103,54 +103,53 @@ const RankingPage = ({ user, onBack, localization }) => {
               onClick={() => setShowFormula(!showFormula)}
               style={{ borderStyle: 'dashed' }}
             >
-              {showFormula ? '▲' : '▼'} Como funciona a pontuação?
+              {showFormula ? '▲' : '▼'} {localization?.['UI.Ranking.HowItWorks'] || 'Como funciona a pontuação?'}
             </button>
             {showFormula && (
               <div className="card bg-dark border-info mt-2">
                 <div className="card-body p-2 p-md-3">
-                  <h6 className="text-info mb-2 mb-md-3" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1rem)' }}>📊 Fórmula do Score Composto</h6>
+                  <h6 className="text-info mb-2 mb-md-3" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1rem)' }}>{localization?.['UI.Ranking.FormulaTitle'] || '📊 Fórmula do Score Composto'}</h6>
                   <div className="p-2 rounded mb-2 mb-md-3" style={{ background: 'rgba(13,110,253,0.1)', border: '1px solid rgba(13,110,253,0.3)' }}>
                     <code className="text-light" style={{ fontSize: 'clamp(0.65rem, 2vw, 0.85rem)', wordBreak: 'break-word' }}>
-                      Score = (Vitórias × 40) + (Eliminações × 8) + (Sobrevivência × 4) + (Win Rate × Fator de Volume × 30)
+                      {localization?.['UI.Ranking.Formula'] || 'Score = (Vitórias × 40) + (Eliminações × 8) + (Sobrevivência × 4) + (Win Rate × Fator de Volume × 30)'}
                     </code>
                   </div>
                   <div className="table-responsive">
                   <table className="table table-dark table-sm mb-2 mb-md-3" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>
                     <thead>
                       <tr>
-                        <th>Componente</th>
-                        <th className="text-center">Peso</th>
-                        <th>Descrição</th>
+                        <th>{localization?.['UI.Ranking.Table.Component'] || 'Componente'}</th>
+                        <th className="text-center">{localization?.['UI.Ranking.Table.Weight'] || 'Peso'}</th>
+                        <th>{localization?.['UI.Ranking.Table.Description'] || 'Descrição'}</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="text-success">🏆 Vitórias</td>
+                        <td className="text-success">🏆 {localization?.['UI.Profile.Stat.Wins'] || 'Vitórias'}</td>
                         <td className="text-center">×40</td>
-                        <td className="text-secondary">Cada vitória acumula 40 pontos. Principal fator de ranking.</td>
+                        <td className="text-secondary">{localization?.['UI.Ranking.Desc.Wins'] || 'Cada vitória acumula 40 pontos. Principal fator de ranking.'}</td>
                       </tr>
                       <tr>
-                        <td className="text-danger">☠️ Eliminações</td>
+                        <td className="text-danger">☠️ {localization?.['UI.Profile.Stat.Eliminations'] || 'Eliminações'}</td>
                         <td className="text-center">×8</td>
-                        <td className="text-secondary">Cada eliminação vale 8 pontos. Recompensa agressividade.</td>
+                        <td className="text-secondary">{localization?.['UI.Ranking.Desc.Eliminations'] || 'Cada eliminação vale 8 pontos. Recompensa agressividade.'}</td>
                       </tr>
                       <tr>
-                        <td className="text-warning">💪 Sobrevivência</td>
+                        <td className="text-warning">💪 {localization?.['UI.Ranking.Survival'] || 'Sobrevivência'}</td>
                         <td className="text-center">×4</td>
-                        <td className="text-secondary">Pontos por posição final. Sobreviver mais tempo vale mais.</td>
+                        <td className="text-secondary">{localization?.['UI.Ranking.Desc.Survival'] || 'Pontos por posição final. Sobreviver mais tempo vale mais.'}</td>
                       </tr>
                       <tr>
-                        <td className="text-info">📈 Win Rate</td>
+                        <td className="text-info">{localization?.['UI.Ranking.WinRateLabel'] || '📈 Win Rate'}</td>
                         <td className="text-center">×30</td>
-                        <td className="text-secondary">Porcentagem de vitórias, multiplicada pelo fator de volume.</td>
+                        <td className="text-secondary">{localization?.['UI.Ranking.Desc.WinRate'] || 'Porcentagem de vitórias, multiplicada pelo fator de volume.'}</td>
                       </tr>
                     </tbody>
                   </table>
                   </div>
                   <div className="p-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.3)' }}>
                     <small className="text-warning" style={{ fontSize: 'clamp(0.65rem, 2vw, 0.8rem)' }}>
-                      <strong>⚖️ Fator de Volume:</strong> O peso do Win Rate cresce progressivamente conforme você joga, atingindo 100% após 10 partidas. 
-                      Isso impede que jogadores com poucas partidas dominem o ranking por terem win rate inflado.
+                      <strong>{localization?.['UI.Ranking.VolumeLabel'] || '⚖️ Fator de Volume:'}</strong> {localization?.['UI.Ranking.VolumeText'] || 'O peso do Win Rate cresce progressivamente conforme você joga, atingindo 100% após 10 partidas. Isso impede que jogadores com poucas partidas dominem o ranking por terem win rate inflado.'}
                     </small>
                   </div>
                 </div>
@@ -164,17 +163,17 @@ const RankingPage = ({ user, onBack, localization }) => {
               <div className="card-body py-2 px-3">
                 <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-1">
                   <div>
-                    <small className="text-secondary">Sua posição</small>
+                    <small className="text-secondary">{localization?.['UI.Ranking.YourPosition'] || 'Sua posição'}</small>
                     <div className="d-flex flex-wrap align-items-baseline gap-1">
                       <span className="fw-bold text-primary" style={{ fontSize: 'clamp(1rem, 3vw, 1.2rem)' }}>
                         #{userRank.position}
                       </span>
                       <span className="text-secondary" style={{ fontSize: 'clamp(0.7rem, 2vw, 0.85rem)' }}>
-                        {userRank.stats.total_matches} partidas · {userRank.stats.total_wins} vitórias · {Number(userRank.stats.win_rate || 0).toFixed(1)}% WR
+                        {userRank.stats.total_matches} {localization?.['UI.Ranking.Stats.Matches'] || 'partidas'} · {userRank.stats.total_wins} {localization?.['UI.Ranking.Stats.Wins'] || 'vitórias'} · {Number(userRank.stats.win_rate || 0).toFixed(1)}% WR
                       </span>
                     </div>
                   </div>
-                  <span className="fw-bold text-warning" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' }}>{Number(userRank.stats.composite_score || 0).toFixed(0)} pts</span>
+                  <span className="fw-bold text-warning" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' }}>{Number(userRank.stats.composite_score || 0).toFixed(0)} {localization?.['UI.Common.Points'] || 'pts'}</span>
                 </div>
               </div>
             </div>
@@ -186,11 +185,11 @@ const RankingPage = ({ user, onBack, localization }) => {
               {loading ? (
                 <div className="text-center py-4">
                   <div className="spinner-border spinner-border-sm text-primary" role="status"></div>
-                  <span className="text-secondary ms-2">Carregando ranking...</span>
+                  <span className="text-secondary ms-2">{localization?.['UI.Ranking.Loading'] || 'Carregando ranking...'}</span>
                 </div>
               ) : leaderboard.length === 0 ? (
                 <div className="text-center text-secondary py-4">
-                  Nenhum jogador com partidas registradas ainda.
+                  {localization?.['UI.Ranking.NoPlayers'] || 'Nenhum jogador com partidas registradas ainda.'}
                 </div>
               ) : (
                 <div className="table-responsive">
@@ -198,14 +197,14 @@ const RankingPage = ({ user, onBack, localization }) => {
                     <thead>
                       <tr>
                         <th style={{ width: '40px' }}>#</th>
-                        <th>Jogador</th>
-                        <th className="text-center d-none d-sm-table-cell">Partidas</th>
-                        <th className="text-center">Vitórias</th>
-                        <th className="text-center d-none d-sm-table-cell">Elim.</th>
-                        <th className="text-center d-none d-lg-table-cell">Méd. Elim</th>
-                        <th className="text-center d-none d-lg-table-cell">Méd. Sobrev</th>
+                        <th>{localization?.['UI.Ranking.Table.Player'] || 'Jogador'}</th>
+                        <th className="text-center d-none d-sm-table-cell">{localization?.['UI.Ranking.Table.Matches'] || 'Partidas'}</th>
+                        <th className="text-center">{localization?.['UI.Ranking.Table.WinsCol'] || 'Vitórias'}</th>
+                        <th className="text-center d-none d-sm-table-cell">{localization?.['UI.Ranking.Table.Elim'] || 'Elim.'}</th>
+                        <th className="text-center d-none d-lg-table-cell">{localization?.['UI.Ranking.Table.AvgElim'] || 'Méd. Elim'}</th>
+                        <th className="text-center d-none d-lg-table-cell">{localization?.['UI.Ranking.Table.AvgSurv'] || 'Méd. Sobrev'}</th>
                         <th className="text-center d-none d-sm-table-cell">WR</th>
-                        <th className="text-end">{LEADERBOARD_TYPES.find(t => t.key === activeTab)?.label}</th>
+                        <th className="text-end">{(() => { const t = LEADERBOARD_TYPES.find(t => t.key === activeTab); return localization?.[t?.labelKey] || t?.fallback; })()}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -232,8 +231,8 @@ const RankingPage = ({ user, onBack, localization }) => {
                                   <span style={{ fontSize: '1.2rem' }}>👤</span>
                                 )}
                                 <span className={`text-light ${isCurrentUser ? 'fw-bold' : ''}`}>
-                                  {entry.profile?.display_name || 'Jogador'}
-                                  {isCurrentUser && <small className="text-primary ms-1">(você)</small>}
+                                  {entry.profile?.display_name || (localization?.['UI.Common.DefaultPlayer'] || 'Jogador')}
+                                  {isCurrentUser && <small className="text-primary ms-1">{localization?.['UI.Ranking.YouIndicator'] || '(você)'}</small>}
                                 </span>
                               </div>
                             </td>
@@ -261,7 +260,7 @@ const RankingPage = ({ user, onBack, localization }) => {
           {/* User's position hint */}
           {user && !loading && leaderboard.length > 0 && !leaderboard.some(e => e.user_id === user.id) && !userRank && (
             <div className="text-center text-secondary mt-3">
-              <small>Jogue partidas para aparecer no ranking!</small>
+              <small>{localization?.['UI.Ranking.PlayToAppear'] || 'Jogue partidas para aparecer no ranking!'}</small>
             </div>
           )}
         </div>

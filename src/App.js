@@ -20,9 +20,9 @@ const LoadingFallback = () => (
   <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
     <div className="text-center">
       <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Carregando...</span>
+        <span className="visually-hidden">...</span>
       </div>
-      <p className="mt-2 text-light">Carregando componente...</p>
+      <p className="mt-2 text-light">...</p>
     </div>
   </div>
 );
@@ -96,7 +96,7 @@ function App() {
         // Limpar dados apenas se sala realmente não existe mais
         PlayerPersistence.clearPlayerData();
         setCurrentView('menu');
-        alert('A sala não está mais disponível. Voltando ao menu principal.');
+        alert(localization?.['UI.Error.RoomUnavailable'] || 'A sala não está mais disponível. Voltando ao menu principal.');
         setLoading(false);
         setIsRestoringState(false);
         return;
@@ -179,13 +179,13 @@ function App() {
         PlayerPersistence.updatePlayerData(reconnectResult.player);
       } else {
         // Não limpar automaticamente - pode ser erro temporário
-        alert('Não foi possível reconectar. Voltando ao menu principal.');
+        alert(localization?.['UI.Error.ReconnectFailed'] || 'Não foi possível reconectar. Voltando ao menu principal.');
         PlayerPersistence.clearPlayerData();
         setCurrentView('menu');
       }
     } catch (error) {
       console.error('Erro na reconexão:', error);
-      alert('Erro ao tentar reconectar. Verifique sua conexão.');
+      alert(localization?.['UI.Error.ReconnectError'] || 'Erro ao tentar reconectar. Verifique sua conexão.');
       // Não limpar dados em caso de erro de rede
     } finally {
       setLoading(false);
@@ -422,7 +422,7 @@ function App() {
         PlayerPersistence.savePlayerData(playerResult.player, result.room);
       }
     } else {
-      alert('Erro ao criar sala: ' + result.error);
+      alert((localization?.['UI.Error.CreateRoom'] || 'Erro ao criar sala: ') + result.error);
     }
     setLoading(false);
   };
@@ -444,10 +444,10 @@ function App() {
         // Salvar dados para persistência
         PlayerPersistence.savePlayerData(result.player, roomResult.room);
       } else {
-        alert('Sala não encontrada ou inativa');
+        alert(localization?.['UI.Error.RoomNotFound'] || 'Sala não encontrada ou inativa');
       }
     } else {
-      alert('Erro ao entrar na sala: ' + result.error);
+      alert((localization?.['UI.Error.JoinRoom'] || 'Erro ao entrar na sala: ') + result.error);
     }
     setLoading(false);
   };
@@ -509,9 +509,9 @@ function App() {
       <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Carregando...</span>
+            <span className="visually-hidden">{localization?.['UI.Loading.ScreenReader'] || 'Carregando...'}</span>
           </div>
-          <p className="mt-2 text-light">Processando...</p>
+          <p className="mt-2 text-light">{localization?.['UI.Loading.Processing'] || 'Processando...'}</p>
         </div>
       </div>
     );
@@ -526,6 +526,7 @@ function App() {
           onClose={() => { setShowAuthModal(false); setAuthModalMode('login'); }}
           onAuthSuccess={handleAuthSuccess}
           initialMode={authModalMode}
+          localization={localization}
         />
         <div className="row justify-content-center align-items-center vh-100">
           <div className="col-md-6 col-lg-4 text-center">
@@ -536,19 +537,19 @@ function App() {
               style={{maxHeight: '250px'}}
             />
             <h1 className="text-white mb-2">Kill or Die</h1>
-            <p className="text-secondary mb-4">Faça login ou crie uma conta para jogar</p>
+            <p className="text-secondary mb-4">{localization?.['UI.Auth.LoginPrompt'] || 'Faça login ou crie uma conta para jogar'}</p>
             <div className="d-grid gap-2">
               <button
                 className="btn btn-primary btn-lg"
                 onClick={() => { setAuthModalMode('login'); setShowAuthModal(true); }}
               >
-                🔑 Entrar
+                {localization?.['UI.Auth.LoginButton'] || '🔑 Entrar'}
               </button>
               <button
                 className="btn btn-outline-light btn-lg"
                 onClick={() => { setAuthModalMode('register'); setShowAuthModal(true); }}
               >
-                📝 Criar Conta
+                {localization?.['UI.Auth.RegisterButton'] || '📝 Criar Conta'}
               </button>
             </div>
           </div>
@@ -565,6 +566,7 @@ function App() {
         onClose={() => { setShowAuthModal(false); setAuthModalMode('login'); }}
         onAuthSuccess={handleAuthSuccess}
         initialMode={authModalMode}
+        localization={localization}
       />
 
       {/* Menu Principal */}
@@ -579,6 +581,7 @@ function App() {
                 onLogout={handleLogout} 
                 onNavigate={handleNavigate}
                 onChangePassword={() => { setAuthModalMode('changePassword'); setShowAuthModal(true); }}
+                localization={localization}
               />
             </div>
           </div>
@@ -591,7 +594,7 @@ function App() {
                 style={{maxHeight: '300px'}} 
               />
               <h1 className="text-white">Kill or Die</h1>
-              <h4 className="text-light mb-4">Escolha como jogar!</h4>
+              <h4 className="text-light mb-4">{localization['UI.Menu.ChooseMode'] || 'Escolha como jogar!'}</h4>
             </div>
           </div>
           <div className="row justify-content-center">
@@ -601,19 +604,19 @@ function App() {
                   className="btn btn-primary btn-lg"
                   onClick={() => setCurrentView('lobby')}
                 >
-                  🎮 Modo Multiplayer
+                  {localization['UI.Menu.Multiplayer'] || '🎮 Modo Multiplayer'}
                 </button>
                 <button 
                   className="btn btn-success btn-lg"
                   onClick={handleSoloPlay}
                 >
-                  👤 Modo Solo
+                  {localization['UI.Menu.Solo'] || '👤 Modo Solo'}
                 </button>
                 <button 
                   className="btn btn-outline-warning btn-lg"
                   onClick={() => setCurrentView('ranking')}
                 >
-                  🏆 Ranking
+                  {localization['UI.Menu.Ranking'] || '🏆 Ranking'}
                 </button>
               </div>
             </div>
@@ -665,12 +668,12 @@ function App() {
                 style={{maxHeight: '300px'}} 
               />
               <h1 className="text-white">Kill or Die</h1>
-              <h4 className="text-light mb-4">Escolha seu personagem!</h4>
+              <h4 className="text-light mb-4">{localization['UI.Selection.ChooseCharacter'] || 'Escolha seu personagem!'}</h4>
               <button 
                 className="btn btn-outline-light btn-sm mb-3"
                 onClick={() => setCurrentView('menu')}
               >
-                ← Voltar ao Menu
+                {localization['UI.Navigation.BackToMenu'] || '← Voltar ao Menu'}
               </button>
             </div>
           </div>

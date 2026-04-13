@@ -157,7 +157,7 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
       <div className="row justify-content-center text-center">
         <div className="col-12">
           <button className="btn btn-secondary mb-3" onClick={onBack}>
-            ← Voltar
+            {localization['UI.Navigation.Back'] || '← Voltar'}
           </button>
         </div>
         <div className="col-12">
@@ -200,10 +200,10 @@ const CharacterBuilder = ({ actor, gameData, localization, onCharacterCreate, on
           className="btn btn-lg btn-success col-8"
           disabled={!isComplete || matchStatus === 'in_progress'}
           onClick={handleCreateCharacter}
-          title={matchStatus === 'in_progress' ? 'Aguarde a partida terminar para confirmar o personagem' : ''}
+          title={matchStatus === 'in_progress' ? (localization['UI.CharacterBuilder.WaitForMatch'] || 'Aguarde a partida terminar para confirmar o personagem') : ''}
         >
           {matchStatus === 'in_progress' 
-            ? '⏳ Aguarde a partida terminar' 
+            ? (localization['UI.CharacterBuilder.WaitingMatch'] || '⏳ Aguarde a partida terminar') 
             : (localization['UI.CharacterBuilder.CreateCharacter'] || 'UI.CharacterBuilder.CreateCharacter')}
         </button>
       </div>

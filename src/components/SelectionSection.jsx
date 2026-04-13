@@ -45,7 +45,7 @@ const SelectionSection = ({ type, config, actor, localization, onSelectionChange
   return (
     <div className="row justify-content-center">
       <h3 className={`text-${config.color} text-center my-3`}>
-        {config.title} (Escolha {config.number})
+        {config.title} ({localization['UI.Selection.ChooseN'] || 'Escolha'} {config.number})
       </h3>
       {config.data.map((id) => {
         const def = defMap.get(id) || { ID: id };

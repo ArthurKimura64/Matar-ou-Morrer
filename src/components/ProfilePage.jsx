@@ -66,7 +66,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
     return (
       <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
         <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Carregando...</span>
+          <span className="visually-hidden">{localization?.['UI.Common.Loading'] || 'Carregando...'}</span>
         </div>
       </div>
     );
@@ -86,9 +86,9 @@ const ProfilePage = ({ user, onBack, localization }) => {
             className="btn btn-outline-light btn-sm mb-3"
             onClick={onBack}
           >
-            ← Voltar ao Menu
+            {localization?.['UI.Menu.BackToMenu'] || '← Voltar ao Menu'}
           </button>
-          <h2 className="text-white">📊 Meu Perfil</h2>
+          <h2 className="text-white">{localization?.['UI.Profile.Title'] || '📊 Meu Perfil'}</h2>
         </div>
       </div>
 
@@ -122,7 +122,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                     </div>
                   ) : (
                     <div className="d-flex align-items-center gap-2">
-                      <h4 className="text-white mb-0">{profile?.display_name || 'Jogador'}</h4>
+                      <h4 className="text-white mb-0">{profile?.display_name || (localization?.['UI.Common.DefaultPlayer'] || 'Jogador')}</h4>
                       <button className="btn btn-outline-secondary btn-sm" onClick={() => setEditingName(true)}>
                         ✏️
                       </button>
@@ -131,7 +131,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                   <small className="text-secondary">{user.email}</small>
                   <br />
                   <small className="text-secondary">
-                    Membro desde {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('pt-BR') : '—'}
+                    {localization?.['UI.Profile.MemberSince'] || 'Membro desde'} {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('pt-BR') : '—'}
                   </small>
                 </div>
               </div>
@@ -146,7 +146,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                   <div className="text-primary" style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {stats?.total_matches || 0}
                   </div>
-                  <small className="text-secondary">Partidas</small>
+                  <small className="text-secondary">{localization?.['UI.Profile.Stat.Matches'] || 'Partidas'}</small>
                 </div>
               </div>
             </div>
@@ -156,7 +156,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                   <div className="text-success" style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {stats?.total_wins || 0}
                   </div>
-                  <small className="text-secondary">Vitórias</small>
+                  <small className="text-secondary">{localization?.['UI.Profile.Stat.Wins'] || 'Vitórias'}</small>
                 </div>
               </div>
             </div>
@@ -166,7 +166,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                   <div className="text-danger" style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {stats?.total_eliminations || 0}
                   </div>
-                  <small className="text-secondary">Eliminações</small>
+                  <small className="text-secondary">{localization?.['UI.Profile.Stat.Eliminations'] || 'Eliminações'}</small>
                 </div>
               </div>
             </div>
@@ -176,7 +176,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                   <div className="text-warning" style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {stats?.composite_score ? Number(stats.composite_score).toFixed(0) : '0'}
                   </div>
-                  <small className="text-secondary">Score</small>
+                  <small className="text-secondary">{localization?.['UI.Profile.Stat.Score'] || 'Score'}</small>
                 </div>
               </div>
             </div>
@@ -187,7 +187,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
             <div className="col-6 col-md-4">
               <div className="card bg-dark border-secondary text-center">
                 <div className="card-body py-2">
-                  <small className="text-secondary d-block">Taxa de Vitória</small>
+                  <small className="text-secondary d-block">{localization?.['UI.Profile.Stat.WinRate'] || 'Taxa de Vitória'}</small>
                   <span className="text-white fw-bold">
                     {stats?.win_rate ? Number(stats.win_rate).toFixed(1) : '0.0'}%
                   </span>
@@ -197,7 +197,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
             <div className="col-6 col-md-4">
               <div className="card bg-dark border-secondary text-center">
                 <div className="card-body py-2">
-                  <small className="text-secondary d-block">Pontos de Sobrevivência</small>
+                  <small className="text-secondary d-block">{localization?.['UI.Profile.Stat.SurvivalPoints'] || 'Pontos de Sobrevivência'}</small>
                   <span className="text-white fw-bold">{stats?.total_survival_points || 0}</span>
                 </div>
               </div>
@@ -205,7 +205,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
             <div className="col-12 col-md-4">
               <div className="card bg-dark border-secondary text-center">
                 <div className="card-body py-2">
-                  <small className="text-secondary d-block">Personagem Favorito</small>
+                  <small className="text-secondary d-block">{localization?.['UI.Profile.Stat.FavoriteCharacter'] || 'Personagem Favorito'}</small>
                   <span className="text-white fw-bold">{stats?.favorite_character || '—'}</span>
                 </div>
               </div>
@@ -215,23 +215,23 @@ const ProfilePage = ({ user, onBack, localization }) => {
           {/* Match History */}
           <div className="card bg-dark border-secondary">
             <div className="card-header border-secondary">
-              <h5 className="text-white mb-0">📜 Histórico de Partidas</h5>
+              <h5 className="text-white mb-0">{localization?.['UI.Profile.MatchHistory'] || '📜 Histórico de Partidas'}</h5>
             </div>
             <div className="card-body p-0">
               {matchHistory.length === 0 ? (
                 <div className="text-center text-secondary py-4">
-                  Nenhuma partida registrada ainda.
+                  {localization?.['UI.Profile.NoMatchHistory'] || 'Nenhuma partida registrada ainda.'}
                 </div>
               ) : (
                 <div className="table-responsive">
                   <table className="table table-dark table-hover mb-0">
                     <thead>
                       <tr>
-                        <th>Resultado</th>
-                        <th>Sala</th>
-                        <th>Personagem</th>
-                        <th>Jogadores</th>
-                        <th>Data</th>
+                        <th>{localization?.['UI.Profile.Table.Result'] || 'Resultado'}</th>
+                        <th>{localization?.['UI.Profile.Table.Room'] || 'Sala'}</th>
+                        <th>{localization?.['UI.Profile.Table.Character'] || 'Personagem'}</th>
+                        <th>{localization?.['UI.Profile.Table.Players'] || 'Jogadores'}</th>
+                        <th>{localization?.['UI.Profile.Table.Date'] || 'Data'}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -239,7 +239,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
                         <tr key={entry.id || idx}>
                           <td>
                             {entry.is_winner ? (
-                              <span className="badge bg-success">🏆 Vitória</span>
+                              <span className="badge bg-success">{localization?.['UI.Profile.Result.Victory'] || '🏆 Vitória'}</span>
                             ) : (
                               <span className="badge bg-secondary">
                                 💀 #{entry.elimination_order || '?'}
@@ -267,7 +267,7 @@ const ProfilePage = ({ user, onBack, localization }) => {
               {hasMoreHistory && (
                 <div className="text-center py-3">
                   <button className="btn btn-outline-light btn-sm" onClick={loadMoreHistory}>
-                    Carregar mais
+                    {localization?.['UI.Profile.LoadMore'] || 'Carregar mais'}
                   </button>
                 </div>
               )}

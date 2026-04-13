@@ -277,7 +277,7 @@ const RoomView = ({
   const handleBackToLobby = async () => {
     // Bloquear se partida ativa e jogador está vivo
     if (matchStatus === 'in_progress' && isAlive) {
-      alert('Você precisa se declarar eliminado antes de trocar de personagem!');
+      alert(localization['UI.Room.MustDeclareElimination'] || 'Você precisa se declarar eliminado antes de trocar de personagem!');
       return;
     }
     
@@ -332,7 +332,7 @@ const RoomView = ({
 
   const copyRoomId = () => {
     navigator.clipboard.writeText(room.id);
-    alert('ID da sala copiado para a área de transferência!');
+    alert(localization['UI.Room.RoomIdCopied'] || 'ID da sala copiado para a área de transferência!');
   };
 
   const handleKickPlayer = async (playerToKick) => {
@@ -405,7 +405,7 @@ const RoomView = ({
               <button 
                 className="btn btn-outline-light btn-sm me-2"
                 onClick={copyRoomId}
-                title="Copiar ID da sala"
+                title={localization['UI.Room.CopyRoomId'] || 'Copiar ID da sala'}
               >
                 📋 {room.id}
               </button>
