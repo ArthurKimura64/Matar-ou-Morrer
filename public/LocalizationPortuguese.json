@@ -1390,7 +1390,7 @@
   "Passive.Omega3.Description": "Seus ataques ganham +2 de dano.",
   "Passive.Omega4": "Raio Supremo",
   "Passive.Omega4.Description": "Em seu primeiro ataque durante um combate, cada dado de numero 6 ganha +5 de dano.",
-  "Passive.Omega5": "Campo Eletrico",
+  "Passive.Omega5": "Campo Eletrico Ativo",
   "Passive.Omega5.Description": "Em um combate, antes de jogar seus dados de defesa, jogará um d6, se tirar 5 ou mais aquele ataque é anulado e não precisa mais se defender dele.",
   "Passive.Omega6": "Raio aumentado",
   "Passive.Omega6.Description": "Seus ataques reduzem 1 metro de alcance minimo e ganham +2 metros de alcance maximo.",
