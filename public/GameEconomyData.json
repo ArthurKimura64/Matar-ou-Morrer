@@ -2030,14 +2030,7 @@
         "Attack.Raioroxo4"
       ],
       "WeaponsData": [],
-      "PassivesData": [
-        "Passive.Raioroxo1",
-        "Passive.Raioroxo2",
-        "Passive.Raioroxo3",
-        "Passive.Raioroxo4",
-        "Passive.Raioroxo5",
-        "Passive.Raioroxo6"
-      ],
+      "PassivesData": [],
       "PowersData": [],
       "DevicesData": [],
       "SpecialAbilitiesData": [
@@ -2343,7 +2336,8 @@
         "Power.Katnis8",
         "Power.Katnis9",
         "Power.Katnis10",
-        "Power.Katnis11"
+        "Power.Katnis11",
+        "Power.Katnis12"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [
@@ -2358,7 +2352,7 @@
       "SpecialCharacteristics": []
     },
     {
-      "ID": "Eterno ",
+      "ID": "Eterno",
       "Difficulty": 2,
       "Generation": 2,
       "DodgePoints": 8,
@@ -2379,33 +2373,33 @@
         "Mountain": "d20"
       },
       "UnlimitedAttacksData": [
-        "Attack.Eterno 1",
-        "Attack.Eterno 2"
+        "Attack.Eterno1",
+        "Attack.Eterno2"
       ],
       "WeaponsData": [
-        "Weapon.Eterno 1",
-        "Weapon.Eterno 2"
+        "Weapon.Eterno1",
+        "Weapon.Eterno2"
       ],
       "PassivesData": [
-        "Passive.Eterno 1",
-        "Passive.Eterno 2",
-        "Passive.Eterno 3"
+        "Passive.Eterno1",
+        "Passive.Eterno2",
+        "Passive.Eterno3"
       ],
       "PowersData": [
-        "Power.Eterno 1",
-        "Power.Eterno 2"
+        "Power.Eterno1",
+        "Power.Eterno2"
       ],
       "DevicesData": [
-        "Device.Eterno 1",
-        "Device.Eterno 2"
+        "Device.Eterno1",
+        "Device.Eterno2"
       ],
       "SpecialAbilitiesData": [
-        "SpecialAbility.Eterno 1",
-        "SpecialAbility.Eterno 2"
+        "SpecialAbility.Eterno1",
+        "SpecialAbility.Eterno2"
       ],
       "PassiveSpecialAbilitiesData": [
-        "PassiveSpecialAbility.Eterno 1",
-        "PassiveSpecialAbility.Eterno 2"
+        "PassiveSpecialAbility.Eterno1",
+        "PassiveSpecialAbility.Eterno2"
       ],
       "SpecialCharacteristics": []
     },
@@ -2557,6 +2551,57 @@
         "PassiveSpecialAbility.Omega3",
         "PassiveSpecialAbility.Omega4"
       ],
+      "SpecialCharacteristics": []
+    },
+    {
+      "ID": "Mestre",
+      "Difficulty": 2,
+      "Generation": 3,
+      "DodgePoints": 6,
+      "OportunityAttacks": 8,
+      "ExplorationItens": 2,
+      "NumberOfDefenseDices": 3,
+      "NumberOfUnlimitedAttacks": 0,
+      "NumberOfWeapons": 3,
+      "NumberOfPassives": 0,
+      "NumberOfPowers": 3,
+      "NumberOfDevices": 3,
+      "NumberOfSpecialAbilities": 0,
+      "NumberOfPassiveSpecialAbilities": 0,
+      "Tecnique": {
+        "Desert": "d12",
+        "City": "d12",
+        "Landfill": "d8",
+        "Mountain": "d6"
+      },
+      "UnlimitedAttacksData": [],
+      "WeaponsData": [
+        "Weapon.Mestre1",
+        "Weapon.Mestre2",
+        "Weapon.Mestre3",
+        "Weapon.Mestre4",
+        "Weapon.Mestre5",
+        "Weapon.Mestre6"
+      ],
+      "PassivesData": [],
+      "PowersData": [
+        "Power.Mestre1",
+        "Power.Mestre2",
+        "Power.Mestre3",
+        "Power.Mestre4",
+        "Power.Mestre5",
+        "Power.Mestre6"
+      ],
+      "DevicesData": [
+        "Device.Mestre1",
+        "Device.Mestre2",
+        "Device.Mestre3",
+        "Device.Mestre4",
+        "Device.Mestre5",
+        "Device.Mestre6"
+      ],
+      "SpecialAbilitiesData": [],
+      "PassiveSpecialAbilitiesData": [],
       "SpecialCharacteristics": []
     }
   ],
@@ -3040,30 +3085,6 @@
       "Description": "Passive.adaptado8.Description"
     },
     {
-      "ID": "Passive.Raioroxo1",
-      "Description": "Passive.Raioroxo1.Description"
-    },
-    {
-      "ID": "Passive.Raioroxo2",
-      "Description": "Passive.Raioroxo2.Description"
-    },
-    {
-      "ID": "Passive.Raioroxo3",
-      "Description": "Passive.Raioroxo3.Description"
-    },
-    {
-      "ID": "Passive.Raioroxo4",
-      "Description": "Passive.Raioroxo4.Description"
-    },
-    {
-      "ID": "Passive.Raioroxo5",
-      "Description": "Passive.Raioroxo5.Description"
-    },
-    {
-      "ID": "Passive.Raioroxo6",
-      "Description": "Passive.Raioroxo6.Description"
-    },
-    {
       "ID": "Passive.AgentedoVazio1",
       "Description": "Passive.AgentedoVazio1.Description"
     },
@@ -3104,16 +3125,16 @@
       "Description": "Passive.MulherFantasma4.Description"
     },
     {
-      "ID": "Passive.Eterno 1",
-      "Description": "Passive.Eterno 1.Description"
+      "ID": "Passive.Eterno1",
+      "Description": "Passive.Eterno1.Description"
     },
     {
-      "ID": "Passive.Eterno 2",
-      "Description": "Passive.Eterno 2.Description"
+      "ID": "Passive.Eterno2",
+      "Description": "Passive.Eterno2.Description"
     },
     {
-      "ID": "Passive.Eterno 3",
-      "Description": "Passive.Eterno 3.Description"
+      "ID": "Passive.Eterno3",
+      "Description": "Passive.Eterno3.Description"
     },
     {
       "ID": "Passive.Omega1",
@@ -3268,12 +3289,12 @@
       "Description": "PassiveSpecialAbility.Zyua2.Description"
     },
     {
-      "ID": "PassiveSpecialAbility.Eterno 1",
-      "Description": "PassiveSpecialAbility.Eterno 1.Description"
+      "ID": "PassiveSpecialAbility.Eterno1",
+      "Description": "PassiveSpecialAbility.Eterno1.Description"
     },
     {
-      "ID": "PassiveSpecialAbility.Eterno 2",
-      "Description": "PassiveSpecialAbility.Eterno 2.Description"
+      "ID": "PassiveSpecialAbility.Eterno2",
+      "Description": "PassiveSpecialAbility.Eterno2.Description"
     },
     {
       "ID": "PassiveSpecialAbility.Stratton1",
@@ -5087,7 +5108,7 @@
       "SpecialDescription": "Attack.Katnis4.SpecialDescription"
     },
     {
-      "ID": "Attack.Eterno 1",
+      "ID": "Attack.Eterno1",
       "Damage": 2,
       "MinimumDistance": "0",
       "MaximumDistance": 1,
@@ -5096,10 +5117,10 @@
       "Ambient": [
         "Earth"
       ],
-      "SpecialDescription": "Attack.Eterno 1.SpecialDescription"
+      "SpecialDescription": "Attack.Eterno1.SpecialDescription"
     },
     {
-      "ID": "Attack.Eterno 2",
+      "ID": "Attack.Eterno2",
       "Damage": 15,
       "MinimumDistance": 5,
       "MaximumDistance": 10,
@@ -6083,7 +6104,7 @@
       "SpecialDescription": "Weapon.Katnis3.SpecialDescription"
     },
     {
-      "ID": "Weapon.Eterno 1",
+      "ID": "Weapon.Eterno1",
       "Damage": 3,
       "MinimumDistance": "0",
       "MaximumDistance": 3,
@@ -6092,10 +6113,10 @@
       "Ambient": [
         "Earth"
       ],
-      "SpecialDescription": "Weapon.Eterno 1.SpecialDescription"
+      "SpecialDescription": "Weapon.Eterno1.SpecialDescription"
     },
     {
-      "ID": "Weapon.Eterno 2",
+      "ID": "Weapon.Eterno2",
       "Damage": 20,
       "MinimumDistance": "0",
       "MaximumDistance": 12,
@@ -6106,7 +6127,7 @@
         "Air",
         "Space"
       ],
-      "SpecialDescription": "Weapon.Eterno 2.SpecialDescription"
+      "SpecialDescription": "Weapon.Eterno2.SpecialDescription"
     },
     {
       "ID": "Weapon.Stratton1",
@@ -6129,6 +6150,78 @@
       "Ambient": [
         "Earth"
       ]
+    },
+    {
+      "ID": "Weapon.Mestre1",
+      "Damage": 1,
+      "MinimumDistance": "0",
+      "MaximumDistance": 1,
+      "LoadTime": 1,
+      "Dices": 4,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Mestre1.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Mestre2",
+      "Damage": 2,
+      "MinimumDistance": "0",
+      "MaximumDistance": "",
+      "LoadTime": 1,
+      "Dices": 3,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Mestre2.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Mestre3",
+      "Damage": 7,
+      "MinimumDistance": "0",
+      "MaximumDistance": "",
+      "LoadTime": 1,
+      "Dices": 1,
+      "Ambient": [
+        "Earth"
+      ],
+      "SpecialDescription": "Weapon.Mestre3.SpecialDescription"
+    },
+    {
+      "ID": "Weapon.Mestre4",
+      "Damage": 8,
+      "MinimumDistance": 1,
+      "MaximumDistance": 8,
+      "LoadTime": 1,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.Mestre5",
+      "Damage": 1,
+      "MinimumDistance": 2,
+      "MaximumDistance": 4,
+      "LoadTime": 2,
+      "Dices": 10,
+      "Ambient": [
+        "Earth"
+      ]
+    },
+    {
+      "ID": "Weapon.Mestre6",
+      "Damage": 17,
+      "MinimumDistance": 20,
+      "MaximumDistance": 21,
+      "LoadTime": 3,
+      "Dices": 2,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ],
+      "SpecialDescription": "Weapon.Mestre6.SpecialDescription"
     }
   ],
   "ConsumableDefinitions": [
@@ -6963,18 +7056,18 @@
       "Description": "Device.adaptado4.Description"
     },
     {
-      "ID": "Device.Eterno 1",
+      "ID": "Device.Eterno1",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Device.Eterno 1.Description"
+      "Description": "Device.Eterno1.Description"
     },
     {
-      "ID": "Device.Eterno 2",
+      "ID": "Device.Eterno2",
       "TriggerType": [
         "AfterAttack"
       ],
-      "Description": "Device.Eterno 2.Description"
+      "Description": "Device.Eterno2.Description"
     },
     {
       "ID": "Device.Omega1",
@@ -7003,6 +7096,50 @@
         "BeforeAttack"
       ],
       "Description": "Device.Omega4.Description"
+    },
+    {
+      "ID": "Device.Mestre1",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Device.Mestre1.Description"
+    },
+    {
+      "ID": "Device.Mestre2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Mestre2.Description"
+    },
+    {
+      "ID": "Device.Mestre3",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Device.Mestre3.Description"
+    },
+    {
+      "ID": "Device.Mestre4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Mestre4.Description"
+    },
+    {
+      "ID": "Device.Mestre5",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Device.Mestre5.Description"
+    },
+    {
+      "ID": "Device.Mestre6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Device.Mestre6.Description"
     },
     {
       "ID": "Power.Impact1",
@@ -8571,24 +8708,25 @@
       "Description": "Power.Katnis11.Description"
     },
     {
+      "ID": "Power.Katnis12",
       "TriggerType": [
         "BeforeAttack"
       ],
       "Description": "Power.Katnis12.Description"
     },
     {
-      "ID": "Power.Eterno 1",
+      "ID": "Power.Eterno1",
       "TriggerType": [
         "BeforeAttack"
       ],
-      "Description": "Power.Eterno 1.Description"
+      "Description": "Power.Eterno1.Description"
     },
     {
-      "ID": "Power.Eterno 2",
+      "ID": "Power.Eterno2",
       "TriggerType": [
         "Passive"
       ],
-      "Description": "Power.Eterno 2.Description"
+      "Description": "Power.Eterno2.Description"
     },
     {
       "ID": "Power.Stratton1",
@@ -8659,6 +8797,50 @@
         "Passive"
       ],
       "Description": "Power.Omega4.Description"
+    },
+    {
+      "ID": "Power.Mestre1",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Power.Mestre1.Description"
+    },
+    {
+      "ID": "Power.Mestre2",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Mestre2.Description"
+    },
+    {
+      "ID": "Power.Mestre3",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Mestre3.Description"
+    },
+    {
+      "ID": "Power.Mestre4",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Mestre4.Description"
+    },
+    {
+      "ID": "Power.Mestre5",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Mestre5.Description"
+    },
+    {
+      "ID": "Power.Mestre6",
+      "TriggerType": [
+        "BeforeAttack",
+        "AfterAttack"
+      ],
+      "Description": "Power.Mestre6.Description"
     },
     {
       "ID": "SpecialAbility.Impact1",
@@ -9024,18 +9206,18 @@
       "Description": "SpecialAbility.Katnis6.Description"
     },
     {
-      "ID": "SpecialAbility.Eterno 1",
+      "ID": "SpecialAbility.Eterno1",
       "TriggerType": [
         "Passive"
       ],
-      "Description": "SpecialAbility.Eterno 1.Description"
+      "Description": "SpecialAbility.Eterno1.Description"
     },
     {
-      "ID": "SpecialAbility.Eterno 2",
+      "ID": "SpecialAbility.Eterno2",
       "TriggerType": [
         "Passive"
       ],
-      "Description": "SpecialAbility.Eterno 2.Description"
+      "Description": "SpecialAbility.Eterno2.Description"
     },
     {
       "ID": "SpecialAbility.Stratton1",
