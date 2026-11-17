@@ -4126,7 +4126,7 @@
       "MinimumDistance": 2,
       "MaximumDistance": 6,
       "LoadTime": 2,
-      "Dices": 4,
+      "Dices": 2,
       "Ambient": [
         "Earth"
       ],
