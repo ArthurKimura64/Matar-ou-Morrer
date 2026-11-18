@@ -2030,7 +2030,14 @@
         "Attack.Raioroxo4"
       ],
       "WeaponsData": [],
-      "PassivesData": [],
+      "PassivesData": [
+        "Passive.Raioroxo1",
+        "Passive.Raioroxo2",
+        "Passive.Raioroxo3",
+        "Passive.Raioroxo4",
+        "Passive.Raioroxo5",
+        "Passive.Raioroxo6"
+      ],
       "PowersData": [],
       "DevicesData": [],
       "SpecialAbilitiesData": [
@@ -3083,6 +3090,30 @@
     {
       "ID": "Passive.adaptado8",
       "Description": "Passive.adaptado8.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo1",
+      "Description": "Passive.Raioroxo1.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo2",
+      "Description": "Passive.Raioroxo2.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo3",
+      "Description": "Passive.Raioroxo3.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo4",
+      "Description": "Passive.Raioroxo4.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo5",
+      "Description": "Passive.Raioroxo5.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo6",
+      "Description": "Passive.Raioroxo6.Description"
     },
     {
       "ID": "Passive.AgentedoVazio1",
