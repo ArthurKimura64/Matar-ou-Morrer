@@ -9301,6 +9301,7 @@
   "SpecialDefinitions": [
     {
       "Type": "counter",
+      "maxValue": 30,
       "ID": "SpecialCustom.Caos1",
       "Title": "SpecialCustom.Caos1.Title"
     },
@@ -9317,6 +9318,7 @@
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.Destroul1",
       "Title": "SpecialCustom.Destroul1.Title"
     },
@@ -9328,46 +9330,55 @@
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.PortadorDasEntidades1",
       "Title": "SpecialCustom.PortadorDasEntidades1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.EclipseKnight1",
       "Title": "SpecialCustom.EclipseKnight1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.Vinteum1",
       "Title": "SpecialCustom.Vinteum1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.Capuz1",
       "Title": "SpecialCustom.Capuz1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.AgentedoVazio1",
       "Title": "SpecialCustom.AgentedoVazio1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.Copiador1",
       "Title": "SpecialCustom.Copiador1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.Copiador2",
       "Title": "SpecialCustom.Copiador2.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.MulherFantasma1",
       "Title": "SpecialCustom.MulherFantasma1.Title"
     },
     {
       "Type": "counter",
+      "maxValue": 20,
       "ID": "SpecialCustom.Pax1",
       "Title": "SpecialCustom.Pax1.Title"
     },
