@@ -2036,7 +2036,8 @@
         "Passive.Raioroxo3",
         "Passive.Raioroxo4",
         "Passive.Raioroxo5",
-        "Passive.Raioroxo6"
+        "Passive.Raioroxo6",
+        "Passive.Raioroxo7"
       ],
       "PowersData": [],
       "DevicesData": [],
@@ -3114,6 +3115,10 @@
     {
       "ID": "Passive.Raioroxo6",
       "Description": "Passive.Raioroxo6.Description"
+    },
+    {
+      "ID": "Passive.Raioroxo7",
+      "Description": "Passive.Raioroxo7.Description"
     },
     {
       "ID": "Passive.AgentedoVazio1",
