@@ -104,7 +104,7 @@
       "Difficulty": 2,
       "Generation": 3,
       "DodgePoints": 10,
-      "OportunityAttacks": 3,
+      "OportunityAttacks": 5,
       "ExplorationItens": 3,
       "NumberOfDefenseDices": 1,
       "NumberOfUnlimitedAttacks": 1,
@@ -1337,7 +1337,8 @@
       "WeaponsData": [
         "Weapon.ArcoNegro1",
         "Weapon.ArcoNegro2",
-        "Weapon.ArcoNegro3"
+        "Weapon.ArcoNegro3",
+        "Weapon.ArcoNegro4"
       ],
       "PassivesData": [],
       "PowersData": [
@@ -1349,7 +1350,8 @@
         "Power.ArcoNegro6",
         "Power.ArcoNegro7",
         "Power.ArcoNegro8",
-        "Power.ArcoNegro9"
+        "Power.ArcoNegro9",
+        "Power.ArcoNegro10"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
@@ -1495,7 +1497,13 @@
         "Power.Absinto2",
         "Power.Absinto3",
         "Power.Absinto4",
-        "Power.Absinto5"
+        "Power.Absinto5",
+        "Power.Absinto6",
+        "Power.Absinto7",
+        "Power.Absinto8",
+        "Power.Absinto9",
+        "Power.Absinto10",
+        "Power.Absinto11"
       ],
       "DevicesData": [],
       "SpecialAbilitiesData": [],
@@ -3523,7 +3531,7 @@
       "Damage": 5,
       "MinimumDistance": "Região",
       "MaximumDistance": "Região",
-      "LoadTime": 5,
+      "LoadTime": 2,
       "Dices": 1,
       "Ambient": [
         "Earth"
@@ -4233,13 +4241,14 @@
     {
       "ID": "Attack.Vinteum1",
       "Damage": 9,
-      "MinimumDistance": 4,
+      "MinimumDistance": 2,
       "MaximumDistance": 6,
       "LoadTime": 1,
       "Dices": 1,
       "Ambient": [
         "Earth",
-        "Air"
+        "Air",
+        "Space"
       ]
     },
     {
@@ -4251,7 +4260,8 @@
       "Dices": 3,
       "Ambient": [
         "Earth",
-        "Air"
+        "Air",
+        "Space"
       ]
     },
     {
@@ -5721,20 +5731,21 @@
     {
       "ID": "Weapon.ArcoNegro1",
       "Damage": 10,
-      "MinimumDistance": 3,
-      "MaximumDistance": 28,
+      "MinimumDistance": 2,
+      "MaximumDistance": 15,
       "LoadTime": 2,
       "Dices": 3,
       "Ambient": [
         "Earth",
         "Air"
-      ]
+      ],
+      "SpecialDescription": "Weapon.ArcoNegro1.SpecialDescription"
     },
     {
       "ID": "Weapon.ArcoNegro2",
-      "Damage": 5,
-      "MinimumDistance": 4,
-      "MaximumDistance": 8,
+      "Damage": 3,
+      "MinimumDistance": 2,
+      "MaximumDistance": 30,
       "LoadTime": 0,
       "Dices": 3,
       "Ambient": [
@@ -5744,11 +5755,23 @@
     },
     {
       "ID": "Weapon.ArcoNegro3",
-      "Damage": 20,
+      "Damage": 18,
       "MinimumDistance": 2,
-      "MaximumDistance": 15,
+      "MaximumDistance": 20,
       "LoadTime": 1,
       "Dices": 1,
+      "Ambient": [
+        "Earth",
+        "Air"
+      ]
+    },
+    {
+      "ID": "Weapon.ArcoNegro4",
+      "Damage": 2,
+      "MinimumDistance": 0,
+      "MaximumDistance": 3,
+      "LoadTime": 1,
+      "Dices": 4,
       "Ambient": [
         "Earth",
         "Air"
@@ -7971,13 +7994,15 @@
     {
       "ID": "Power.ArcoNegro5",
       "TriggerType": [
-        "Passive"
+        "Passive",
+        "BeforeAttack"
       ],
       "Description": "Power.ArcoNegro5.Description"
     },
     {
       "ID": "Power.ArcoNegro6",
       "TriggerType": [
+        "Passive",
         "BeforeAttack"
       ],
       "Description": "Power.ArcoNegro6.Description"
@@ -8002,6 +8027,13 @@
         "BeforeAttack"
       ],
       "Description": "Power.ArcoNegro9.Description"
+    },
+    {
+      "ID": "Power.ArcoNegro10",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.ArcoNegro10.Description"
     },
     {
       "ID": "Power.Vazio1",
@@ -8157,6 +8189,49 @@
         "Passive"
       ],
       "Description": "Power.Absinto5.Description"
+    },
+    {
+      "ID": "Power.Absinto6",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Absinto6.Description"
+    },
+    {
+      "ID": "Power.Absinto7",
+      "TriggerType": [
+        "Passive"
+      ],
+      "Description": "Power.Absinto7.Description"
+    },
+    {
+      "ID": "Power.Absinto8",
+      "TriggerType": [
+        "Passive",
+        "BeforeAttack"
+      ],
+      "Description": "Power.Absinto8.Description"
+    },
+    {
+      "ID": "Power.Absinto9",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Absinto9.Description"
+    },
+    {
+      "ID": "Power.Absinto10",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Absinto10.Description"
+    },
+    {
+      "ID": "Power.Absinto11",
+      "TriggerType": [
+        "BeforeAttack"
+      ],
+      "Description": "Power.Absinto11.Description"
     },
     {
       "ID": "Power.Pressao1",
