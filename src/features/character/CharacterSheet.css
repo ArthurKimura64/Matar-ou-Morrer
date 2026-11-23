@@ -1,0 +1,40 @@
+/* ==========================================================================
+   LAYOUT DOS CONTADORES DA FICHA VINCULADO AO TEMA (CharacterSheet.css)
+   ========================================================================== */
+
+.character-sheet-counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0 auto;
+  padding: 8px 4px;
+}
+
+.character-sheet-counters > div {
+  flex: 0 0 auto;
+  width: auto !important;
+  max-width: 230px;
+}
+
+.character-sheet-counters .card-body {
+  padding-inline: 10px !important;
+}
+
+@media (max-width: 767.98px) {
+  .character-sheet-counters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .character-sheet-counters > div {
+    width: 100% !important;
+    max-width: none;
+  }
+}
+
+.character-sheet-counters .fw-bold {
+  font-size: 0.94em;
+  color: var(--kod-text-main, #f4f4f6);
+}

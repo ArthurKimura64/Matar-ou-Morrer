@@ -1,0 +1,312 @@
+/* ==========================================================================
+   SISTEMA GLOBAL DE TEMAS VISUAIS (App.css)
+   Padrão: Grafite Clássico ('classic')
+   ========================================================================== */
+
+:root,
+[data-kod-theme="classic"] {
+  /* 1. GRAFITE CLÁSSICO (Padrão Original — Fosco Industrial e Neutro) */
+  --kod-bg-base: #0c0d0e;
+  --kod-bg-surface: #16181b;
+  --kod-bg-card: #1f2226;
+  --kod-bg-card-inner: #25292e;
+  --kod-bg-card-hover: #2e333a;
+  --kod-bg-input: #121417;
+  --kod-btn-sec-bg: #2b3036;
+  --kod-btn-sec-hover: #383e46;
+  --kod-text-main: #f4f4f6;
+  --kod-text-muted: #9ca3af;
+  --kod-border-subtle: rgba(255, 255, 255, 0.15);
+  --kod-border-strong: #495057;
+  --kod-header-gradient: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --kod-card-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  --kod-accent-color: #66ccff;
+  --kod-accent-rgb: 102, 204, 255;
+  --kod-scrollbar-thumb: #4b5563;
+  --kod-bg-pattern: linear-gradient(135deg, #0a0a0a 0%, #1a1c1f 100%);
+  --kod-bg-size: 100% 100%;
+}
+
+[data-kod-theme="onyx"] {
+  /* 2. ÔNIX & BRASA (Forja Vulcânica com Vinheta Carmesim e Bordas Quentes) */
+  --kod-bg-base: #090809;
+  --kod-bg-surface: #131012;
+  --kod-bg-card: #1a1517;
+  --kod-bg-card-inner: #221b1d;
+  --kod-bg-card-hover: #2c2225;
+  --kod-bg-input: #0e0b0c;
+  --kod-btn-sec-bg: #2a2023;
+  --kod-btn-sec-hover: #382a2e;
+  --kod-text-main: #faf5f5;
+  --kod-text-muted: #b8a5a8;
+  --kod-border-subtle: rgba(248, 113, 113, 0.22);
+  --kod-border-strong: #5c3a3e;
+  --kod-header-gradient: linear-gradient(90deg, rgba(220, 38, 38, 0.18) 0%, rgba(245, 158, 11, 0.06) 100%);
+  --kod-card-shadow: 0 8px 22px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(251, 146, 60, 0.12);
+  --kod-accent-color: #f97316;
+  --kod-accent-rgb: 249, 115, 22;
+  --kod-scrollbar-thumb: #b91c1c;
+  --kod-bg-pattern:
+    radial-gradient(circle at 50% -10%, rgba(220, 38, 38, 0.28) 0%, rgba(124, 45, 18, 0.12) 45%, transparent 75%),
+    radial-gradient(circle at 15% 95%, rgba(234, 88, 12, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #110d0e 0%, #080708 100%);
+  --kod-bg-size: 100% 100%;
+}
+
+[data-kod-theme="cyberpunk"] {
+  /* 3. NEON CYBER (Grade Synthwave Ciano/Magenta e Painéis de Alto Contraste) */
+  --kod-bg-base: #050510;
+  --kod-bg-surface: #0b0b21;
+  --kod-bg-card: #10112e;
+  --kod-bg-card-inner: #16183d;
+  --kod-bg-card-hover: #1e2152;
+  --kod-bg-input: #070818;
+  --kod-btn-sec-bg: #1b1e4b;
+  --kod-btn-sec-hover: #272b69;
+  --kod-text-main: #f0fdff;
+  --kod-text-muted: #94a3d8;
+  --kod-border-subtle: rgba(34, 211, 238, 0.35);
+  --kod-border-strong: #2e4a7d;
+  --kod-header-gradient: linear-gradient(90deg, rgba(217, 70, 239, 0.22) 0%, rgba(6, 182, 212, 0.18) 100%);
+  --kod-card-shadow: 0 0 18px rgba(6, 182, 212, 0.16), inset 0 0 12px rgba(217, 70, 239, 0.08);
+  --kod-accent-color: #22d3ee;
+  --kod-accent-rgb: 34, 211, 238;
+  --kod-scrollbar-thumb: #d946ef;
+  --kod-bg-pattern:
+    linear-gradient(rgba(34, 211, 238, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 70, 239, 0.045) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, rgba(217, 70, 239, 0.24) 0%, rgba(6, 182, 212, 0.1) 50%, transparent 80%),
+    linear-gradient(180deg, #09091d 0%, #05050f 100%);
+  --kod-bg-size: 36px 36px, 36px 36px, 100% 100%, 100% 100%;
+}
+
+[data-kod-theme="obsidian"] {
+  /* 4. OBSIDIANA & AMETISTA (Santuário Arcano com Brilho Violeta Profundo) */
+  --kod-bg-base: #08060c;
+  --kod-bg-surface: #120d1c;
+  --kod-bg-card: #1a1329;
+  --kod-bg-card-inner: #221936;
+  --kod-bg-card-hover: #2c2046;
+  --kod-bg-input: #0d0914;
+  --kod-btn-sec-bg: #281e3d;
+  --kod-btn-sec-hover: #362852;
+  --kod-text-main: #f6f2ff;
+  --kod-text-muted: #b0a3cc;
+  --kod-border-subtle: rgba(192, 132, 252, 0.28);
+  --kod-border-strong: #533b7c;
+  --kod-header-gradient: linear-gradient(90deg, rgba(147, 51, 234, 0.25) 0%, rgba(79, 70, 229, 0.1) 100%);
+  --kod-card-shadow: 0 8px 24px rgba(10, 5, 20, 0.7), 0 0 15px rgba(147, 51, 234, 0.12);
+  --kod-accent-color: #c084fc;
+  --kod-accent-rgb: 192, 132, 252;
+  --kod-scrollbar-thumb: #9333ea;
+  --kod-bg-pattern:
+    radial-gradient(circle at 80% 10%, rgba(168, 85, 247, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 20% 85%, rgba(99, 102, 241, 0.16) 0%, transparent 55%),
+    linear-gradient(160deg, #100b1a 0%, #07050a 100%);
+  --kod-bg-size: 100% 100%;
+}
+
+[data-kod-theme="amber"] {
+  /* 5. OURO IMPERIAL & BRONZE (Relíquia Antiga com Molduras Douradas) */
+  --kod-bg-base: #0b0906;
+  --kod-bg-surface: #16120c;
+  --kod-bg-card: #201a11;
+  --kod-bg-card-inner: #292115;
+  --kod-bg-card-hover: #352b1b;
+  --kod-bg-input: #100d08;
+  --kod-btn-sec-bg: #302618;
+  --kod-btn-sec-hover: #423421;
+  --kod-text-main: #fdfaf3;
+  --kod-text-muted: #c2b299;
+  --kod-border-subtle: rgba(251, 191, 36, 0.34);
+  --kod-border-strong: #6e532b;
+  --kod-header-gradient: linear-gradient(90deg, rgba(217, 119, 6, 0.25) 0%, rgba(251, 191, 36, 0.08) 100%);
+  --kod-card-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(251, 191, 36, 0.1);
+  --kod-accent-color: #fbbf24;
+  --kod-accent-rgb: 251, 191, 36;
+  --kod-scrollbar-thumb: #d97706;
+  --kod-bg-pattern:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.22) 0%, transparent 65%),
+    repeating-linear-gradient(45deg, rgba(251, 191, 36, 0.018) 0px, rgba(251, 191, 36, 0.018) 2px, transparent 2px, transparent 12px),
+    linear-gradient(180deg, #15110b 0%, #0a0805 100%);
+  --kod-bg-size: 100% 100%;
+}
+
+[data-kod-theme="emerald"] {
+  /* 6. BIO-HAZARD ABISSAL (Laboratório Subterrâneo com Malha Tática Esmeralda) */
+  --kod-bg-base: #050b08;
+  --kod-bg-surface: #0b1611;
+  --kod-bg-card: #102119;
+  --kod-bg-card-inner: #152b21;
+  --kod-bg-card-hover: #1c382b;
+  --kod-bg-input: #07100c;
+  --kod-btn-sec-bg: #173025;
+  --kod-btn-sec-hover: #214535;
+  --kod-text-main: #f0fdf6;
+  --kod-text-muted: #95bfa9;
+  --kod-border-subtle: rgba(52, 211, 153, 0.28);
+  --kod-border-strong: #2b5c47;
+  --kod-header-gradient: linear-gradient(90deg, rgba(16, 185, 129, 0.24) 0%, rgba(6, 182, 212, 0.08) 100%);
+  --kod-card-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 12px rgba(16, 185, 129, 0.1);
+  --kod-accent-color: #34d399;
+  --kod-accent-rgb: 52, 211, 153;
+  --kod-scrollbar-thumb: #059669;
+  --kod-bg-pattern:
+    radial-gradient(rgba(52, 211, 153, 0.08) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.22) 0%, transparent 70%),
+    linear-gradient(180deg, #0a1510 0%, #040907 100%);
+  --kod-bg-size: 24px 24px, 100% 100%, 100% 100%;
+}
+
+[data-kod-theme="crimson"] {
+  /* 7. LUA DE SANGUE (Gótico Vampírico em Veludo Carmesim e Preto) */
+  --kod-bg-base: #0b0406;
+  --kod-bg-surface: #17080c;
+  --kod-bg-card: #230c12;
+  --kod-bg-card-inner: #2e1018;
+  --kod-bg-card-hover: #3b151f;
+  --kod-bg-input: #110609;
+  --kod-btn-sec-bg: #36131c;
+  --kod-btn-sec-hover: #4a1a26;
+  --kod-text-main: #fff2f4;
+  --kod-text-muted: #c79da6;
+  --kod-border-subtle: rgba(251, 113, 133, 0.3);
+  --kod-border-strong: #6e2435;
+  --kod-header-gradient: linear-gradient(90deg, rgba(225, 29, 72, 0.28) 0%, rgba(136, 19, 55, 0.12) 100%);
+  --kod-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 14px rgba(225, 29, 72, 0.14);
+  --kod-accent-color: #fb7185;
+  --kod-accent-rgb: 251, 113, 133;
+  --kod-scrollbar-thumb: #e11d48;
+  --kod-bg-pattern:
+    radial-gradient(circle at 50% 0%, rgba(225, 29, 72, 0.3) 0%, rgba(76, 5, 25, 0.15) 50%, transparent 80%),
+    linear-gradient(180deg, #16070b 0%, #090305 100%);
+  --kod-bg-size: 100% 100%;
+}
+
+[data-kod-theme="arctic"] {
+  /* 8. GELO ÁRTICO (Cristalino Glacial com Reflexos Ciano/Safira) */
+  --kod-bg-base: #070c12;
+  --kod-bg-surface: #0e1722;
+  --kod-bg-card: #152232;
+  --kod-bg-card-inner: #1b2c40;
+  --kod-bg-card-hover: #223852;
+  --kod-bg-input: #0a111a;
+  --kod-btn-sec-bg: #1e324a;
+  --kod-btn-sec-hover: #294463;
+  --kod-text-main: #f0f9ff;
+  --kod-text-muted: #98b8d4;
+  --kod-border-subtle: rgba(125, 211, 252, 0.32);
+  --kod-border-strong: #32587a;
+  --kod-header-gradient: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(59, 130, 246, 0.1) 100%);
+  --kod-card-shadow: 0 8px 24px rgba(2, 6, 23, 0.7), inset 0 1px 0 rgba(186, 230, 253, 0.18);
+  --kod-accent-color: #38bdf8;
+  --kod-accent-rgb: 56, 189, 248;
+  --kod-scrollbar-thumb: #0284c7;
+  --kod-bg-pattern:
+    radial-gradient(ellipse at 50% -10%, rgba(56, 189, 248, 0.26) 0%, rgba(30, 64, 175, 0.12) 50%, transparent 80%),
+    linear-gradient(145deg, #0d1622 0%, #070b10 100%);
+  --kod-bg-size: 100% 100%;
+}
+
+[data-kod-theme="midnight"] {
+  /* 9. BUNKER TÁTICO (Radar Militar com Grade de Coordenadas Azul-Aço) */
+  --kod-bg-base: #080b11;
+  --kod-bg-surface: #101622;
+  --kod-bg-card: #161f30;
+  --kod-bg-card-inner: #1c283e;
+  --kod-bg-card-hover: #24334f;
+  --kod-bg-input: #0b1019;
+  --kod-btn-sec-bg: #202d47;
+  --kod-btn-sec-hover: #2b3d61;
+  --kod-text-main: #f1f5f9;
+  --kod-text-muted: #94a3b8;
+  --kod-border-subtle: rgba(96, 165, 250, 0.26);
+  --kod-border-strong: #334e7a;
+  --kod-header-gradient: linear-gradient(90deg, rgba(37, 99, 235, 0.24) 0%, rgba(30, 58, 138, 0.1) 100%);
+  --kod-card-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  --kod-accent-color: #60a5fa;
+  --kod-accent-rgb: 96, 165, 250;
+  --kod-scrollbar-thumb: #2563eb;
+  --kod-bg-pattern:
+    linear-gradient(rgba(59, 130, 246, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.2) 0%, transparent 70%),
+    linear-gradient(180deg, #0e1420 0%, #070a10 100%);
+  --kod-bg-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+}
+
+[data-kod-theme="void"] {
+  /* 10. VAZIO ABSOLUTO (Contraste Extremo OLED com Bordas de Prata Nítidas) */
+  --kod-bg-base: #000000;
+  --kod-bg-surface: #070708;
+  --kod-bg-card: #0e0e11;
+  --kod-bg-card-inner: #151519;
+  --kod-bg-card-hover: #1e1e24;
+  --kod-bg-input: #030304;
+  --kod-btn-sec-bg: #1c1c21;
+  --kod-btn-sec-hover: #292930;
+  --kod-text-main: #ffffff;
+  --kod-text-muted: #a1a1aa;
+  --kod-border-subtle: rgba(255, 255, 255, 0.26);
+  --kod-border-strong: #52525b;
+  --kod-header-gradient: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  --kod-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.9);
+  --kod-accent-color: #ffffff;
+  --kod-accent-rgb: 255, 255, 255;
+  --kod-scrollbar-thumb: #52525b;
+  --kod-bg-pattern: #000000;
+  --kod-bg-size: 100% 100%;
+}
+
+/* Mapeamento para variáveis globais e cores semânticas das cartas */
+:root {
+  --bs-gray-800: var(--kod-bg-card);
+  --bs-gray-900: var(--kod-bg-input);
+  --bs-body-bg: var(--kod-bg-base);
+  --bs-body-color: var(--kod-text-main);
+
+  /* Cores fixas das mecânicas do jogo (Ataque, Passiva, Poder, Dispositivo, Especial) */
+  --kod-primary-rgb: 59, 130, 246;
+  --kod-success-rgb: 16, 185, 129;
+  --kod-danger-rgb: 239, 68, 68;
+  --kod-warning-rgb: 245, 158, 11;
+  --kod-info-rgb: 6, 182, 212;
+  --kod-purple-rgb: 139, 92, 246;
+  --kod-secondary-rgb: 156, 163, 175;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color-scheme: dark;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: var(--kod-bg-base) !important;
+  background-image: var(--kod-bg-pattern) !important;
+  background-size: var(--kod-bg-size, 100% 100%) !important;
+  background-attachment: fixed !important;
+  color: var(--kod-text-main) !important;
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 2px solid var(--kod-accent-color, rgba(255, 255, 255, 0.7)) !important;
+  outline-offset: 2px !important;
+}
+
+@media (max-width: 576px) {
+  .container-fluid {
+    padding-inline: 8px;
+  }
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+}

@@ -1,0 +1,161 @@
+/* ==========================================================================
+   AJUSTES DE COMPATIBILIDADE DO BOOTSTRAP 6 ALPHA (styles/bootstrap6-fixes.css)
+   ==========================================================================
+   Isola as correções necessárias para o bootstrap@6.0.0-alpha.1 sem poluir
+   o estilo principal do jogo.
+   ========================================================================== */
+
+/* 1. Impede caixas/fundos herdados em spans internos (.btn-icon e .btn-text) */
+span.btn-icon,
+span.btn-text,
+button .btn-icon,
+button .btn-text,
+.btn .btn-icon,
+.btn .btn-text,
+.game-sidebar span.btn-icon,
+.game-sidebar span.btn-text,
+.btn-combat-advance .btn-icon,
+.btn-combat-advance .btn-text,
+.btn-combat-roll-inline .btn-icon,
+.btn-combat-roll-inline .btn-text {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  transform: none !important;
+  filter: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  pointer-events: none !important;
+}
+
+span.btn-icon:hover,
+span.btn-text:hover,
+span.btn-icon:focus,
+span.btn-text:focus,
+span.btn-icon:active,
+span.btn-text:active,
+button .btn-text:hover,
+.game-sidebar .btn-text:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* 2. Corrige .card-body/.card-header/.card-footer herdando flex-direction: column com .d-flex */
+.card-body.d-flex:not(.flex-column),
+.card-header.d-flex:not(.flex-column),
+.card-footer.d-flex:not(.flex-column) {
+  flex-direction: row !important;
+  width: 100%;
+}
+
+/* 3. Em gavetas laterais estreitas, cards com 3+ blocos empilham verticalmente */
+.game-sidebar .card-body.d-flex:not(.flex-row):has(> :nth-child(3)) {
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center;
+  gap: 0.45rem;
+}
+
+/* 4. Garante que alertas sem .d-flex se comportem como bloco normal */
+.alert:not(.d-flex) {
+  display: block !important;
+}
+
+/* 5. Posicionamento e layout de Modais no Bootstrap 6 Alpha */
+.modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(5px);
+  z-index: 1050 !important;
+}
+
+.modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1055 !important;
+  display: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+  padding: 1rem;
+}
+
+.modal.show,
+.modal.d-block {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+  pointer-events: auto;
+  z-index: 1056;
+}
+
+.modal-dialog.modal-lg {
+  max-width: 720px;
+}
+
+.modal-dialog.modal-xl {
+  max-width: 1100px;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: linear-gradient(165deg, var(--kod-bg-card-inner) 0%, var(--kod-bg-surface) 100%) !important;
+  border: 1.5px solid var(--kod-border-subtle) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 20px rgba(var(--kod-accent-rgb), 0.12) !important;
+  color: var(--kod-text-main) !important;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--kod-header-gradient) !important;
+  border-bottom: 1px solid var(--kod-border-subtle) !important;
+}
+
+.modal-body {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 20px;
+}
+
+.modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--kod-border-subtle) !important;
+}

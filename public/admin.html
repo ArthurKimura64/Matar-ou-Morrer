@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Kill or Die</title>
+  <!-- Bootstrap 6 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="p-3 border-bottom" style="border-color: var(--border-color) !important;">
+      <div class="d-flex align-items-center">
+        <img src="/KillOrDieLogo.png" alt="" class="logo-sm rounded" onerror="this.style.display='none'">
+        <div>
+          <div class="text-white fw-bold" style="font-size:0.95rem;">Kill or Die</div>
+          <small class="text-muted" style="font-size:0.7rem;">Painel Admin Total</small>
+        </div>
+      </div>
+    </div>
+    <div class="p-2 mt-2">
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link active" href="#" data-tab="dashboard">📊 Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="users">👥 Usuários</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="rooms">🚪 Salas</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="matches">🎮 Partidas</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="logs">📋 Auditoria</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="tools">🧰 Ferramentas</a></li>
+      </ul>
+    </div>
+    <div class="p-3 mt-auto position-absolute bottom-0 w-100 border-top"
+      style="border-color: var(--border-color) !important;">
+      <a href="/" class="btn btn-outline-light btn-sm w-100">← Voltar ao Jogo</a>
+    </div>
+  </aside>
+
+    <!-- Mobile toggle -->
+    <button class="btn btn-outline-light md:d-none position-fixed"
+      style="top:10px;left:10px;z-index:102;width:42px;height:42px;padding:0;font-size:1.2rem;border-radius:8px;"
+      onclick="var s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay');s.classList.toggle('show');o.classList.toggle('d-none', !s.classList.contains('show'))">☰</button>
+    <div id="sidebarOverlay" class="d-none position-fixed"
+      style="top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99;"
+      onclick="document.getElementById('sidebar').classList.remove('show');this.classList.add('d-none')"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- 1. DASHBOARD TAB -->
+      <div class="admin-tab-section" id="tab-dashboard">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="text-white mb-0">📊 Dashboard</h4>
+          <button class="btn btn-sm btn-outline-light" onclick="loadDashboard()">🔄 Atualizar</button>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-6 lg:col-3">
+            <div class="stat-card">
+              <div class="stat-value text-primary" id="dashStatUsers">—</div>
+              <div class="stat-label">Usuários</div>
+            </div>
+          </div>
+          <div class="col-6 lg:col-3">
+            <div class="stat-card">
+              <div class="stat-value text-success" id="dashStatRooms">—</div>
+              <div class="stat-label">Salas Ativas</div>
+            </div>
+          </div>
+          <div class="col-6 lg:col-3">
+            <div class="stat-card">
+              <div class="stat-value text-warning" id="dashStatMatches">—</div>
+              <div class="stat-label">Partidas Concluídas</div>
+            </div>
+          </div>
+          <div class="col-6 lg:col-3">
+            <div class="stat-card">
+              <div class="stat-value text-info" id="dashStatConnected">—</div>
+              <div class="stat-label">Conectados Agora</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-white mb-1">📝 Novos Cadastros</h6>
+            <small class="text-muted" id="regStatusText">Carregando...</small>
+          </div>
+          <div class="form-check form-switch" style="transform: scale(1.4);">
+            <input class="form-check-input" type="checkbox" id="regToggle" onchange="toggleRegistration()" disabled>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 md:col-6">
+            <div class="panel-card">
+              <h6 class="text-white mb-3">🏆 Top Jogadores</h6>
+              <div id="topPlayers"><small class="text-muted">Carregando...</small></div>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="panel-card">
+              <h6 class="text-white mb-3">⚡ Partidas Recentes</h6>
+              <div id="recentActivity"><small class="text-muted">Carregando...</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. USERS TAB -->
+      <div class="admin-tab-section d-none" id="tab-users">
+        <div id="userListView">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-white mb-0">👥 Usuários <span class="badge bg-secondary" id="userCount">0</span></h4>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-success" onclick="toggleCreateUser()">➕ Criar Conta</button>
+              <button class="btn btn-sm btn-outline-light" onclick="loadUsers()">🔄</button>
+            </div>
+          </div>
+          <div class="panel-card mb-3 d-none" id="createUserForm">
+            <h6 class="text-white mb-3">Criar Nova Conta</h6>
+            <form onsubmit="createUser(event)">
+              <div class="row g-2">
+                <div class="col-12 md:col-4"><input type="text" class="form-control form-control-sm search-input"
+                    id="newUserName" placeholder="Nome de exibição" required minlength="2" maxlength="50"></div>
+                <div class="col-12 md:col-4"><input type="email" class="form-control form-control-sm search-input"
+                    id="newUserEmail" placeholder="Email" required></div>
+                <div class="col-12 md:col-3"><input type="password" class="form-control form-control-sm search-input"
+                    id="newUserPass" placeholder="Senha (min. 6)" required minlength="6"></div>
+                <div class="col-12 md:col-1"><button type="submit" class="btn btn-success btn-sm w-100">✓</button></div>
+              </div>
+            </form>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-12 md:col-8"><input type="text" class="form-control form-control-sm search-input"
+                id="userSearch" placeholder="Buscar por nome..." oninput="debounceLoadUsers()"></div>
+            <div class="col-12 md:col-4 d-flex align-items-center gap-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="bannedOnly" onchange="loadUsers()">
+                <label class="form-check-label text-light small" for="bannedOnly">Apenas banidos</label>
+              </div>
+            </div>
+          </div>
+          <div class="panel-card p-0">
+            <div class="table-responsive">
+              <table class="table table-dark table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Partidas</th>
+                    <th>Vitórias</th>
+                    <th>Elim.</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Criado em</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4">Carregando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Detail View -->
+        <div id="userDetailView" class="d-none">
+          <button class="btn btn-sm btn-outline-light mb-3" onclick="closeUserDetail()">← Voltar à lista</button>
+          <div class="panel-card mb-3">
+            <div class="user-detail-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                <h5 class="text-white mb-1" id="detailUserName">—</h5>
+                <small class="text-muted" id="detailUserId">—</small>
+              </div>
+              <div class="d-flex gap-2 flex-wrap" id="detailActions"></div>
+            </div>
+            <div class="row g-3 mb-4">
+              <div class="col-6 md:col-2 text-center">
+                <div class="text-muted small">Criado em</div>
+                <div class="text-light" id="detailCreated">—</div>
+              </div>
+              <div class="col-6 md:col-2 text-center">
+                <div class="text-muted small">Status</div>
+                <div id="detailStatus">—</div>
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <div class="text-muted small">Motivo do Ban</div>
+                <div class="text-light" id="detailBanReason">—</div>
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <div class="text-muted small">Personagem Favorito</div>
+                <div class="text-light" id="detailFavChar">—</div>
+              </div>
+              <div class="col-6 md:col-2 text-center">
+                <div class="text-muted small">Win Rate</div>
+                <div class="text-light fw-bold" id="detailWinRate">—</div>
+              </div>
+            </div>
+
+            <!-- Stats Section (Vinculada ao Histórico) -->
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+              <div>
+                <h6 class="text-white mb-0">📊 Estatísticas do Jogador <span
+                    class="badge bg-info text-dark ms-1">Sincronizadas com o Histórico</span></h6>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-info" onclick="recalculateUserStats()">🔄 Forçar
+                  Recálculo pelo Histórico</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="saveManualUserStats()">💾
+                  Sobrescrever Manualmente</button>
+              </div>
+            </div>
+            <div class="row g-3 mb-4 p-3 rounded"
+              style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color);">
+              <div class="col-6 md:col-2 text-center">
+                <label class="text-muted small d-block mb-1">Partidas</label>
+                <input type="number" class="stat-edit-input" id="userStatMatches" min="0">
+              </div>
+              <div class="col-6 md:col-2 text-center">
+                <label class="text-muted small d-block mb-1">Vitórias</label>
+                <input type="number" class="stat-edit-input text-success fw-bold" id="userStatWins" min="0">
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <label class="text-muted small d-block mb-1">Eliminações</label>
+                <input type="number" class="stat-edit-input text-danger fw-bold" id="userStatEliminations" min="0">
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <label class="text-muted small d-block mb-1">Pts Sobrevivência</label>
+                <input type="number" class="stat-edit-input text-warning fw-bold" id="userStatSurvival" min="0">
+              </div>
+              <div class="col-12 md:col-2 text-center">
+                <label class="text-muted small d-block mb-1">Score Composto</label>
+                <input type="number" step="0.01" class="stat-edit-input text-info fw-bold" id="userStatScore" min="0">
+              </div>
+            </div>
+
+            <h6 class="text-white mb-2">✏️ Editar Perfil</h6>
+            <form onsubmit="saveUserProfile(event)" class="d-flex gap-2 align-items-end flex-wrap">
+              <div>
+                <label class="text-muted small d-block">Nome de Exibição</label>
+                <input type="text" class="search-input" id="editDisplayName" style="width:260px;" minlength="2"
+                  maxlength="50" required>
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary">💾 Salvar Nome</button>
+            </form>
+          </div>
+
+          <!-- User Match History -->
+          <div class="panel-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="text-white mb-0">🎮 Histórico de Partidas do Jogador</h6>
+              <button class="btn btn-sm btn-success" onclick="toggleCreateMatch()">➕ Adicionar Partida ao
+                Histórico</button>
+            </div>
+            <div class="d-none mb-3 p-3" id="createMatchForm"
+              style="background:var(--bg-main);border-radius:8px;border:1px solid var(--border-color);">
+              <h6 class="text-white mb-3">Registrar Participação em Partida</h6>
+              <form onsubmit="createMatch(event)">
+                <div class="row g-2 mb-2">
+                  <div class="col-12 md:col-4">
+                    <label class="text-muted small d-block">ID de Partida Existente <span
+                        class="text-info">(opcional)</span></label>
+                    <input type="text" class="form-control form-control-sm search-input" id="newMatchExistingId"
+                      placeholder="Vazio = criar nova partida">
+                  </div>
+                  <div class="col-12 md:col-4">
+                    <label class="text-muted small d-block">Nome da Sala</label>
+                    <input type="text" class="form-control form-control-sm search-input" id="newMatchRoom"
+                      value="Matar ou Morrer" required>
+                  </div>
+                  <div class="col-12 md:col-4">
+                    <label class="text-muted small d-block">Personagem</label>
+                    <select class="form-select form-select-sm search-input" id="newMatchChar">
+                      <option value="">— Selecionar —</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row g-2">
+                  <div class="col-6 md:col-2">
+                    <label class="text-muted small d-block">Total Jogadores</label>
+                    <input type="number" class="form-control form-control-sm search-input" id="newMatchPlayers"
+                      value="4" min="1" max="30">
+                  </div>
+                  <div class="col-6 md:col-2">
+                    <label class="text-muted small d-block">Pts Sobrev.</label>
+                    <input type="number" class="form-control form-control-sm search-input" id="newMatchSurvival"
+                      value="0" min="0">
+                  </div>
+                  <div class="col-6 md:col-1">
+                    <label class="text-muted small d-block">Kills</label>
+                    <input type="number" class="form-control form-control-sm search-input" id="newMatchKills" value="0"
+                      min="0">
+                  </div>
+                  <div class="col-6 md:col-2">
+                    <label class="text-muted small d-block">Ordem Elim.</label>
+                    <input type="number" class="form-control form-control-sm search-input" id="newMatchElimOrder"
+                      placeholder="Ex: 1" min="1">
+                  </div>
+                  <div class="col-6 md:col-2">
+                    <label class="text-muted small d-block">Morto por</label>
+                    <input type="text" class="form-control form-control-sm search-input" id="newMatchKilledBy"
+                      placeholder="Opcional">
+                  </div>
+                  <div class="col-6 md:col-3">
+                    <label class="text-muted small d-block">Data</label>
+                    <input type="datetime-local" class="form-control form-control-sm search-input" id="newMatchDate">
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="newMatchWinner">
+                    <label class="form-check-label text-light small fw-bold" for="newMatchWinner">🏆 Vencedor da
+                      Partida</label>
+                  </div>
+                  <button type="submit" class="btn btn-success btn-sm px-4">✓ Salvar e Atualizar Stats</button>
+                </div>
+              </form>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th>Sala</th>
+                    <th>Personagem</th>
+                    <th>Resultado</th>
+                    <th>Kills</th>
+                    <th>Pts Sobrev.</th>
+                    <th>Data</th>
+                    <th>Match ID</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="userMatchesBody">
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-3">Carregando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. ROOMS TAB -->
+      <div class="admin-tab-section d-none" id="tab-rooms">
+        <div id="roomListView">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="text-white mb-0">🚪 Salas <span class="badge bg-secondary" id="roomCount">0</span></h4>
+            <div class="d-flex gap-2 align-items-center">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="showInactive" onchange="loadRooms()">
+                <label class="form-check-label text-light small" for="showInactive">Mostrar inativas</label>
+              </div>
+              <button class="btn btn-sm btn-outline-light" onclick="loadRooms()">🔄</button>
+            </div>
+          </div>
+          <div class="panel-card p-0">
+            <div class="table-responsive">
+              <table class="table table-dark table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Mestre</th>
+                    <th>Jogadores</th>
+                    <th>Status</th>
+                    <th>Criada em</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="roomsTableBody">
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Carregando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="roomDetailView" class="d-none">
+          <button class="btn btn-sm btn-outline-light mb-3" onclick="closeRoomDetail()">← Voltar à lista</button>
+          <div class="panel-card mb-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"
+              style="border-bottom:1px solid var(--border-color);padding-bottom:16px;">
+              <div>
+                <h5 class="text-white mb-1" id="roomDetailName">—</h5>
+                <small class="text-muted" id="roomDetailId">—</small>
+              </div>
+              <div class="d-flex gap-2 flex-wrap" id="roomDetailActions"></div>
+            </div>
+            <div class="row g-3">
+              <div class="col-6 md:col-3 text-center">
+                <div class="text-muted small">Mestre</div>
+                <div class="text-light fw-bold" id="roomDetailMaster">—</div>
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <div class="text-muted small">Status</div>
+                <div id="roomDetailStatus">—</div>
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <div class="text-muted small">Criada em</div>
+                <div class="text-light" id="roomDetailCreated">—</div>
+              </div>
+              <div class="col-6 md:col-3 text-center">
+                <div class="text-muted small">Última atividade</div>
+                <div class="text-light" id="roomDetailActivity">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-card">
+            <h6 class="text-white mb-3">👥 Jogadores na Sala</h6>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Conta</th>
+                    <th>Personagem</th>
+                    <th>Status</th>
+                    <th>Conectado</th>
+                    <th>Entrou em</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="roomPlayersBody">
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-3">Carregando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. MATCHES TAB (Histórico Geral de Partidas) -->
+      <div class="admin-tab-section d-none" id="tab-matches">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            <h4 class="text-white mb-0">🎮 Histórico Geral de Partidas <span class="badge bg-secondary"
+                id="globalMatchCount">0</span></h4>
+            <small class="text-muted">🔗 = vinculado à conta (soma nas estatísticas e aparece no perfil) | ⚠️ = sem
+              conta vinculada (clique em ✏️ para vincular)</small>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-sm btn-success" onclick="repairAndLinkMatches()">🔧 Reparar e Vincular
+              Automático</button>
+            <button class="btn btn-sm btn-outline-warning" onclick="autoMergeDuplicateMatches()">🔗 Unificar
+              Duplicadas</button>
+            <button class="btn btn-sm btn-outline-light" onclick="loadGlobalMatches()">🔄 Atualizar</button>
+          </div>
+        </div>
+        <div class="panel-card p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Sala</th>
+                  <th>Vencedor</th>
+                  <th>Jogadores</th>
+                  <th>Participantes</th>
+                  <th>Concluída em</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="globalMatchesBody">
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">Carregando...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. AUDIT LOG TAB -->
+      <div class="admin-tab-section d-none" id="tab-logs">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="text-white mb-0">📋 Log de Auditoria</h4>
+          <button class="btn btn-sm btn-outline-light" onclick="loadAuditLog()">🔄 Atualizar</button>
+        </div>
+        <div class="panel-card p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Admin</th>
+                  <th>Ação</th>
+                  <th>Alvo</th>
+                  <th>Detalhes</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogBody">
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">Carregando...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center mt-3 gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="logPrevBtn" onclick="loadAuditLog('prev')" disabled>←
+            Anterior</button>
+          <span class="text-muted small align-self-center" id="logPageInfo">—</span>
+          <button class="btn btn-sm btn-outline-secondary" id="logNextBtn" onclick="loadAuditLog('next')">Próximo
+            →</button>
+        </div>
+      </div>
+
+      <!-- 6. TOOLS TAB -->
+      <div class="admin-tab-section d-none" id="tab-tools">
+        <h4 class="text-white mb-4">🧰 Ferramentas do Sistema</h4>
+        <div class="row g-3 mb-4">
+          <div class="col-12 md:col-3">
+            <div class="panel-card text-center h-100">
+              <div style="font-size:2rem;">🧹</div>
+              <h6 class="text-white mt-2">Limpeza de Inativos</h6>
+              <p class="text-muted small">Remove jogadores desconectados e desativa salas vazias</p>
+              <button class="btn btn-danger btn-sm" onclick="executeCleanup()">Executar Limpeza</button>
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="panel-card text-center h-100">
+              <div style="font-size:2rem;">⏱️</div>
+              <h6 class="text-white mt-2">Encerrar Partidas Antigas</h6>
+              <p class="text-muted small">Finaliza partidas paradas há mais de 2h salvando os pontos</p>
+              <button class="btn btn-primary btn-sm" onclick="executeAutoEndStaleMatches()">Encerrar Paradas</button>
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="panel-card text-center h-100">
+              <div style="font-size:2rem;">🧪</div>
+              <h6 class="text-white mt-2">Diagnóstico Geral</h6>
+              <p class="text-muted small">Inspeciona estatísticas de salas, jogadores e combates</p>
+              <button class="btn btn-warning btn-sm" onclick="testSystem()">Diagnosticar</button>
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="panel-card text-center h-100">
+              <div style="font-size:2rem;">🔍</div>
+              <h6 class="text-white mt-2">Inspecionar Salas</h6>
+              <p class="text-muted small">Verifica tempo de vida e elegibilidade de limpeza</p>
+              <button class="btn btn-info btn-sm" onclick="debugRooms()">Inspecionar</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel-card d-none" id="toolResult">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0">📋 Resultado da Ferramenta</h6>
+            <button class="btn btn-sm btn-outline-secondary"
+              onclick="document.getElementById('toolResult').classList.add('d-none')">✕</button>
+          </div>
+          <div id="toolResultContent"></div>
+        </div>
+      </div>
+    </main>
+
+      <!-- Loading Overlay -->
+      <div id="loadingOverlay" class="d-none">
+        <div class="text-center">
+          <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;"></div>
+          <p class="text-light mt-3">Processando...</p>
+        </div>
+      </div>
+
+      <!-- Ban Modal -->
+      <div class="modal" id="banModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-white mb-0">🚫 Banir Usuário</h5><button type="button"
+                class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p class="text-light">Banir <strong id="banUserName"></strong>?</p>
+              <label class="form-label text-light">Motivo:</label>
+              <textarea class="form-control search-input" id="banReason" rows="3">Violação das regras</textarea>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-danger" id="banConfirmBtn">Banir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Change Password Modal -->
+      <div class="modal" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-white mb-0">🔑 Mudar Senha</h5><button type="button"
+                class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p class="text-light">Nova senha para <strong id="passUserName"></strong>:</p>
+              <input type="password" class="form-control search-input" id="newPassword"
+                placeholder="Mínimo 6 caracteres" minlength="6">
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" id="passConfirmBtn">Alterar Senha</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Single User Match Modal (Aba Usuários) -->
+      <div class="modal" id="editMatchModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-white mb-0">✏️ Editar Participação na Partida</h5><button type="button"
+                class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="editMatchId">
+              <div class="row g-2 mb-2">
+                <div class="col-12 md:col-6">
+                  <label class="form-label text-light small">Nome da Sala</label>
+                  <input type="text" class="form-control search-input" id="editMatchRoom">
+                </div>
+                <div class="col-12 md:col-6">
+                  <label class="form-label text-light small">Personagem</label>
+                  <select class="form-select search-input" id="editMatchChar">
+                    <option value="">— Selecionar —</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label text-light small">Ordem de Eliminação (Vazio se Vencedor)</label>
+                  <input type="number" class="form-control search-input" id="editMatchElimOrder" min="1"
+                    placeholder="Ex: 1">
+                </div>
+                <div class="col-6">
+                  <label class="form-label text-light small">Eliminado por (Nome)</label>
+                  <input type="text" class="form-control search-input" id="editMatchKilledBy" placeholder="Opcional">
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6 md:col-3">
+                  <label class="form-label text-light small">Total Jogadores</label>
+                  <input type="number" class="form-control search-input" id="editMatchPlayers" min="1" max="30">
+                </div>
+                <div class="col-6 md:col-3">
+                  <label class="form-label text-light small">Pts Sobrevivência</label>
+                  <input type="number" class="form-control search-input" id="editMatchSurvival" min="0">
+                </div>
+                <div class="col-6 md:col-2">
+                  <label class="form-label text-light small">Kills</label>
+                  <input type="number" class="form-control search-input" id="editMatchKills" min="0">
+                </div>
+                <div class="col-6 md:col-4">
+                  <label class="form-label text-light small">Data</label>
+                  <input type="datetime-local" class="form-control search-input" id="editMatchDate">
+                </div>
+              </div>
+              <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="editMatchWinner">
+                <label class="form-check-label text-light fw-bold" for="editMatchWinner">🏆 Vencedor da Partida</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" id="editMatchConfirmBtn">💾 Salvar e Recalcular Stats</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Match Editor Modal (Aba Partidas) -->
+      <div class="modal" id="fullMatchModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title text-white mb-0">✏️ Editar Partida e Vincular Participantes</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="fullMatchId">
+              <div class="row g-2 mb-3 pb-3 border-bottom border-secondary">
+                <div class="col-12 md:col-5">
+                  <label class="form-label text-light small">Nome da Sala</label>
+                  <input type="text" class="form-control form-control-sm search-input" id="fullMatchRoom">
+                </div>
+                <div class="col-6 md:col-3">
+                  <label class="form-label text-light small">Total de Jogadores</label>
+                  <input type="number" class="form-control form-control-sm search-input" id="fullMatchTotalPlayers"
+                    min="1" max="30">
+                </div>
+                <div class="col-6 md:col-4">
+                  <label class="form-label text-light small">Concluída em</label>
+                  <input type="datetime-local" class="form-control form-control-sm search-input" id="fullMatchEndedAt">
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-white mb-0">👥 Participantes <small class="text-info">(Selecione a Conta Cadastrada para
+                    que a partida conte nas estatísticas e apareça no Perfil do jogador)</small></h6>
+                <button type="button" class="btn btn-sm btn-outline-success" onclick="addFullMatchParticipantRow()">➕
+                  Adicionar Participante</button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-dark table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th style="min-width:190px;">Conta Cadastrada (Perfil)</th>
+                      <th style="min-width:140px;">Nome na Sala</th>
+                      <th style="min-width:150px;">Personagem</th>
+                      <th style="width:75px;">Kills</th>
+                      <th style="width:85px;">Pts Sobr.</th>
+                      <th style="width:80px;">Ordem Elim.</th>
+                      <th style="width:70px;" class="text-center">🏆 Venc.</th>
+                      <th style="width:45px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="fullMatchParticipantsBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-primary" onclick="saveFullMatch()">💾 Salvar Partida e Atualizar
+                Estatísticas</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast container -->
+      <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <span id="toastIcon"></span>
+            <span id="toastMsg"></span>
+          </div>
+        </div>
+      </div>
+      <script type="module" src="admin.js"></script>
+</body>
+
+</html>

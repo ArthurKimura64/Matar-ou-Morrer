@@ -1,0 +1,152 @@
+/* ==========================================================================
+   CONTADORES DE QUADRADOS E NUMÉRICOS VINCULADOS AO TEMA (AdditionalCounters.css)
+   ========================================================================== */
+
+.squares-counter-wrapper {
+  padding: 4px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.squares-counter-wrapper:hover {
+  background-color: rgba(var(--kod-accent-rgb, 102, 204, 255), 0.08);
+}
+
+.squares-counter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 8px 0 2px 0;
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.square-counter {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--kod-border-strong, #495057);
+  background: var(--kod-bg-input, #121417);
+  color: var(--kod-text-main, #f4f4f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  font-size: 1.15em;
+  pointer-events: none;
+}
+
+.square-counter.hover-preview {
+  border-color: var(--kod-accent-color, #66ccff);
+  background: var(--kod-bg-card-inner, #25292e);
+}
+
+.square-counter.hover-preview::after {
+  content: '✕';
+  position: absolute;
+  opacity: 0.6;
+  color: var(--kod-accent-color, #66ccff);
+  font-size: 1.1em;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.square-counter.marked {
+  background: rgba(var(--kod-accent-rgb, 102, 204, 255), 0.22);
+  border-color: var(--kod-accent-color, #66ccff);
+  color: var(--kod-accent-color, #66ccff);
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(var(--kod-accent-rgb, 102, 204, 255), 0.3);
+}
+
+.square-counter.marked::after {
+  content: '';
+}
+
+.squares-card {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.squares-col {
+  position: relative;
+  padding-bottom: 36px;
+}
+
+.squares-reset-btn {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 6px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50% !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.squares-col:hover .squares-reset-btn,
+.squares-col:focus-within .squares-reset-btn {
+  opacity: 0.95;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .squares-reset-btn {
+    opacity: 0.85;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .square-counter { width: 26px; height: 26px; font-size: 1em; }
+  .squares-counter { max-width: 160px; }
+  .squares-reset-btn { font-size: 0.9em; bottom: 8px; width: 26px; height: 26px; }
+}
+
+/* ===== Contadores Numéricos (+ / -) ===== */
+.numeric-counter-card {
+  min-width: 160px;
+}
+
+.numeric-counter-card .fw-bold {
+  color: var(--kod-text-main, #f4f4f6);
+}
+
+.numeric-counter-card .input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.numeric-counter-card .btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.numeric-counter-card input.form-control {
+  width: 70px !important;
+  min-width: 56px;
+  background: var(--kod-bg-input, #121417) !important;
+  border: 1.5px solid var(--kod-border-strong, #495057) !important;
+  color: var(--kod-text-main, #ffffff) !important;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
