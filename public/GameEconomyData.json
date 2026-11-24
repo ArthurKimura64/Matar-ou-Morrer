@@ -2510,7 +2510,7 @@
     {
       "ID": "Omega",
       "Difficulty": 2,
-      "Generation": 3,
+      "Generation": 1,
       "DodgePoints": 8,
       "OportunityAttacks": 5,
       "ExplorationItens": 3,
@@ -2572,7 +2572,7 @@
     {
       "ID": "Mestre",
       "Difficulty": 2,
-      "Generation": 3,
+      "Generation": 1,
       "DodgePoints": 6,
       "OportunityAttacks": 8,
       "ExplorationItens": 2,
