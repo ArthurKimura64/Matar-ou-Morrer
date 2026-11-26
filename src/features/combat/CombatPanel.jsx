@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useCombatSync } from '../../hooks/useCombatSync';
 import { useToast } from '../../hooks/useToast';
 import CombatSetupView from './CombatSetupView';
@@ -18,7 +18,9 @@ const CombatPanel = ({
   onToggle,
   matchStatus,
   combatMode: combatModeProp,
-  onChangeCombatMode
+  onChangeCombatMode,
+  preselectedAttack = null,
+  onConsumePreselectedAttack = null
 }) => {
   const [localCombatMode, setLocalCombatMode] = useState('mode1');
   const combatMode = combatModeProp !== undefined ? combatModeProp : localCombatMode;
@@ -51,7 +53,7 @@ const CombatPanel = ({
   const [opportunityWeapon, setOpportunityWeapon] = useState(null);
   const [opportunityTarget, setOpportunityTarget] = useState(null);
 
-  const { showToast, ToastComponent } = useToast();
+  const { showToast } = useToast();
 
   // Toda a sincronização e ações de combate vêm de um único hook
   const {
@@ -73,6 +75,7 @@ const CombatPanel = ({
     customAttack,
     setCustomAttack,
     rolling,
+    rollingCombatId,
     diceAnimation,
     selectedWeapon,
     setSelectedWeapon,
@@ -81,12 +84,13 @@ const CombatPanel = ({
     currentDefenseDices,
     handleDefenseDicesChange,
     handleStartCombat,
-    handleAutoStartSingleAttack,
     handleConfirmDefenseWeapon,
     handleRollDice,
     handleAdjustDiceResult,
     handleAdvanceRound,
-    handleAdvanceGroupCombat,
+    handleAdvanceMultiRound1,
+    handleAdvanceSingleGroupDuel,
+    handleShowGroupResults,
     handleAddRound,
     handleRemoveRound,
     handleMoveRound,
@@ -108,30 +112,68 @@ const CombatPanel = ({
     showToast
   });
 
+  // Quando o jogador clica em "⚔️ Atacar" direto em uma carta da ficha
+  useEffect(() => {
+    if (!preselectedAttack?.id) return;
+
+    if (combat) {
+      showToast(
+        localization?.['UI.Combat.CombatAlreadyActive'] ||
+          '⚠️ Já existe um combate ativo na sala! Aguarde o término do combate atual.',
+        'warning'
+      );
+      onConsumePreselectedAttack?.();
+      return;
+    }
+
+    const foundWeapon = availableAttacks.find((w) => w.ID === preselectedAttack.id);
+    if (foundWeapon) {
+      setSelectedAttack({ ...foundWeapon });
+    }
+    onConsumePreselectedAttack?.();
+  }, [
+    preselectedAttack,
+    combat,
+    availableAttacks,
+    setSelectedAttack,
+    onConsumePreselectedAttack,
+    showToast,
+    localization
+  ]);
+
   const hasActiveCombat = Boolean(
     combat && (combat.status === 'pending' || combat.status === 'in_progress')
   );
+
+  const activeGroup = combatGroup.filter((gc) => gc.status !== 'cancelled');
+  const effectivePhase = !combat
+    ? null
+    : activeGroup.length > 1
+    ? activeGroup.every((gc) => gc.combat_phase === 'results')
+      ? 'results'
+      : activeGroup.some((gc) => gc.combat_phase === 'weapon_selection')
+      ? 'weapon_selection'
+      : 'rolling'
+    : combat.combat_phase;
 
   return (
     <>
       <button
         type="button"
         onClick={toggleSidebar}
-        className={`btn btn-danger sidebar-toggle-btn sidebar-toggle-combat border border-light ${isOpen ? 'is-open' : ''}`}
-        style={{
-          boxShadow: hasActiveCombat
-            ? '0 0 25px rgba(255, 193, 7, 0.9), 0 0 50px rgba(255, 193, 7, 0.6)'
-            : undefined,
-          animation: hasActiveCombat ? 'pulseCombatAlert 1s ease-in-out infinite' : 'none',
-          border: hasActiveCombat ? '3px solid #ffc107' : undefined
-        }}
+        className={`btn btn-danger sidebar-toggle-btn sidebar-toggle-combat border border-light ${isOpen ? 'is-open' : ''} ${hasActiveCombat ? 'has-active-combat' : ''}`}
         title={
           isOpen
             ? localization?.['UI.Combat.ClosePanel'] || 'Fechar painel de combate'
             : localization?.['UI.Combat.OpenPanel'] || 'Abrir painel de combate'
         }
       >
-        <span style={{ fontSize: '20px' }}>{isOpen ? '▶' : '⚔️'}</span>
+        <span className="sidebar-toggle-icon" aria-hidden="true">{isOpen ? '▶' : '⚔️'}</span>
+        <span className="sidebar-toggle-label">Combate</span>
+
+        {!isOpen && hasActiveCombat && (
+          <span className="badge bg-warning text-dark sidebar-toggle-badge">!</span>
+        )}
       </button>
 
       {isOpen && <div className="sidebar-backdrop" onClick={toggleSidebar} />}
@@ -187,7 +229,7 @@ const CombatPanel = ({
               onStartCombat={handleStartCombat}
               localization={localization}
             />
-          ) : combat.combat_phase === 'weapon_selection' ? (
+          ) : effectivePhase === 'weapon_selection' ? (
             <CombatWeaponSelection
               combat={combat}
               combatGroup={combatGroup}
@@ -200,13 +242,12 @@ const CombatPanel = ({
               customAttack={customAttack}
               onChangeCustomAttack={setCustomAttack}
               onConfirmDefenseWeapon={handleConfirmDefenseWeapon}
-              onAutoStartSingleAttack={handleAutoStartSingleAttack}
               swapTargets={swapTargets}
               onSwapDefender={handleSwapDefender}
               onEndCombat={handleEndCombat}
               localization={localization}
             />
-          ) : combat.combat_phase === 'rolling' ? (
+          ) : effectivePhase === 'rolling' ? (
             <CombatRollingView
               combat={combat}
               combatGroup={combatGroup}
@@ -225,11 +266,14 @@ const CombatPanel = ({
                 handleDefenseDicesChange(currentDefenseDices + delta)
               }
               rolling={rolling}
+              rollingCombatId={rollingCombatId}
               diceAnimation={diceAnimation}
               onRollDice={handleRollDice}
               onAdjustDiceResult={handleAdjustDiceResult}
               onAdvanceRound={handleAdvanceRound}
-              onAdvanceGroupCombat={handleAdvanceGroupCombat}
+              onAdvanceMultiRound1={handleAdvanceMultiRound1}
+              onAdvanceSingleGroupDuel={handleAdvanceSingleGroupDuel}
+              onShowGroupResults={handleShowGroupResults}
               onAddRound={handleAddRound}
               onRemoveRound={handleRemoveRound}
               onMoveRoundLeft={(idx) => handleMoveRound(idx, idx - 1)}
@@ -291,8 +335,6 @@ const CombatPanel = ({
         combatMode={combatMode}
         localization={localization}
       />
-
-      <ToastComponent />
     </>
   );
 };

@@ -1,5 +1,5 @@
-import React from 'react';
-import WeaponSelectorList from './WeaponSelectorList';
+import React from "react"
+import WeaponSelectorList from "./WeaponSelectorList"
 
 /**
  * ============================================================================
@@ -34,66 +34,80 @@ const CombatSetupView = ({
   localization = {}
 }) => {
   // 1. Verifica se a partida já foi iniciada
-  if (matchStatus !== 'in_progress') {
+  if (matchStatus !== "in_progress") {
     return (
       <div className="alert alert-info">
-        <p className="mb-0">
-          {localization?.['UI.Combat.StartMatchRequired'] || '🏁 Inicie uma partida antes de iniciar combates!'}
-        </p>
+        <p className="mb-0">{localization?.["UI.Combat.StartMatchRequired"] || "🏁 Inicie uma partida antes de iniciar combates!"}</p>
       </div>
-    );
+    )
   }
 
+  // 1B. Verifica se o jogador está vivo dentro da partida atual
+  if (currentPlayerData?.in_match !== true || currentPlayerData?.is_alive === false) {
+    return (
+      <div className="alert alert-secondary">
+        <p className="mb-0">
+          {currentPlayerData?.in_match !== true
+            ? "👁️ Você está assistindo a partida atual. Aguarde a próxima partida para iniciar combates."
+            : "💀 Você foi eliminado nesta partida e não pode iniciar combates."}
+        </p>
+      </div>
+    )
+  }
+  
   // 2. Verifica se o jogador já montou seu personagem
-  if (!currentPlayerData?.character?.selections) {
+  const hasCharacter = Boolean(
+    currentPlayerData?.character?.selections ||
+    currentPlayerData?.selections ||
+    currentPlayerData?.status === "ready" ||
+    currentPlayerData?.status === "playing"
+  )
+
+  if (!hasCharacter) {
     return (
       <div className="alert alert-warning">
         <p className="mb-0">
-          {localization?.['UI.Combat.CreateCharacterRequired'] || '⚠️ Você precisa criar um personagem antes de iniciar combates!'}
+          {localization?.["UI.Combat.CreateCharacterRequired"] || "⚠️ Você precisa criar um personagem antes de iniciar combates!"}
         </p>
       </div>
-    );
+    )
   }
 
-  const actor = currentPlayerData?.character?.actor;
-  const hasModes = Boolean(actor?.mode1 && actor?.mode2);
-  const mode1Name = localization?.[actor?.mode1] || actor?.mode1 || 'Modo 1';
-  const mode2Name = localization?.[actor?.mode2] || actor?.mode2 || 'Modo 2';
+  const actor = currentPlayerData?.character?.actor
+  const hasModes = Boolean(actor?.mode1 && actor?.mode2)
+  const mode1Name = localization?.[actor?.mode1] || actor?.mode1 || "Modo 1"
+  const mode2Name = localization?.[actor?.mode2] || actor?.mode2 || "Modo 2"
 
   return (
     <>
       {/* Alternância de Modo (apenas para personagens com 2 modos) */}
       {hasModes && (
         <div className="mode-switch-section mb-3">
-          <div className="mode-switch-title">
-            {localization?.['UI.Combat.CombatMode'] || '🔀 Modo de Combate'}
-          </div>
+          <div className="mode-switch-title">{localization?.["UI.Combat.CombatMode"] || "🔀 Modo de Combate"}</div>
           <div className="btn-group" role="group">
             <button
               type="button"
-              className={`btn ${combatMode === 'mode1' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => onChangeCombatMode('mode1')}
+              className={`btn ${combatMode === "mode1" ? "btn-primary" : "btn-outline-primary"}`}
+              onClick={() => onChangeCombatMode("mode1")}
             >
               {mode1Name}
             </button>
             <button
               type="button"
-              className={`btn ${combatMode === 'mode2' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => onChangeCombatMode('mode2')}
+              className={`btn ${combatMode === "mode2" ? "btn-primary" : "btn-outline-primary"}`}
+              onClick={() => onChangeCombatMode("mode2")}
             >
               {mode2Name}
             </button>
           </div>
-          <div className="mode-info-text">
-            {localization?.['UI.Combat.ModeDefinesHint'] || '✨ Define ataques/armas e estatísticas disponíveis'}
-          </div>
+          <div className="mode-info-text">{localization?.["UI.Combat.ModeDefinesHint"] || "✨ Define ataques/armas e estatísticas disponíveis"}</div>
         </div>
       )}
 
       {/* Passo 1: Selecionar Ataque/Arma */}
       <div className="mb-4">
         <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
-          {localization?.['UI.Combat.SelectAttackSection'] || '1️⃣ Selecione seu Ataque/Arma'}
+          {localization?.["UI.Combat.SelectAttackSection"] || "1️⃣ Selecione seu Ataque/Arma"}
         </h6>
         <WeaponSelectorList
           weapons={availableAttacks}
@@ -111,50 +125,50 @@ const CombatSetupView = ({
       {/* Passo 2: Selecionar Alvo(s) */}
       <div className="mb-4">
         <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
-          {localization?.['UI.Combat.SelectTargetSection'] || '2️⃣ Selecione o(s) Alvo(s)'}
+          {localization?.["UI.Combat.SelectTargetSection"] || "2️⃣ Selecione o(s) Alvo(s)"}
         </h6>
 
-        {availableTargets.length === 0 ? (
+        {availableTargets.length === 0 ?
           <div className="alert alert-info">
-            <small>{localization?.['UI.Combat.NoTargetsAvailable'] || 'Nenhum jogador disponível para combate no momento.'}</small>
+            <small>{localization?.["UI.Combat.NoTargetsAvailable"] || "Nenhum jogador disponível para combate no momento."}</small>
           </div>
-        ) : (
-          <div className="d-flex flex-column gap-2">
+        : <div className="d-flex flex-column gap-2">
             {availableTargets.map((player) => {
-              const isSelected = selectedDefenders.includes(player.id);
+              const isSelected = selectedDefenders.includes(player.id)
               const charName =
                 player.character_name ||
                 player.character?.actor?.Name ||
                 player.character?.actor?.ID ||
-                (localization?.['UI.Combat.CharacterFallback'] || 'Personagem');
+                localization?.["UI.Combat.CharacterFallback"] ||
+                "Personagem"
 
               return (
                 <div
                   key={player.id}
-                  className={`card border ${isSelected ? 'border-primary bg-primary bg-opacity-25' : 'border-secondary'} cursor-pointer`}
-                  style={{ cursor: 'pointer' }}
+                  className={`card border ${isSelected ? "border-primary bg-primary bg-opacity-25" : "border-secondary"} cursor-pointer`}
+                  style={{ cursor: "pointer" }}
                   onClick={() => onToggleDefender(player.id)}
                 >
                   <div className="card-body p-2 d-flex flex-row justify-content-between align-items-center text-start gap-2">
                     <div className="text-start">
                       <h6 className="text-white mb-0 small">{player.name}</h6>
-                      <small className="text-muted" style={{ fontSize: '11px' }}>
+                      <small className="text-muted" style={{ fontSize: "11px" }}>
                         {charName}
                       </small>
                     </div>
                     {isSelected && <span className="text-primary fw-bold flex-shrink-0">✓</span>}
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
-        )}
+        }
       </div>
 
       {/* Passo 3: Opções de Combate */}
       <div className="mb-4">
         <h6 className="text-white mb-3 border-bottom border-secondary pb-2">
-          {localization?.['UI.Combat.OptionsSection'] || '3️⃣ Opções de Combate'}
+          {localization?.["UI.Combat.OptionsSection"] || "3️⃣ Opções de Combate"}
         </h6>
 
         <div className="form-check form-switch mb-2">
@@ -166,14 +180,14 @@ const CombatSetupView = ({
             onChange={(e) => onChangeAllowCounterAttack(!e.target.checked)}
           />
           <label className="form-check-label text-white" htmlFor="singleAttack">
-            <small>{localization?.['UI.Combat.SingleAttack'] || 'Ataque único (não pode revidar)'}</small>
+            <small>{localization?.["UI.Combat.SingleAttack"] || "Ataque único (não pode revidar)"}</small>
           </label>
         </div>
 
         {!allowCounterAttack && (
           <div className="alert alert-warning mt-2 py-1 px-2 mb-2">
-            <small style={{ fontSize: '10px' }}>
-              {localization?.['UI.Combat.SingleAttackHint'] || '⚡ Apenas 1 rodada de ataque sem possibilidade de contra-ataque'}
+            <small style={{ fontSize: "10px" }}>
+              {localization?.["UI.Combat.SingleAttackHint"] || "⚡ Apenas 1 rodada de ataque sem possibilidade de contra-ataque"}
             </small>
           </div>
         )}
@@ -187,14 +201,14 @@ const CombatSetupView = ({
             onChange={(e) => onChangeAllowOpportunityAttacks(e.target.checked)}
           />
           <label className="form-check-label text-white" htmlFor="opportunityAttacks">
-            <small>{localization?.['UI.Combat.AllowOpportunity'] || 'Permitir ataques de oportunidade'}</small>
+            <small>{localization?.["UI.Combat.AllowOpportunity"] || "Permitir ataques de oportunidade"}</small>
           </label>
         </div>
 
         {allowOpportunityAttacks && (
           <div className="alert alert-info mt-2 py-1 px-2">
-            <small style={{ fontSize: '10px' }}>
-              {localization?.['UI.Combat.AllowOpportunityHint'] || '👁️ Espectadores podem dar 1 ataque de oportunidade'}
+            <small style={{ fontSize: "10px" }}>
+              {localization?.["UI.Combat.AllowOpportunityHint"] || "👁️ Espectadores podem dar 1 ataque de oportunidade"}
             </small>
           </div>
         )}
@@ -207,35 +221,37 @@ const CombatSetupView = ({
         onClick={onStartCombat}
         disabled={loading || !selectedAttack || selectedDefenders.length === 0}
       >
-        {loading ? (
+        {loading ?
           <>
             <span className="spinner-border spinner-border-sm me-2" />
-            {localization?.['UI.Combat.Starting'] || 'Iniciando...'}
+            {localization?.["UI.Combat.Starting"] || "Iniciando..."}
           </>
-        ) : (
-          <>
-            {localization?.['UI.Combat.StartCombat'] || '⚔️ Iniciar Combate'}
+        : <>
+            {localization?.["UI.Combat.StartCombat"] || "⚔️ Iniciar Combate"}
             {selectedDefenders.length > 0 && ` (${selectedDefenders.length})`}
           </>
-        )}
+        }
       </button>
 
       {/* Resumo da Seleção */}
       {selectedAttack && selectedDefenders.length > 0 && (
         <div className="alert alert-dark mt-3 py-2 px-2">
-          <small className="text-white" style={{ fontSize: '11px' }}>
-            <strong>{localization?.['UI.Combat.Summary'] || 'Resumo:'}</strong><br />
-            {localization?.['UI.Combat.SummaryAttack'] || '🎯 Ataque:'} {selectedAttack.Name}<br />
-            {localization?.['UI.Combat.SummaryTargets'] || '👥 Alvos:'} {selectedDefenders.length}<br />
-            {localization?.['UI.Combat.SummaryType'] || '⚡ Tipo:'}{' '}
-            {allowCounterAttack
-              ? (localization?.['UI.Combat.FullCombat'] || 'Combate Completo')
-              : (localization?.['UI.Combat.SingleAttackType'] || 'Ataque Único')}
+          <small className="text-white" style={{ fontSize: "11px" }}>
+            <strong>{localization?.["UI.Combat.Summary"] || "Resumo:"}</strong>
+            <br />
+            {localization?.["UI.Combat.SummaryAttack"] || "🎯 Ataque:"} {selectedAttack.Name}
+            <br />
+            {localization?.["UI.Combat.SummaryTargets"] || "👥 Alvos:"} {selectedDefenders.length}
+            <br />
+            {localization?.["UI.Combat.SummaryType"] || "⚡ Tipo:"}{" "}
+            {allowCounterAttack ?
+              localization?.["UI.Combat.FullCombat"] || "Combate Completo"
+            : localization?.["UI.Combat.SingleAttackType"] || "Ataque Único"}
           </small>
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
-export default CombatSetupView;
+export default CombatSetupView

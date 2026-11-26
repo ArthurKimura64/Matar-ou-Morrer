@@ -5,6 +5,8 @@
 .squares-counter-wrapper {
   padding: 4px;
   border-radius: 8px;
+  border: none;
+  background: transparent;
   transition: background-color 0.15s ease;
 }
 
@@ -32,7 +34,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
   position: relative;
   font-size: 1.15em;
   pointer-events: none;
@@ -44,7 +49,7 @@
 }
 
 .square-counter.hover-preview::after {
-  content: '✕';
+  content: "✕";
   position: absolute;
   opacity: 0.6;
   color: var(--kod-accent-color, #66ccff);
@@ -64,7 +69,7 @@
 }
 
 .square-counter.marked::after {
-  content: '';
+  content: "";
 }
 
 .squares-card {
@@ -77,43 +82,64 @@
   padding-bottom: 36px;
 }
 
-.squares-reset-btn {
+.squares-actions {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 6px;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border-radius: 50% !important;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
+  bottom: 4px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
   z-index: 40;
 }
 
-.squares-col:hover .squares-reset-btn,
-.squares-col:focus-within .squares-reset-btn {
-  opacity: 0.95;
-  pointer-events: auto;
+.squares-col:hover .squares-actions,
+.squares-col:focus-within .squares-actions {
+  opacity: 1;
+}
+
+.squares-action-btn {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 7px !important;
+  border-radius: 999px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
-  .squares-reset-btn {
-    opacity: 0.85;
-    pointer-events: auto;
+  .squares-col {
+    padding-bottom: 48px;
+  }
+  .squares-actions {
+    opacity: 0.95;
+    gap: 10px;
+    bottom: 6px;
+  }
+  .squares-action-btn {
+    min-width: 40px;
+    height: 36px;
+    padding: 0 10px !important;
+    font-size: 0.85rem !important;
   }
 }
 
 @media (max-width: 576px) {
-  .square-counter { width: 26px; height: 26px; font-size: 1em; }
-  .squares-counter { max-width: 160px; }
-  .squares-reset-btn { font-size: 0.9em; bottom: 8px; width: 26px; height: 26px; }
+  .square-counter {
+    width: 30px;
+    height: 30px;
+    font-size: 1.05em;
+  }
+  .squares-counter {
+    max-width: 204px;
+    gap: 8px;
+  }
 }
-
 /* ===== Contadores Numéricos (+ / -) ===== */
 .numeric-counter-card {
   min-width: 160px;

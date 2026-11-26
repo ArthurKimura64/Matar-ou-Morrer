@@ -8,9 +8,9 @@
 
     <title>Kill or Die - Matar ou Morrer</title>
 
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="icon" href="/KillOrDieLogo.png" />
+    <link rel="apple-touch-icon" href="/KillOrDieLogo.png" />
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- Bootstrap 6 CSS -->
     <link
@@ -19,7 +19,7 @@
       crossorigin="anonymous"
     />
     <script>
-      (function() {
+      (function () {
         var savedTheme = localStorage.getItem('kod_active_theme') || 'classic';
         document.documentElement.setAttribute('data-kod-theme', savedTheme);
       })();
@@ -28,6 +28,8 @@
   <body>
     <noscript>Você precisa habilitar o JavaScript para rodar este jogo.</noscript>
     <div id="root"></div>
+
+    <script type="module" src="/src/index.jsx"></script>
 
     <!-- Bootstrap 6 JS Bundle (ESM) -->
     <script

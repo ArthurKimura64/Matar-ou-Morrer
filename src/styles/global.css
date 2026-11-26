@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ESTILOS PRINCIPAIS VINCULADOS AO SISTEMA DE TEMAS (index.css)
+   ESTILOS PRINCIPAIS VINCULADOS AO SISTEMA DE TEMAS (global.css)
    ========================================================================== */
 
 body {
@@ -15,7 +15,6 @@ code {
 
 .position-fixed {
   position: fixed !important;
-  backdrop-filter: blur(14px);
 }
 
 .position-absolute {
@@ -623,8 +622,17 @@ button[title*="Ocultar"],
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pulseCombatAlertMobile {
+  0%, 100% {
+    box-shadow: inset 0 3px 0 #fbbf24, 0 -4px 16px rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: inset 0 3px 0 #fde047, 0 -6px 26px rgba(245, 158, 11, 0.9);
+  }
+}
+
 /* ==========================================================================
-   SISTEMA UNIFICADO DE GAVETAS LATERAIS
+   SISTEMA UNIFICADO DE GAVETAS LATERAIS (DESKTOP) E BARRA INFERIOR (MOBILE)
    ========================================================================== */
 
 :root {
@@ -645,7 +653,6 @@ button[title*="Ocultar"],
   top: 0 !important;
   right: calc(-1 * var(--sidebar-width)) !important;
   width: var(--sidebar-width) !important;
-  height: 100vh !important;
   height: 100dvh !important;
   z-index: var(--z-sidebar-panel) !important;
   background-color: var(--kod-bg-surface) !important;
@@ -690,9 +697,35 @@ button[title*="Ocultar"],
   filter: brightness(1.15);
 }
 
+.sidebar-toggle-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sidebar-toggle-label {
+  display: none;
+}
+
+.sidebar-toggle-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px !important;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px !important;
+  border-radius: 999px !important;
+}
+
 .sidebar-toggle-table   { top: calc(50% - 90px) !important; }
 .sidebar-toggle-combat  { top: 50% !important; }
 .sidebar-toggle-players { top: calc(50% + 90px) !important; }
+
+.sidebar-toggle-combat.has-active-combat {
+  box-shadow: 0 0 25px rgba(255, 193, 7, 0.9), 0 0 50px rgba(255, 193, 7, 0.6) !important;
+  animation: pulseCombatAlert 1s ease-in-out infinite;
+  border: 3px solid #ffc107 !important;
+}
 
 .sidebar-toggle-btn.is-open,
 .sidebar-toggle-btn[data-sidebar-open="true"] {
@@ -713,15 +746,91 @@ body:has(.game-sidebar.is-open) .sidebar-toggle-btn:not(.is-open) {
   animation: fadeIn 0.2s ease-out;
 }
 
+/* ==========================================================================
+   MOBILE (<= 768px): BARRA INFERIOR FIXA (BOTTOM NAVIGATION BAR)
+   ========================================================================== */
+
 @media (max-width: 768px) {
   :root {
-    --sidebar-width: calc(100vw - 38px);
+    --sidebar-width: min(380px, 92vw);
   }
+
+  /* Garante que o final da ficha não fique escondido atrás da barra inferior */
+  .room-view-container {
+    padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
   .sidebar-toggle-btn {
-    width: 38px !important;
-    height: 58px !important;
+    top: auto !important;
+    bottom: 0 !important;
+    right: auto !important;
+    width: 33.3333vw !important;
+    height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)) 4px !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    z-index: 1035 !important;
+    background: var(--kod-bg-surface) !important;
+    color: var(--kod-text-main) !important;
+    border: none !important;
+    border-top: 2px solid var(--kod-border-subtle) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.55) !important;
   }
-  .sidebar-toggle-table   { top: calc(50% - 68px) !important; }
-  .sidebar-toggle-combat  { top: 50% !important; }
-  .sidebar-toggle-players { top: calc(50% + 68px) !important; }
+
+  .sidebar-toggle-btn:hover,
+  .sidebar-toggle-btn:active {
+    transform: none !important;
+    filter: brightness(1.12);
+  }
+
+  /* Posiciona os 3 botões lado a lado ocupando 100% do rodapé */
+  .sidebar-toggle-table {
+    left: 0 !important;
+    border-top-color: rgb(var(--kod-success-rgb)) !important;
+  }
+
+  .sidebar-toggle-combat {
+    left: 33.3333vw !important;
+    border-left: 1px solid var(--kod-border-subtle) !important;
+    border-right: 1px solid var(--kod-border-subtle) !important;
+    border-top-color: rgb(var(--kod-danger-rgb)) !important;
+  }
+
+  .sidebar-toggle-players {
+    left: 66.6666vw !important;
+    width: 33.3334vw !important;
+    border-top-color: var(--kod-accent-color) !important;
+  }
+
+  /* Mantém a barra parada embaixo do backdrop quando uma gaveta abre */
+  .sidebar-toggle-btn.is-open,
+  .sidebar-toggle-btn[data-sidebar-open="true"] {
+    right: auto !important;
+  }
+
+  .sidebar-toggle-icon {
+    font-size: 19px;
+  }
+
+  .sidebar-toggle-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
+  }
+
+  .sidebar-toggle-badge {
+    top: 5px;
+    right: calc(50% - 24px);
+  }
+
+  /* Destaque de combate ativo na barra inferior sem deslocar o botão */
+  .sidebar-toggle-combat.has-active-combat {
+    background: linear-gradient(180deg, rgba(220, 38, 38, 0.35) 0%, var(--kod-bg-surface) 100%) !important;
+    border-top: 3px solid #fbbf24 !important;
+    animation: pulseCombatAlertMobile 1s ease-in-out infinite !important;
+  }
 }

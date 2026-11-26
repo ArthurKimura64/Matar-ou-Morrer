@@ -126,6 +126,18 @@ const GlobalStatsTab = ({ data, onInspectPlayer }) => {
               </div>
             </article>
           )}
+
+          {highlights.deadliest && (
+            <article className="col-12 md:col-3">
+              <div className="card bg-dark border-secondary h-100 p-3">
+                <small className="text-muted mb-1">🔥 Mais Letal</small>
+                <div className="fw-bold text-white fs-5">{highlights.deadliest.character_name}</div>
+                <small className="text-danger">
+                  {highlights.deadliest.total_eliminations} abates ({highlights.deadliest.avg_eliminations}/part.)
+                </small>
+              </div>
+            </article>
+          )}
         </section>
       )}
 

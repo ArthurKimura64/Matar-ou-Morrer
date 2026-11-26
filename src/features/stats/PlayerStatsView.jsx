@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import authService from '../../services/authService';
+import { statsService } from '../../services/statsService';
+import { validatePlayerName } from '../../utils/validation';
 
 const formatDate = (isoString) => {
   if (!isoString) return '—';
@@ -13,44 +16,154 @@ const formatDate = (isoString) => {
   }
 };
 
-const PlayerStatsView = ({ data, isOwnProfile = false, onInspectPlayer, onClose }) => {
+const PlayerStatsView = ({
+  data,
+  user = null,
+  isOwnProfile = false,
+  onInspectPlayer,
+  onProfileUpdated,
+  onClose
+}) => {
   const profile = data?.profile || {};
   const summary = data?.summary || {};
   const characters = Array.isArray(data?.characters) ? data.characters : [];
   const rivalries = data?.rivalries || {};
   const recentMatches = Array.isArray(data?.recent_matches) ? data.recent_matches : [];
 
+  const [editingName, setEditingName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState(profile.display_name || '');
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState('');
+
+  useEffect(() => {
+    setNewDisplayName(profile.display_name || '');
+    setEditingName(false);
+    setNameError('');
+  }, [profile.user_id, profile.display_name]);
+
+  const handleSaveName = async (e) => {
+    e?.preventDefault();
+    if (!isOwnProfile || !user?.id || savingName) return;
+
+    setNameError('');
+    const check = validatePlayerName(newDisplayName, 50);
+    if (!check.valid) {
+      setNameError(check.error);
+      return;
+    }
+
+    if (check.sanitized === profile.display_name) {
+      setEditingName(false);
+      return;
+    }
+
+    setSavingName(true);
+    try {
+      const updated = await authService.updateProfile(user.id, {
+        display_name: check.sanitized
+      });
+      statsService.clearCache();
+      setEditingName(false);
+      onProfileUpdated?.(updated);
+    } catch (err) {
+      setNameError('Erro ao atualizar nome. Tente novamente.');
+      console.error('Erro ao atualizar nome:', err);
+    } finally {
+      setSavingName(false);
+    }
+  };
+
   return (
     <div className="d-flex flex-column gap-3">
-      {/* Cabeçalho do Jogador Inspecionado */}
+      {/* Cabeçalho do Jogador Inspecionado / Meu Perfil */}
       <header className="card bg-dark border-info">
         <div className="card-body d-flex flex-row justify-content-between align-items-center flex-wrap gap-2">
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-3 flex-grow-1">
             {profile.avatar_url ? (
               <img
                 src={profile.avatar_url}
                 alt=""
-                width="48"
-                height="48"
-                className="rounded-circle border border-info"
+                width="52"
+                height="52"
+                className="rounded-circle border border-info flex-shrink-0"
               />
             ) : (
               <div
-                className="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
-                style={{ width: '48px', height: '48px', fontSize: '1.4rem' }}
+                className="rounded-circle bg-secondary d-flex align-items-center justify-content-center flex-shrink-0"
+                style={{ width: '52px', height: '52px', fontSize: '1.5rem' }}
                 aria-hidden="true"
               >
                 👤
               </div>
             )}
-            <div>
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <h4 className="text-white fw-bold mb-0">{profile.display_name}</h4>
-                {isOwnProfile && <span className="badge bg-primary">Você</span>}
-                {summary.rank_position && (
-                  <span className="badge bg-warning text-dark">🏆 #{summary.rank_position} no Ranking</span>
-                )}
-              </div>
+
+            <div className="flex-grow-1">
+              {isOwnProfile && editingName ? (
+                <form onSubmit={handleSaveName} className="d-flex flex-column gap-1">
+                  <div className="d-flex gap-2 align-items-center flex-wrap">
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      style={{ maxWidth: '240px' }}
+                      value={newDisplayName}
+                      onChange={(e) => {
+                        setNewDisplayName(e.target.value);
+                        if (nameError) setNameError('');
+                      }}
+                      maxLength={50}
+                      autoFocus
+                      disabled={savingName}
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-success btn-sm"
+                      disabled={savingName}
+                    >
+                      {savingName ? '⏳' : '✓ Salvar'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      disabled={savingName}
+                      onClick={() => {
+                        setNewDisplayName(profile.display_name || '');
+                        setNameError('');
+                        setEditingName(false);
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {nameError && <small className="text-danger">{nameError}</small>}
+                </form>
+              ) : (
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  <h4 className="text-white fw-bold mb-0">{profile.display_name}</h4>
+                  {isOwnProfile && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm py-0 px-2"
+                        title="Editar nome de exibição"
+                        onClick={() => setEditingName(true)}
+                      >
+                        ✏️
+                      </button>
+                      <span className="badge bg-primary">Você</span>
+                    </>
+                  )}
+                  {summary.rank_position && (
+                    <span className="badge bg-warning text-dark">
+                      🏆 #{summary.rank_position} no Ranking
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {isOwnProfile && user?.email && (
+                <small className="text-secondary d-block">{user.email}</small>
+              )}
+
               <small className="text-muted">
                 Conta criada em {formatDate(profile.created_at)}
                 {summary.favorite_character ? ` • Favorito: ${summary.favorite_character}` : ''}

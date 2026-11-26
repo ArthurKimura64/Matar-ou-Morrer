@@ -1,0 +1,10 @@
+{
+  "name": "Kill or Die - Matar ou Morrer",
+  "short_name": "Kill or Die",
+  "description": "Jogo de tabuleiro digital",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000"
+}

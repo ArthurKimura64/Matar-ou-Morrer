@@ -1,6 +1,8 @@
 import { supabase } from '../config/supabaseClient';
 import { v4 as uuidv4 } from "uuid"
 import { validatePlayerName, validateRoomName, validateRoomId, validateJsonData } from "../utils/validation"
+import authService from "./authService"
+import { statsService } from "./statsService"
 
 // Rate limiter simples para prevenir spam de requests
 class RateLimiter {
@@ -8,12 +10,6 @@ class RateLimiter {
     this.actions = new Map()
   }
 
-  /**
-   * Verifica se a ação pode ser executada.
-   * @param {string} key - Identificador da ação (ex: 'createRoom', 'joinRoom')
-   * @param {number} cooldownMs - Tempo mínimo entre chamadas em milissegundos
-   * @returns {{ allowed: boolean, retryAfterMs?: number }}
-   */
   check(key, cooldownMs) {
     const now = Date.now()
     const lastCall = this.actions.get(key) || 0
@@ -67,21 +63,52 @@ class QueryCache {
   }
 }
 
-// Cache com TTL de 3 segundos — invalidado por subscriptions em tempo real
 const queryCache = new QueryCache(3000)
 
 // Debounced writer para operações frequentes de escrita (contadores, seleções, etc.)
-// Garante que o ÚLTIMO valor sempre seja enviado ao banco, mesmo com cliques rápidos.
+// Mantém o token mais recente em memória para uso síncrono no fechamento da aba (pagehide)
+let cachedAccessToken = null
+const REST_SUPABASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || import.meta.env.REACT_APP_SUPABASE_URL || ""
+const REST_SUPABASE_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.REACT_APP_SUPABASE_ANON_KEY || ""
+
+if (typeof window !== "undefined") {
+  supabase.auth.getSession().then(({ data }) => {
+    cachedAccessToken = data?.session?.access_token || null
+  })
+  supabase.auth.onAuthStateChange((_event, session) => {
+    cachedAccessToken = session?.access_token || null
+  })
+}
+
+function sendKeepaliveRest(url, method, body, extraHeaders = {}) {
+  if (!REST_SUPABASE_URL || !REST_SUPABASE_KEY || !cachedAccessToken) return false
+  try {
+    fetch(url, {
+      method,
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+        apikey: REST_SUPABASE_KEY,
+        Authorization: `Bearer ${cachedAccessToken}`,
+        ...extraHeaders
+      },
+      body: JSON.stringify(body)
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+// Debounced writer para operações frequentes de escrita (contadores, seleções, etc.)
 class DebouncedWriter {
   constructor() {
-    this.pending = new Map() // key -> { value, writeFn, timer }
+    this.pending = new Map()
   }
 
-  /**
-   * Agenda uma escrita debounced. O último valor será enviado após delayMs.
-   * Se chamado novamente antes do timer disparar, o timer é resetado com o novo valor.
-   */
-  schedule(key, value, writeFn, delayMs = 300) {
+  schedule(key, value, writeFn, delayMs = 300, keepaliveFn = null) {
     const existing = this.pending.get(key)
     if (existing?.timer) {
       clearTimeout(existing.timer)
@@ -98,27 +125,9 @@ class DebouncedWriter {
       }
     }, delayMs)
 
-    this.pending.set(key, { value, writeFn, timer })
+    this.pending.set(key, { value, writeFn, keepaliveFn, timer })
   }
 
-  /**
-   * Força envio imediato de um write pendente por chave.
-   */
-  async flush(key) {
-    const entry = this.pending.get(key)
-    if (!entry) return
-    clearTimeout(entry.timer)
-    this.pending.delete(key)
-    try {
-      await entry.writeFn(entry.value)
-    } catch (error) {
-      console.error(`Erro no flush [${key}]:`, error)
-    }
-  }
-
-  /**
-   * Força envio de todos os writes pendentes de um jogador específico.
-   */
   async flushPlayer(playerId) {
     const playerEntries = [...this.pending.entries()].filter(([key]) => key.includes(playerId))
     await Promise.allSettled(
@@ -130,9 +139,6 @@ class DebouncedWriter {
     )
   }
 
-  /**
-   * Força envio de TODOS os writes pendentes.
-   */
   async flushAll() {
     const entries = [...this.pending.entries()]
     for (const [, entry] of entries) {
@@ -141,27 +147,61 @@ class DebouncedWriter {
     this.pending.clear()
     await Promise.allSettled(entries.map(([, entry]) => entry.writeFn(entry.value)))
   }
+
+  flushAllKeepalive() {
+    const entries = [...this.pending.entries()]
+    for (const [, entry] of entries) {
+      clearTimeout(entry.timer)
+    }
+    this.pending.clear()
+    entries.forEach(([, entry]) => {
+      const sent = typeof entry.keepaliveFn === "function" ? entry.keepaliveFn(entry.value) : false
+      if (!sent) {
+        entry.writeFn(entry.value).catch(() => {})
+      }
+    })
+  }
 }
 
 const debouncedWriter = new DebouncedWriter()
 
-// Garante que qualquer contador/anotação pendente seja enviado se o jogador fechar ou recarregar a aba
 if (typeof window !== "undefined") {
-  const flushOnExit = () => {
-    debouncedWriter.flushAll()
-  }
-  window.addEventListener("pagehide", flushOnExit)
-  window.addEventListener("beforeunload", flushOnExit)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      debouncedWriter.flushAllKeepalive()
+    }
+  })
+  window.addEventListener("pagehide", () => {
+    debouncedWriter.flushAllKeepalive()
+  })
 }
 
-// Helper para retry em operações de escrita (com refresh automático de JWT)
-async function withRetry(operation, maxRetries = 2) {
+// Impede que uma requisição ociosa fique presa infinitamente
+function withTimeout(promise, timeoutMs = 10000) {
+  let timerId
+  const timeoutPromise = new Promise((_, reject) => {
+    timerId = setTimeout(() => {
+      const err = new Error("A conexão demorou demais para responder. Tente novamente.")
+      err.isTimeout = true
+      reject(err)
+    }, timeoutMs)
+  })
+
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timerId))
+}
+
+// Helper para retry em operações de escrita (com timeout e refresh automático de JWT)
+async function withRetry(operation, maxRetries = 2, timeoutMs = 10000) {
   let lastError
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await operation()
+      return await withTimeout(operation(), timeoutMs)
     } catch (error) {
       lastError = error
+      // Erros de regra de negócio das RPCs (RAISE EXCEPTION = P0001) não devem repetir
+      if (error?.code === "P0001") {
+        throw error
+      }
       const msg = error?.message || ""
       if (msg.includes("JWT") || error?.code === "PGRST301") {
         try {
@@ -171,7 +211,7 @@ async function withRetry(operation, maxRetries = 2) {
         }
       }
       if (attempt < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)))
+        await new Promise((resolve) => setTimeout(resolve, 450 * (attempt + 1)))
       }
     }
   }
@@ -179,15 +219,6 @@ async function withRetry(operation, maxRetries = 2) {
 }
 
 export class RoomService {
-  // Gerar ID de sala com 6 dígitos
-  static generateRoomId() {
-    return Math.floor(100000 + Math.random() * 900000).toString()
-  }
-
-  /**
-   * Método único para atualizar qualquer campo do jogador (com retry automático).
-   * Se `debounced: true`, agrupa cliques rápidos (ideal para vida e contadores).
-   */
   static updatePlayerFields(playerId, fields, { debounced = false, debounceKey = null, delayMs = 450 } = {}) {
     if (!playerId || !fields) {
       return Promise.resolve({ success: false, error: "playerId e fields são obrigatórios" })
@@ -227,41 +258,19 @@ export class RoomService {
 
     if (debounced) {
       const key = debounceKey || `fields_${playerId}`
-      debouncedWriter.schedule(key, fields, executeUpdate, delayMs)
+      const keepaliveFn = (payload) =>
+        sendKeepaliveRest(
+          `${REST_SUPABASE_URL}/rest/v1/players?id=eq.${encodeURIComponent(playerId)}`,
+          "PATCH",
+          { ...payload, last_activity: new Date().toISOString() }
+        )
+      debouncedWriter.schedule(key, fields, executeUpdate, delayMs, keepaliveFn)
       return Promise.resolve({ success: true, pending: true })
     }
 
     return executeUpdate(fields)
   }
 
-  /**
-   * Registra no histórico permanente do jogador (`app_state.ever_exposed_cards`)
-   * qual carta foi exposta na mesa (usado pelo Copiador).
-   */
-  static async recordExposedCardHistory(playerId, actorId, itemId) {
-    if (!playerId || !actorId || !itemId) return { success: false }
-    try {
-      const { data } = await supabase
-        .from("players")
-        .select("app_state")
-        .eq("id", playerId)
-        .single()
-
-      const currentAppState = data?.app_state || {}
-      const ever = { ...(currentAppState.ever_exposed_cards || {}) }
-      const list = new Set([...(ever[actorId] || []), itemId])
-      ever[actorId] = Array.from(list)
-
-      return await this.updatePlayerFields(playerId, {
-        app_state: { ...currentAppState, ever_exposed_cards: ever }
-      })
-    } catch (error) {
-      console.error("Falha ao registrar histórico de exposição:", error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Obter um jogador pelo ID
   static async getPlayer(playerId) {
     try {
       const { data, error } = await supabase.from("players").select("*").eq("id", playerId).single()
@@ -274,104 +283,33 @@ export class RoomService {
     }
   }
 
-  // Criar uma nova sala
-  static async createRoom(roomName, masterName) {
-    try {
-      const rl = rateLimiter.check("createRoom", 5000)
-      if (!rl.allowed) {
-        return { success: false, error: `Aguarde ${Math.ceil(rl.retryAfterMs / 1000)}s antes de criar outra sala.` }
-      }
-
-      const roomNameResult = validateRoomName(roomName)
-      if (!roomNameResult.valid) {
-        return { success: false, error: roomNameResult.error }
-      }
-      const masterNameResult = validatePlayerName(masterName)
-      if (!masterNameResult.valid) {
-        return { success: false, error: masterNameResult.error }
-      }
-
-      const roomId = this.generateRoomId()
-
-      const { data, error } = await supabase
-        .from("rooms")
-        .insert([
-          {
-            id: roomId,
-            name: roomNameResult.sanitized,
-            master_name: masterNameResult.sanitized,
-            is_active: true,
-            created_at: new Date().toISOString()
-          }
-        ])
-        .select()
-        .single()
-
-      if (error) {
-        if (error.code === "23505") {
-          const retryId = this.generateRoomId()
-          const { data: retryData, error: retryError } = await supabase
-            .from("rooms")
-            .insert([
-              {
-                id: retryId,
-                name: roomNameResult.sanitized,
-                master_name: masterNameResult.sanitized,
-                is_active: true,
-                created_at: new Date().toISOString()
-              }
-            ])
-            .select()
-            .single()
-          if (retryError) throw retryError
-          return { success: true, room: retryData }
-        }
-        throw error
-      }
-      return { success: true, room: data }
-    } catch (error) {
-      console.error("Erro ao criar sala:", error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Definir o player mestre da sala (armazenar master_player_id)
-  static async setRoomMasterPlayerId(roomId, masterPlayerId) {
-    try {
-      const { data, error } = await supabase
-        .from("rooms")
-        .update({ master_player_id: masterPlayerId })
-        .eq("id", roomId)
-        .select()
-        .single()
-
-      if (error) throw error
-      return { success: true, room: data }
-    } catch (error) {
-      console.error("Erro ao definir master_player_id na sala:", error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Obter dados de uma sala específica
   static async getRoomById(roomId) {
     try {
-      const { data, error } = await supabase
-        .from("rooms")
-        .select("*")
-        .eq("id", roomId)
-        .eq("is_active", true)
-        .single()
+      const { data } = await withRetry(
+        async () => {
+          const result = await supabase
+            .from("rooms")
+            .select("*")
+            .eq("id", roomId)
+            .eq("is_active", true)
+            .maybeSingle()
+          if (result.error) throw result.error
+          return result
+        },
+        1,
+        8000
+      )
 
-      if (error) throw error
+      if (!data) {
+        return { success: false, notFound: true, error: "Sala não encontrada ou inativa" }
+      }
       return { success: true, room: data }
     } catch (error) {
       console.error("Erro ao buscar sala:", error)
-      return { success: false, error: error.message }
+      return { success: false, notFound: false, error: error.message }
     }
   }
 
-  // Entrar em uma sala
   static async joinRoom(roomId, playerName, character = null, forceNewPlayer = false, userId = null) {
     try {
       const rl = rateLimiter.check("joinRoom", 3000)
@@ -387,57 +325,29 @@ export class RoomService {
       if (!roomIdResult.valid) {
         return { success: false, error: roomIdResult.error }
       }
-      if (character) {
-        const jsonResult = validateJsonData(character)
-        if (!jsonResult.valid) {
-          return { success: false, error: jsonResult.error }
-        }
+
+      const { data, error } = await supabase.rpc("join_room", {
+        p_room_id: roomIdResult.sanitized,
+        p_player_name: nameResult.sanitized
+      })
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || "Erro ao entrar na sala")
       }
 
-      if (!forceNewPlayer) {
-        const existingResult = await this.findExistingPlayer(roomIdResult.sanitized, nameResult.sanitized)
-
-        if (existingResult.success && existingResult.player) {
-          return await this.reconnectPlayer(existingResult.player.id)
-        }
+      queryCache.clear(`players_${roomIdResult.sanitized}`)
+      return {
+        success: true,
+        room: data.room,
+        player: data.player,
+        reconnected: Boolean(data.reconnected)
       }
-
-      let authenticatedUserId = userId
-      try {
-        const {
-          data: { user }
-        } = await supabase.auth.getUser()
-        if (user) authenticatedUserId = user.id
-      } catch (e) {
-        // Se não tem auth, continuar sem user_id
-      }
-
-      const playerId = uuidv4()
-
-      const playerData = {
-        id: playerId,
-        room_id: roomIdResult.sanitized,
-        name: nameResult.sanitized,
-        character: character,
-        status: "selecting",
-        character_name: null,
-        is_connected: true,
-        joined_at: new Date().toISOString(),
-        last_activity: new Date().toISOString()
-      }
-      if (authenticatedUserId) playerData.user_id = authenticatedUserId
-
-      const { data, error } = await supabase.from("players").insert([playerData]).select().single()
-
-      if (error) throw error
-      return { success: true, player: data }
     } catch (error) {
       console.error("Erro ao entrar na sala:", error)
       return { success: false, error: error.message }
     }
   }
 
-  // Obter jogadores de uma sala com cache (cache invalidado por subscriptions)
   static async getRoomPlayers(roomId, forceRefresh = false) {
     try {
       const cacheKey = `players_${roomId}`
@@ -453,7 +363,7 @@ export class RoomService {
         .from("players")
         .select("*")
         .eq("room_id", roomId)
-        .eq("is_connected", true)
+        .or("is_connected.eq.true,in_match.eq.true")
         .order("joined_at", { ascending: true })
 
       if (error) throw error
@@ -467,33 +377,23 @@ export class RoomService {
     }
   }
 
-  // Atualizar status do jogador e limpar cache
-  static async updatePlayerStatus(playerId, status, characterName = null) {
-    const updateData = { status }
-    if (characterName) {
-      updateData.character_name = characterName
-    }
-    if (status === "selecting") {
-      updateData.exposed_cards = []
-    }
-    return this.updatePlayerFields(playerId, updateData)
-  }
-
-  // Atualizar personagem do jogador (mantém compatibilidade)
-  static async updatePlayerCharacter(playerId, character, characterName = null) {
-    const updateData = {
-      character: character,
-      status: "ready"
-    }
-    if (characterName) {
-      updateData.character_name = characterName
-    }
-    return this.updatePlayerFields(playerId, updateData)
-  }
-
-  // Sair da sala
-  static async leaveRoom(playerId) {
+  static async leaveRoom(playerId, { preserveForMatch = false } = {}) {
     try {
+      if (preserveForMatch) {
+        // Mantém o jogador no banco como desconectado até o fim da partida
+        // para não perder abates nem pontos no histórico
+        const { error } = await supabase
+          .from("players")
+          .update({
+            is_connected: false,
+            last_activity: new Date().toISOString()
+          })
+          .eq("id", playerId)
+
+        if (error) throw error
+        return { success: true }
+      }
+
       const { error } = await supabase.from("players").delete().eq("id", playerId)
 
       if (error) throw error
@@ -504,7 +404,6 @@ export class RoomService {
     }
   }
 
-  // Função utilitária para testar conectividade
   static async testConnection() {
     try {
       const start = Date.now()
@@ -523,75 +422,122 @@ export class RoomService {
     }
   }
 
-  // Atualizar contadores do jogador (debounced)
-  static updatePlayerCounters(playerId, counters) {
-    return this.updatePlayerFields(
-      playerId,
-      { counters },
-      { debounced: true, debounceKey: `counters_${playerId}`, delayMs: 300 }
-    )
-  }
-
-  // Atualizar características do jogador
-  static async updatePlayerCharacteristics(playerId, characteristics) {
-    return this.updatePlayerFields(playerId, { characteristics })
-  }
-
-  // Atualizar itens usados do jogador
-  static async updatePlayerUsedItems(playerId, usedItems) {
-    return this.updatePlayerFields(playerId, { used_items: usedItems })
-  }
-
-  // Atualizar itens desbloqueados do jogador
-  static async updatePlayerUnlockedItems(playerId, unlockedItems) {
-    return this.updatePlayerFields(playerId, { unlocked_items: unlockedItems })
-  }
-
-  // Atualizar contadores adicionais do jogador (debounced)
-  static updatePlayerAdditionalCounters(playerId, additionalCounters) {
-    return this.updatePlayerFields(
-      playerId,
-      { additional_counters: additionalCounters },
-      { debounced: true, debounceKey: `additionalCounters_${playerId}`, delayMs: 300 }
-    )
-  }
-
-  // Atualizar seleções do jogador (debounced)
-  static updatePlayerSelections(playerId, selections) {
-    return this.updatePlayerFields(
-      playerId,
-      { selections },
-      { debounced: true, debounceKey: `selections_${playerId}`, delayMs: 500 }
-    )
-  }
-
-  // Função para executar limpeza de dados antigos
-  static async cleanupOldData() {
+  static async createRoomWithHost(roomName, masterName) {
     try {
-      const { error: playersError } = await supabase.rpc("cleanup_inactive_players")
-      if (playersError) console.error("Erro na limpeza de jogadores:", playersError)
+      const rl = rateLimiter.check("createRoom", 5000)
+      if (!rl.allowed) {
+        return { success: false, error: `Aguarde ${Math.ceil(rl.retryAfterMs / 1000)}s antes de criar outra sala.` }
+      }
 
-      const { error: roomsError } = await supabase.rpc("cleanup_inactive_rooms")
-      if (roomsError) console.error("Erro na limpeza de salas:", roomsError)
+      const roomNameResult = validateRoomName(roomName)
+      if (!roomNameResult.valid) return { success: false, error: roomNameResult.error }
 
-      return { success: true }
+      const masterNameResult = validatePlayerName(masterName)
+      if (!masterNameResult.valid) return { success: false, error: masterNameResult.error }
+
+      const { data, error } = await supabase.rpc("create_room_with_host", {
+        p_room_name: roomNameResult.sanitized,
+        p_master_name: masterNameResult.sanitized
+      })
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || "Erro ao criar sala")
+      }
+
+      return { success: true, room: data.room, player: data.player }
     } catch (error) {
-      console.error("Erro geral na limpeza:", error)
+      console.error("Erro ao criar sala:", error)
       return { success: false, error: error.message }
     }
   }
 
-  // Função para atualizar atividade do jogador
-  static async updatePlayerActivity(playerId) {
-    return this.updatePlayerFields(playerId, { is_connected: true })
+  static async getPrivateState(playerId) {
+    if (!playerId) return { success: false, data: null }
+    try {
+      const { data, error } = await supabase
+        .from("player_private_state")
+        .select("*")
+        .eq("player_id", playerId)
+        .maybeSingle()
+
+      if (error) throw error
+      return { success: true, data: data || null }
+    } catch (error) {
+      console.error("Erro ao carregar estado privado:", error)
+      return { success: false, data: null, error: error.message }
+    }
   }
 
-  // Verificar se jogador já existe na sala
-  static async findExistingPlayer(roomId, playerName) {
+  static savePrivateState(playerId, fields, { userId = null, debounced = false, debounceKey = null, delayMs = 450 } = {}) {
+    if (!playerId || !fields) {
+      return Promise.resolve({ success: false, error: "playerId e fields são obrigatórios" })
+    }
+
+    const validation = validateJsonData(fields)
+    if (!validation.valid) {
+      console.warn("Payload privado rejeitado:", validation.error)
+      return Promise.resolve({ success: false, error: validation.error })
+    }
+
+    const executeUpsert = async (payload) => {
+      try {
+        let ownerId = userId
+        if (!ownerId) {
+          const { data: { session } } = await supabase.auth.getSession()
+          ownerId = session?.user?.id || null
+        }
+        if (!ownerId) {
+          return { success: false, error: "Usuário não autenticado" }
+        }
+
+        const { data } = await withRetry(async () => {
+          const result = await supabase
+            .from("player_private_state")
+            .upsert(
+              {
+                player_id: playerId,
+                user_id: ownerId,
+                ...payload,
+                updated_at: new Date().toISOString()
+              },
+              { onConflict: "player_id" }
+            )
+            .select()
+            .single()
+          if (result.error) throw result.error
+          return result
+        })
+
+        return { success: true, data }
+      } catch (error) {
+        console.error("Erro ao salvar estado privado:", error)
+        return { success: false, error: error.message }
+      }
+    }
+
+    if (debounced) {
+      const key = debounceKey || `private_${playerId}`
+      const keepaliveFn = (payload) =>
+        userId
+          ? sendKeepaliveRest(
+              `${REST_SUPABASE_URL}/rest/v1/player_private_state?on_conflict=player_id`,
+              "POST",
+              { player_id: playerId, user_id: userId, ...payload, updated_at: new Date().toISOString() },
+              { Prefer: "resolution=merge-duplicates" }
+            )
+          : false
+      debouncedWriter.schedule(key, fields, executeUpsert, delayMs, keepaliveFn)
+      return Promise.resolve({ success: true, pending: true })
+    }
+    return executeUpsert(fields)
+  }
+
+  static async findExistingPlayer(roomId, playerName = "") {
     try {
       const {
-        data: { user }
-      } = await supabase.auth.getUser()
+        data: { session }
+      } = await supabase.auth.getSession()
+      const user = session?.user || (await supabase.auth.getUser()).data?.user || null
 
       if (user) {
         const { data: byUser, error: userError } = await supabase
@@ -601,12 +547,16 @@ export class RoomService {
           .eq("user_id", user.id)
           .order("joined_at", { ascending: false })
           .limit(1)
-          .single()
+          .maybeSingle()
 
+        if (userError) throw userError
         if (byUser) {
           return { success: true, player: byUser }
         }
-        if (userError && userError.code !== "PGRST116") throw userError
+      }
+
+      if (!playerName) {
+        return { success: true, player: null }
       }
 
       const { data, error } = await supabase
@@ -616,24 +566,21 @@ export class RoomService {
         .eq("name", playerName)
         .order("joined_at", { ascending: false })
         .limit(1)
-        .single()
+        .maybeSingle()
 
-      if (error && error.code !== "PGRST116") {
-        throw error
-      }
+      if (error) throw error
 
       if (data && data.user_id && user && data.user_id !== user.id) {
         return { success: true, player: null }
       }
 
-      return { success: true, player: data }
+      return { success: true, player: data || null }
     } catch (error) {
       console.error("Erro ao verificar jogador existente:", error)
       return { success: false, error: error.message }
     }
   }
 
-  // Reconectar jogador existente
   static async reconnectPlayer(playerId) {
     try {
       const {
@@ -655,40 +602,14 @@ export class RoomService {
     }
   }
 
-  // Atualizar estado da aplicação preservando ever_exposed_cards do banco
-  static async updatePlayerAppState(playerId, appState) {
-    const validation = validateJsonData(appState)
-    if (!validation.valid) {
-      console.warn("Payload JSONB rejeitado por tamanho inválido:", validation.error)
-      return Promise.resolve({ success: false, error: validation.error })
-    }
-    try {
-      const { data: currentRow } = await supabase
-        .from("players")
-        .select("app_state")
-        .eq("id", playerId)
-        .maybeSingle()
-
-      const mergedAppState = {
-        ...(currentRow?.app_state?.ever_exposed_cards
-          ? { ever_exposed_cards: currentRow.app_state.ever_exposed_cards }
-          : {}),
-        ...appState
-      }
-
-      return await this.updatePlayerFields(playerId, { app_state: mergedAppState })
-    } catch (error) {
-      console.error("Erro ao atualizar app state:", error)
-      return { success: false, error: error.message }
-    }
+  static updatePlayerAppState(playerId, appState, userId = null) {
+    return this.savePrivateState(
+      playerId,
+      { app_state: appState },
+      { userId, debounced: true, debounceKey: `private_app_${playerId}`, delayMs: 400 }
+    )
   }
 
-  // Atualizar dados de defesa do jogador
-  static async updatePlayerDefenseDice(playerId, defenseDiceCount) {
-    return this.updatePlayerFields(playerId, { defense_dice_count: defenseDiceCount })
-  }
-
-  // Expulsar jogador da sala (apenas para o mestre da sala)
   static async kickPlayer(roomId, playerId, masterPlayerId) {
     try {
       if (playerId === masterPlayerId) {
@@ -709,19 +630,20 @@ export class RoomService {
     }
   }
 
-  // Atualizar cartas expostas do jogador
-  static async updatePlayerExposedCards(playerId, exposedCards) {
-    return this.updatePlayerFields(playerId, { exposed_cards: exposedCards })
-  }
-
   // ================================
-  // SISTEMA DE PARTIDAS (MATCH)
+  // SISTEMA DE PARTIDAS (MATCH) — COM TIMEOUT + RETRY
   // ================================
 
   static async startMatch(roomId) {
     try {
-      const { error } = await supabase.rpc("start_match", { p_room_id: roomId })
-      if (error) throw error
+      await withRetry(
+        async () => {
+          const { error } = await supabase.rpc("start_match", { p_room_id: roomId })
+          if (error) throw error
+        },
+        1,
+        10000
+      )
       queryCache.clear(`players_${roomId}`)
       return { success: true }
     } catch (error) {
@@ -732,12 +654,17 @@ export class RoomService {
 
   static async declareElimination(playerId, killerPlayerId = null) {
     try {
-      const { error } = await supabase.rpc("declare_elimination", {
-        p_player_id: playerId,
-        p_killer_player_id: killerPlayerId
-      })
-
-      if (error) throw error
+      await withRetry(
+        async () => {
+          const { error } = await supabase.rpc("declare_elimination", {
+            p_player_id: playerId,
+            p_killer_player_id: killerPlayerId
+          })
+          if (error) throw error
+        },
+        1,
+        10000
+      )
 
       const { data: player } = await supabase.from("players").select("room_id").eq("id", playerId).single()
       if (player) {
@@ -751,11 +678,43 @@ export class RoomService {
     }
   }
 
+  static async masterEliminatePlayer(roomId, playerId, killerPlayerId = null) {
+    try {
+      const data = await withRetry(
+        async () => {
+          const res = await supabase.rpc("master_eliminate_player", {
+            p_room_id: roomId,
+            p_player_id: playerId,
+            p_killer_player_id: killerPlayerId
+          })
+          if (res.error) throw res.error
+          return res.data
+        },
+        1,
+        10000
+      )
+      queryCache.clear(`players_${roomId}`)
+      return { success: true, data }
+    } catch (error) {
+      console.error("Erro ao eliminar jogador pelo anfitrião:", error)
+      return { success: false, error: error.message }
+    }
+  }
+
   static async declareVictory(roomId) {
     try {
-      const { data, error } = await supabase.rpc("end_match", { p_room_id: roomId })
-      if (error) throw error
+      const data = await withRetry(
+        async () => {
+          const res = await supabase.rpc("end_match", { p_room_id: roomId })
+          if (res.error) throw res.error
+          return res.data
+        },
+        1,
+        10000
+      )
       queryCache.clear(`players_${roomId}`)
+      authService.clearLeaderboardCache()
+      statsService.clearCache()
       return { success: true, data }
     } catch (error) {
       console.error("Erro ao declarar vitória:", error)
@@ -763,35 +722,51 @@ export class RoomService {
     }
   }
 
-  // Resetar jogador para seleção preservando character_name (se eliminado) e ever_exposed_cards (Copiador)
+  static async cancelMatch(roomId) {
+    try {
+      await withRetry(
+        async () => {
+          const { error } = await supabase.rpc("master_cancel_match", { p_room_id: roomId })
+          if (error) throw error
+        },
+        1,
+        10000
+      )
+      queryCache.clear(`players_${roomId}`)
+      return { success: true }
+    } catch (error) {
+      console.error("Erro ao cancelar partida:", error)
+      return { success: false, error: error.message }
+    }
+  }
+
   static async resetPlayerForLobby(playerId) {
     try {
       await debouncedWriter.flushPlayer(playerId)
 
-      const { data: current } = await supabase
-        .from("players")
-        .select("elimination_order, character_name, app_state")
-        .eq("id", playerId)
-        .single()
-
-      const preserveCharName = current?.elimination_order != null ? current.character_name : null
-      const preservedEverExposed = current?.app_state?.ever_exposed_cards || null
-      const nextAppState = preservedEverExposed
-        ? { ever_exposed_cards: preservedEverExposed }
-        : {}
-
-      return await this.updatePlayerFields(playerId, {
-        character: null,
-        character_name: preserveCharName,
-        status: "selecting",
-        counters: null,
-        characteristics: null,
-        additional_counters: null,
+      await this.savePrivateState(playerId, {
+        actor_id: null,
+        selections: {},
         used_items: [],
         unlocked_items: [],
-        selections: null,
+        notes: {},
+        app_state: {}
+      })
+
+      return await this.updatePlayerFields(playerId, {
+        actor_id: null,
+        character: null,
+        character_name: null,
+        defense_dice_count: null,
+        status: "selecting",
+        counters: {},
+        characteristics: {},
+        additional_counters: {},
+        used_items: [],
+        unlocked_items: [],
+        selections: {},
         exposed_cards: [],
-        app_state: nextAppState
+        app_state: {}
       })
     } catch (error) {
       console.error("Erro ao resetar jogador para lobby:", error)

@@ -42,7 +42,8 @@ export function parseAttackDices(rawValue, fallback = 0) {
  */
 export function rollSixSidedDice(count) {
   const safeCount = Math.max(0, parseInt(count, 10) || 0);
-  return Array.from({ length: safeCount }, () => 1 + Math.floor(Math.random() * 6));
+  return Array.from({ length: safeCount }, () => 1 + Math.floor(Math.random() * 6))
+    .sort((a, b) => b - a);
 }
 
 /**
@@ -130,7 +131,7 @@ export function calculateCombatRounds(attackerLoadTime, defenderLoadTime) {
  */
 export function extractPlayerWeapons(playerData, combatMode = 'mode1', localization = {}) {
   const weaponsList = [];
-  const selections = playerData?.character?.selections;
+  const selections = playerData?.character?.selections || playerData?.selections;
   const actor = playerData?.character?.actor;
   const hasModes = Boolean(actor?.mode1 && actor?.mode2);
 

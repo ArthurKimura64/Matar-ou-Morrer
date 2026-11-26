@@ -14,7 +14,8 @@ import {
  * ============================================================================
  * HOOK DE SINCRONIZAÇÃO E AÇÕES DE COMBATE (useCombatSync.js)
  * ============================================================================
- * Gerencia o estado local, os canais Realtime e delega todas as operações de
+ * Gerencia o estado local, os canais Realtime (com polling inteligente de
+ * backup: 30s conectado / 5s desconectado) e delega todas as operações de
  * banco para o CombatService.
  * ============================================================================
  */
@@ -41,15 +42,17 @@ export const useCombatSync = ({
   const [loading, setLoading] = useState(false);
 
   const [customAttack, setCustomAttack] = useState({
-    Name: localization?.['UI.Combat.CustomAttack'] || 'Ataque Personalizado',
-    Dices: '1',
-    LoadTime: '3',
-    Damage: '0',
-    Effects: '',
-    category: localization?.['UI.Combat.CustomCategory'] || 'Customizado'
-  });
+  ID: '__custom__',
+  Name: localization?.['UI.Combat.CustomAttack'] || 'Ataque Personalizado',
+  Dices: '1',
+  LoadTime: '3',
+  Damage: '0',
+  Effects: '',
+  category: localization?.['UI.Combat.CustomCategory'] || 'Customizado'
+});
 
   const [rolling, setRolling] = useState(false);
+  const [rollingCombatId, setRollingCombatId] = useState(null);
   const [diceAnimation, setDiceAnimation] = useState([]);
   const [selectedWeapon, setSelectedWeapon] = useState(null);
   const [tempDefenseDices, setTempDefenseDices] = useState(null);
@@ -65,6 +68,8 @@ export const useCombatSync = ({
   onOpenPanelRef.current = onOpenPanel;
 
   const bcastChannelRef = useRef(null);
+  const isRealtimeSubscribedRef = useRef(false);
+  const lastSyncTimeRef = useRef(0);
   const combatLoadSeqRef = useRef(0);
   const lastCombatHashRef = useRef('');
   const defenseDiceDebounceRef = useRef(null);
@@ -95,16 +100,26 @@ export const useCombatSync = ({
     [currentPlayerData, combatMode, localization]
   );
 
+  const isTargetReady = (p) =>
+  p.status === 'ready' || p.status === 'playing' || Boolean(p.actor_id || p.character?.selections);
+
   const availableTargets = useMemo(
     () =>
       players.filter(
         (p) =>
           p.id !== currentPlayer?.id &&
-          p.character?.selections &&
+          p.is_connected !== false &&
+          p.in_match === true &&
+          isTargetReady(p) &&
           p.status !== 'offline' &&
           p.is_alive !== false
       ),
     [players, currentPlayer?.id]
+  );
+
+  const myDefenderCombat = useMemo(
+    () => combatGroup.find((c) => c.status !== 'cancelled' && c.defender_id === currentPlayer?.id) || null,
+    [combatGroup, currentPlayer?.id]
   );
 
   const swapTargets = useMemo(() => {
@@ -114,7 +129,9 @@ export const useCombatSync = ({
         p.id !== currentPlayer?.id &&
         p.id !== combat?.defender_id &&
         !groupDefenderIds.includes(p.id) &&
-        p.character?.selections &&
+        p.is_connected !== false &&
+        p.in_match === true &&
+        isTargetReady(p) &&
         p.status !== 'offline' &&
         p.is_alive !== false
     );
@@ -125,6 +142,7 @@ export const useCombatSync = ({
     if (!playerId || !roomId) return;
 
     const reqSeq = ++combatLoadSeqRef.current;
+    lastSyncTimeRef.current = Date.now();
 
     try {
       const { success, data } = await CombatService.getActiveCombats(roomId);
@@ -145,8 +163,11 @@ export const useCombatSync = ({
           const selectedActive = activeCombatIdRef.current
             ? groupCombats.find((c) => c.id === activeCombatIdRef.current)
             : null;
+          const myAtkRolling = groupCombats.find(
+            (c) => c.attacker_id === playerId && c.combat_phase === 'rolling'
+          );
           const myAtk = groupCombats.find((c) => c.attacker_id === playerId);
-          setCombat(myDef || selectedActive || myAtk || groupCombats[0]);
+          setCombat(myDef || selectedActive || myAtkRolling || myAtk || groupCombats[0]);
         } else {
           setCombatGroup([firstCombat]);
           setCombat(firstCombat);
@@ -161,7 +182,7 @@ export const useCombatSync = ({
     }
   }, [roomId]);
 
-  // Canais Realtime (Broadcast + Postgres Changes) + Polling 3s
+  // Canais Realtime (Broadcast + Postgres Changes) + Polling Inteligente (30s ativo / 5s fallback)
   useEffect(() => {
     if (!roomId || !currentPlayer?.id) return;
 
@@ -174,11 +195,57 @@ export const useCombatSync = ({
 
     const setupChannels = () => {
       if (!isMounted) return;
+      isRealtimeSubscribedRef.current = false;
       if (bcastChannel) supabase.removeChannel(bcastChannel);
       if (pgChannel) supabase.removeChannel(pgChannel);
 
       bcastChannel = supabase
-        .channel(`kod_combat_bcast_${roomId}`, { config: { broadcast: { self: false } } }) .on('broadcast', { event: 'combat_sync' }, ({ payload }) => { if (!isMounted) return; const playerId = currentPlayerRef.current?.id;  if (payload?.action === 'ended') { combatLoadSeqRef.current++; lastCombatHashRef.current = '[]'; setCombat(null); setCombatGroup([]); setActiveCombatId(null); return; }  if ( payload?.action === 'started' && Array.isArray(payload.defenderIds) && payload.defenderIds.includes(playerId) && !isOpenRef.current ) { onOpenPanelRef.current?.(); }  loadCombat(); }) .subscribe();  bcastChannelRef.current = bcastChannel;  const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`; pgChannel = supabase .channel(`kod_combat_pg_${roomId}_${uniqueSuffix}`) .on( 'postgres_changes', { event: '*', schema: 'public', table: 'combat_notifications', filter: `room_id=eq.${roomId}` },
+        .channel(`kod_combat_bcast_${roomId}`, { config: { broadcast: { self: false } } })
+        .on('broadcast', { event: 'combat_sync' }, ({ payload }) => {
+          if (!isMounted) return;
+          const playerId = currentPlayerRef.current?.id;
+
+          if (payload?.action === 'ended') {
+            combatLoadSeqRef.current++;
+            lastCombatHashRef.current = '[]';
+            setCombat(null);
+            setCombatGroup([]);
+            setActiveCombatId(null);
+            return;
+          }
+
+          if (payload?.action === 'select_duel' && payload.combatId) {
+            activeCombatIdRef.current = payload.combatId;
+            setActiveCombatId(payload.combatId);
+            return;
+          }
+
+          if (payload?.activeDuelId) {
+            activeCombatIdRef.current = payload.activeDuelId;
+            setActiveCombatId(payload.activeDuelId);
+          }
+
+          if (
+            payload?.action === 'started' &&
+            Array.isArray(payload.defenderIds) &&
+            payload.defenderIds.includes(playerId) &&
+            !isOpenRef.current
+          ) {
+            onOpenPanelRef.current?.();
+          }
+
+          loadCombat();
+        })
+        .subscribe();
+
+      bcastChannelRef.current = bcastChannel;
+
+      const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      pgChannel = supabase
+        .channel(`kod_combat_pg_${roomId}_${uniqueSuffix}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'combat_notifications', filter: `room_id=eq.${roomId}` },
           (payload) => {
             if (!isMounted) return;
             const combatData = payload.new || payload.old;
@@ -199,8 +266,10 @@ export const useCombatSync = ({
         .subscribe((status) => {
           if (!isMounted) return;
           if (status === 'SUBSCRIBED') {
+            isRealtimeSubscribedRef.current = true;
             loadCombat();
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            isRealtimeSubscribedRef.current = false;
             clearTimeout(reconnectTimer);
             reconnectTimer = setTimeout(() => {
               if (isMounted) setupChannels();
@@ -210,14 +279,20 @@ export const useCombatSync = ({
     };
 
     const initTimer = setTimeout(setupChannels, 80);
+
+    // Polling inteligente: 30s com Realtime conectado, ou 5s se a conexão cair
     const pollInterval = setInterval(() => {
-      if (isMounted && document.visibilityState === 'visible') {
+      if (!isMounted || document.visibilityState !== 'visible') return;
+      const elapsed = Date.now() - lastSyncTimeRef.current;
+      const targetInterval = isRealtimeSubscribedRef.current ? 30000 : 5000;
+      if (elapsed >= targetInterval) {
         loadCombat();
       }
-    }, 3000);
+    }, 5000);
 
     return () => {
       isMounted = false;
+      isRealtimeSubscribedRef.current = false;
       clearTimeout(initTimer);
       clearTimeout(reconnectTimer);
       clearInterval(pollInterval);
@@ -231,49 +306,45 @@ export const useCombatSync = ({
     setSelectedWeapon(null);
   }, [combat?.id]);
 
-  // Atualiza a arma já selecionada caso o jogador troque entre Modo 1 e Modo 2
-  useEffect(() => {
-    setSelectedAttack((prev) => (prev?.modes ? applyModeToWeapon(prev, combatMode) : prev));
-    setSelectedWeapon((prev) => (prev?.modes ? applyModeToWeapon(prev, combatMode) : prev));
-    setTempWeapon((prev) => (prev?.modes ? applyModeToWeapon(prev, combatMode) : prev));
-  }, [combatMode]);
-
+  // Inicializa dados de defesa temporários quando o combate entra em andamento
   // Inicializa dados de defesa temporários quando o combate entra em andamento
   useEffect(() => {
-    if (combat && combat.status === 'in_progress' && tempDefenseDices === null) {
-      const isAttacker = combat.attacker_id === currentPlayer?.id;
-      const isDefender = combat.defender_id === currentPlayer?.id;
+    const activeRow = myDefenderCombat || combat;
+    if (activeRow && activeRow.status === 'in_progress' && tempDefenseDices === null) {
+      const isAttacker = activeRow.attacker_id === currentPlayer?.id;
+      const isDefender = activeRow.defender_id === currentPlayer?.id;
 
       let initialValue = null;
-      if (isAttacker && combat.attacker_defense_dices != null) {
-        initialValue = combat.attacker_defense_dices;
-      } else if (isDefender && combat.defender_defense_dices != null) {
-        initialValue = combat.defender_defense_dices;
+      if (isAttacker && activeRow.attacker_defense_dices != null) {
+        initialValue = activeRow.attacker_defense_dices;
+      } else if (isDefender && activeRow.defender_defense_dices != null) {
+        initialValue = activeRow.defender_defense_dices;
       }
 
       if (initialValue === null) {
         initialValue = parseDefenseDices(currentPlayerData?.character?.actor?.NumberOfDefenseDices, 0);
       }
       setTempDefenseDices(parseDefenseDices(initialValue, 0));
-    } else if (!combat || combat.status === 'completed' || combat.status === 'cancelled') {
+    } else if (!activeRow || activeRow.status === 'completed' || activeRow.status === 'cancelled') {
       setTempDefenseDices(null);
       setTempWeapon(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [combat?.id, combat?.status, currentPlayer?.id, currentPlayerData]);
+  }, [combat?.id, combat?.status, myDefenderCombat?.id, myDefenderCombat?.status, currentPlayer?.id, currentPlayerData]);
 
   const getCurrentDefenseDices = useCallback(() => {
     if (tempDefenseDices !== null) return parseDefenseDices(tempDefenseDices, 0);
 
-    const isAttacker = combat?.attacker_id === currentPlayer?.id;
-    const isDefender = combat?.defender_id === currentPlayer?.id;
+    const activeRow = myDefenderCombat || combat;
+    const isAttacker = activeRow?.attacker_id === currentPlayer?.id;
+    const isDefender = activeRow?.defender_id === currentPlayer?.id;
 
-    if (combat && combat.status === 'in_progress') {
-      if (isAttacker && combat.attacker_defense_dices != null) {
-        return parseDefenseDices(combat.attacker_defense_dices, 0);
+    if (activeRow && activeRow.status === 'in_progress') {
+      if (isAttacker && activeRow.attacker_defense_dices != null) {
+        return parseDefenseDices(activeRow.attacker_defense_dices, 0);
       }
-      if (isDefender && combat.defender_defense_dices != null) {
-        return parseDefenseDices(combat.defender_defense_dices, 0);
+      if (isDefender && activeRow.defender_defense_dices != null) {
+        return parseDefenseDices(activeRow.defender_defense_dices, 0);
       }
     }
 
@@ -282,7 +353,7 @@ export const useCombatSync = ({
       return parseDefenseDices(actor.modes[combatMode].NumberOfDefenseDices, 0);
     }
     return parseDefenseDices(actor?.NumberOfDefenseDices, 0);
-  }, [tempDefenseDices, combat, currentPlayer?.id, currentPlayerData, combatMode]);
+  }, [tempDefenseDices, myDefenderCombat, combat, currentPlayer?.id, currentPlayerData, combatMode]);
 
   const handleDefenseDicesChange = useCallback(
     (newValue) => {
@@ -290,22 +361,30 @@ export const useCombatSync = ({
       setTempDefenseDices(safeVal);
 
       if (defenseDiceDebounceRef.current) clearTimeout(defenseDiceDebounceRef.current);
-      const targetCombatId = combat?.id;
+
       const isAttacker = combat?.attacker_id === currentPlayer?.id;
-      const isDefender = combat?.defender_id === currentPlayer?.id;
+      const isDefender = Boolean(myDefenderCombat || combat?.defender_id === currentPlayer?.id);
+      if (!isAttacker && !isDefender) return;
+
+      const targetCombatId = isDefender ? (myDefenderCombat?.id || combat?.id) : combat?.id;
+      const targetGroupId = combat?.combat_group_id;
 
       defenseDiceDebounceRef.current = setTimeout(async () => {
         if (!targetCombatId) return;
-        const fields = {};
-        if (isAttacker) fields.attacker_defense_dices = safeVal;
-        else if (isDefender) fields.defender_defense_dices = safeVal;
+        const fields = isAttacker
+          ? { attacker_defense_dices: safeVal }
+          : { defender_defense_dices: safeVal };
 
-        await CombatService.updateCombat(targetCombatId, fields);
+        if (isAttacker && targetGroupId) {
+          await CombatService.updateCombatGroup(targetGroupId, fields);
+        } else {
+          await CombatService.updateCombat(targetCombatId, fields);
+        }
         await loadCombat();
         broadcastCombatPing({ action: 'refresh' });
       }, 200);
     },
-    [combat?.id, combat?.attacker_id, combat?.defender_id, currentPlayer?.id, loadCombat, broadcastCombatPing]
+    [combat?.id, combat?.combat_group_id, combat?.attacker_id, combat?.defender_id, myDefenderCombat, currentPlayer?.id, loadCombat, broadcastCombatPing]
   );
 
   // ==================== AÇÕES DO COMBATE ====================
@@ -356,32 +435,11 @@ export const useCombatSync = ({
     broadcastCombatPing
   ]);
 
-  const handleAutoStartSingleAttack = useCallback(async () => {
-    if (!combat?.id) return;
-    await CombatService.updateCombat(combat.id, {
-      defender_weapon: null,
-      total_rounds: 1,
-      current_round: 1,
-      combat_phase: 'rolling',
-      round_data: [
-        {
-          round: 1,
-          who_acts: 'attacker',
-          action_type: 'attack',
-          attacker: { rolled: false, roll: [], total: 0 },
-          defender: { rolled: false, roll: [], total: 0 },
-          completed: false
-        }
-      ],
-      status: 'in_progress'
-    });
-    await loadCombat();
-    broadcastCombatPing({ action: 'refresh' });
-  }, [combat?.id, loadCombat, broadcastCombatPing]);
-
   const handleConfirmDefenseWeapon = useCallback(
     async (skipRetaliation = false) => {
-      if (!combat) return;
+      const targetCombat = myDefenderCombat || combat;
+      if (!targetCombat) return;
+
       let totalRounds;
       let rounds;
 
@@ -393,7 +451,7 @@ export const useCombatSync = ({
         ];
       } else {
         if (!selectedWeapon) return;
-        const result = calculateCombatRounds(combat.attack_data?.LoadTime, selectedWeapon.LoadTime);
+        const result = calculateCombatRounds(targetCombat.attack_data?.LoadTime, selectedWeapon.LoadTime);
         totalRounds = result.totalRounds;
         rounds = result.rounds;
       }
@@ -405,29 +463,28 @@ export const useCombatSync = ({
         completed: false
       }));
 
-      if (combat.attacker_shared_roll?.rolled && roundData.length > 0 && roundData[0].action_type === 'attack') {
-        roundData[0].attacker = { ...combat.attacker_shared_roll };
-      }
-
-      await CombatService.updateCombat(combat.id, {
-        defender_weapon: skipRetaliation ? null : selectedWeapon,
-        total_rounds: totalRounds,
-        current_round: 1,
-        combat_phase: 'rolling',
-        round_data: roundData,
-        status: 'in_progress'
+      const res = await CombatService.confirmDefenseWeapon({
+        combatId: targetCombat.id,
+        defenderWeapon: skipRetaliation ? null : selectedWeapon,
+        roundData,
+        totalRounds
       });
+
+      if (!res.success) {
+        showToast(res.error || 'Erro ao confirmar arma de defesa', 'error');
+        return;
+      }
 
       setSelectedWeapon(null);
       await loadCombat();
       broadcastCombatPing({ action: 'refresh' });
     },
-    [combat, selectedWeapon, loadCombat, broadcastCombatPing]
+    [myDefenderCombat, combat, selectedWeapon, showToast, loadCombat, broadcastCombatPing]
   );
 
   const handleRollDice = useCallback(
     async (targetCombat = null) => {
-      const activeCombat = targetCombat && targetCombat.id ? targetCombat : combat;
+      const activeCombat = targetCombat && targetCombat.id ? targetCombat : (myDefenderCombat || combat);
       if (!activeCombat || rolling) return;
 
       const isAttacker = currentPlayer.id === activeCombat.attacker_id;
@@ -460,6 +517,7 @@ export const useCombatSync = ({
 
       if (diceCount > 0) {
         setRolling(true);
+        setRollingCombatId(activeCombat.id);
         for (let frame = 0; frame < 6; frame++) {
           setDiceAnimation(rollSixSidedDice(diceCount));
           await new Promise((r) => setTimeout(r, 60));
@@ -468,6 +526,7 @@ export const useCombatSync = ({
         setDiceAnimation(finalDice);
         total = finalDice.reduce((sum, val) => sum + val, 0);
         setRolling(false);
+        setRollingCombatId(null);
       }
 
       if (
@@ -477,37 +536,25 @@ export const useCombatSync = ({
         roundInfo.action_type === 'attack' &&
         activeCombat.current_round === 1
       ) {
-        const sharedRoll = { rolled: true, roll: finalDice, total };
-        await CombatService.updateCombatGroup(activeCombat.combat_group_id, {
-          attacker_shared_roll: sharedRoll
+        const sharedRes = await CombatService.updateCombatGroupSharedRoll({
+          combatGroupId: activeCombat.combat_group_id,
+          roll: finalDice,
+          total,
+          allowAdjust: false
         });
 
-        await Promise.all(
-          combatGroup
-            .filter(
-              (gc) =>
-                gc.combat_phase === 'rolling' &&
-                gc.round_data?.length > 0 &&
-                gc.round_data[0].action_type === 'attack'
-            )
-            .map((gc) => {
-              const gRounds = gc.round_data.map((r) => ({
-                ...r,
-                attacker: { ...r.attacker },
-                defender: { ...r.defender }
-              }));
-              gRounds[0].attacker = sharedRoll;
-              if (gRounds[0].defender.rolled) gRounds[0].completed = true;
-              return CombatService.updateCombat(gc.id, { round_data: gRounds });
-            })
-        );
+        if (!sharedRes.success) {
+          showToast(sharedRes.error, 'error');
+          return;
+        }
       } else {
         const rollRes = await CombatService.updateCombatRoll({
           combatId: activeCombat.id,
           roundIndex,
           isAttacker: isAttackerSide,
           roll: finalDice,
-          total
+          total,
+          allowAdjust: false
         });
 
         if (!rollRes.success) {
@@ -516,10 +563,20 @@ export const useCombatSync = ({
         }
       }
 
+      const activeDuelId =
+        activeCombat.combat_group_id && activeCombat.current_round > 1
+          ? activeCombat.id
+          : null;
+
+      if (activeDuelId) {
+        activeCombatIdRef.current = activeDuelId;
+        setActiveCombatId(activeDuelId);
+      }
+
       await loadCombat();
-      broadcastCombatPing({ action: 'refresh' });
+      broadcastCombatPing({ action: 'refresh', activeDuelId });
     },
-    [combat, rolling, currentPlayer?.id, combatGroup, getCurrentDefenseDices, showToast, loadCombat, broadcastCombatPing]
+    [myDefenderCombat, combat, rolling, currentPlayer?.id, getCurrentDefenseDices, showToast, loadCombat, broadcastCombatPing]
   );
 
   const handleAdjustDiceResult = useCallback(
@@ -527,61 +584,46 @@ export const useCombatSync = ({
       const activeCombat = targetCombat && targetCombat.id ? targetCombat : combat;
       if (!activeCombat || !newDiceArray) return;
 
-      const roundData = (activeCombat.round_data || []).map((r) => ({
-        ...r,
-        attacker: { ...r.attacker, roll: [...(r.attacker?.roll || [])] },
-        defender: { ...r.defender, roll: [...(r.defender?.roll || [])] }
-      }));
       const roundIndex = activeCombat.current_round - 1;
-      const roundInfo = roundData[roundIndex];
+      const roundInfo = activeCombat.round_data?.[roundIndex];
       if (!roundInfo) return;
 
       const newTotal = newDiceArray.reduce((sum, val) => sum + val, 0);
-      if (isAttackerAdjusting) {
-        roundInfo.attacker.roll = newDiceArray;
-        roundInfo.attacker.total = newTotal;
-      } else {
-        roundInfo.defender.roll = newDiceArray;
-        roundInfo.defender.total = newTotal;
-      }
-
       const isSharedAttackRound =
         activeCombat.combat_group_id &&
         isAttackerAdjusting &&
         activeCombat.current_round === 1 &&
         roundInfo.action_type === 'attack';
 
-      if (isSharedAttackRound) {
-        const updatedSharedRoll = { rolled: true, roll: newDiceArray, total: newTotal };
-        await CombatService.updateCombatGroup(activeCombat.combat_group_id, {
-          attacker_shared_roll: updatedSharedRoll
-        });
+      const res = isSharedAttackRound
+        ? await CombatService.updateCombatGroupSharedRoll({
+            combatGroupId: activeCombat.combat_group_id,
+            roll: newDiceArray,
+            total: newTotal,
+            allowAdjust: true
+          })
+        : await CombatService.updateCombatRoll({
+            combatId: activeCombat.id,
+            roundIndex,
+            isAttacker: isAttackerAdjusting,
+            roll: newDiceArray,
+            total: newTotal,
+            allowAdjust: true
+          });
 
-        await Promise.all(
-          combatGroup
-            .filter((gc) => gc.round_data?.length > 0 && gc.round_data[0].action_type === 'attack')
-            .map((gc) => {
-              const gRounds = gc.round_data.map((r) => ({
-                ...r,
-                attacker: { ...r.attacker },
-                defender: { ...r.defender }
-              }));
-              gRounds[0].attacker = updatedSharedRoll;
-              return CombatService.updateCombat(gc.id, { round_data: gRounds });
-            })
-        );
-      } else {
-        const res = await CombatService.updateCombat(activeCombat.id, { round_data: roundData });
-        if (!res.success) {
-          showToast('Não foi possível salvar o ajuste do dado.', 'error');
-          return;
-        }
+      if (!res.success) {
+        showToast(res.error || 'Não foi possível salvar o ajuste do dado.', 'error');
+        return;
       }
 
+      const activeDuelId =
+        activeCombat.combat_group_id && activeCombat.current_round > 1
+          ? activeCombat.id
+          : null;
       await loadCombat();
-      broadcastCombatPing({ action: 'refresh' });
+      broadcastCombatPing({ action: 'refresh', activeDuelId });
     },
-    [combat, combatGroup, showToast, loadCombat, broadcastCombatPing]
+    [combat, showToast, loadCombat, broadcastCombatPing]
   );
 
   const handleAdvanceRound = useCallback(async () => {
@@ -596,33 +638,51 @@ export const useCombatSync = ({
     broadcastCombatPing({ action: 'refresh' });
   }, [combat, loadCombat, broadcastCombatPing]);
 
-  const handleAdvanceGroupCombat = useCallback(
+  const handleAdvanceMultiRound1 = useCallback(async () => {
+    const groupId = combat?.combat_group_id;
+    if (!groupId) return;
+
+    const res = await CombatService.updateCombatGroupPhase(groupId, 'advance_round_1');
+    if (!res.success) {
+      showToast(res.error || 'Erro ao avançar rodada.', 'error');
+      return;
+    }
+
+    activeCombatIdRef.current = null;
+    setActiveCombatId(null);
+    await loadCombat();
+    broadcastCombatPing({ action: 'refresh', activeDuelId: null });
+  }, [combat?.combat_group_id, showToast, loadCombat, broadcastCombatPing]);
+
+  const handleAdvanceSingleGroupDuel = useCallback(
     async (groupCombat) => {
-      if (!groupCombat) return;
-      const isFinishing = groupCombat.current_round >= groupCombat.total_rounds;
-      const fields = isFinishing
-        ? { combat_phase: 'results' }
-        : { current_round: groupCombat.current_round + 1 };
+      if (!groupCombat || groupCombat.current_round >= groupCombat.total_rounds) return;
 
-      await CombatService.updateCombat(groupCombat.id, fields);
-
-      if (isFinishing) {
-        const nextRemaining = combatGroup.find(
-          (gc) => gc.id !== groupCombat.id && gc.status !== 'cancelled' && gc.combat_phase === 'rolling'
-        );
-        const nextId = nextRemaining ? nextRemaining.id : groupCombat.id;
-        activeCombatIdRef.current = nextId;
-        setActiveCombatId(nextId);
-      } else {
-        activeCombatIdRef.current = groupCombat.id;
-        setActiveCombatId(groupCombat.id);
-      }
+      await CombatService.updateCombat(groupCombat.id, {
+        current_round: groupCombat.current_round + 1
+      });
+      activeCombatIdRef.current = groupCombat.id;
+      setActiveCombatId(groupCombat.id);
 
       await loadCombat();
-      broadcastCombatPing({ action: 'refresh' });
+      broadcastCombatPing({ action: 'refresh', activeDuelId: groupCombat.id });
     },
-    [combatGroup, loadCombat, broadcastCombatPing]
+    [loadCombat, broadcastCombatPing]
   );
+
+  const handleShowGroupResults = useCallback(async () => {
+    const groupId = combat?.combat_group_id;
+    if (!groupId) return;
+
+    const res = await CombatService.updateCombatGroupPhase(groupId, 'show_results');
+    if (!res.success) {
+      showToast(res.error || 'Erro ao abrir resultados.', 'error');
+      return;
+    }
+
+    await loadCombat();
+    broadcastCombatPing({ action: 'refresh' });
+  }, [combat?.combat_group_id, showToast, loadCombat, broadcastCombatPing]);
 
   const handleAddRound = useCallback(
     async (whoAttacks) => {
@@ -722,10 +782,15 @@ export const useCombatSync = ({
         await CombatService.updateCombat(combat.id, { round_data: updatedRounds });
       } else {
         const isAttacker = combat.attacker_id === currentPlayer?.id;
-        await CombatService.updateCombat(
-          combat.id,
-          isAttacker ? { attack_data: weapon } : { defender_weapon: weapon }
-        );
+        if (isAttacker && combat.combat_group_id) {
+          await CombatService.updateCombatGroup(combat.combat_group_id, { attack_data: weapon });
+        } else {
+          const targetId = !isAttacker && myDefenderCombat ? myDefenderCombat.id : combat.id;
+          await CombatService.updateCombat(
+            targetId,
+            isAttacker ? { attack_data: weapon } : { defender_weapon: weapon }
+          );
+        }
       }
 
       await loadCombat();
@@ -771,6 +836,21 @@ export const useCombatSync = ({
     [combat, currentPlayer?.id, loadCombat, broadcastCombatPing]
   );
 
+  // Sincroniza armas selecionadas e combate ativo quando o jogador alterna Modo 1 / Modo 2
+  const prevCombatModeRef = useRef(combatMode);
+  useEffect(() => {
+    if (prevCombatModeRef.current === combatMode) return;
+    prevCombatModeRef.current = combatMode;
+
+    setSelectedAttack((prev) => (prev?.modes ? applyModeToWeapon(prev, combatMode) : prev));
+    setSelectedWeapon((prev) => (prev?.modes ? applyModeToWeapon(prev, combatMode) : prev));
+    setTempWeapon((prev) => (prev?.modes ? applyModeToWeapon(prev, combatMode) : prev));
+
+    if (combat?.id && (combat.status === 'pending' || combat.status === 'in_progress')) {
+      handleSyncCombatMode(combatMode);
+    }
+  }, [combatMode, combat?.id, combat?.status, handleSyncCombatMode]);
+
   const handleConfirmOpportunityAttack = useCallback(
     async (opportunityWeapon, opportunityTarget) => {
       if (!combat || !opportunityWeapon || !opportunityTarget) return false;
@@ -812,11 +892,17 @@ export const useCombatSync = ({
     });
   }, [combat, broadcastCombatPing]);
 
-  const handleSelectGroupCombat = useCallback((gc) => {
-    activeCombatIdRef.current = gc.id;
-    setActiveCombatId(gc.id);
-    setCombat(gc);
-  }, []);
+  const handleSelectGroupCombat = useCallback(
+    (gc, syncAll = false) => {
+      activeCombatIdRef.current = gc.id;
+      setActiveCombatId(gc.id);
+      setCombat(gc);
+      if (syncAll) {
+        broadcastCombatPing({ action: 'select_duel', combatId: gc.id });
+      }
+    },
+    [broadcastCombatPing]
+  );;
 
   return {
     combat,
@@ -842,15 +928,18 @@ export const useCombatSync = ({
     setSelectedWeapon,
     tempWeapon,
     setTempWeapon,
+    rollingCombatId,
+    myDefenderCombat,
+    handleAdvanceMultiRound1,
+    handleAdvanceSingleGroupDuel,
+    handleShowGroupResults,
     currentDefenseDices: getCurrentDefenseDices(),
     handleDefenseDicesChange,
     handleStartCombat,
-    handleAutoStartSingleAttack,
     handleConfirmDefenseWeapon,
     handleRollDice,
     handleAdjustDiceResult,
     handleAdvanceRound,
-    handleAdvanceGroupCombat,
     handleAddRound,
     handleRemoveRound,
     handleMoveRound,

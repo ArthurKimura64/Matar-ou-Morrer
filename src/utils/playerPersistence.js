@@ -178,16 +178,24 @@ export class PlayerPersistence {
       if (!data || !data.player?.id) return false;
 
       const supabase = await getSupabase();
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user || null;
 
       // Verificar se o player no banco ainda existe
       const { data: player, error } = await supabase
         .from('players')
         .select('id, user_id, room_id, is_connected')
         .eq('id', data.player.id)
-        .single();
+        .maybeSingle();
 
-      if (error || !player) {
+      // Erro temporário de rede ou token ainda renovando: mantém os dados salvos
+      if (error) {
+        console.warn('Erro temporário ao validar sessão (mantendo dados locais):', error.message);
+        return true;
+      }
+
+      // Só limpa se o servidor confirmou que o jogador realmente não existe mais
+      if (!player) {
         console.warn('Sessão inválida: jogador não encontrado no servidor');
         this.clearPlayerData();
         return false;
@@ -203,7 +211,6 @@ export class PlayerPersistence {
       return true;
     } catch (error) {
       console.error('Erro ao validar sessão com servidor:', error);
-      // Em caso de erro de rede, manter dados (não punir por problemas de conexão)
       return true;
     }
   }

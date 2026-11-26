@@ -1,11 +1,10 @@
 -- ================================================================
--- MATAR OU MORRER — Schema Setup Completo (v5)
+-- MATAR OU MORRER — Schema Setup Completo (v5.5)
 -- Execute no SQL Editor do Supabase ANTES de 02-functions.sql
 -- ================================================================
 
 -- ================================
 -- 1. TABELA: admin_users + helper is_user_admin()
---    (Criados primeiro para que todas as políticas RLS abaixo funcionem em bancos novos)
 -- ================================
 CREATE TABLE IF NOT EXISTS public.admin_users (
     id BIGSERIAL PRIMARY KEY,
@@ -17,9 +16,10 @@ CREATE TABLE IF NOT EXISTS public.admin_users (
 
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Only admins can read admin_users" ON public.admin_users;
 DROP POLICY IF EXISTS "admin_users_select" ON public.admin_users;
 CREATE POLICY "admin_users_select" ON public.admin_users
-    FOR SELECT USING (auth.uid() = user_id OR public.is_user_admin());
+    FOR SELECT USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "admin_users_modify_deny" ON public.admin_users;
 CREATE POLICY "admin_users_modify_deny" ON public.admin_users
@@ -36,7 +36,7 @@ BEGIN
           AND is_active = true
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public, pg_temp;
 
 -- ================================
 -- 2. TABELA: rooms (Salas de jogo)
@@ -62,7 +62,6 @@ CHECK (match_status IS NULL OR match_status IN ('in_progress'));
 ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rooms REPLICA IDENTITY FULL;
 
--- Índices de rooms
 CREATE INDEX IF NOT EXISTS idx_rooms_active ON public.rooms(is_active);
 CREATE INDEX IF NOT EXISTS idx_rooms_last_activity ON public.rooms(last_activity);
 CREATE INDEX IF NOT EXISTS idx_rooms_created_at ON public.rooms(created_at);
@@ -73,12 +72,13 @@ COMMENT ON COLUMN public.rooms.match_status IS 'Status da partida: NULL = sem pa
 COMMENT ON COLUMN public.rooms.match_started_at IS 'Quando a partida atual começou';
 
 -- ================================
--- 3. TABELA: players (Jogadores nas salas)
+-- 3. TABELA: players (Dados públicos dos jogadores nas salas)
 -- ================================
 CREATE TABLE IF NOT EXISTS public.players (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     room_id VARCHAR(6) REFERENCES public.rooms(id) ON DELETE CASCADE,
     name VARCHAR(50) NOT NULL,
+    actor_id VARCHAR(60) DEFAULT NULL,
     character JSONB,
     character_name VARCHAR(100),
     status VARCHAR(20) DEFAULT 'selecting',
@@ -96,17 +96,21 @@ CREATE TABLE IF NOT EXISTS public.players (
     selections JSONB DEFAULT '{}',
     app_state JSONB DEFAULT '{}',
     defense_dice_count INTEGER DEFAULT NULL,
+    in_match BOOLEAN NOT NULL DEFAULT false,
+    match_character_name VARCHAR(100) DEFAULT NULL,
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     last_activity TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Garante colunas adicionais em bancos já existentes
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS actor_id VARCHAR(60) DEFAULT NULL;
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS defense_dice_count INTEGER DEFAULT NULL;
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS exposed_cards JSONB DEFAULT '[]';
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS app_state JSONB DEFAULT '{}';
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS in_match BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS match_character_name VARCHAR(100) DEFAULT NULL;
 
 ALTER TABLE public.players
-DROP CONSTRAINT IF EXISTS players_status_check;
+  DROP CONSTRAINT IF EXISTS players_status_check;
 ALTER TABLE public.players
 ADD CONSTRAINT players_status_check
 CHECK (status IN ('selecting', 'creating', 'ready', 'playing'));
@@ -114,60 +118,84 @@ CHECK (status IN ('selecting', 'creating', 'ready', 'playing'));
 ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.players REPLICA IDENTITY FULL;
 
--- Políticas de rooms (declaradas após players existir para referência de master_player_id)
-DROP POLICY IF EXISTS "Anyone can view rooms" ON public.rooms;
-DROP POLICY IF EXISTS "Anyone can read rooms" ON public.rooms;
-DROP POLICY IF EXISTS "Authenticated can read rooms" ON public.rooms;
-DROP POLICY IF EXISTS "Anyone can create rooms" ON public.rooms;
-DROP POLICY IF EXISTS "Anyone can update rooms" ON public.rooms;
-DROP POLICY IF EXISTS "rooms_update_master_or_admin" ON public.rooms;
-DROP POLICY IF EXISTS "rooms_delete_admin_only" ON public.rooms;
-DROP POLICY IF EXISTS "Authenticated can create rooms" ON public.rooms;
-
-CREATE POLICY "Authenticated can read rooms" ON public.rooms
-    FOR SELECT USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Authenticated can create rooms" ON public.rooms
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-
-CREATE POLICY "rooms_update_master_or_admin" ON public.rooms
-    FOR UPDATE USING (
-        master_player_id IS NULL
-        OR EXISTS (
-            SELECT 1 FROM public.players p
-            WHERE p.id = rooms.master_player_id
-              AND p.user_id = auth.uid()
-        )
-        OR public.is_user_admin()
+-- Helper de pertencimento à sala (SECURITY DEFINER evita recursão no RLS)
+CREATE OR REPLACE FUNCTION public.is_user_in_room(p_room_id VARCHAR(6))
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1
+        FROM public.players
+        WHERE room_id = p_room_id
+          AND user_id = auth.uid()
     );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public, pg_temp;
+
+REVOKE EXECUTE ON FUNCTION public.is_user_in_room(VARCHAR) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_user_in_room(VARCHAR) TO authenticated;
+
+-- Limpa eventuais políticas antigas/duplicadas em rooms e players antes de recriar
+DO $$
+DECLARE
+    pol RECORD;
+BEGIN
+    FOR pol IN
+        SELECT tablename, policyname
+        FROM pg_policies
+        WHERE schemaname = 'public'
+          AND tablename IN ('rooms', 'players')
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', pol.policyname, pol.tablename);
+    END LOOP;
+END $$;
+
+-- Políticas RLS de rooms: leitura apenas para membros da sala ou admin; escrita via RPCs
+CREATE POLICY "rooms_select_member_or_admin" ON public.rooms
+    FOR SELECT USING (public.is_user_in_room(id) OR public.is_user_admin());
+
+CREATE POLICY "rooms_insert_deny" ON public.rooms
+    FOR INSERT WITH CHECK (false);
+
+CREATE POLICY "rooms_update_admin_only" ON public.rooms
+    FOR UPDATE USING (public.is_user_admin()) WITH CHECK (public.is_user_admin());
 
 CREATE POLICY "rooms_delete_admin_only" ON public.rooms
     FOR DELETE USING (public.is_user_admin());
 
--- Políticas de players
-DROP POLICY IF EXISTS "Anyone can view players" ON public.players;
-DROP POLICY IF EXISTS "Anyone can read players" ON public.players;
-DROP POLICY IF EXISTS "Authenticated can read players" ON public.players;
-DROP POLICY IF EXISTS "Anyone can insert players" ON public.players;
-DROP POLICY IF EXISTS "Anyone can update players" ON public.players;
-DROP POLICY IF EXISTS "Anyone can delete players" ON public.players;
-DROP POLICY IF EXISTS "Users can insert own player" ON public.players;
-DROP POLICY IF EXISTS "Users can update own player" ON public.players;
-DROP POLICY IF EXISTS "Users can delete own player" ON public.players;
+-- Políticas RLS de players: leitura apenas na própria sala; entrada exclusivamente via RPC join_room
+CREATE POLICY "players_select_room_member_or_admin" ON public.players
+    FOR SELECT USING (
+        auth.uid() = user_id
+        OR public.is_user_in_room(room_id)
+        OR public.is_user_admin()
+    );
 
-CREATE POLICY "Authenticated can read players" ON public.players
-    FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "players_insert_deny" ON public.players
+    FOR INSERT WITH CHECK (false);
 
-CREATE POLICY "Users can insert own player" ON public.players
-    FOR INSERT WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid());
-
-CREATE POLICY "Users can update own player" ON public.players
+CREATE POLICY "players_update_own" ON public.players
     FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own player" ON public.players
+CREATE POLICY "players_delete_own" ON public.players
     FOR DELETE USING (auth.uid() = user_id);
 
--- Índices de players
+-- Deduplicação preventiva antes do índice único (room_id, user_id)
+DELETE FROM public.players p
+USING (
+    SELECT id,
+           ROW_NUMBER() OVER (
+               PARTITION BY room_id, user_id
+               ORDER BY in_match DESC, is_connected DESC, last_activity DESC, joined_at DESC
+           ) AS rn
+    FROM public.players
+    WHERE user_id IS NOT NULL
+) dup
+WHERE p.id = dup.id AND dup.rn > 1;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_players_room_user
+    ON public.players(room_id, user_id)
+    WHERE user_id IS NOT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_players_room_id ON public.players(room_id);
 CREATE INDEX IF NOT EXISTS idx_players_status ON public.players(status);
 CREATE INDEX IF NOT EXISTS idx_players_is_connected ON public.players(is_connected);
@@ -175,12 +203,52 @@ CREATE INDEX IF NOT EXISTS idx_players_last_activity ON public.players(last_acti
 CREATE INDEX IF NOT EXISTS idx_players_room_connected ON public.players(room_id, is_connected);
 CREATE INDEX IF NOT EXISTS idx_players_user_id ON public.players(user_id);
 CREATE INDEX IF NOT EXISTS idx_players_is_alive ON public.players(is_alive);
+CREATE INDEX IF NOT EXISTS idx_players_room_in_match ON public.players(room_id, in_match);
 
-COMMENT ON TABLE public.players IS 'Jogadores conectados nas salas do jogo';
+COMMENT ON TABLE public.players IS 'Jogadores conectados nas salas do jogo (apenas informações públicas na mesa)';
+COMMENT ON COLUMN public.players.actor_id IS 'ID público do personagem escolhido pelo jogador';
 COMMENT ON COLUMN public.players.user_id IS 'ID do usuário autenticado (NULL se jogador sem conta)';
 COMMENT ON COLUMN public.players.is_alive IS 'Se o jogador está vivo na partida atual';
 COMMENT ON COLUMN public.players.killed_by_player_id IS 'ID do jogador que eliminou este jogador';
 COMMENT ON COLUMN public.players.elimination_order IS 'Ordem de eliminação na partida atual (1 = primeiro eliminado)';
+
+-- ================================
+-- 3B. TABELA: player_private_state (Cartas secretas — acesso exclusivo do dono)
+-- ================================
+CREATE TABLE IF NOT EXISTS public.player_private_state (
+    player_id UUID PRIMARY KEY REFERENCES public.players(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    actor_id VARCHAR(60) DEFAULT NULL,
+    selections JSONB DEFAULT '{}'::jsonb,
+    used_items JSONB DEFAULT '[]'::jsonb,
+    unlocked_items JSONB DEFAULT '[]'::jsonb,
+    notes JSONB DEFAULT '{}'::jsonb,
+    app_state JSONB DEFAULT '{}'::jsonb,
+    updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.player_private_state ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "player_private_select_own" ON public.player_private_state;
+CREATE POLICY "player_private_select_own" ON public.player_private_state
+    FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "player_private_insert_own" ON public.player_private_state;
+CREATE POLICY "player_private_insert_own" ON public.player_private_state
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "player_private_update_own" ON public.player_private_state;
+CREATE POLICY "player_private_update_own" ON public.player_private_state
+    FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "player_private_delete_own" ON public.player_private_state;
+CREATE POLICY "player_private_delete_own" ON public.player_private_state
+    FOR DELETE USING (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_player_private_state_user_id
+    ON public.player_private_state(user_id);
+
+COMMENT ON TABLE public.player_private_state IS 'Estado privado da ficha (cartas escolhidas, itens usados/desbloqueados e anotações). Visível apenas para o próprio dono.';
 
 -- ================================
 -- 4. TABELA: combat_notifications (Combates)
@@ -210,7 +278,6 @@ CREATE TABLE IF NOT EXISTS public.combat_notifications (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Limpa eventuais combates órfãos antigos e adiciona Foreign Keys com CASCADE
 DELETE FROM public.combat_notifications
 WHERE attacker_id NOT IN (SELECT id FROM public.players)
    OR defender_id NOT IN (SELECT id FROM public.players);
@@ -240,31 +307,27 @@ CHECK (combat_phase IN ('weapon_selection', 'rolling', 'results'));
 ALTER TABLE public.combat_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.combat_notifications REPLICA IDENTITY FULL;
 
--- Políticas de combat_notifications
-DROP POLICY IF EXISTS "Anyone can view combat notifications" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Players can view combat notifications" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Authenticated can read combat" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Players can create combat notifications" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Players can update their combat notifications" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Players can delete their combat notifications" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Attacker can create combat" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Combat participants can update" ON public.combat_notifications;
-DROP POLICY IF EXISTS "Admin can delete combat" ON public.combat_notifications;
+DO $$
+DECLARE
+    pol RECORD;
+BEGIN
+    FOR pol IN
+        SELECT policyname
+        FROM pg_policies
+        WHERE schemaname = 'public'
+          AND tablename = 'combat_notifications'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON public.combat_notifications', pol.policyname);
+    END LOOP;
+END $$;
 
-CREATE POLICY "Authenticated can read combat" ON public.combat_notifications
-    FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "combat_select_room_member_or_admin" ON public.combat_notifications
+    FOR SELECT USING (public.is_user_in_room(room_id) OR public.is_user_admin());
 
-CREATE POLICY "Attacker can create combat" ON public.combat_notifications
-    FOR INSERT WITH CHECK (
-        auth.uid() IS NOT NULL
-        AND EXISTS (
-            SELECT 1 FROM public.players p
-            WHERE p.id = attacker_id
-              AND p.user_id = auth.uid()
-        )
-    );
+CREATE POLICY "combat_insert_deny" ON public.combat_notifications
+    FOR INSERT WITH CHECK (false);
 
-CREATE POLICY "Combat participants can update" ON public.combat_notifications
+CREATE POLICY "combat_update_participants_or_admin" ON public.combat_notifications
     FOR UPDATE USING (
         EXISTS (
             SELECT 1 FROM public.players p
@@ -278,10 +341,9 @@ CREATE POLICY "Combat participants can update" ON public.combat_notifications
         OR public.is_user_admin()
     );
 
-CREATE POLICY "Admin can delete combat" ON public.combat_notifications
+CREATE POLICY "combat_delete_admin_only" ON public.combat_notifications
     FOR DELETE USING (public.is_user_admin());
 
--- Índices de combat_notifications
 CREATE INDEX IF NOT EXISTS idx_combat_room_id ON public.combat_notifications(room_id);
 CREATE INDEX IF NOT EXISTS idx_combat_attacker ON public.combat_notifications(attacker_id);
 CREATE INDEX IF NOT EXISTS idx_combat_defender ON public.combat_notifications(defender_id);
@@ -309,7 +371,6 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Garante coluna theme e padrão Grafite Clássico em bancos já existentes
 ALTER TABLE public.user_profiles
 ADD COLUMN IF NOT EXISTS theme VARCHAR(30) DEFAULT 'classic';
 ALTER TABLE public.user_profiles
@@ -319,7 +380,7 @@ ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public read user_profiles" ON public.user_profiles;
 CREATE POLICY "Public read user_profiles" ON public.user_profiles
-    FOR SELECT USING (true);
+    FOR SELECT USING (auth.role() = 'authenticated');
 
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.user_profiles;
 CREATE POLICY "Users can insert own profile" ON public.user_profiles
@@ -336,7 +397,6 @@ COMMENT ON COLUMN public.user_profiles.ban_reason IS 'Motivo do banimento';
 
 -- ================================
 -- 6. TABELA: user_stats (Estatísticas de usuário)
---    Escrita bloqueada para clientes: apenas triggers e RPCs SECURITY DEFINER escrevem aqui
 -- ================================
 CREATE TABLE IF NOT EXISTS public.user_stats (
     user_id UUID PRIMARY KEY REFERENCES public.user_profiles(id) ON DELETE CASCADE,
@@ -354,14 +414,13 @@ ALTER TABLE public.user_stats ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public read user_stats" ON public.user_stats;
 CREATE POLICY "Public read user_stats" ON public.user_stats
-    FOR SELECT USING (true);
+    FOR SELECT USING (auth.role() = 'authenticated');
 
 DROP POLICY IF EXISTS "System can insert user_stats" ON public.user_stats;
 DROP POLICY IF EXISTS "System can update user_stats" ON public.user_stats;
 
 COMMENT ON TABLE public.user_stats IS 'Estatísticas acumuladas de cada usuário (atualizadas exclusivamente via triggers e RPCs SECURITY DEFINER)';
 
--- Índices de user_stats
 CREATE INDEX IF NOT EXISTS idx_user_stats_composite ON public.user_stats(composite_score DESC);
 CREATE INDEX IF NOT EXISTS idx_user_stats_wins ON public.user_stats(total_wins DESC);
 CREATE INDEX IF NOT EXISTS idx_user_stats_eliminations ON public.user_stats(total_eliminations DESC);
@@ -369,7 +428,6 @@ CREATE INDEX IF NOT EXISTS idx_user_stats_survival ON public.user_stats(total_su
 
 -- ================================
 -- 7. TABELA: match_history (Histórico de partidas)
---    Escrita bloqueada para clientes: apenas end_match / auto_end_stale_matches / admin_* inserem aqui
 -- ================================
 CREATE TABLE IF NOT EXISTS public.match_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -386,7 +444,7 @@ ALTER TABLE public.match_history ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public read match_history" ON public.match_history;
 CREATE POLICY "Public read match_history" ON public.match_history
-    FOR SELECT USING (true);
+    FOR SELECT USING (auth.role() = 'authenticated');
 
 DROP POLICY IF EXISTS "Authenticated insert match_history" ON public.match_history;
 
@@ -397,7 +455,6 @@ COMMENT ON TABLE public.match_history IS 'Histórico de partidas concluídas (gr
 
 -- ================================
 -- 8. TABELA: match_participants (Participantes de partidas)
---    Escrita bloqueada para clientes: apenas RPCs SECURITY DEFINER inserem aqui
 -- ================================
 CREATE TABLE IF NOT EXISTS public.match_participants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -419,12 +476,31 @@ ALTER TABLE public.match_participants ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public read match_participants" ON public.match_participants;
 CREATE POLICY "Public read match_participants" ON public.match_participants
-    FOR SELECT USING (true);
+    FOR SELECT USING (auth.role() = 'authenticated');
 
 DROP POLICY IF EXISTS "Authenticated insert match_participants" ON public.match_participants;
 
+DELETE FROM public.match_participants mp
+USING (
+    SELECT id,
+           ROW_NUMBER() OVER (
+               PARTITION BY match_id, user_id
+               ORDER BY is_winner DESC, eliminations_made DESC, id ASC
+           ) AS rn
+    FROM public.match_participants
+    WHERE user_id IS NOT NULL
+) dup
+WHERE mp.id = dup.id AND dup.rn > 1;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_match_participants_match_user
+    ON public.match_participants(match_id, user_id)
+    WHERE user_id IS NOT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_match_participants_user ON public.match_participants(user_id);
 CREATE INDEX IF NOT EXISTS idx_match_participants_match ON public.match_participants(match_id);
+CREATE INDEX IF NOT EXISTS idx_match_participants_killed_by_user
+    ON public.match_participants(killed_by_user_id)
+    WHERE killed_by_user_id IS NOT NULL;
 
 COMMENT ON TABLE public.match_participants IS 'Participantes e resultados de cada partida (gravados exclusivamente por RPCs SECURITY DEFINER)';
 
@@ -481,28 +557,20 @@ CREATE INDEX IF NOT EXISTS idx_admin_audit_log_created ON public.admin_audit_log
 COMMENT ON TABLE public.admin_audit_log IS 'Log de auditoria de todas as ações administrativas';
 
 -- ================================
--- 11. REALTIME — Habilitar para tabelas que precisam de tempo real
+-- 11. REALTIME
 -- ================================
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_publication_tables
-        WHERE pubname = 'supabase_realtime' AND tablename = 'rooms'
-    ) THEN
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'rooms') THEN
         ALTER PUBLICATION supabase_realtime ADD TABLE public.rooms;
     END IF;
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_publication_tables
-        WHERE pubname = 'supabase_realtime' AND tablename = 'players'
-    ) THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'players') THEN
         ALTER PUBLICATION supabase_realtime ADD TABLE public.players;
     END IF;
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_publication_tables
-        WHERE pubname = 'supabase_realtime' AND tablename = 'combat_notifications'
-    ) THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'combat_notifications') THEN
         ALTER PUBLICATION supabase_realtime ADD TABLE public.combat_notifications;
     END IF;
 END $$;
 
-SELECT 'SCHEMA SETUP v5 CONCLUÍDO!' AS status;
+NOTIFY pgrst, 'reload schema';
+
+SELECT 'SCHEMA SETUP v5.5 CONCLUÍDO!' AS status;

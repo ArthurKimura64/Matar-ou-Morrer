@@ -1,5 +1,7 @@
-import React, { useState } from "react"
-import { supabase } from '../../config/supabaseClient';
+import React, { useState, useCallback } from "react"
+import { RoomService } from "../../services/roomService"
+import BaseModal from "../../components/BaseModal"
+import ConfirmModal from "../../components/ConfirmModal"
 
 const MatchBar = ({
   room,
@@ -8,33 +10,45 @@ const MatchBar = ({
   players = [],
   matchStatus: matchStatusProp,
   isAlive = true,
+  isInMatch = false,
   onMatchUpdate,
   localization = {}
 }) => {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   const [showEliminateModal, setShowEliminateModal] = useState(false)
+  const [showVictoryModal, setShowVictoryModal] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
   const [selectedKillerId, setSelectedKillerId] = useState(null)
+
+  const closeEliminateModal = useCallback(() => {
+    if (!loading) setShowEliminateModal(false)
+  }, [loading])
 
   const roomId = roomIdProp || room?.id
   const matchStatus = matchStatusProp !== undefined ? matchStatusProp : room?.match_status
 
   const connectedPlayers = players.filter((p) => p.is_connected !== false)
   const readyPlayers = connectedPlayers.filter((p) => p.status === "ready" || p.status === "playing")
-  const alivePlayers = connectedPlayers.filter(
-    (p) => (p.status === "ready" || p.status === "playing" || p.elimination_order != null) && p.is_alive !== false
-  )
+  
+  const matchParticipants = players.filter((p) => p.in_match === true)
+  const alivePlayers = matchParticipants.filter((p) => p.is_alive !== false)
 
-  // Regra: mínimo 2 jogadores na sala E TODOS os jogadores conectados prontos
   const hasMinPlayers = connectedPlayers.length >= 2
   const allPlayersReady = hasMinPlayers && readyPlayers.length === connectedPlayers.length
   const pendingCount = connectedPlayers.length - readyPlayers.length
   const canStartMatch = !matchStatus && allPlayersReady
 
-  const isLastSurvivor = matchStatus === "in_progress" && isAlive && alivePlayers.length <= 1
+  const isMaster = Boolean(room?.master_player_id && currentPlayer?.id && room.master_player_id === currentPlayer.id)
+  const isLastSurvivor =
+    matchStatus === "in_progress" &&
+    isInMatch &&
+    isAlive &&
+    alivePlayers.length === 1 &&
+    alivePlayers[0]?.id === currentPlayer?.id
 
-  const notifyParent = () => {
-    if (onMatchUpdate) onMatchUpdate()
+  const notifyParent = (roomPatch = null) => {
+    if (onMatchUpdate) onMatchUpdate(roomPatch)
   }
 
   const handleStartMatch = async () => {
@@ -42,14 +56,14 @@ const MatchBar = ({
     setLoading(true)
     setErrorMsg(null)
     try {
-      const { data, error } = await supabase.rpc("start_match", {
-        p_room_id: roomId
-      })
-      if (error) throw error
-      if (data && data.success === false) {
-        throw new Error(data.error || "Não foi possível iniciar a partida")
+      const res = await RoomService.startMatch(roomId)
+      if (!res.success) {
+        throw new Error(res.error || "Não foi possível iniciar a partida")
       }
-      notifyParent()
+      notifyParent({
+        match_status: "in_progress",
+        match_started_at: new Date().toISOString()
+      })
     } catch (err) {
       setErrorMsg(err.message || "Erro ao iniciar partida")
     } finally {
@@ -62,17 +76,13 @@ const MatchBar = ({
     setLoading(true)
     setErrorMsg(null)
     try {
-      const { data, error } = await supabase.rpc("declare_elimination", {
-        p_player_id: currentPlayer.id,
-        p_killer_player_id: selectedKillerId || null
-      })
-      if (error) throw error
-      if (data && data.success === false) {
-        throw new Error(data.error || "Erro ao declarar eliminação")
+      const res = await RoomService.declareElimination(currentPlayer.id, selectedKillerId || null)
+      if (!res.success) {
+        throw new Error(res.error || "Erro ao declarar eliminação")
       }
       setShowEliminateModal(false)
       setSelectedKillerId(null)
-      notifyParent()
+      notifyParent(null)
     } catch (err) {
       setErrorMsg(err.message || "Erro ao declarar eliminação")
     } finally {
@@ -82,17 +92,18 @@ const MatchBar = ({
 
   const handleEndMatch = async () => {
     if (!roomId || loading) return
+    setShowVictoryModal(false)
     setLoading(true)
     setErrorMsg(null)
     try {
-      const { data, error } = await supabase.rpc("end_match", {
-        p_room_id: roomId
-      })
-      if (error) throw error
-      if (data && data.success === false) {
-        throw new Error(data.error || "Erro ao encerrar partida")
+      const res = await RoomService.declareVictory(roomId)
+      if (!res.success) {
+        throw new Error(res.error || "Erro ao encerrar partida")
       }
-      notifyParent()
+      notifyParent({
+        match_status: null,
+        match_started_at: null
+      })
     } catch (err) {
       setErrorMsg(err.message || "Erro ao encerrar partida")
     } finally {
@@ -100,7 +111,28 @@ const MatchBar = ({
     }
   }
 
-  const otherPlayers = connectedPlayers.filter((p) => p.id !== currentPlayer?.id)
+  const handleCancelMatch = async () => {
+    if (!roomId || loading) return
+    setShowCancelModal(false)
+    setLoading(true)
+    setErrorMsg(null)
+    try {
+      const res = await RoomService.cancelMatch(roomId)
+      if (!res.success) {
+        throw new Error(res.error || "Erro ao cancelar partida")
+      }
+      notifyParent({
+        match_status: null,
+        match_started_at: null
+      })
+    } catch (err) {
+      setErrorMsg(err.message || "Erro ao cancelar partida")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const otherPlayers = matchParticipants.filter((p) => p.id !== currentPlayer?.id)
 
   const noKillerLabel = localization["UI.Match.NoKiller"] || "Ninguém / Ambiente / Efeito próprio"
   const cleanNoKillerLabel = noKillerLabel.replace(/^[^\p{L}\p{N}]+/u, "").trim()
@@ -118,7 +150,6 @@ const MatchBar = ({
       >
         <div className="card-body py-2 px-3">
           <div className="d-flex flex-row justify-content-between align-items-center flex-wrap gap-2 w-100">
-            {/* Estado 1: Antes da partida começar */}
             {!matchStatus && (
               <>
                 <div className="d-flex align-items-center gap-2 flex-wrap text-start">
@@ -141,18 +172,24 @@ const MatchBar = ({
               </>
             )}
 
-            {/* Estado 2: Partida em andamento */}
             {matchStatus === "in_progress" && (
               <>
                 <div className="d-flex align-items-center gap-2 flex-wrap text-start">
                   <span className="badge bg-danger">🔥 {localization["UI.Match.InProgress"] || "Partida em Andamento"}</span>
                   <span className="badge bg-secondary">
                     🟢 {alivePlayers.length}{" "}
-                    {alivePlayers.length === 1 ?
-                      localization["UI.Match.SurvivorSingular"] || "sobrevivente"
-                    : localization["UI.Match.SurvivorPlural"] || "sobreviventes"}
+                    {alivePlayers.length === 1
+                      ? localization["UI.Match.SurvivorSingular"] || "sobrevivente"
+                      : localization["UI.Match.SurvivorPlural"] || "sobreviventes"}
                   </span>
-                  {!isAlive && (
+
+                  {!isInMatch && (
+                    <span className="badge bg-dark border border-info text-info">
+                      👁️ Espectador — monte seu personagem para a próxima partida
+                    </span>
+                  )}
+
+                  {isInMatch && !isAlive && (
                     <span className="badge bg-dark border border-danger text-danger">
                       💀 {localization["UI.Match.YouAreEliminated"] || "Você foi eliminado"}
                       {currentPlayer?.elimination_order ? ` (#${currentPlayer.elimination_order})` : ""}
@@ -161,7 +198,7 @@ const MatchBar = ({
                 </div>
 
                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                  {isAlive && !isLastSurvivor && (
+                  {isInMatch && isAlive && !isLastSurvivor && (
                     <button
                       type="button"
                       className="btn btn-outline-danger btn-sm"
@@ -171,13 +208,30 @@ const MatchBar = ({
                         setShowEliminateModal(true)
                       }}
                     >
-                      💀 {localization["UI.Match.DeclareElimination"] || "Fui Eliminado"}
+                      💀 {localization["UI.Match.DeclareEliminated"] || "Fui Eliminado"}
                     </button>
                   )}
 
                   {isLastSurvivor && (
-                    <button type="button" className="btn btn-warning btn-sm fw-bold px-3" disabled={loading} onClick={handleEndMatch}>
+                    <button
+                      type="button"
+                      className="btn btn-warning btn-sm fw-bold px-3"
+                      disabled={loading}
+                      onClick={() => setShowVictoryModal(true)}
+                    >
                       {loading ? "⏳ Salvando..." : `🏆 ${localization["UI.Match.DeclareVictory"] || "Declarar Vitória e Encerrar"}`}
+                    </button>
+                  )}
+
+                  {isMaster && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      disabled={loading}
+                      onClick={() => setShowCancelModal(true)}
+                      title="Cancelar partida em andamento sem salvar no histórico"
+                    >
+                      ⏹️ Cancelar
                     </button>
                   )}
                 </div>
@@ -197,107 +251,105 @@ const MatchBar = ({
       </section>
 
       {/* Modal Visual de Eliminação */}
-      {showEliminateModal && (
-        <>
-          <div className="modal-backdrop" onClick={() => !loading && setShowEliminateModal(false)} />
-          <div className="modal show d-block" tabIndex="-1" onClick={(e) => e.target === e.currentTarget && !loading && setShowEliminateModal(false)}>
-            <div className="modal-dialog" style={{ maxWidth: "520px" }}>
-              <div className="modal-content border-danger">
-                <header className="modal-header">
+      <BaseModal
+        show={showEliminateModal}
+        onClose={closeEliminateModal}
+        title={`💀 ${localization['UI.Match.ConfirmElimination'] || "Declarar Eliminação"}`}
+        subtitle={localization['UI.Match.WhoKilledYou'] || "Quem eliminou você nesta rodada?"}
+        borderVariant="danger"
+        maxWidth="520px"
+        disableClose={loading}
+        footer={
+          <>
+            <button type="button" className="btn btn-secondary btn-sm px-3" onClick={closeEliminateModal} disabled={loading}>
+              {localization['UI.Common.Cancel'] || "Cancelar"}
+            </button>
+            <button type="button" className="btn btn-danger btn-sm fw-bold px-4" onClick={handleDeclareElimination} disabled={loading}>
+              {loading ? "⏳ Confirmando..." : `💀 ${localization['UI.Match.ConfirmElimination'] || "Confirmar Eliminação"}`}
+            </button>
+          </>
+        }
+      >
+        <div className="d-flex flex-column gap-2">
+          {otherPlayers.map((p) => {
+            const isSelected = selectedKillerId === p.id
+            const isOpponentDead = p.is_alive === false
+
+            return (
+              <div
+                key={p.id}
+                onClick={() => !loading && setSelectedKillerId(p.id)}
+                className={`card cursor-pointer ${isSelected ? "border-danger bg-danger bg-opacity-25" : "border-secondary"}`}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card-body py-2 px-3 d-flex flex-row justify-content-between align-items-center gap-2">
                   <div className="d-flex align-items-center gap-2 text-start">
-                    <span style={{ fontSize: "1.35rem" }}>💀</span>
+                    <span style={{ fontSize: "1.1rem" }}>⚔️</span>
                     <div>
-                      <h5 className="modal-title text-white fw-bold mb-0">{localization["UI.Match.ConfirmElimination"] || "Declarar Eliminação"}</h5>
-                      <small className="text-muted">{localization["UI.Match.WhoEliminatedYou"] || "Quem eliminou você nesta rodada?"}</small>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    style={{ width: "32px", height: "32px", padding: 0 }}
-                    onClick={() => setShowEliminateModal(false)}
-                    disabled={loading}
-                  >
-                    ✕
-                  </button>
-                </header>
-
-                <div className="modal-body">
-                  <div className="d-flex flex-column gap-2">
-                    {otherPlayers.map((p) => {
-                      const isSelected = selectedKillerId === p.id
-                      const isOpponentDead = p.is_alive === false
-                      return (
-                        <div
-                          key={p.id}
-                          onClick={() => !loading && setSelectedKillerId(p.id)}
-                          className={`card cursor-pointer ${isSelected ? "border-danger bg-danger bg-opacity-25" : "border-secondary"}`}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <div className="card-body py-2 px-3 d-flex flex-row justify-content-between align-items-center gap-2">
-                            <div className="d-flex align-items-center gap-2 text-start">
-                              <span style={{ fontSize: "1.1rem" }}>⚔️</span>
-                              <div>
-                                <div className="fw-bold text-white d-flex align-items-center gap-2">
-                                  <span>{p.name}</span>
-                                  {isOpponentDead && (
-                                    <span className="badge bg-secondary" style={{ fontSize: "0.65rem" }}>
-                                      💀 Eliminado
-                                    </span>
-                                  )}
-                                </div>
-                                {p.character_name && <small className="text-muted">🎭 {p.character_name}</small>}
-                              </div>
-                            </div>
-                            <span
-                              className={`badge flex-shrink-0 ${isSelected ? "bg-danger text-white" : "bg-dark border border-secondary text-muted"}`}
-                            >
-                              {isSelected ? "✓ Selecionado" : "Selecionar"}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
-
-                    {/* Opção: Ninguém / Não sei */}
-                    <div
-                      onClick={() => !loading && setSelectedKillerId(null)}
-                      className={`card cursor-pointer ${selectedKillerId === null ? "border-warning bg-warning bg-opacity-25" : "border-secondary"}`}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="card-body py-2 px-3 d-flex flex-row justify-content-between align-items-center gap-2">
-                        <div className="d-flex align-items-center gap-2 text-start">
-                          <span style={{ fontSize: "1.1rem" }}>🚫</span>
-                          <div>
-                            <div className="fw-bold text-white">{cleanNoKillerLabel}</div>
-                            <small className="text-muted">Não contabiliza abate para outro jogador</small>
-                          </div>
-                        </div>
-                        <span
-                          className={`badge flex-shrink-0 ${
-                            selectedKillerId === null ? "bg-warning text-dark" : "bg-dark border border-secondary text-muted"
-                          }`}
-                        >
-                          {selectedKillerId === null ? "✓ Selecionado" : "Selecionar"}
-                        </span>
+                      <div className="fw-bold text-white d-flex align-items-center gap-2">
+                        <span>{p.name}</span>
+                        {isOpponentDead && (
+                          <span className="badge bg-secondary" style={{ fontSize: "0.65rem" }}>
+                            💀 Eliminado
+                          </span>
+                        )}
                       </div>
+                      {(p.match_character_name || p.character_name) && <small className="text-muted">🎭 {(p.match_character_name || p.character_name)}</small>}
                     </div>
                   </div>
+                  <span className={`badge flex-shrink-0 ${isSelected ? "bg-danger text-white" : "bg-dark border border-secondary text-muted"}`}>
+                    {isSelected ? "✓ Selecionado" : "Selecionar"}
+                  </span>
                 </div>
-
-                <footer>
-                  <button type="button" className="btn btn-secondary btn-sm px-3" onClick={() => setShowEliminateModal(false)} disabled={loading}>
-                    {localization["UI.Common.Cancel"] || "Cancelar"}
-                  </button>
-                  <button type="button" className="btn btn-danger btn-sm fw-bold px-4" onClick={handleDeclareElimination} disabled={loading}>
-                    {loading ? "⏳ Confirmando..." : `💀 ${localization["UI.Match.ConfirmDeath"] || "Confirmar Eliminação"}`}
-                  </button>
-                </footer>
               </div>
+            )
+          })}
+
+          <div
+            onClick={() => !loading && setSelectedKillerId(null)}
+            className={`card cursor-pointer ${selectedKillerId === null ? "border-warning bg-warning bg-opacity-25" : "border-secondary"}`}
+            style={{ cursor: "pointer" }}
+          >
+            <div className="card-body py-2 px-3 d-flex flex-row justify-content-between align-items-center gap-2">
+              <div className="d-flex align-items-center gap-2 text-start">
+                <span style={{ fontSize: "1.1rem" }}>🚫</span>
+                <div>
+                  <div className="fw-bold text-white">{cleanNoKillerLabel}</div>
+                  <small className="text-muted">Não contabiliza abate para outro jogador</small>
+                </div>
+              </div>
+              <span
+                className={`badge flex-shrink-0 ${selectedKillerId === null ? "bg-warning text-dark" : "bg-dark border border-secondary text-muted"}`}
+              >
+                {selectedKillerId === null ? "✓ Selecionado" : "Selecionar"}
+              </span>
             </div>
           </div>
-        </>
-      )}
+        </div>
+      </BaseModal>
+
+      {/* Confirmação de Vitória */}
+      <ConfirmModal
+        show={showVictoryModal}
+        title={`🏆 ${localization["UI.Match.DeclareVictory"] || "Declarar Vitória"}`}
+        message={localization["UI.Match.ConfirmVictory"] || "Você tem certeza que deseja declarar vitória e encerrar a partida?"}
+        confirmLabel={localization["UI.Match.DeclareVictory"] || "Confirmar Vitória"}
+        cancelLabel={localization["UI.Common.Cancel"] || "Cancelar"}
+        confirmVariant="warning"
+        onConfirm={handleEndMatch}
+        onCancel={() => setShowVictoryModal(false)}
+      />
+      {/* Confirmação de Cancelamento (Anfitrião) */}
+      <ConfirmModal
+        show={showCancelModal}
+        title="⏹️ Cancelar Partida"
+        message="Tem certeza que deseja cancelar a partida atual? Nenhum ponto ou histórico será registrado."
+        confirmLabel="Sim, cancelar partida"
+        cancelLabel={localization["UI.Common.Cancel"] || "Cancelar"}
+        confirmVariant="danger"
+        onConfirm={handleCancelMatch}
+        onCancel={() => setShowCancelModal(false)}
+      />
     </>
   )
 }

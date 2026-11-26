@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
     return res.status(auth.status).json({ error: auth.error });
   }
 
-  const { userId, newPassword } = req.body;
+  const { userId, newPassword } = req.body || {};
 
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ error: 'userId é obrigatório' });

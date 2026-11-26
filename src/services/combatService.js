@@ -16,7 +16,8 @@ export class CombatService {
       .select('*')
       .eq('room_id', roomId)
       .in('status', ['pending', 'in_progress'])
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true });
 
     if (error) return { success: false, data: [], error: error.message };
     return { success: true, data: data || [] };
@@ -68,19 +69,69 @@ export class CombatService {
     return { success: true };
   }
 
-  static async updateCombatRoll({ combatId, roundIndex, isAttacker, roll, total }) {
+  static async updateCombatRoll({ combatId, roundIndex, isAttacker, roll, total, allowAdjust = false }) {
     const { data, error } = await supabase.rpc('update_combat_roll', {
       p_combat_id: combatId,
       p_round_index: roundIndex,
       p_is_attacker: isAttacker,
       p_roll: roll,
-      p_total: total
+      p_total: total,
+      p_allow_adjust: allowAdjust
     });
 
     if (error || (data && data.success === false)) {
       return {
         success: false,
         error: data?.error || error?.message || 'Erro ao registrar rolagem'
+      };
+    }
+    return { success: true, data };
+  }
+
+  static async updateCombatGroupSharedRoll({ combatGroupId, roll, total, allowAdjust = false }) {
+    const { data, error } = await supabase.rpc('update_combat_group_shared_roll', {
+      p_combat_group_id: combatGroupId,
+      p_roll: roll,
+      p_total: total,
+      p_allow_adjust: allowAdjust
+    });
+
+    if (error || (data && data.success === false)) {
+      return {
+        success: false,
+        error: data?.error || error?.message || 'Erro ao registrar rolagem compartilhada'
+      };
+    }
+    return { success: true, data };
+  }
+
+  static async confirmDefenseWeapon({ combatId, defenderWeapon, roundData, totalRounds }) {
+    const { data, error } = await supabase.rpc('confirm_defense_weapon', {
+      p_combat_id: combatId,
+      p_defender_weapon: defenderWeapon,
+      p_round_data: roundData,
+      p_total_rounds: totalRounds
+    });
+
+    if (error || (data && data.success === false)) {
+      return {
+        success: false,
+        error: data?.error || error?.message || 'Erro ao confirmar arma de defesa'
+      };
+    }
+    return { success: true, data };
+  }
+
+  static async updateCombatGroupPhase(combatGroupId, action) {
+    const { data, error } = await supabase.rpc('update_combat_group_phase', {
+      p_combat_group_id: combatGroupId,
+      p_action: action
+    });
+
+    if (error || (data && data.success === false)) {
+      return {
+        success: false,
+        error: data?.error || error?.message || 'Erro ao atualizar fase do combate'
       };
     }
     return { success: true, data };
@@ -106,7 +157,7 @@ export class CombatService {
 
   static async cancelCombat({ combatId, combatGroupId = null }) {
     if (combatGroupId) {
-      return this.updateCombatGroup(combatGroupId, { status: 'cancelled' });
+      return this.updateCombatGroupPhase(combatGroupId, 'cancel_all');
     }
     return this.updateCombat(combatId, { status: 'cancelled' });
   }

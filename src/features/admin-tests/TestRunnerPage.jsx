@@ -51,43 +51,58 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
     [gameData, localization, user]
   );
 
-  const runSuites = useCallback(async (suitesToRun) => {
-    setIsRunning(true);
+  const runSingleTest = useCallback(async (suiteId, test) => {
+    const key = `${suiteId}::${test.id}`;
 
-    for (const suite of suitesToRun) {
-      for (const test of suite.tests) {
-        const key = `${suite.id}::${test.id}`;
+    setResults((prev) => ({
+      ...prev,
+      [key]: { status: 'running', detail: '', durationMs: 0 }
+    }));
 
-        setResults((prev) => ({
-          ...prev,
-          [key]: { status: 'running', detail: '', durationMs: 0 }
-        }));
+    const start = performance.now();
+    try {
+      const detail = await test.run();
+      const durationMs = Math.round(performance.now() - start);
+      setResults((prev) => ({
+        ...prev,
+        [key]: { status: 'passed', detail: detail || 'OK', durationMs }
+      }));
+    } catch (err) {
+      const durationMs = Math.round(performance.now() - start);
+      const status = err?.isSkip ? 'skipped' : 'failed';
+      setResults((prev) => ({
+        ...prev,
+        [key]: {
+          status,
+          detail: err?.message || String(err),
+          durationMs
+        }
+      }));
+    }
+  }, []);
 
-        const start = performance.now();
-        try {
-          const detail = await test.run();
-          const durationMs = Math.round(performance.now() - start);
-          setResults((prev) => ({
-            ...prev,
-            [key]: { status: 'passed', detail: detail || 'OK', durationMs }
-          }));
-        } catch (err) {
-          const durationMs = Math.round(performance.now() - start);
-          const status = err?.isSkip ? 'skipped' : 'failed';
-          setResults((prev) => ({
-            ...prev,
-            [key]: {
-              status,
-              detail: err?.message || String(err),
-              durationMs
-            }
-          }));
+  const runSuites = useCallback(
+    async (suitesToRun) => {
+      setIsRunning(true);
+      for (const suite of suitesToRun) {
+        for (const test of suite.tests) {
+          await runSingleTest(suite.id, test);
         }
       }
-    }
+      setIsRunning(false);
+    },
+    [runSingleTest]
+  );
 
-    setIsRunning(false);
-  }, []);
+  const handleRunOne = useCallback(
+    async (suiteId, test) => {
+      if (isRunning) return;
+      setIsRunning(true);
+      await runSingleTest(suiteId, test);
+      setIsRunning(false);
+    },
+    [isRunning, runSingleTest]
+  );
 
   const handleRunAll = () => {
     setResults({});
@@ -99,15 +114,20 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
     let passed = 0;
     let failed = 0;
     let skipped = 0;
+    let running = 0;
 
     allTests.forEach((key) => {
       const st = results[key]?.status;
       if (st === 'passed') passed++;
       else if (st === 'failed') failed++;
       else if (st === 'skipped') skipped++;
+      else if (st === 'running') running++;
     });
 
-    return { total: allTests.length, passed, failed, skipped };
+    const completed = passed + failed + skipped;
+    const percent = allTests.length > 0 ? Math.round((completed / allTests.length) * 100) : 0;
+
+    return { total: allTests.length, passed, failed, skipped, running, completed, percent };
   }, [suites, results]);
 
   const handleCopyReport = () => {
@@ -130,10 +150,16 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
       lines.push('');
     });
 
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      setCopiedReport(true);
-      setTimeout(() => setCopiedReport(false), 2000);
-    });
+    if (!navigator.clipboard?.writeText) return;
+    navigator.clipboard
+      .writeText(lines.join('\n'))
+      .then(() => {
+        setCopiedReport(true);
+        setTimeout(() => setCopiedReport(false), 2000);
+      })
+      .catch((err) => {
+        console.warn('Não foi possível copiar o relatório:', err);
+      });
   };
 
   if (checkingAccess) {
@@ -168,7 +194,7 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
           <div>
             <h4 className="text-warning fw-bold mb-1">🧪 Laboratório de Testes Automatizados</h4>
             <small className="text-muted">
-              Ambiente: <strong>{window.location.hostname}</strong> • Acesso exclusivo Admin • Salas sandbox são apagadas automaticamente
+              Ambiente: <strong>{window.location.hostname}</strong> • {suites.length} suítes ({summary.total} testes) • Salas sandbox são apagadas automaticamente
             </small>
           </div>
           <button type="button" className="btn btn-outline-light btn-sm" onClick={onBack}>
@@ -179,59 +205,84 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
 
       {/* Barra de Ações e Resumo */}
       <section className="card bg-dark border-secondary mb-3" aria-label="Controles de execução">
-        <div className="card-body d-flex flex-row justify-content-between align-items-center flex-wrap gap-2">
-          <div className="d-flex flex-wrap gap-2 align-items-center">
-            <button
-              type="button"
-              className="btn btn-success"
-              disabled={isRunning}
-              onClick={handleRunAll}
-            >
-              {isRunning ? '⏳ Executando...' : '▶ Executar Todos os Testes'}
-            </button>
+        <div className="card-body d-flex flex-column gap-2">
+          <div className="d-flex flex-row justify-content-between align-items-center flex-wrap gap-2">
+            <div className="d-flex flex-wrap gap-2 align-items-center">
+              <button
+                type="button"
+                className="btn btn-success"
+                disabled={isRunning}
+                onClick={handleRunAll}
+              >
+                {isRunning ? `⏳ Executando (${summary.completed}/${summary.total})...` : '▶ Executar Todos os Testes'}
+              </button>
 
-            <button
-              type="button"
-              className="btn btn-outline-secondary btn-sm"
-              disabled={isRunning || Object.keys(results).length === 0}
-              onClick={handleCopyReport}
-            >
-              {copiedReport ? '✅ Copiado!' : '📋 Copiar Relatório'}
-            </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm"
+                disabled={isRunning || Object.keys(results).length === 0}
+                onClick={handleCopyReport}
+              >
+                {copiedReport ? '✅ Copiado!' : '📋 Copiar Relatório'}
+              </button>
 
-            <div className="form-check form-switch ms-2 mb-0">
-              <input
-                id="filter-only-failures"
-                type="checkbox"
-                className="form-check-input"
-                checked={onlyFailures}
-                onChange={(e) => setOnlyFailures(e.target.checked)}
-              />
-              <label htmlFor="filter-only-failures" className="form-check-label small text-light">
-                Mostrar só falhas
-              </label>
+              <div className="form-check form-switch ms-2 mb-0">
+                <input
+                  id="filter-only-failures"
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={onlyFailures}
+                  onChange={(e) => setOnlyFailures(e.target.checked)}
+                />
+                <label htmlFor="filter-only-failures" className="form-check-label small text-light">
+                  Mostrar só falhas
+                </label>
+              </div>
+            </div>
+
+            <div className="d-flex gap-2 flex-wrap">
+              <span className="badge bg-secondary">Total: {summary.total}</span>
+              <span className="badge bg-success">✅ {summary.passed}</span>
+              <span className="badge bg-danger">❌ {summary.failed}</span>
+              {summary.skipped > 0 && (
+                <span className="badge bg-warning text-dark">⏭️ {summary.skipped}</span>
+              )}
             </div>
           </div>
 
-          <div className="d-flex gap-2 flex-wrap">
-            <span className="badge bg-secondary">Total: {summary.total}</span>
-            <span className="badge bg-success">✅ {summary.passed}</span>
-            <span className="badge bg-danger">❌ {summary.failed}</span>
-            {summary.skipped > 0 && (
-              <span className="badge bg-warning text-dark">⏭️ {summary.skipped}</span>
-            )}
-          </div>
+          {summary.completed > 0 && (
+            <div className="progress" style={{ height: '6px', backgroundColor: 'rgba(255,255,255,0.08)' }}>
+              <div
+                className={`progress-bar ${summary.failed > 0 ? 'bg-danger' : 'bg-success'}`}
+                role="progressbar"
+                aria-valuenow={summary.percent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                style={{ width: `${summary.percent}%`, transition: 'width 0.2s ease' }}
+              />
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Nota sobre o rate limiter de criação de sala */}
       <div className="alert alert-info py-2 px-3 small mb-3">
-        💡 <strong>Dica:</strong> A Suíte 5 cria e apaga uma sala real no Supabase. Por causa do limite anti-spam (5 segundos), aguarde 5s antes de rodar a Suíte 5 novamente em sequência.
+        💡 <strong>Cobertura completa:</strong> As Suítes 6, 7 e 8 executam testes reais de caixa preta no Supabase (criando salas sandbox e 3 contas bot temporárias) e apagam tudo automaticamente ao final sem afetar o ranking nem o histórico.
       </div>
 
       {/* Lista de Suítes */}
       <div className="d-flex flex-column gap-3">
         {suites.map((suite) => {
+          const suiteStats = suite.tests.reduce(
+            (acc, t) => {
+              const st = results[`${suite.id}::${t.id}`]?.status;
+              if (st === 'passed') acc.passed++;
+              else if (st === 'failed') acc.failed++;
+              else if (st === 'skipped') acc.skipped++;
+              return acc;
+            },
+            { passed: 0, failed: 0, skipped: 0 }
+          );
+
           const visibleTests = onlyFailures
             ? suite.tests.filter((t) => results[`${suite.id}::${t.id}`]?.status === 'failed')
             : suite.tests;
@@ -242,7 +293,17 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
             <article key={suite.id} className="card bg-dark border-secondary">
               <header className="card-header d-flex flex-row justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                  <h6 className="text-white fw-bold mb-0">{suite.title}</h6>
+                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                    <h6 className="text-white fw-bold mb-0">{suite.title}</h6>
+                    <span className="badge bg-secondary" style={{ fontSize: '0.7rem' }}>
+                      {suiteStats.passed}/{suite.tests.length} OK
+                    </span>
+                    {suiteStats.failed > 0 && (
+                      <span className="badge bg-danger" style={{ fontSize: '0.7rem' }}>
+                        {suiteStats.failed} falha(s)
+                      </span>
+                    )}
+                  </div>
                   <small className="text-muted">{suite.description}</small>
                 </div>
                 <button
@@ -274,6 +335,16 @@ const TestRunnerPage = ({ user, gameData, localization = {}, onBack }) => {
                               <small className="text-muted">{res.durationMs}ms</small>
                             )}
                             <span className={`badge ${badge.className}`}>{badge.label}</span>
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary btn-sm py-0 px-2"
+                              disabled={isRunning}
+                              onClick={() => handleRunOne(suite.id, test)}
+                              title="Executar apenas este teste"
+                              aria-label={`Executar teste ${test.name}`}
+                            >
+                              ▶
+                            </button>
                           </div>
                         </div>
 

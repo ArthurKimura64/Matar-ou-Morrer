@@ -3,6 +3,7 @@ import authService from "../../services/authService"
 import { useEscapeKey } from "../../hooks/useEscapeKey"
 import { AVAILABLE_THEMES } from "../../config/themes"
 import { isTestEnvironment } from "../admin-tests/testEnv"
+import BaseModal from "../../components/BaseModal"
 
 const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword, currentTheme = "classic", onThemeChange, localization = {} }) => {
   const [open, setOpen] = useState(false)
@@ -14,7 +15,6 @@ const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword, curre
   const closeMenu = useCallback(() => setOpen(false), [])
   const closeThemeModal = useCallback(() => setShowThemeModal(false), [])
 
-  useEscapeKey(showThemeModal, closeThemeModal)
   useEscapeKey(open && !showThemeModal, closeMenu)
 
   useEffect(() => {
@@ -159,7 +159,7 @@ const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword, curre
                   className="btn btn-sm btn-outline-warning w-100 text-start mb-1"
                   onClick={() => {
                     setOpen(false)
-                    window.open("/admin.html", "_blank")
+                    window.open("/admin", "_blank")
                   }}
                 >
                   ⚙️ {localization["UI.Menu.AdminPanel"] || "Painel Admin"}
@@ -188,129 +188,94 @@ const UserMenu = ({ user, profile, onLogout, onNavigate, onChangePassword, curre
       </div>
 
       {/* Modal Studio de Paletas de Cores */}
-      {showThemeModal && (
-        <>
-          <div
-            className="position-fixed top-0 start-0 w-100 h-100"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.78)", backdropFilter: "blur(4px)", zIndex: 2000 }}
-            onClick={closeThemeModal}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="theme-modal-title"
-            className="position-fixed top-50 start-50 translate-middle card border-secondary shadow-lg"
-            style={{
-              zIndex: 2001,
-              width: "94%",
-              maxWidth: "720px",
-              maxHeight: "86vh",
-              overflowY: "auto"
-            }}
-          >
-            <header className="card-header d-flex justify-content-between align-items-center p-3">
-              <div>
-                <h5 id="theme-modal-title" className="text-white mb-0 fw-bold">
-                  🎨 Personalização de Tema
-                </h5>
-                <small className="text-muted">Salvo automaticamente na sua conta ({displayName})</small>
-              </div>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-light"
-                style={{ width: "34px", height: "34px", padding: 0 }}
-                aria-label="Fechar"
-                onClick={closeThemeModal}
-              >
-                ✕
-              </button>
-            </header>
-
-            <div className="card-body p-3">
-              <div className="row g-3">
-                {AVAILABLE_THEMES.map((t) => {
-                  const isSelected = currentTheme === t.id
-                  return (
-                    <article key={t.id} className="col-12 md:col-6">
-                      <div
-                        onClick={() => onThemeChange && onThemeChange(t.id)}
-                        className="p-3 rounded position-relative h-100 d-flex flex-column justify-content-between"
+      <BaseModal
+        show={showThemeModal}
+        onClose={closeThemeModal}
+        title="🎨 Personalização de Tema"
+        subtitle={`Salvo automaticamente na sua conta (${displayName})`}
+        borderVariant="secondary"
+        size="lg"
+        footer={
+          <button type="button" className="btn btn-primary btn-sm px-4" onClick={closeThemeModal}>
+            Concluir
+          </button>
+        }
+      >
+        <div className="row g-3">
+          {AVAILABLE_THEMES.map((t) => {
+            const isSelected = currentTheme === t.id
+            return (
+              <article key={t.id} className="col-12 md:col-6">
+                <div
+                  onClick={() => onThemeChange && onThemeChange(t.id)}
+                  className="p-3 rounded position-relative h-100 d-flex flex-column justify-content-between"
+                  style={{
+                    cursor: "pointer",
+                    background: t.previewBg,
+                    border: isSelected ? `2.5px solid ${t.accent}` : "1.5px solid rgba(255, 255, 255, 0.14)",
+                    boxShadow: isSelected ? `0 0 20px ${t.accent}44` : "0 4px 10px rgba(0,0,0,0.4)",
+                    transition: "all 0.18s ease"
+                  }}
+                >
+                  <div>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <div className="d-flex align-items-center gap-2">
+                        <span style={{ fontSize: "1.25rem" }}>{t.icon}</span>
+                        <span className="fw-bold text-white" style={{ fontSize: "0.98rem" }}>
+                          {t.label}
+                        </span>
+                      </div>
+                      <span
+                        className="badge"
                         style={{
-                          cursor: "pointer",
-                          background: t.previewBg,
-                          border: isSelected ? `2.5px solid ${t.accent}` : "1.5px solid rgba(255, 255, 255, 0.14)",
-                          boxShadow: isSelected ? `0 0 20px ${t.accent}44` : "0 4px 10px rgba(0,0,0,0.4)",
-                          transition: "all 0.18s ease"
+                          backgroundColor: isSelected ? t.accent : "rgba(255,255,255,0.1)",
+                          color: isSelected ? "#000" : "#cbd5e1",
+                          fontSize: "0.7rem"
                         }}
                       >
-                        <div>
-                          <div className="d-flex justify-content-between align-items-center mb-2">
-                            <div className="d-flex align-items-center gap-2">
-                              <span style={{ fontSize: "1.25rem" }}>{t.icon}</span>
-                              <span className="fw-bold text-white" style={{ fontSize: "0.98rem" }}>
-                                {t.label}
-                              </span>
-                            </div>
-                            <span
-                              className="badge"
-                              style={{
-                                backgroundColor: isSelected ? t.accent : "rgba(255,255,255,0.1)",
-                                color: isSelected ? "#000" : "#cbd5e1",
-                                fontSize: "0.7rem"
-                              }}
-                            >
-                              {isSelected ? "✓ Ativo" : t.badge}
-                            </span>
-                          </div>
+                        {isSelected ? "✓ Ativo" : t.badge}
+                      </span>
+                    </div>
 
-                          <p className="text-muted small mb-3" style={{ fontSize: "0.8rem", lineHeight: 1.35 }}>
-                            {t.desc}
-                          </p>
-                        </div>
+                    <p className="text-muted small mb-3" style={{ fontSize: "0.8rem", lineHeight: 1.35 }}>
+                      {t.desc}
+                    </p>
+                  </div>
 
-                        <div
-                          className="p-2 rounded d-flex align-items-center justify-content-between"
-                          style={{
-                            backgroundColor: t.previewCard,
-                            border: `1px solid ${t.accent}55`
-                          }}
-                        >
-                          <div className="d-flex align-items-center gap-2">
-                            <span
-                              style={{
-                                width: "14px",
-                                height: "14px",
-                                borderRadius: "4px",
-                                backgroundColor: t.accent,
-                                display: "inline-block",
-                                boxShadow: `0 0 8px ${t.accent}`
-                              }}
-                            />
-                            <small className="text-light fw-bold" style={{ fontSize: "0.72rem" }}>
-                              Superfície do Card
-                            </small>
-                          </div>
-                          <div className="d-flex gap-1">
-                            <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ef4444" }} />
-                            <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10b981" }} />
-                            <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#3b82f6" }} />
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            </div>
-
-            <footer className="card-footer d-flex justify-content-end p-3 border-top border-secondary">
-              <button type="button" className="btn btn-primary btn-sm px-4" onClick={closeThemeModal}>
-                Concluir
-              </button>
-            </footer>
-          </div>
-        </>
-      )}
+                  <div
+                    className="p-2 rounded d-flex align-items-center justify-content-between"
+                    style={{
+                      backgroundColor: t.previewCard,
+                      border: `1px solid ${t.accent}55`
+                    }}
+                  >
+                    <div className="d-flex align-items-center gap-2">
+                      <span
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          borderRadius: "4px",
+                          backgroundColor: t.accent,
+                          display: "inline-block",
+                          boxShadow: `0 0 8px ${t.accent}`
+                        }}
+                      />
+                      <small className="text-light fw-bold" style={{ fontSize: "0.72rem" }}>
+                        Superfície do Card
+                      </small>
+                    </div>
+                    <div className="d-flex gap-1">
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ef4444" }} />
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10b981" }} />
+                      <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#3b82f6" }} />
+                    </div>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </BaseModal>
     </>
   )
 }

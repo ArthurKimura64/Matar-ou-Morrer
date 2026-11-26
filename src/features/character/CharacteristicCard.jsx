@@ -55,8 +55,7 @@ const CharacteristicCard = ({ actor, localization, deathCount = 0, exposedCards 
         <div className="mb-4 border-top px-3 position-relative">
           {/* Botão de olho para expor o modo Reivolk na mesa */}
           {onToggleCardExposure && (
-            <button 
-              className={`btn btn-sm position-absolute ${exposedCards.has(`Reivolk.${actor.ID}`) ? 'btn-success' : 'btn-outline-secondary'}`}
+            <button  type="button" className={`btn btn-sm position-absolute ${exposedCards.has(`Reivolk.${actor.ID}`) ? 'btn-success' : 'btn-outline-secondary'}`}
               style={{ 
                 top: '10px', 
                 right: '10px', 

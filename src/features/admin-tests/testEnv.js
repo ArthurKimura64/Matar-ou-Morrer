@@ -8,7 +8,10 @@
  * ============================================================================
  */
 export function isTestEnvironment() {
-  if (process.env.REACT_APP_ENABLE_TEST_LAB === 'true') {
+  if (
+    import.meta.env.VITE_ENABLE_TEST_LAB === 'true' ||
+    import.meta.env.REACT_APP_ENABLE_TEST_LAB === 'true'
+  ) {
     return true;
   }
 

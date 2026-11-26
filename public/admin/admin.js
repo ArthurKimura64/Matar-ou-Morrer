@@ -173,6 +173,18 @@ async function getToken() {
   return session.data.session?.access_token
 }
 
+async function parseApiJson(res) {
+  var contentType = res.headers.get("content-type") || ""
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      "Rota /api indisponível neste servidor local. Rode com 'npm run dev' (Vite) ou teste publicado na Vercel."
+    )
+  }
+  var data = await res.json()
+  if (!res.ok) throw new Error(data.error || "Erro ao processar requisição")
+  return data
+}
+
 function setupTabs() {
   document.querySelectorAll("[data-tab]").forEach(function (link) {
     link.addEventListener("click", function (e) {
@@ -334,50 +346,48 @@ window.loadUsers = async function () {
     }
     tbody.innerHTML = users
       .map(function (u) {
+        var eId = escapeHtml(u.id)
         var eName = escapeHtml(u.display_name || "")
-        var safeJsName = String(u.display_name || "")
-          .replace(/\\/g, "\\\\")
-          .replace(/'/g, "\\'")
         var rowClass = u.banned_at ? "table-danger" : ""
         var adminBadge = u.is_admin ? ' <span class="badge bg-warning text-dark">👑 Admin</span>' : ""
         var statusBadge =
           u.banned_at ? '<span class="badge badge-status bg-danger">Banido</span>' : '<span class="badge badge-status bg-success">Ativo</span>'
         var actions =
-          '<button class="btn btn-outline-primary btn-action me-1" title="Gerenciar" onclick="event.stopPropagation();openUserDetail(\'' +
-          u.id +
-          "')\">✏️</button>"
+          '<button type="button" class="btn btn-outline-primary btn-action me-1" title="Gerenciar" data-action="open-user" data-id="' +
+          eId +
+          '">✏️</button>'
         if (!u.is_admin) {
           var banBtn =
             u.banned_at ?
-              '<button class="btn btn-outline-success btn-action" title="Desbanir" onclick="event.stopPropagation();unbanUser(\'' +
-              u.id +
-              "','" +
-              safeJsName +
-              "')\">✅</button>"
-            : '<button class="btn btn-outline-warning btn-action" title="Banir" onclick="event.stopPropagation();openBanModal(\'' +
-              u.id +
-              "','" +
-              safeJsName +
-              "')\">🚫</button>"
+              '<button type="button" class="btn btn-outline-success btn-action" title="Desbanir" data-action="unban-user" data-id="' +
+              eId +
+              '" data-name="' +
+              eName +
+              '">✅</button>'
+            : '<button type="button" class="btn btn-outline-warning btn-action" title="Banir" data-action="ban-user" data-id="' +
+              eId +
+              '" data-name="' +
+              eName +
+              '">🚫</button>'
           actions +=
             banBtn +
-            '<button class="btn btn-outline-secondary btn-action" title="Mudar senha" onclick="event.stopPropagation();openPasswordModal(\'' +
-            u.id +
-            "','" +
-            safeJsName +
-            "')\">🔑</button>" +
-            '<button class="btn btn-outline-danger btn-action" title="Deletar" onclick="event.stopPropagation();deleteUser(\'' +
-            u.id +
-            "','" +
-            safeJsName +
-            "')\">🗑️</button>"
+            '<button type="button" class="btn btn-outline-secondary btn-action" title="Mudar senha" data-action="change-pass" data-id="' +
+            eId +
+            '" data-name="' +
+            eName +
+            '">🔑</button>' +
+            '<button type="button" class="btn btn-outline-danger btn-action" title="Deletar" data-action="delete-user" data-id="' +
+            eId +
+            '" data-name="' +
+            eName +
+            '">🗑️</button>'
         }
         return (
           '<tr class="clickable-row ' +
           rowClass +
-          '" onclick="openUserDetail(\'' +
-          u.id +
-          "')\">" +
+          '" data-action="open-user" data-id="' +
+          eId +
+          '">' +
           "<td>" +
           eName +
           adminBadge +
@@ -430,8 +440,7 @@ window.createUser = async function (e) {
         password: document.getElementById("newUserPass").value
       })
     })
-    var data = await res.json()
-    if (!res.ok) throw new Error(data.error || "Erro ao criar conta")
+    await parseApiJson(res)
     showToast("Conta criada com sucesso!")
     document.getElementById("createUserForm").classList.add("d-none")
     document.getElementById("newUserName").value = ""
@@ -474,22 +483,43 @@ window.openUserDetail = async function (userId) {
     document.getElementById("userStatScore").value = s.composite_score || 0
     document.getElementById("editDisplayName").value = p.display_name || ""
 
-    var safeName = String(p.display_name || "")
-      .replace(/\\/g, "\\\\")
-      .replace(/'/g, "\\'")
+    var eId = escapeHtml(p.id)
+    var eName = escapeHtml(p.display_name || "")
     var actionsHtml = ""
     if (!p.is_admin) {
       if (p.banned_at) {
-        actionsHtml += '<button class="btn btn-sm btn-outline-success" onclick="unbanUser(\'' + p.id + "','" + safeName + "')\">✅ Desbanir</button>"
+        actionsHtml +=
+          '<button type="button" class="btn btn-sm btn-outline-success" data-action="unban-user" data-id="' +
+          eId +
+          '" data-name="' +
+          eName +
+          '">✅ Desbanir</button>'
       } else {
-        actionsHtml += '<button class="btn btn-sm btn-outline-warning" onclick="openBanModal(\'' + p.id + "','" + safeName + "')\">🚫 Banir</button>"
+        actionsHtml +=
+          '<button type="button" class="btn btn-sm btn-outline-warning" data-action="ban-user" data-id="' +
+          eId +
+          '" data-name="' +
+          eName +
+          '">🚫 Banir</button>'
       }
       actionsHtml +=
-        '<button class="btn btn-sm btn-outline-secondary" onclick="openPasswordModal(\'' + p.id + "','" + safeName + "')\">🔑 Mudar Senha</button>"
+        '<button type="button" class="btn btn-sm btn-outline-secondary" data-action="change-pass" data-id="' +
+        eId +
+        '" data-name="' +
+        eName +
+        '">🔑 Mudar Senha</button>'
       actionsHtml +=
-        '<button class="btn btn-sm btn-outline-warning" onclick="resetStats(\'' + p.id + "','" + safeName + "')\">🧹 Zerar Stats</button>"
+        '<button type="button" class="btn btn-sm btn-outline-warning" data-action="reset-stats" data-id="' +
+        eId +
+        '" data-name="' +
+        eName +
+        '">🧹 Zerar Stats</button>'
       actionsHtml +=
-        '<button class="btn btn-sm btn-outline-danger" onclick="deleteUser(\'' + p.id + "','" + safeName + "')\">🗑️ Deletar Conta</button>"
+        '<button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-user" data-id="' +
+        eId +
+        '" data-name="' +
+        eName +
+        '">🗑️ Deletar Conta</button>'
     }
     document.getElementById("detailActions").innerHTML = actionsHtml
 
@@ -502,20 +532,19 @@ window.openUserDetail = async function (userId) {
       mtbody.innerHTML = matches
         .map(function (m) {
           userMatchesCache[m.match_id] = m
+          var eMatchId = escapeHtml(m.match_id || "")
+          var eRoomName = escapeHtml(m.room_name || "")
           var resultBadge =
             m.is_winner ?
               '<span class="badge bg-success">🏆 Vitória</span>'
             : '<span class="badge bg-danger">💀 ' + (m.elimination_order ? "#" + m.elimination_order : "Derrota") + "</span>"
           var killedByInfo = m.killed_by_player_name ? ' <small class="text-muted">(por ' + escapeHtml(m.killed_by_player_name) + ")</small>" : ""
-          var shortId = (m.match_id || "").substring(0, 8)
-          var safeRoom = String(m.room_name || "")
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'")
+          var shortId = escapeHtml((m.match_id || "").substring(0, 8))
 
           return (
             "<tr>" +
             "<td>" +
-            escapeHtml(m.room_name || "—") +
+            (eRoomName || "—") +
             "</td>" +
             "<td>" +
             escapeHtml(m.character_name || "—") +
@@ -533,25 +562,25 @@ window.openUserDetail = async function (userId) {
             "<td><small>" +
             formatDate(m.ended_at) +
             "</small></td>" +
-            '<td><code class="text-info" style="cursor:pointer;font-size:11px" title="Clique para copiar ID" onclick="copyMatchId(\'' +
-            m.match_id +
-            "')\">" +
+            '<td><code class="text-info" style="cursor:pointer;font-size:11px" title="Clique para copiar ID" data-action="copy-match" data-id="' +
+            eMatchId +
+            '">' +
             shortId +
             "…</code></td>" +
             '<td><div class="d-flex gap-1">' +
-            '<button class="btn btn-outline-primary btn-action" title="Editar participação" onclick="openEditMatchById(\'' +
-            m.match_id +
-            "')\">✏️</button>" +
-            '<button class="btn btn-outline-warning btn-action" title="Remover apenas deste jogador" onclick="removeMatchParticipant(\'' +
-            m.match_id +
-            "','" +
-            safeRoom +
-            "')\">👤➖</button>" +
-            '<button class="btn btn-outline-danger btn-action" title="Apagar partida inteira de todos" onclick="deleteMatch(\'' +
-            m.match_id +
-            "','" +
-            safeRoom +
-            "')\">🗑️</button>" +
+            '<button type="button" class="btn btn-outline-primary btn-action" title="Editar participação" data-action="edit-match" data-id="' +
+            eMatchId +
+            '">✏️</button>' +
+            '<button type="button" class="btn btn-outline-warning btn-action" title="Remover apenas deste jogador" data-action="remove-part" data-id="' +
+            eMatchId +
+            '" data-name="' +
+            eRoomName +
+            '">👤➖</button>' +
+            '<button type="button" class="btn btn-outline-danger btn-action" title="Apagar partida inteira de todos" data-action="delete-match" data-id="' +
+            eMatchId +
+            '" data-name="' +
+            eRoomName +
+            '">🗑️</button>' +
             "</div></td>" +
             "</tr>"
           )
@@ -677,9 +706,18 @@ window.createMatch = async function (e) {
 }
 
 window.copyMatchId = function (matchId) {
-  navigator.clipboard.writeText(matchId).then(function () {
-    showToast("ID copiado: " + matchId.substring(0, 8) + "…")
-  })
+  if (!navigator.clipboard?.writeText) {
+    showToast("Copie manualmente: " + matchId, "info")
+    return
+  }
+  navigator.clipboard
+    .writeText(matchId)
+    .then(function () {
+      showToast("ID copiado: " + matchId.substring(0, 8) + "…")
+    })
+    .catch(function () {
+      showToast("Não foi possível copiar o ID automaticamente.", "warning")
+    })
 }
 
 window.openEditMatchById = function (matchId) {
@@ -851,8 +889,7 @@ document.getElementById("passConfirmBtn").addEventListener("click", async functi
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
       body: JSON.stringify({ userId: passUserId, newPassword: pw })
     })
-    var data = await res.json()
-    if (!res.ok) throw new Error(data.error || "Erro ao alterar senha")
+    await parseApiJson(res)
     showToast("Senha alterada com sucesso!")
     Modal.getInstance(document.getElementById("passwordModal")).hide()
   } catch (e) {
@@ -889,8 +926,7 @@ window.deleteUser = async function (id, name) {
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
       body: JSON.stringify({ userId: id })
     })
-    var data = await res.json()
-    if (!res.ok) throw new Error(data.error || "Erro ao deletar")
+    await parseApiJson(res)
     showToast('Conta "' + name + '" deletada.')
     if (currentDetailUserId === id) {
       closeUserDetail()
@@ -919,28 +955,26 @@ window.loadRooms = async function () {
     }
     tbody.innerHTML = rooms
       .map(function (r) {
+        var eId = escapeHtml(r.id)
         var eName = escapeHtml(r.name || "")
-        var safeJsName = String(r.name || "")
-          .replace(/\\/g, "\\\\")
-          .replace(/'/g, "\\'")
         var statusBadge =
           r.match_status ? '<span class="badge badge-status bg-warning text-dark">Em Partida</span>'
           : r.is_active ? '<span class="badge badge-status bg-success">Ativa</span>'
           : '<span class="badge badge-status bg-secondary">Inativa</span>'
         var forceBtn =
           r.match_status ?
-            '<button class="btn btn-outline-warning btn-action" title="Forçar fim da partida" onclick="event.stopPropagation();forceEndMatch(\'' +
-            r.id +
-            "','" +
-            safeJsName +
-            "')\">⏹️</button>"
+            '<button type="button" class="btn btn-outline-warning btn-action" title="Forçar fim da partida" data-action="force-end" data-id="' +
+            eId +
+            '" data-name="' +
+            eName +
+            '">⏹️</button>'
           : ""
         return (
-          '<tr class="clickable-row" onclick="openRoomDetail(\'' +
-          r.id +
-          "')\">" +
+          '<tr class="clickable-row" data-action="open-room" data-id="' +
+          eId +
+          '">' +
           '<td><code class="text-info">' +
-          escapeHtml(r.id) +
+          eId +
           "</code></td>" +
           "<td>" +
           eName +
@@ -960,15 +994,15 @@ window.loadRooms = async function () {
           formatDate(r.created_at) +
           "</small></td>" +
           '<td><div class="d-flex gap-1">' +
-          '<button class="btn btn-outline-primary btn-action" title="Gerenciar sala" onclick="event.stopPropagation();openRoomDetail(\'' +
-          r.id +
-          "')\">👁️</button>" +
+          '<button type="button" class="btn btn-outline-primary btn-action" title="Gerenciar sala" data-action="open-room" data-id="' +
+          eId +
+          '">👁️</button>' +
           forceBtn +
-          '<button class="btn btn-outline-danger btn-action" title="Deletar sala" onclick="event.stopPropagation();deleteRoom(\'' +
-          r.id +
-          "','" +
-          safeJsName +
-          "')\">🗑️</button>" +
+          '<button type="button" class="btn btn-outline-danger btn-action" title="Deletar sala" data-action="delete-room" data-id="' +
+          eId +
+          '" data-name="' +
+          eName +
+          '">🗑️</button>' +
           "</div></td>" +
           "</tr>"
         )
@@ -1003,19 +1037,26 @@ window.openRoomDetail = async function (roomId) {
       : '<span class="badge bg-secondary">Inativa</span>'
     document.getElementById("roomDetailStatus").innerHTML = statusHtml
 
-    var safeRoomName = String(r.name || "")
-      .replace(/\\/g, "\\\\")
-      .replace(/'/g, "\\'")
-    var actHtml = '<button class="btn btn-sm btn-outline-info" onclick="clearRoomCombats(\'' + r.id + "')\">⚔️ Limpar Combates Travados</button>"
+    var eRoomId = escapeHtml(r.id)
+    var eRoomName = escapeHtml(r.name || "")
+    var actHtml =
+      '<button type="button" class="btn btn-sm btn-outline-info" data-action="clear-combats" data-id="' +
+      eRoomId +
+      '">⚔️ Limpar Combates Travados</button>'
     if (r.match_status) {
       actHtml +=
-        '<button class="btn btn-sm btn-outline-warning" onclick="forceEndMatch(\'' +
-        r.id +
-        "','" +
-        safeRoomName +
-        "')\">⏹️ Forçar Fim da Partida</button>"
+        '<button type="button" class="btn btn-sm btn-outline-warning" data-action="force-end" data-id="' +
+        eRoomId +
+        '" data-name="' +
+        eRoomName +
+        '">⏹️ Forçar Fim da Partida</button>'
     }
-    actHtml += '<button class="btn btn-sm btn-outline-danger" onclick="deleteRoom(\'' + r.id + "','" + safeRoomName + "')\">🗑️ Deletar Sala</button>"
+    actHtml +=
+      '<button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-room" data-id="' +
+      eRoomId +
+      '" data-name="' +
+      eRoomName +
+      '">🗑️ Deletar Sala</button>'
     document.getElementById("roomDetailActions").innerHTML = actHtml
 
     var ptbody = document.getElementById("roomPlayersBody")
@@ -1024,6 +1065,8 @@ window.openRoomDetail = async function (roomId) {
     } else {
       ptbody.innerHTML = players
         .map(function (p) {
+          var ePId = escapeHtml(p.id)
+          var ePName = escapeHtml(p.name || "")
           var connBadge = p.is_connected ? '<span class="badge bg-success">🟢 Sim</span>' : '<span class="badge bg-secondary">🔴 Não</span>'
           var statusBadge =
             p.status === "ready" ? '<span class="badge bg-primary">Pronto</span>'
@@ -1032,33 +1075,32 @@ window.openRoomDetail = async function (roomId) {
           var accountName = p.display_name ? escapeHtml(p.display_name) : '<span class="text-muted">Sem conta</span>'
           if (p.banned_at) accountName += ' <span class="badge bg-danger">Banido</span>'
 
-          var safePName = String(p.name || "")
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'")
           var actions =
-            '<button class="btn btn-outline-warning btn-action" title="Tornar Mestre da Sala" onclick="setRoomMaster(\'' +
-            roomId +
-            "','" +
-            p.id +
-            "','" +
-            safePName +
-            "')\">👑</button>"
+            '<button type="button" class="btn btn-outline-warning btn-action" title="Tornar Mestre da Sala" data-action="set-master" data-room-id="' +
+            eRoomId +
+            '" data-id="' +
+            ePId +
+            '" data-name="' +
+            ePName +
+            '">👑</button>'
           actions +=
-            '<button class="btn btn-outline-danger btn-action" title="Expulsar da Sala" onclick="kickPlayer(\'' +
-            p.id +
-            "','" +
-            roomId +
-            "','" +
-            safePName +
-            "')\">👢</button>"
+            '<button type="button" class="btn btn-outline-danger btn-action" title="Expulsar da Sala" data-action="kick-player" data-room-id="' +
+            eRoomId +
+            '" data-id="' +
+            ePId +
+            '" data-name="' +
+            ePName +
+            '">👢</button>'
           if (p.user_id) {
             actions +=
-              '<button class="btn btn-outline-primary btn-action" title="Ver Conta" onclick="goToUserFromRoom(\'' + p.user_id + "')\">👁️</button>"
+              '<button type="button" class="btn btn-outline-primary btn-action" title="Ver Conta" data-action="goto-user" data-id="' +
+              escapeHtml(p.user_id) +
+              '">👁️</button>'
           }
           return (
             "<tr>" +
             "<td>" +
-            escapeHtml(p.name) +
+            ePName +
             "</td>" +
             "<td>" +
             accountName +
@@ -1213,7 +1255,9 @@ window.loadGlobalMatches = async function () {
     tbody.innerHTML = matches
       .map(function (m) {
         currentEditingMatchesMap[m.id] = m
-        var shortId = (m.id || "").substring(0, 8)
+        var eMatchId = escapeHtml(m.id || "")
+        var eRoomName = escapeHtml(m.room_name || "")
+        var shortId = escapeHtml((m.id || "").substring(0, 8))
         var partList = (m.participants || [])
           .map(function (p) {
             var icon = p.is_winner ? "🏆" : "💀"
@@ -1226,18 +1270,15 @@ window.loadGlobalMatches = async function () {
           })
           .join(" &nbsp;|&nbsp; ")
 
-        var safeRoom = String(m.room_name || "")
-          .replace(/\\/g, "\\\\")
-          .replace(/'/g, "\\'")
         return (
           "<tr>" +
-          '<td><code class="text-info" style="cursor:pointer" title="Copiar ID" onclick="copyMatchId(\'' +
-          m.id +
-          "')\">" +
+          '<td><code class="text-info" style="cursor:pointer" title="Copiar ID" data-action="copy-match" data-id="' +
+          eMatchId +
+          '">' +
           shortId +
           "…</code></td>" +
           "<td>" +
-          escapeHtml(m.room_name || "—") +
+          (eRoomName || "—") +
           "</td>" +
           '<td><span class="text-success fw-bold">' +
           escapeHtml(m.winner_player_name || "—") +
@@ -1252,14 +1293,14 @@ window.loadGlobalMatches = async function () {
           formatDate(m.ended_at) +
           "</small></td>" +
           '<td><div class="d-flex gap-1">' +
-          '<button class="btn btn-outline-primary btn-action" title="Editar Partida e Participantes" onclick="openFullMatchEditor(\'' +
-          m.id +
-          "')\">✏️</button>" +
-          '<button class="btn btn-outline-danger btn-action" title="Deletar partida" onclick="deleteMatch(\'' +
-          m.id +
-          "','" +
-          safeRoom +
-          "')\">🗑️</button>" +
+          '<button type="button" class="btn btn-outline-primary btn-action" title="Editar Partida e Participantes" data-action="open-full-match" data-id="' +
+          eMatchId +
+          '">✏️</button>' +
+          '<button type="button" class="btn btn-outline-danger btn-action" title="Deletar partida" data-action="delete-match" data-id="' +
+          eMatchId +
+          '" data-name="' +
+          eRoomName +
+          '">🗑️</button>' +
           "</div></td>" +
           "</tr>"
         )
@@ -1322,7 +1363,7 @@ window.addFullMatchParticipantRow = function (p = {}) {
     cachedAllUsers
       .map(function (u) {
         var selected = p.user_id && p.user_id === u.id ? "selected" : ""
-        return '<option value="' + u.id + '" ' + selected + ">🔗 " + escapeHtml(u.display_name) + "</option>"
+        return '<option value="' + escapeHtml(u.id) + '" ' + selected + ">🔗 " + escapeHtml(u.display_name) + "</option>"
       })
       .join("")
 
@@ -1359,10 +1400,13 @@ window.addFullMatchParticipantRow = function (p = {}) {
     '<td><input type="number" class="form-control form-control-sm search-input part-elim-order" value="' +
     (p.elimination_order ?? "") +
     '" min="1" placeholder="—"></td>' +
+    '<td><input type="text" class="form-control form-control-sm search-input part-killed-by" value="' +
+    escapeHtml(p.killed_by_player_name || "") +
+    '" placeholder="Opcional"></td>' +
     '<td class="text-center"><input type="checkbox" class="form-check-input part-is-winner" ' +
     (p.is_winner ? "checked" : "") +
     "></td>" +
-    '<td><button type="button" class="btn btn-outline-danger btn-action" onclick="this.closest(\'tr\').remove()" title="Remover participante">✕</button></td>'
+    '<td><button type="button" class="btn btn-outline-danger btn-action" data-action="remove-row" title="Remover participante">✕</button></td>'
 
   var selectEl = tr.querySelector(".part-user-id")
   var nameInput = tr.querySelector(".part-player-name")
@@ -1383,6 +1427,7 @@ window.saveFullMatch = async function () {
   var participants = rows.map(function (tr) {
     var isWin = tr.querySelector(".part-is-winner").checked
     var elimVal = tr.querySelector(".part-elim-order").value
+    var killedByVal = tr.querySelector(".part-killed-by").value.trim()
     return {
       user_id: tr.querySelector(".part-user-id").value || null,
       player_name: tr.querySelector(".part-player-name").value.trim() || "Jogador",
@@ -1390,6 +1435,7 @@ window.saveFullMatch = async function () {
       eliminations_made: parseInt(tr.querySelector(".part-kills").value) || 0,
       survival_points: parseInt(tr.querySelector(".part-survival").value) || 0,
       elimination_order: !isWin && elimVal !== "" ? parseInt(elimVal) : null,
+      killed_by_player_name: !isWin && killedByVal ? killedByVal : null,
       is_winner: isWin
     }
   })
@@ -1516,7 +1562,7 @@ window.loadAuditLog = async function (direction) {
 
     tbody.innerHTML = logs
       .map(function (l) {
-        var actionLabel = actionLabels[l.action] || l.action
+        var actionLabel = actionLabels[l.action] || escapeHtml(l.action)
         var target = ""
         if (l.details) {
           if (l.details.display_name) target = escapeHtml(l.details.display_name)
@@ -1532,6 +1578,7 @@ window.loadAuditLog = async function (direction) {
           if (l.details.reason) detailsStr = "Motivo: " + escapeHtml(l.details.reason)
           else if (l.details.players_removed !== undefined) detailsStr = l.details.players_removed + " jogadores removidos"
           else if (l.details.combats_removed !== undefined) detailsStr = l.details.combats_removed + " combates removidos"
+          else if (l.details.key !== undefined) detailsStr = escapeHtml(l.details.key) + " = " + escapeHtml(l.details.value)
         }
 
         return (
@@ -1678,5 +1725,60 @@ window.debugRooms = async function () {
     hideLoading()
   }
 }
+
+// ========== ROTEADOR SEGURO DE EVENTOS (ANTI-XSS) ==========
+document.addEventListener("click", function (e) {
+  var el = e.target.closest("[data-action]")
+  if (!el) return
+
+  var action = el.dataset.action
+  var id = el.dataset.id
+  var name = el.dataset.name || ""
+  var roomId = el.dataset.roomId
+
+  switch (action) {
+    case "open-user":
+      return window.openUserDetail(id)
+    case "ban-user":
+      return window.openBanModal(id, name)
+    case "unban-user":
+      return window.unbanUser(id, name)
+    case "change-pass":
+      return window.openPasswordModal(id, name)
+    case "reset-stats":
+      return window.resetStats(id, name)
+    case "delete-user":
+      return window.deleteUser(id, name)
+    case "copy-match":
+      return window.copyMatchId(id)
+    case "edit-match":
+      return window.openEditMatchById(id)
+    case "remove-part":
+      return window.removeMatchParticipant(id, name)
+    case "delete-match":
+      return window.deleteMatch(id, name)
+    case "open-full-match":
+      return window.openFullMatchEditor(id)
+    case "remove-row":
+      el.closest("tr")?.remove()
+      return
+    case "open-room":
+      return window.openRoomDetail(id)
+    case "force-end":
+      return window.forceEndMatch(id, name)
+    case "delete-room":
+      return window.deleteRoom(id, name)
+    case "clear-combats":
+      return window.clearRoomCombats(id)
+    case "set-master":
+      return window.setRoomMaster(roomId, id, name)
+    case "kick-player":
+      return window.kickPlayer(id, roomId, name)
+    case "goto-user":
+      return window.goToUserFromRoom(id)
+    default:
+      return
+  }
+})
 
 initApp()

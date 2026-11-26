@@ -21,16 +21,20 @@ const SheetItemCard = ({
   onToggleExposure,
   onUnlockItem,
   onUseItem,
-  onToggleConvertPower
+  onToggleConvertPower,
+  onQuickAttack = null
 }) => {
   const isPassiveSpecial = section.type === 'passiveSpecial';
+  const isSpecial = section.type === 'special';
+  const isAttackOrWeapon = section.type === 'attack' || section.type === 'weapon';
+  const isLocked = (isPassiveSpecial || isSpecial) && !isUnlocked;
 
   const title =
     ['device', 'power', 'special'].includes(section.type) || isConverted
       ? Utils.createTriggerName(item.ID, item, localization)
       : localization[item.ID] || item.ID;
 
-  const desc = ['attack', 'weapon'].includes(section.type)
+  const desc = isAttackOrWeapon
     ? Utils.modeSystem.hasModes(actor) && item.modes
       ? Utils.createDualModeDescription(item, localization, actor)
       : Utils.createAttackDescription(item, localization, currentMode)
@@ -40,8 +44,8 @@ const SheetItemCard = ({
     : localization[item.Description] || item.Description || '';
 
   let cardOpacity = '';
-  if (isPassiveSpecial) {
-    cardOpacity = isUnlocked ? '' : ' opacity-50';
+  if (isLocked) {
+    cardOpacity = ' opacity-50';
   } else {
     cardOpacity = isBlocked ? ' opacity-50' : '';
     if (isUsed && !isConverted) cardOpacity += ' bg-dark opacity-75';
@@ -85,7 +89,7 @@ const SheetItemCard = ({
             {isBlocked && !isPassiveSpecial
               ? ` (${localization['UI.CharacterSheet.ModeRestricted'] || 'Bloqueado neste modo'})`
               : ''}
-            {isPassiveSpecial && !isUnlocked
+            {isLocked
               ? ` (${localization['UI.CharacterSheet.Locked'] || 'Bloqueado'})`
               : ''}
           </div>
@@ -95,28 +99,50 @@ const SheetItemCard = ({
           <div className="mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(desc) }} />
 
           <div className="d-flex flex-wrap gap-2">
-            {isPassiveSpecial && !isBlocked && (
+            {/* Atalho direto para abrir o combate com este ataque/arma */}
+            {isAttackOrWeapon && !isBlocked && typeof onQuickAttack === 'function' && (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => onQuickAttack(item)}
+                title="Abrir painel de combate com este ataque selecionado"
+              >
+                ⚔️ Atacar
+              </button>
+            )}
+
+            {/* Botão Desbloquear para Especiais e Especiais Passivas bloqueadas */}
+            {isLocked && !isBlocked && (
               <button
                 type="button"
                 className={`btn btn-sm btn-outline-${section.color}`}
                 onClick={() => onUnlockItem(item.ID)}
-                disabled={isUnlocked}
               >
-                {isUnlocked
-                  ? localization['UI.CharacterSheet.Unlocked'] || 'Desbloqueado'
-                  : localization['UI.CharacterSheet.Unlock'] || 'Desbloquear'}
+                🔓 {localization['UI.CharacterSheet.Unlock'] || 'Desbloquear'}
               </button>
             )}
 
-            {section.useButton && !isBlocked && !isPassiveSpecial && (
+            {/* Estado Desbloqueado para Especiais Passivas */}
+            {isPassiveSpecial && isUnlocked && !isBlocked && (
               <button
                 type="button"
                 className={`btn btn-sm btn-outline-${section.color}`}
-                disabled={isUsed}
+                disabled
+              >
+                {localization['UI.CharacterSheet.Unlocked'] || 'Desbloqueado'}
+              </button>
+            )}
+
+            {/* Botão Usar / Desfazer para Consumíveis (e Especiais já desbloqueadas) */}
+            {section.useButton && !isBlocked && !isPassiveSpecial && (!isSpecial || isUnlocked) && (
+              <button
+                type="button"
+                className={`btn btn-sm ${isUsed ? 'btn-outline-secondary' : `btn-outline-${section.color}`}`}
                 onClick={() => onUseItem(item.ID)}
+                title={isUsed ? 'Clique novamente para desfazer o uso' : undefined}
               >
                 {isUsed
-                  ? localization['UI.CharacterSheet.Used'] || 'Usado'
+                  ? `${localization['UI.CharacterSheet.Used'] || 'Usado'} ↩`
                   : localization['UI.CharacterSheet.Use'] || 'Usar'}
               </button>
             )}

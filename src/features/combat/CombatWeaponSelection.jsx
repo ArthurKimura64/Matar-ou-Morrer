@@ -1,19 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import WeaponSelectorList from './WeaponSelectorList';
 import SwapDefenderControl from './SwapDefenderControl';
 
-/**
- * ============================================================================
- * FASE 1 DO COMBATE: SELEÇÃO DE ARMA DO DEFENSOR (CombatWeaponSelection.jsx)
- * ============================================================================
- * - Se o combate for "Ataque Único" (sem revidar), inicia a rolagem automaticamente.
- * - Para o Defensor: mostra a lista de armas para revidar ou o botão "Não Retaliar".
- * - Para o Atacante: mostra o status de espera (1v1 ou Multi-Alvo).
- * - Para Espectadores: informa quem está atacando quem.
- * ============================================================================
- */
-
-// Insere o nome em negrito exatamente na posição de {name} na string localizada
 const renderWithBoldName = (template, name) => {
   const safeTemplate = String(template || '');
   const safeName = name || '';
@@ -47,31 +35,23 @@ const CombatWeaponSelection = ({
   customAttack,
   onChangeCustomAttack,
   onConfirmDefenseWeapon,
-  onAutoStartSingleAttack,
   swapTargets = [],
   onSwapDefender,
   onEndCombat,
   localization = {}
 }) => {
-  const autoStartedCombatIdRef = useRef(null);
-  const isAttacker = Boolean(currentPlayer?.id && currentPlayer.id === combat?.attacker_id);
-  const isDefender = Boolean(currentPlayer?.id && currentPlayer.id === combat?.defender_id);
-
-  // Se o combate não permite contra-ataque (Ataque Único), apenas o atacante inicia a rolagem 1 única vez
-  useEffect(() => {
-    if (
-      isAttacker &&
-      combat?.id &&
-      !combat.allow_counter_attack &&
-      combat.status === 'pending' &&
-      autoStartedCombatIdRef.current !== combat.id
-    ) {
-      autoStartedCombatIdRef.current = combat.id;
-      onAutoStartSingleAttack();
-    }
-  }, [isAttacker, combat?.id, combat?.allow_counter_attack, combat?.status, onAutoStartSingleAttack]);
-
   if (!combat) return null;
+
+  const activeGroup = combatGroup.filter((gc) => gc.status !== 'cancelled');
+  const isMultiDefender = activeGroup.length > 1;
+  const myDefenderRow = activeGroup.find((gc) => gc.defender_id === currentPlayer?.id) || null;
+  const isAttacker = Boolean(currentPlayer?.id && currentPlayer.id === combat.attacker_id);
+  const isDefenderChoosing = Boolean(
+    myDefenderRow
+      ? myDefenderRow.combat_phase === 'weapon_selection'
+      : currentPlayer?.id && currentPlayer.id === combat.defender_id && combat.combat_phase === 'weapon_selection'
+  );
+  const isGroupParticipant = isAttacker || Boolean(myDefenderRow);
 
   if (!combat.allow_counter_attack) {
     return (
@@ -81,8 +61,8 @@ const CombatWeaponSelection = ({
     );
   }
 
-  // 1. VISÃO DO DEFENSOR: Escolher arma para revidar
-  if (isDefender) {
+  // 1. VISÃO DO DEFENSOR QUE AINDA PRECISA ESCOLHER ARMA
+  if (isDefenderChoosing) {
     const actor = currentPlayerData?.character?.actor;
     return (
       <>
@@ -131,11 +111,13 @@ const CombatWeaponSelection = ({
           {localization?.['UI.Combat.NoRetaliation'] || '❌ Não Retaliar'}
         </button>
 
-        <SwapDefenderControl
-          swapTargets={swapTargets}
-          onSwapDefender={onSwapDefender}
-          localization={localization}
-        />
+        {!isMultiDefender && (
+          <SwapDefenderControl
+            swapTargets={swapTargets}
+            onSwapDefender={onSwapDefender}
+            localization={localization}
+          />
+        )}
 
         <button type="button" className="btn btn-danger w-100" onClick={onEndCombat}>
           {localization?.['UI.Combat.EndCombat'] || 'Encerrar Combate'}
@@ -144,66 +126,60 @@ const CombatWeaponSelection = ({
     );
   }
 
-  // 2. VISÃO DO ATACANTE: Aguardando Defensor(es)
-  if (isAttacker) {
-    const isMultiDefender = combatGroup.length > 1;
+  // 2. MULTI-ALVO: ESPERA UNIFICADA (Atacante, Defensores que já escolheram e Espectadores)
+  if (isMultiDefender) {
+    return (
+      <>
+        <div className="alert alert-info">
+          <h6 className="mb-1">
+            {localization?.['UI.Combat.MultiTarget'] || '⚔️ Combate Multi-Alvo'}
+          </h6>
+          <p className="mb-0 small">
+            <strong>{combat.attacker_name}</strong> usando{' '}
+            <strong>{combat.attack_data?.Name}</strong> contra {activeGroup.length} defensores.
+            Aguardando todos escolherem a reação...
+          </p>
+        </div>
 
-    if (isMultiDefender) {
-      return (
-        <>
-          <div className="alert alert-info">
-            <h6 className="mb-1">
-              {localization?.['UI.Combat.MultiTarget'] || '⚔️ Combate Multi-Alvo'}
-            </h6>
-            <p className="mb-0">
-              <strong>{combat.attack_data?.Name}</strong> vs {combatGroup.length}{' '}
-              {localization?.['UI.Combat.Defenders'] || 'defensores'}
-            </p>
-          </div>
+        <div className="d-flex flex-column gap-2 mb-3">
+          {activeGroup.map((gc) => {
+            const isReady = gc.combat_phase !== 'weapon_selection';
+            const weaponLabel = gc.defender_weapon?.Name || 'Não retaliar';
 
-          <div className="d-flex flex-column gap-2 mb-3">
-            {combatGroup.map((gc) => {
-              const statusLabel = gc.status === 'cancelled'
-                ? `❌ ${localization?.['UI.Combat.StatusCancelled'] || 'Cancelado'}`
-                : gc.combat_phase === 'weapon_selection'
-                ? `⏳ ${localization?.['UI.Combat.StatusChoosing'] || 'Escolhendo arma...'}`
-                : gc.combat_phase === 'rolling'
-                ? (gc.round_data?.[0]?.defender?.rolled
-                    ? `✅ ${localization?.['UI.Combat.StatusDefended'] || 'Defendeu'}`
-                    : `🎲 ${localization?.['UI.Combat.StatusWaitingDefense'] || 'Aguardando defesa'}`)
-                : `📊 ${localization?.['UI.Combat.StatusFinished'] || 'Finalizado'}`;
-
-              return (
-                <div key={gc.id} className="card border-secondary bg-dark">
-                  <div className="card-body p-2">
-                    <div className="d-flex justify-content-between align-items-center gap-2">
-                      <span className="text-white small fw-bold">🛡️ {gc.defender_name}</span>
-                      <span className="text-muted small">{statusLabel}</span>
-                    </div>
-                    {gc.defender_weapon && (
-                      <small className="text-warning d-block mt-1">
-                        {localization?.['UI.Combat.WeaponLabel'] || 'Arma:'} {gc.defender_weapon.Name}
-                      </small>
-                    )}
+            return (
+              <div
+                key={gc.id}
+                className={`card border-secondary ${isReady ? 'bg-success bg-opacity-25' : 'bg-dark'}`}
+              >
+                <div className="card-body p-2">
+                  <div className="d-flex justify-content-between align-items-center gap-2">
+                    <span className="text-white small fw-bold">🛡️ {gc.defender_name}</span>
+                    <span className="text-muted small">
+                      {isReady ? '✅ Pronto' : `⏳ ${localization?.['UI.Combat.StatusChoosing'] || 'Escolhendo arma...'}`}
+                    </span>
                   </div>
+                  {isReady && (
+                    <small className="text-warning d-block mt-1">
+                      {localization?.['UI.Combat.WeaponLabel'] || 'Arma:'} {weaponLabel}
+                    </small>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
+        </div>
 
-          <SwapDefenderControl
-            swapTargets={swapTargets}
-            onSwapDefender={onSwapDefender}
-            localization={localization}
-          />
-
+        {isGroupParticipant && (
           <button type="button" className="btn btn-danger w-100" onClick={onEndCombat}>
-            {localization?.['UI.Combat.EndAllCombats'] || 'Encerrar Todos os Combates'}
+            {localization?.['UI.Combat.EndCombat'] || 'Encerrar Combate'}
           </button>
-        </>
-      );
-    }
+        )}
+      </>
+    );
+  }
 
+  // 3. 1v1: VISÃO DO ATACANTE
+  if (isAttacker) {
     const waitingChoiceTemplate =
       localization?.['UI.Combat.WaitingWeaponChoice'] || 'Aguardando {name} escolher sua arma...';
 
@@ -213,9 +189,7 @@ const CombatWeaponSelection = ({
           <h6 className="mb-1">
             {localization?.['UI.Combat.WaitingDefender'] || '⚔️ Aguardando Defensor...'}
           </h6>
-          <p className="mb-0">
-            {renderWithBoldName(waitingChoiceTemplate, combat.defender_name)}
-          </p>
+          <p className="mb-0">{renderWithBoldName(waitingChoiceTemplate, combat.defender_name)}</p>
           <div className="text-center mt-2">⏳</div>
         </div>
 
@@ -232,7 +206,7 @@ const CombatWeaponSelection = ({
     );
   }
 
-  // 3. VISÃO DO ESPECTADOR
+  // 4. 1v1: VISÃO DO ESPECTADOR
   const waitingRetaliateTemplate =
     localization?.['UI.Combat.WaitingWeaponRetaliate'] ||
     'Aguardando {name} escolher uma arma para revidar...';
@@ -250,9 +224,7 @@ const CombatWeaponSelection = ({
         <strong>{combat.attack_data?.Name}</strong>!
       </p>
       <p className="mb-0 text-muted">
-        <small>
-          {renderWithBoldName(waitingRetaliateTemplate, combat.defender_name)}
-        </small>
+        <small>{renderWithBoldName(waitingRetaliateTemplate, combat.defender_name)}</small>
       </p>
       <div className="text-center mt-2">👀 ⏳</div>
     </div>

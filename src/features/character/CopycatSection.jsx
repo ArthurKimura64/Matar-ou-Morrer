@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Utils } from '../../utils/cardFormatter';
 import { sanitizeHtml } from '../../utils/sanitize';
-import { useEscapeKey } from '../../hooks/useEscapeKey';
+import BaseModal from '../../components/BaseModal';
 
 const CATEGORY_SOURCE_MAP = {
   attacks: { listKey: 'AttackDefinitions', prefix: 'Attack.' },
@@ -41,8 +41,6 @@ const CopycatSection = ({
     setActiveSlotKey(null);
     setSearchQuery('');
   }, []);
-
-  useEscapeKey(Boolean(activeSlotKey), closeSlotModal);
 
   const categoryAssignments = useMemo(
     () => copycatAssignments?.[section.key] || {},
@@ -85,6 +83,10 @@ const CopycatSection = ({
 
   // Mapa rápido de qual personagem é dono de cada carta (para descrições com 2 modos)
   const itemOwnerActorMap = useMemo(() => {
+    if (gameData?.indexes?.ownerActorMap) {
+      return gameData.indexes.ownerActorMap;
+    }
+
     const map = new Map();
     const actorsList = gameData?.ActorDefinitions || [];
     const dataFields = [
@@ -106,7 +108,7 @@ const CopycatSection = ({
       });
     });
     return map;
-  }, [gameData?.ActorDefinitions]);
+  }, [gameData?.indexes?.ownerActorMap, gameData?.ActorDefinitions]);
 
   const getItemTitle = (item) => {
     if (!item) return '';
@@ -140,41 +142,38 @@ const CopycatSection = ({
 
   // MULTIPLAYER: apenas cartas já reveladas pelos outros jogadores (Cartas na Mesa + histórico da partida)
   const revealedRoomCandidates = useMemo(() => {
-    const mapping = CATEGORY_SOURCE_MAP[section.key];
-    if (!mapping) return [];
+  const mapping = CATEGORY_SOURCE_MAP[section.key];
+  if (!mapping) return [];
 
-    const list = [];
-    const seen = new Set();
+  const list = [];
+  const seen = new Set();
 
-    (players || []).forEach((p) => {
-      const pActorId = p.character?.actor?.ID ?? p.character?.ID;
-      if (String(pActorId ?? '').toLowerCase() === 'copiador') return;
+  (players || []).forEach((p) => {
+    const pActorId = p.actor_id ?? p.character?.actor?.ID ?? p.character?.ID;
+    if (String(pActorId ?? '').toLowerCase() === 'copiador') return;
 
-      const currentlyExposed = Array.isArray(p.exposed_cards) ? p.exposed_cards : [];
-      const previouslyExposed = [];
+    const currentlyExposed = Array.isArray(p.exposed_cards) ? p.exposed_cards : [];
 
-      const revealedIds = new Set([...currentlyExposed, ...previouslyExposed]);
+    currentlyExposed.forEach((itemId) => {
+      if (typeof itemId !== 'string' || !itemId.startsWith(mapping.prefix)) return;
 
-      revealedIds.forEach((itemId) => {
-        if (typeof itemId !== 'string' || !itemId.startsWith(mapping.prefix)) return;
+      const uniqueKey = `${p.id}_${itemId}`;
+      if (seen.has(uniqueKey)) return;
 
-        const uniqueKey = `${p.id}_${itemId}`;
-        if (seen.has(uniqueKey)) return;
+      const item = categoryDefinitionsMap.get(itemId);
+      if (!item) return;
 
-        const item = categoryDefinitionsMap.get(itemId);
-        if (!item) return;
-
-        seen.add(uniqueKey);
-        list.push({
-          item,
-          isCurrentlyOnTable: currentlyExposed.includes(itemId),
-          sourceLabel: `${p.name}${p.character_name ? ` (${p.character_name})` : ''}`
-        });
+      seen.add(uniqueKey);
+      list.push({
+        item,
+        isCurrentlyOnTable: true,
+        sourceLabel: `${p.name}${p.character_name ? ` (${p.character_name})` : ''}`
       });
     });
+  });
 
-    return list;
-  }, [players, section.key, categoryDefinitionsMap]);
+  return list;
+}, [players, section.key, categoryDefinitionsMap]);
 
   // MODO SOLO: sem outros jogadores na sala, libera o catálogo da categoria
   const soloCatalogCandidates = useMemo(() => {
@@ -218,7 +217,6 @@ const CopycatSection = ({
       const idStr = String(item.ID ?? '').toLowerCase();
       return titleStr.includes(q) || sourceStr.includes(q) || idStr.includes(q);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidateItems, searchQuery]);
 
   if (!totalSlots || totalSlots <= 0) return null;
@@ -344,12 +342,12 @@ const CopycatSection = ({
                       {section.useButton && !isPassiveSpecial && typeof onUseItem === 'function' && (
                         <button
                           type="button"
-                          className={`btn btn-sm btn-outline-${section.color}`}
-                          disabled={isUsed}
+                          className={`btn btn-sm ${isUsed ? 'btn-outline-secondary' : `btn-outline-${section.color}`}`}
                           onClick={() => onUseItem(copiedItem.ID)}
+                          title={isUsed ? 'Clique novamente para desfazer o uso' : undefined}
                         >
                           {isUsed
-                            ? localization['UI.CharacterSheet.Used'] || 'Usado'
+                            ? `${localization['UI.CharacterSheet.Used'] || 'Usado'} ↩`
                             : localization['UI.CharacterSheet.Use'] || 'Usar'}
                         </button>
                       )}
@@ -401,139 +399,109 @@ const CopycatSection = ({
       )}
 
       {/* Modal de Seleção de Carta Revelada para Copiar */}
-      {activeSlotKey && (
-        <>
-          <div className="modal-backdrop" onClick={closeSlotModal} />
-          <div
-            className="modal show d-block"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="copycat-modal-title"
-            tabIndex="-1"
-            onClick={(e) => e.target === e.currentTarget && closeSlotModal()}
-          >
-            <div className="modal-dialog modal-lg">
-              <div className={`modal-content border-${section.color}`}>
-                <header className="modal-header">
-                  <div>
-                    <h5 id="copycat-modal-title" className={`modal-title text-${section.color} fw-bold mb-0`}>
-                      🪞 {localization['UI.Copycat.SelectToCopy'] || 'Copiar'} {section.title}
-                    </h5>
-                    <small className="text-muted">
-                      {isSoloMode
-                        ? 'Modo Solo: escolha qualquer carta desta categoria'
-                        : 'Apenas cartas já reveladas pelos jogadores nas Cartas da Mesa'}
-                    </small>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    style={{ width: '32px', height: '32px', padding: 0 }}
-                    aria-label="Fechar"
-                    onClick={closeSlotModal}
-                  >
-                    ✕
-                  </button>
-                </header>
-
-                <div className="modal-body">
-                  {/* Barra de Busca (só mostra se houver cartas disponíveis) */}
-                  {candidateItems.length > 0 && (
-                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                      <small className="text-muted">
-                        👁️ {candidateItems.length}{' '}
-                        {candidateItems.length === 1 ? 'carta revelada' : 'cartas reveladas'}
-                      </small>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        style={{ maxWidth: '260px' }}
-                        placeholder={localization['UI.Common.Search'] || 'Buscar carta ou jogador...'}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  {/* Lista de Cartas Reveladas */}
-                  <div style={{ maxHeight: '55vh', overflowY: 'auto', overflowX: 'hidden' }}>
-                    {filteredCandidates.length === 0 ? (
-                      <div className="text-center text-muted py-4">
-                        {candidateItems.length === 0
-                          ? localization['UI.Copycat.NoneExposed'] ||
-                            'Nenhum jogador expôs esta característica.'
-                          : localization['UI.Copycat.NoCardsFound'] || 'Nenhuma carta encontrada.'}
-                      </div>
-                    ) : (
-                      <div className="row g-2">
-                        {filteredCandidates.map(({ item, sourceLabel, isCurrentlyOnTable }, idx) => {
-                          const isAlreadyCopied = alreadyCopiedIds.has(item.ID);
-                          return (
-                            <article key={`${item.ID}_${idx}`} className="col-12 md:col-6">
-                              <div
-                                className={`card h-100 border-${section.color} ${
-                                  isAlreadyCopied ? 'opacity-50' : 'cursor-pointer'
-                                }`}
-                                style={{ cursor: isAlreadyCopied ? 'not-allowed' : 'pointer' }}
-                                onClick={() => !isAlreadyCopied && handleSelectCandidate(item)}
-                              >
-                                <div className="card-body p-2">
-                                  <div className="d-flex justify-content-between align-items-start gap-2 mb-1">
-                                    <strong className={`text-${section.color} small`}>
-                                      {getItemTitle(item)}
-                                    </strong>
-                                    <div className="d-flex align-items-center gap-1 flex-shrink-0">
-                                      {!isSoloMode && isCurrentlyOnTable && (
-                                        <span
-                                          className="badge bg-success"
-                                          style={{ fontSize: '0.65rem' }}
-                                          title="Atualmente exposta nas Cartas da Mesa"
-                                        >
-                                          👁️ Na mesa
-                                        </span>
-                                      )}
-                                      {sourceLabel && (
-                                        <span
-                                          className="badge bg-secondary"
-                                          style={{ fontSize: '0.68rem' }}
-                                        >
-                                          {sourceLabel}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className="small text-light"
-                                    style={{ fontSize: '0.8rem' }}
-                                    dangerouslySetInnerHTML={{
-                                      __html: sanitizeHtml(getItemDescription(item))
-                                    }}
-                                  />
-                                  {isAlreadyCopied && (
-                                    <small className="text-warning d-block mt-1 fw-bold">
-                                      ✓ {localization['UI.Copycat.AlreadyCopied'] || 'Já copiada em outro slot'}
-                                    </small>
-                                  )}
-                                </div>
-                              </div>
-                            </article>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <footer className="modal-footer">
-                  <button type="button" className="btn btn-secondary btn-sm px-3" onClick={closeSlotModal}>
-                    {localization['UI.Common.Close'] || 'Fechar'}
-                  </button>
-                </footer>
-              </div>
-            </div>
+      <BaseModal
+        show={Boolean(activeSlotKey)}
+        onClose={closeSlotModal}
+        title={`🪞 ${localization['UI.Copycat.SelectToCopy'] || 'Copiar'} ${section.title}`}
+        subtitle={
+          isSoloMode
+            ? 'Modo Solo: escolha qualquer carta desta categoria'
+            : 'Apenas cartas já reveladas pelos jogadores nas Cartas da Mesa'
+        }
+        borderVariant={section.color}
+        size="lg"
+        footer={
+          <button type="button" className="btn btn-secondary btn-sm px-3" onClick={closeSlotModal}>
+            {localization['UI.Common.Close'] || 'Fechar'}
+          </button>
+        }
+      >
+        {/* Barra de Busca (só mostra se houver cartas disponíveis) */}
+        {candidateItems.length > 0 && (
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <small className="text-muted">
+              👁️ {candidateItems.length}{' '}
+              {candidateItems.length === 1 ? 'carta revelada' : 'cartas reveladas'}
+            </small>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              style={{ maxWidth: '260px' }}
+              placeholder={localization['UI.Common.Search'] || 'Buscar carta ou jogador...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        </>
-      )}
+        )}
+
+        {/* Lista de Cartas Reveladas */}
+        <div style={{ maxHeight: '55vh', overflowY: 'auto', overflowX: 'hidden' }}>
+          {filteredCandidates.length === 0 ? (
+            <div className="text-center text-muted py-4">
+              {candidateItems.length === 0
+                ? localization['UI.Copycat.NoneExposed'] ||
+                  'Nenhum jogador expôs esta característica.'
+                : localization['UI.Copycat.NoCardsFound'] || 'Nenhuma carta encontrada.'}
+            </div>
+          ) : (
+            <div className="row g-2">
+              {filteredCandidates.map(({ item, sourceLabel, isCurrentlyOnTable }, idx) => {
+                const isAlreadyCopied = alreadyCopiedIds.has(item.ID);
+                return (
+                  <article key={`${item.ID}_${idx}`} className="col-12 md:col-6">
+                    <div
+                      className={`card h-100 border-${section.color} ${
+                        isAlreadyCopied ? 'opacity-50' : 'cursor-pointer'
+                      }`}
+                      style={{ cursor: isAlreadyCopied ? 'not-allowed' : 'pointer' }}
+                      onClick={() => !isAlreadyCopied && handleSelectCandidate(item)}
+                    >
+                      <div className="card-body p-2">
+                        <div className="d-flex justify-content-between align-items-start gap-2 mb-1">
+                          <strong className={`text-${section.color} small`}>
+                            {getItemTitle(item)}
+                          </strong>
+                          <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                            {!isSoloMode && isCurrentlyOnTable && (
+                              <span
+                                className="badge bg-success"
+                                style={{ fontSize: '0.65rem' }}
+                                title="Atualmente exposta nas Cartas da Mesa"
+                              >
+                                👁️ Na mesa
+                              </span>
+                            )}
+                            {sourceLabel && (
+                              <span
+                                className="badge bg-secondary"
+                                style={{ fontSize: '0.68rem' }}
+                              >
+                                {sourceLabel}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div
+                          className="small text-light"
+                          style={{ fontSize: '0.8rem' }}
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(getItemDescription(item))
+                          }}
+                        />
+                        {isAlreadyCopied && (
+                          <small className="text-warning d-block mt-1 fw-bold">
+                            ✓ {localization['UI.Copycat.AlreadyCopied'] || 'Já copiada em outro slot'}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </BaseModal>
     </section>
   );
 };

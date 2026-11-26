@@ -82,13 +82,49 @@ export function adaptGameData(rawData) {
     };
   });
 
+  const passiveDefinitions = toSafeArray(rawData.PassiveDefinitions);
+  const attackDefinitions = toSafeArray(rawData.AttackDefinitions);
+  const consumableDefinitions = toSafeArray(rawData.ConsumableDefinitions);
+  const specialDefinitions = toSafeArray(rawData.SpecialDefinitions);
+
+  // Monta os índices rápidos uma única vez no carregamento do jogo
+  const definitionsMap = new Map();
+  [attackDefinitions, passiveDefinitions, consumableDefinitions, specialDefinitions].forEach((list) => {
+    list.forEach((def) => {
+      if (def?.ID) definitionsMap.set(def.ID, def);
+    });
+  });
+
+  const ownerActorMap = new Map();
+  const actorDataFields = [
+    'UnlimitedAttacksData',
+    'WeaponsData',
+    'PassivesData',
+    'DevicesData',
+    'PowersData',
+    'SpecialAbilitiesData',
+    'PassiveSpecialAbilitiesData'
+  ];
+
+  normalizedActors.forEach((act) => {
+    actorDataFields.forEach((field) => {
+      act[field].forEach((id) => {
+        if (!ownerActorMap.has(id)) ownerActorMap.set(id, act);
+      });
+    });
+  });
+
   return {
     ...rawData,
     ActorDefinitions: normalizedActors,
-    PassiveDefinitions: toSafeArray(rawData.PassiveDefinitions),
-    AttackDefinitions: toSafeArray(rawData.AttackDefinitions),
-    ConsumableDefinitions: toSafeArray(rawData.ConsumableDefinitions),
-    SpecialDefinitions: toSafeArray(rawData.SpecialDefinitions)
+    PassiveDefinitions: passiveDefinitions,
+    AttackDefinitions: attackDefinitions,
+    ConsumableDefinitions: consumableDefinitions,
+    SpecialDefinitions: specialDefinitions,
+    indexes: {
+      definitionsMap,
+      ownerActorMap
+    }
   };
 }
 

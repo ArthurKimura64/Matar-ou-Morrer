@@ -3,7 +3,7 @@ import { statsService } from '../../services/statsService';
 import GlobalStatsTab from './GlobalStatsTab';
 import PlayerStatsView from './PlayerStatsView';
 
-const StatsPage = ({ user, initialTargetUserId = null, onBack }) => {
+const StatsPage = ({ user, initialTargetUserId = null, onProfileUpdated, onBack }) => {
   const [activeTab, setActiveTab] = useState(initialTargetUserId ? 'player' : 'global');
 
   // Estado Global
@@ -56,12 +56,32 @@ const StatsPage = ({ user, initialTargetUserId = null, onBack }) => {
     }
   }, [activeTab, globalData, loadingGlobal, loadGlobalStats]);
 
-  // Se o usuário veio clicando diretamente em alguém (ex: no Ranking), abre o perfil dele
+  // Se o usuário veio clicando diretamente em alguém (ex: no Ranking ou Meu Perfil)
   useEffect(() => {
     if (initialTargetUserId) {
       handleInspectPlayer(initialTargetUserId);
     }
   }, [initialTargetUserId, handleInspectPlayer]);
+
+  const handleProfileUpdated = useCallback(
+    (updatedProfile) => {
+      if (updatedProfile?.display_name) {
+        setSelectedPlayerData((prev) =>
+          prev
+            ? {
+                ...prev,
+                profile: {
+                  ...prev.profile,
+                  display_name: updatedProfile.display_name
+                }
+              }
+            : prev
+        );
+      }
+      onProfileUpdated?.(updatedProfile);
+    },
+    [onProfileUpdated]
+  );
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -90,7 +110,7 @@ const StatsPage = ({ user, initialTargetUserId = null, onBack }) => {
           <div>
             <h4 className="text-white fw-bold mb-0">📈 Central de Estatísticas</h4>
             <small className="text-muted">
-              Consulte o panorama geral do jogo ou procure as estatísticas de qualquer jogador
+              Consulte o panorama geral do jogo, seu perfil ou procure as estatísticas de qualquer jogador
             </small>
           </div>
           <button type="button" className="btn btn-outline-light btn-sm" onClick={onBack}>
@@ -121,7 +141,7 @@ const StatsPage = ({ user, initialTargetUserId = null, onBack }) => {
             className="btn btn-outline-info ms-auto"
             onClick={() => handleInspectPlayer(user.id)}
           >
-            👤 Minhas Estatísticas
+            👤 Meu Perfil / Stats
           </button>
         )}
       </nav>
@@ -194,17 +214,19 @@ const StatsPage = ({ user, initialTargetUserId = null, onBack }) => {
             <div className="alert alert-danger">{playerError}</div>
           )}
 
-          {/* Perfil Público Detalhado (quando selecionado) */}
+          {/* Perfil Público Detalhado (ou Meu Perfil com edição de nome) */}
           {!loadingPlayer && selectedPlayerData && (
             <PlayerStatsView
               data={selectedPlayerData}
+              user={user}
               isOwnProfile={selectedPlayerData.profile?.user_id === user?.id}
               onInspectPlayer={handleInspectPlayer}
+              onProfileUpdated={handleProfileUpdated}
               onClose={() => setSelectedPlayerData(null)}
             />
           )}
 
-          {/* Resultados da Busca (só aparecem depois que o jogador pesquisa ativamente) */}
+          {/* Resultados da Busca */}
           {!loadingPlayer && !selectedPlayerData && hasSearched && (
             <section className="card bg-dark border-secondary" aria-label="Resultados da busca">
               <header className="card-header">
@@ -252,7 +274,7 @@ const StatsPage = ({ user, initialTargetUserId = null, onBack }) => {
             <div className="text-center text-muted py-5">
               <div style={{ fontSize: '2.5rem', opacity: 0.4 }} aria-hidden="true">🔍</div>
               <p className="mt-2 mb-0 small">
-                Pesquise o nome de um jogador acima ou clique em <strong>Minhas Estatísticas</strong> para consultar os detalhes.
+                Pesquise o nome de um jogador acima ou clique em <strong>Meu Perfil / Stats</strong> para consultar os detalhes.
               </p>
             </div>
           )}

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, memo } from 'react';
 /**
  * Permite ajustar resultados de dados individualmente (hover no PC ou toque no celular) ou em grupo.
  */
-const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, localization = {} }) => {
+const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, minValue = 1, localization = {} }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const containerRef = useRef(null);
@@ -27,7 +27,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, localization
   const adjustDie = (index, delta) => {
     const newDice = [...diceArray];
     const currentValue = newDice[index];
-    const newValue = Math.max(1, Math.min(6, currentValue + delta));
+    const newValue = Math.max(minValue, Math.min(6, currentValue + delta));
 
     if (newValue !== currentValue) {
       newDice[index] = newValue;
@@ -36,7 +36,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, localization
   };
 
   const adjustAllDice = (delta) => {
-    const newDice = diceArray.map((die) => Math.max(1, Math.min(6, die + delta)));
+    const newDice = diceArray.map((die) => Math.max(minValue, Math.min(6, die + delta)));
     onAdjust(newDice);
   };
 
@@ -53,7 +53,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, localization
   };
 
   const canIncreaseAll = diceArray.some((die) => die < 6);
-  const canDecreaseAll = diceArray.some((die) => die > 1);
+  const canDecreaseAll = diceArray.some((die) => die > minValue);
 
   return (
     <div ref={containerRef} className="dice-result-inline">
@@ -101,7 +101,7 @@ const DiceResultAdjuster = memo(({ diceArray, onAdjust, playerRole, localization
                     e.stopPropagation();
                     adjustDie(i, -1);
                   }}
-                  disabled={die <= 1}
+                  disabled={die <= minValue}
                   title={localization['UI.Dice.Decrease'] || 'Diminuir'}
                 >
                   ▼

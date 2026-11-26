@@ -61,9 +61,9 @@ export function useAuthSession({ showToast }) {
     // Verifica sessão existente na montagem
     authService.getSession().then(acceptOrRejectSession);
 
-    // Escuta mudanças futuras (login, logout, refresh de token)
+    // Escuta mudanças futuras (login, logout, alteração de senha)
     const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
-      if (!isMounted || event === 'INITIAL_SESSION') return;
+      if (!isMounted || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
       acceptOrRejectSession(session);
     });
 

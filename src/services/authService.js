@@ -1,10 +1,33 @@
 import { supabase } from '../config/supabaseClient';
 
+const LEADERBOARD_CACHE_TTL_MS = 30000;
+
 class AuthService {
+  constructor() {
+    this.leaderboardCache = new Map();
+  }
+
+  _getCached(key) {
+    const entry = this.leaderboardCache.get(key);
+    if (!entry) return { hit: false, data: null };
+    if (Date.now() - entry.timestamp > LEADERBOARD_CACHE_TTL_MS) {
+      this.leaderboardCache.delete(key);
+      return { hit: false, data: null };
+    }
+    return { hit: true, data: entry.data };
+  }
+
+  _setCached(key, data) {
+    this.leaderboardCache.set(key, { data, timestamp: Date.now() });
+  }
+
+  clearLeaderboardCache() {
+    this.leaderboardCache.clear();
+  }
+
   // ==================== AUTENTICAÇÃO ====================
 
   async signUpWithEmail(email, password, displayName) {
-    // Verificar se cadastro está aberto
     const { data: regOpen, error: regErr } = await supabase.rpc('get_app_setting', { p_key: 'registration_open' });
     if (regErr) throw new Error('Erro ao verificar cadastro');
     if (regOpen !== 'true') throw new Error('Novos cadastros estão desativados no momento.');
@@ -30,6 +53,7 @@ class AuthService {
   }
 
   async signOut() {
+    this.clearLeaderboardCache();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }
@@ -54,7 +78,7 @@ class AuthService {
 
   async isRegistrationOpen() {
     const { data, error } = await supabase.rpc('get_app_setting', { p_key: 'registration_open' });
-    if (error) return true; // em caso de erro, permitir
+    if (error) return true;
     return data === 'true';
   }
 
@@ -76,17 +100,16 @@ class AuthService {
       .select()
       .single();
     if (error) throw error;
+    this.clearLeaderboardCache();
     return data;
   }
 
   async updateTheme(userId, themeId) {
-    // 1. Chama a RPC segura no banco para gravar na coluna theme de user_profiles
     const { error: rpcError } = await supabase.rpc('update_user_theme', {
       p_theme: themeId
     });
 
     if (rpcError) {
-      // Fallback via update direto caso a RPC ainda não tenha sido rodada
       const { data, error } = await supabase
         .from('user_profiles')
         .update({ theme: themeId, updated_at: new Date().toISOString() })
@@ -100,85 +123,15 @@ class AuthService {
     return { id: userId, theme: themeId };
   }
 
-  // ==================== ESTATÍSTICAS ====================
+  // ==================== RANKING (COM CACHE DE 30s) ====================
 
-  async getUserStats(userId) {
-    const { data, error } = await supabase
-      .from('user_stats')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    if (error) throw error;
-    return data;
-  }
+  async getLeaderboard(type = 'composite', limit = 50, forceRefresh = false) {
+    const cacheKey = `lb_${type}_${limit}`;
+    if (!forceRefresh) {
+      const cached = this._getCached(cacheKey);
+      if (cached.hit) return cached.data;
+    }
 
-  async getMatchHistory(userId, limit = 20, offset = 0) {
-    const safeLimit = Math.max(1, Number(limit) || 20);
-    const safeOffset = Math.max(0, Number(offset) || 0);
-
-    const { data, error } = await supabase
-      .from('match_history')
-      .select(`
-        id,
-        room_id,
-        room_name,
-        started_at,
-        ended_at,
-        winner_user_id,
-        winner_player_name,
-        total_players,
-        match_participants!inner (
-          id,
-          match_id,
-          user_id,
-          player_name,
-          character_name,
-          elimination_order,
-          killed_by_user_id,
-          killed_by_player_name,
-          survival_points,
-          eliminations_made,
-          is_winner
-        )
-      `)
-      .eq('match_participants.user_id', userId)
-      .order('ended_at', { ascending: false })
-      .order('id', { ascending: false })
-      .range(safeOffset, safeOffset + safeLimit - 1);
-
-    if (error) throw error;
-
-    return (data || []).flatMap((row) => {
-      const { match_participants, ...matchInfo } = row;
-      const participantsList = Array.isArray(match_participants)
-        ? match_participants
-        : [match_participants];
-
-      return participantsList.filter(Boolean).map((participant) => ({
-        ...matchInfo,
-        ...participant,
-        match: matchInfo,
-        match_history: matchInfo
-      }));
-    });
-  }
-
-  async getMatchDetails(matchId) {
-    const { data, error } = await supabase
-      .from('match_history')
-      .select(`
-        *,
-        participants:match_participants(*)
-      `)
-      .eq('id', matchId)
-      .single();
-    if (error) throw error;
-    return data;
-  }
-
-  // ==================== RANKING ====================
-
-  async getLeaderboard(type = 'composite', limit = 50) {
     const orderColumn = {
       composite: 'composite_score',
       wins: 'total_wins',
@@ -190,16 +143,26 @@ class AuthService {
       .from('user_stats')
       .select(`
         *,
-        profile:user_profiles(display_name, avatar_url)
+        profile:user_profiles!inner(display_name, avatar_url)
       `)
+      .is('profile.banned_at', null)
       .gt('total_matches', 0)
       .order(orderColumn, { ascending: false })
       .limit(limit);
     if (error) throw error;
-    return data;
+
+    const result = data || [];
+    this._setCached(cacheKey, result);
+    return result;
   }
 
-  async getUserRankPosition(userId, type = 'composite') {
+  async getUserRankPosition(userId, type = 'composite', forceRefresh = false) {
+    const cacheKey = `rank_${userId}_${type}`;
+    if (!forceRefresh) {
+      const cached = this._getCached(cacheKey);
+      if (cached.hit) return cached.data;
+    }
+
     const orderColumn = {
       composite: 'composite_score',
       wins: 'total_wins',
@@ -207,64 +170,28 @@ class AuthService {
       survival: 'total_survival_points'
     }[type] || 'composite_score';
 
-    // Get current user's stat value
     const { data: userStats, error: userError } = await supabase
       .from('user_stats')
       .select('*')
       .eq('user_id', userId)
       .single();
-    if (userError || !userStats || userStats.total_matches === 0) return null;
 
-    // Count how many players have a higher score
+    if (userError || !userStats || userStats.total_matches === 0) {
+      this._setCached(cacheKey, null);
+      return null;
+    }
+
     const { count, error: countError } = await supabase
       .from('user_stats')
-      .select('*', { count: 'exact', head: true })
+      .select('user_id, profile:user_profiles!inner(id)', { count: 'exact', head: true })
+      .is('profile.banned_at', null)
       .gt('total_matches', 0)
       .gt(orderColumn, userStats[orderColumn] || 0);
     if (countError) return null;
 
-    return { position: (count || 0) + 1, stats: userStats };
-  }
-
-  async getRoomLeaderboard(roomId, type = 'composite', limit = 50) {
-    const orderColumn = {
-      composite: 'composite_score',
-      wins: 'total_wins',
-      eliminations: 'total_eliminations',
-      survival: 'total_survival_points'
-    }[type] || 'composite_score';
-
-    // Get user_ids that participated in matches in this room
-    const { data: matchIds, error: matchError } = await supabase
-      .from('match_history')
-      .select('id')
-      .eq('room_id', roomId);
-    if (matchError) throw matchError;
-
-    if (!matchIds || matchIds.length === 0) return [];
-
-    const ids = matchIds.map(m => m.id);
-    const { data: participants, error: partError } = await supabase
-      .from('match_participants')
-      .select('user_id')
-      .in('match_id', ids)
-      .not('user_id', 'is', null);
-    if (partError) throw partError;
-
-    const uniqueUserIds = [...new Set(participants.map(p => p.user_id))];
-    if (uniqueUserIds.length === 0) return [];
-
-    const { data, error } = await supabase
-      .from('user_stats')
-      .select(`
-        *,
-        profile:user_profiles(display_name, avatar_url)
-      `)
-      .in('user_id', uniqueUserIds)
-      .order(orderColumn, { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return data;
+    const result = { position: (count || 0) + 1, stats: userStats };
+    this._setCached(cacheKey, result);
+    return result;
   }
 
   // ==================== VERIFICAÇÃO DE ADMIN ====================
