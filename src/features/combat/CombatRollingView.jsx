@@ -9,10 +9,10 @@ import { parseAttackDices, parseDefenseDices } from "../../utils/combatHelpers"
  * FASE 2 DO COMBATE: ROLAGEM DE DADOS E GERENCIAMENTO (CombatRollingView.jsx)
  * ============================================================================
  * - Mostra o banner "É a sua vez!" indicando se o jogador deve atacar, defender ou aguardar.
- * - Mostra os indicadores de rodada no topo (permitindo reordenar rodadas futuras).
- * - Permite alterar equipamento, modo, dados de defesa (slider) e adicionar rodadas.
+ * - Mostra os indicadores de rodada no topo.
+ * - Permite alterar equipamento, modo, dados de defesa, reordenar/gerenciar rodadas e trocar defensor.
  * - Exibe os cards de Atacante VS Defensor com animação de dados e ajuste fino.
- * - Suporta Combate Multi-Alvo (Rodada 1 compartilhada + abas de contra-ataque).
+ * - Suporta Combate Multi-Alvo via MultiTargetRollingView.
  * ============================================================================
  */
 const CombatRollingView = ({
@@ -74,10 +74,11 @@ const CombatRollingView = ({
 
   const canChangeEquipment = !isSpectator || isOpportunityAttacker
   const actor = currentPlayerData?.character?.actor
+  const hasCombatModes = Boolean(actor?.mode1 && actor?.mode2)
   const defaultActorDefense = parseDefenseDices(actor?.NumberOfDefenseDices, 0)
 
   // ==========================================================================
-  // VISÃO MULTI-ALVO PARA O ATACANTE
+  // VISÃO MULTI-ALVO
   // ==========================================================================
   const activeGroup = combatGroup.filter((gc) => gc.status !== "cancelled")
   if (activeGroup.length > 1) {
@@ -194,7 +195,10 @@ const CombatRollingView = ({
       : {
           variant: "success",
           icon: "✅",
-          title: currentRound >= totalRounds ? 'Combate concluído! Clique em "Ver Resultados".' : 'Rodada concluída! Clique em "Avançar Rodada".',
+          title:
+            currentRound >= totalRounds ?
+              'Combate concluído! Clique em "Ver Resultados".'
+            : 'Rodada concluída! Clique em "Avançar Rodada".',
           highlight: true
         }
   } else if (isMyOffenseTurn && !leftPlayer.rolled) {
@@ -376,26 +380,223 @@ const CombatRollingView = ({
           </div>
 
           {/* Opções avançadas recolhidas */}
-          <div className="weapon-info-panel">
-            <details className="weapon-details">
-              <summary className="weapon-summary">
-                <span className="weapon-icon">⚙️</span>
-                <span className="weapon-label">
-                  {isSpectator ? "Modo de Combate" : "Opções avançadas (Rodadas e Defensor)"}
-                  {actor?.mode1 && actor?.mode2 && (
-                    <span className="weapon-mode-indicator">
-                      {localization?.[actor[combatMode]] || actor[combatMode] || combatMode}
-                    </span>
-                  )}
-                </span>
-                <span className="toggle-icon">▼</span>
-              </summary>
+          {(!isSpectator || hasCombatModes) && (
+            <div className="weapon-info-panel">
+              <details className="weapon-details">
+                <summary className="weapon-summary">
+                  <span className="weapon-icon">⚙️</span>
+                  <span className="weapon-label">
+                    {isSpectator ? "Modo de Combate" : "Opções avançadas (Rodadas e Defensor)"}
+                    {hasCombatModes && (
+                      <span className="weapon-mode-indicator">
+                        {localization?.[actor[combatMode]] || actor[combatMode] || combatMode}
+                      </span>
+                    )}
+                  </span>
+                  <span className="toggle-icon">▼</span>
+                </summary>
 
-              <div className="weapon-details-content">
-                {/* Mantenha aqui dentro: Modo de Combate + {!isSpectator && (Slider de Defesa, Reordenar, Gerenciar Rodadas, Trocar Defensor)} */}
-              </div>
-            </details>
-          </div>
+                <div className="weapon-details-content">
+                  <div className="weapon-change-section">
+                    {/* Alternância de Modo */}
+                    {hasCombatModes && (
+                      <div className="mode-switch-section">
+                        <div className="mode-switch-title">
+                          {localization?.["UI.Combat.CombatMode"] || "🔀 Modo de Combate"}
+                        </div>
+                        <div className="btn-group" role="group">
+                          <button
+                            type="button"
+                            className={`btn ${combatMode === "mode1" ? "btn-primary" : "btn-outline-primary"}`}
+                            onClick={() => onChangeCombatMode("mode1")}
+                          >
+                            {localization?.[actor.mode1] || actor.mode1 || "Modo 1"}
+                          </button>
+                          <button
+                            type="button"
+                            className={`btn ${combatMode === "mode2" ? "btn-primary" : "btn-outline-primary"}`}
+                            onClick={() => onChangeCombatMode("mode2")}
+                          >
+                            {localization?.[actor.mode2] || actor.mode2 || "Modo 2"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {!isSpectator && (
+                      <>
+                        {/* Slider de Dados de Defesa */}
+                        <div className="defense-adjustment">
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <label className="form-label text-white mb-0" style={{ fontSize: "13px" }}>
+                              {localization?.["UI.Combat.DefenseDice"] || "🛡️ Dados de Defesa"}
+                            </label>
+                            <span className="badge bg-primary" style={{ fontSize: "16px", padding: "6px 12px" }}>
+                              {currentDefenseDices}
+                            </span>
+                          </div>
+
+                          <input
+                            type="range"
+                            className="form-range defense-slider"
+                            min="0"
+                            max="8"
+                            value={currentDefenseDices}
+                            onChange={(e) => onDefenseDicesChange(parseInt(e.target.value, 10))}
+                            style={{ width: "100%" }}
+                          />
+
+                          <div
+                            className="d-flex justify-content-between text-muted"
+                            style={{ fontSize: "10px", marginTop: "4px" }}
+                          >
+                            <span>0</span>
+                            <span>2</span>
+                            <span>4</span>
+                            <span>6</span>
+                            <span>8</span>
+                          </div>
+
+                          <div className="d-flex gap-2 mt-2">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary flex-fill"
+                              onClick={() => onDefenseDicesChange(defaultActorDefense)}
+                            >
+                              {localization?.["UI.Combat.ResetDefense"] || "↺ Resetar"}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary flex-fill"
+                              onClick={() => onAdjustDefenseDices(-2)}
+                            >
+                              −2
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary flex-fill"
+                              onClick={() => onAdjustDefenseDices(2)}
+                            >
+                              +2
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Reordenar Rodadas Futuras */}
+                        {roundData.length > currentRound + 1 && (
+                          <div className="round-reorder-section mt-3">
+                            <label className="form-label text-white mb-2 d-block" style={{ fontSize: "13px" }}>
+                              {localization?.["UI.Combat.ReorderRounds"] || "🔀 Reordenar Rodadas Futuras"}
+                            </label>
+                            <div className="round-indicators">
+                              {roundData.map((r, idx) => {
+                                let colorClass = "round-dot-attack"
+                                let actionLabel = localization?.["UI.Combat.RoundType.Attack"] || "Ataque"
+
+                                if (r.action_type === "opportunity") {
+                                  colorClass = "round-dot-opportunity"
+                                  actionLabel = localization?.["UI.Combat.RoundType.Opportunity"] || "Oportunidade"
+                                } else if (r.action_type === "counter") {
+                                  colorClass = "round-dot-counter"
+                                  actionLabel = localization?.["UI.Combat.RoundType.Counter"] || "Contra"
+                                }
+
+                                const isCompleted = r.completed
+                                const isCurrent = idx + 1 === currentRound
+                                const canMove = !isCompleted && !isCurrent && idx >= currentRound
+                                const canMoveLeft = canMove && idx > currentRound && !roundData[idx - 1]?.completed
+                                const canMoveRight = canMove && idx < roundData.length - 1
+
+                                return (
+                                  <div key={idx} className="round-dot-container">
+                                    {canMoveLeft && (
+                                      <button
+                                        type="button"
+                                        className="round-dot-move-btn move-left"
+                                        onClick={() => onMoveRoundLeft(idx)}
+                                      >
+                                        ◀
+                                      </button>
+                                    )}
+                                    <div
+                                      className={`round-dot ${colorClass} ${isCurrent ? "round-dot-active" : ""} ${isCompleted ? "round-dot-completed" : ""}`}
+                                      title={`${idx + 1}: ${actionLabel}`}
+                                    >
+                                      <span className="round-dot-number">{idx + 1}</span>
+                                    </div>
+                                    {canMoveRight && (
+                                      <button
+                                        type="button"
+                                        className="round-dot-move-btn move-right"
+                                        onClick={() => onMoveRoundRight(idx)}
+                                      >
+                                        ▶
+                                      </button>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Gerenciamento de Rodadas (+ Ataque / + Contra / - Remover) */}
+                        <div className="round-management mt-3">
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <label className="form-label text-white mb-0" style={{ fontSize: "13px" }}>
+                              {localization?.["UI.Combat.ManageRounds"] || "⚔️ Gerenciar Rodadas"}
+                            </label>
+                            <span
+                              className="badge bg-warning text-dark"
+                              style={{ fontSize: "14px", padding: "4px 10px" }}
+                            >
+                              {totalRounds} {localization?.["UI.Combat.RoundsCount"] || "rodadas"}
+                            </span>
+                          </div>
+
+                          <div className="d-flex gap-2 mb-2">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary flex-fill"
+                              onClick={() => onAddRound("attacker")}
+                            >
+                              {localization?.["UI.Combat.AddAttackRound"] || "⚔️ + Ataque"}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-info flex-fill"
+                              onClick={() => onAddRound("defender")}
+                            >
+                              {localization?.["UI.Combat.AddCounterRound"] || "🛡️ + Contra"}
+                            </button>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger w-100"
+                            onClick={onRemoveRound}
+                            disabled={totalRounds <= 1}
+                          >
+                            {localization?.["UI.Combat.RemoveLastRound"] || "− Remover Última Rodada"}
+                          </button>
+                        </div>
+
+                        {/* Trocar Defensor */}
+                        <div className="mt-3">
+                          <SwapDefenderControl
+                            swapTargets={swapTargets}
+                            onSwapDefender={onSwapDefender}
+                            localization={localization}
+                            btnClass="btn-outline-danger"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </details>
+            </div>
+          )}
         </div>
       )}
 
@@ -424,7 +625,11 @@ const CombatRollingView = ({
           rollDisabled={isOpportunityRound ? false : waitingForAttacker}
           rollLabel={localization?.["UI.Combat.Roll"] || "Rolar"}
           onRoll={onRollDice}
-          waitingText={isSpectator ? localization?.["UI.Combat.Spectator"] || "Espectador" : localization?.["UI.Combat.Waiting"] || "Aguardando..."}
+          waitingText={
+            isSpectator ?
+              localization?.["UI.Combat.Spectator"] || "Espectador"
+            : localization?.["UI.Combat.Waiting"] || "Aguardando..."
+          }
           localization={localization}
         />
 

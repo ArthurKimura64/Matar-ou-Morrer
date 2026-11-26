@@ -64,6 +64,45 @@
   margin: 0 2px;
 }
 
+.round-dot-move-btn {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: #fbbf24;
+  border: none;
+  font-size: 9px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  color: #111111;
+  font-weight: bold;
+  padding: 0;
+}
+
+.round-dot-move-btn:hover {
+  background: #fde047;
+}
+
+.round-dot-move-btn.move-left {
+  left: -10px;
+  top: 50%;
+  margin-top: -8px;
+}
+
+.round-dot-move-btn.move-right {
+  right: -10px;
+  top: 50%;
+  margin-top: -8px;
+}
+
+.round-dot-container:hover .round-dot-move-btn {
+  display: flex;
+}
+
 .round-dot-number {
   position: absolute;
   top: 50%;
